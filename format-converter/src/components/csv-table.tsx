@@ -1,28 +1,26 @@
+import React, { useState } from 'react';
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
-    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
 
 interface CSVTableProps {
-    data: string[];
+    data: Record<string, any>[];
 }
 
-
 export function CSVTable({ data }: CSVTableProps) {
-    // Get the column names from the first row of data
-    const columnNames = data.length > 0 ? Object.keys(data[0]) : [];
+    const initialColumnNames = data.length > 0 ? Object.keys(data[0]) : [];
+    const [columnOrder, setColumnOrder] = useState(initialColumnNames);
 
     return (
         <Table>
             <TableHeader>
                 <TableRow>
-                    {columnNames.map((columnName, index) => (
+                    {columnOrder.map((columnName, index) => (
                         <TableHead key={index}>{columnName}</TableHead>
                     ))}
                 </TableRow>
@@ -30,7 +28,7 @@ export function CSVTable({ data }: CSVTableProps) {
             <TableBody>
                 {data.slice(0, 10).map((row, rowIndex) => (
                     <TableRow key={rowIndex}>
-                        {columnNames.map((columnName, cellIndex) => (
+                        {columnOrder.map((columnName, cellIndex) => (
                             <TableCell key={cellIndex}>{row[columnName]}</TableCell>
                         ))}
                     </TableRow>

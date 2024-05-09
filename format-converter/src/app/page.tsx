@@ -2,18 +2,11 @@
 import {useEffect, useState} from "react";
 import {parse} from "papaparse";
 import {Dropzone} from "@/components/ui/dropzone";
-import {Button} from "@/components/ui/button";
-import {DownloadIcon} from "@radix-ui/react-icons";
+import {InfoCircledIcon} from "@radix-ui/react-icons";
 import {CSVTable} from "@/components/csv-table";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue
-} from "@/components/ui/select";
+import {Separator} from "@/components/ui/separator";
+import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
+import {Toolbar} from "@/components/toolbar";
 
 export default function Home() {
     const [file, setFile] = useState<File | null>(null);
@@ -34,7 +27,7 @@ export default function Home() {
 
     return (
         <main className="flex flex-col justify-between] space-y-3 mb-3">
-            <p className="max-w-[750px] text-center text-md font-light text-foreground">
+            <p className="text-center text-md font-light">
                 Rearrange the columns of a CSV file.
             </p>
             <Dropzone
@@ -42,26 +35,24 @@ export default function Home() {
                 className="w-full"
                 fileExtension="csv"
             />
-            <CSVTable data={data}/>
-            <div className="grid grid-cols-7">
-                <Button className="col-span-6">
-                    <DownloadIcon className="mr-2"/>
-                    Download
-                </Button>
-                <Select>
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select a fruit" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup>
-                            <SelectLabel>Delimiter</SelectLabel>
-                            <SelectItem value=",">Apple</SelectItem>
-                            <SelectItem value="|">Banana</SelectItem>
-                            <SelectItem value="/t">Blueberry</SelectItem>
-                            <SelectItem value=";">Grapes</SelectItem>
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
+            <div className="rounded-md border">
+                <Toolbar/>
+                <Separator/>
+                <div className="mx-5">
+                    {(data.length > 0) ? (
+                        <CSVTable data={data}/>
+                    ) : (
+                        <div className="flex justify-center">
+                            <Alert className="w-1/2 m-3">
+                                <InfoCircledIcon/>
+                                <AlertTitle>No File Uploaded</AlertTitle>
+                                <AlertDescription>
+                                    Upload a file above to get started.
+                                </AlertDescription>
+                            </Alert>
+                        </div>
+                    )}
+                </div>
             </div>
         </main>
     );

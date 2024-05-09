@@ -3,9 +3,9 @@ import {Container} from "@/components/ui/container";
 
 const Header: React.FC = () => {
     return (
-        <header className="sticky top-0 py-3 border-b backdrop-blur-xl mb-3 z-10">
+        <header className="py-3 mb-3 z-10">
             <Container>
-                <h1>CSV Formatter</h1>
+                <h1>CSV FORMATTER</h1>
             </Container>
         </header>
     );
