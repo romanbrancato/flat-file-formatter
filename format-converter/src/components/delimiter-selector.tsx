@@ -16,16 +16,8 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import {useState} from "react";
+import {delimiters} from "@/data/delimiters";
 
-const delimiters = [
-    ",",
-    ";",
-    ":",
-    "|",
-    "Tab",
-    "Space",
-    "="
-]
 export function DelimiterSelector() {
     const [open, setOpen] = useState(false)
     const [selectedDelimiter, setSelectedDelimiter] = useState<string>("")
