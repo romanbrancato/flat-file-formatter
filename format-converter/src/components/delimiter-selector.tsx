@@ -30,13 +30,13 @@ export function DelimiterSelector() {
                     role="combobox"
                     aria-label="Select delimiter..."
                     aria-expanded={open}
-                    className="flex-1 justify-between md:max-w-[200px] lg:max-w-[300px]"
+                    className="flex-1 justify-between w-full"
                 >
                     {selectedDelimiter ? selectedDelimiter : "Select delimiter..."}
                     <CaretSortIcon className="ml-2 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[300px] p-0">
+            <PopoverContent className="w-[200px] p-0">
                 <Command>
                     <CommandInput placeholder="Search delimiters..." />
                     <CommandGroup heading="Delimiters">

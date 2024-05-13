@@ -5,10 +5,12 @@ const Header: React.FC = () => {
     return (
         <header className="py-3 mb-3 z-10">
             <Container>
-                <h1>CSV FORMATTER</h1>
+                <div className="text-md font-medium peer-disabled:cursor-not-allowed mb-1">
+                    .csv Formatter
+                </div>
             </Container>
         </header>
     );
 }
 
-export { Header };
+export {Header};

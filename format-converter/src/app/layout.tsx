@@ -5,7 +5,7 @@ import {Header} from "@/components/header";
 
 
 export const metadata: Metadata = {
-    title: "CVS Formatter",
+    title: ".csv Formatter",
 };
 
 export default function RootLayout({
