@@ -3,13 +3,8 @@ import {PresetSelector} from "@/components/preset-selector";
 import {presets} from "@/data/presets";
 import {Button} from "@/components/ui/button";
 import {Share2Icon} from "@radix-ui/react-icons";
-import {Table} from "@tanstack/table-core";
 
-interface PresetToolbarProps<TData> {
-    table: Table<TData>
-}
-
-export function PresetToolbar<TData>({table}: PresetToolbarProps<TData>) {
+export function PresetToolbar() {
 
     function handlePresetChange(preset: any) {
         console.log(preset)

@@ -1,12 +1,13 @@
 "use client"
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {parse} from "papaparse";
 import {Dropzone} from "@/components/ui/dropzone";
 import {CSVEditor} from "@/components/csv-editor";
+import {DataContext} from "@/context/data-context";
 
 export default function App() {
+    const {data, setData} = useContext(DataContext);
     const [file, setFile] = useState<File | null>(null);
-    const [data, setData] = useState<Record<string, unknown>[]>([]);
 
     // Parse the CSV file when a new file is set
     useEffect(() => {
@@ -25,15 +26,15 @@ export default function App() {
 
     return (
         <main className="flex flex-col justify-between] gap-y-3 mb-3">
-            <p className="text-center text-md font-light">
-                Rearrange the columns of a CSV file.
+            <p className="text-center text-md font-bold">
+                Format a CSV File.
             </p>
             <Dropzone
                 onChange={setFile}
                 className="w-full"
                 fileExtension="csv"
             />
-            <CSVEditor data={data}/>
+            <CSVEditor />
         </main>
     )
 
