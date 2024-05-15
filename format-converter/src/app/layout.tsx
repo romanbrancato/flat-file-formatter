@@ -3,6 +3,8 @@ import "../styles/globals.css";
 import {Container} from "@/components/ui/container";
 import {Header} from "@/components/header";
 import {DataContextProvider} from "@/context/data-context";
+import {ThemeProvider} from "@/context/theme-context";
+import {ReactNode} from "react";
 
 
 export const metadata: Metadata = {
@@ -12,17 +14,24 @@ export const metadata: Metadata = {
 export default function RootLayout({
                                        children,
                                    }: Readonly<{
-    children: React.ReactNode;
+    children: ReactNode;
 }>) {
     return (
         <html lang="en">
         <body>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
             <Header/>
             <Container>
                 <DataContextProvider>
                 {children}
                 </DataContextProvider>
             </Container>
+        </ThemeProvider>
         </body>
         </html>
     );

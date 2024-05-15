@@ -1,4 +1,3 @@
-import * as React from "react"
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
 
 import { cn } from "@/lib/utils"
@@ -33,7 +32,7 @@ export function DelimiterSelector() {
                     className="flex-1 justify-between w-full"
                 >
                     {selectedDelimiter ? selectedDelimiter : "Select delimiter..."}
-                    <CaretSortIcon className="ml-2 shrink-0 opacity-50" />
+                    <CaretSortIcon className="ml-2 opacity-50" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">

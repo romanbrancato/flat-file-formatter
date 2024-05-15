@@ -25,6 +25,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^0.2.1",
     "next": "14.2.3",
+    "next-themes": "^0.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-papaparse": "^4.4.0",

@@ -1,8 +1,8 @@
 "use client"
 import {useContext, useEffect, useState} from "react";
 import {parse} from "papaparse";
-import {Dropzone} from "@/components/ui/dropzone";
-import {CSVEditor} from "@/components/csv-editor";
+import {Dropzone} from "@/components/dropzone";
+import {Editor} from "@/components/editor";
 import {DataContext} from "@/context/data-context";
 
 export default function App() {
@@ -26,15 +26,15 @@ export default function App() {
 
     return (
         <main className="flex flex-col justify-between] gap-y-3 mb-3">
-            <p className="text-center text-md font-bold">
+            <span className="text-center text-md font-bold">
                 Format a CSV File.
-            </p>
+            </span>
             <Dropzone
                 onChange={setFile}
                 className="w-full"
                 fileExtension="csv"
             />
-            <CSVEditor />
+            <Editor />
         </main>
     )
 
