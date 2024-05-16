@@ -6,7 +6,7 @@ import {useTheme} from "next-themes";
 
 export function Header() {
 
-    const { theme, setTheme } = useTheme();
+    const {theme, setTheme} = useTheme();
 
     const toggleTheme = () => {
         if (theme === 'dark') {
@@ -20,14 +20,14 @@ export function Header() {
         <header className="py-3 mb-3 z-10">
             <Container>
                 <div className="flex flex-row items-center justify-between">
-                <span className="text-md font-medium peer-disabled:cursor-not-allowed mb-1">
+                <span className="text-md font-medium peer-disabled:cursor-not-allowed">
                     .csv Formatter
                 </span>
                     <Button variant="ghost" size="icon" onClick={toggleTheme}>
                         {theme === 'dark' ? (
-                            <MoonIcon />
+                            <MoonIcon/>
                         ) : (
-                            <SunIcon />
+                            <SunIcon/>
                         )}
                     </Button>
                 </div>

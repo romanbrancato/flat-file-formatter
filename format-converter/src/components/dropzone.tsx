@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import React, {useRef, useState} from 'react';
+import {Card, CardContent} from '@/components/ui/card';
 import {UploadIcon} from "@radix-ui/react-icons";
 
 interface DropzoneProps {
@@ -26,12 +26,12 @@ export function Dropzone({
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         e.stopPropagation();
-        const { files } = e.dataTransfer;
+        const {files} = e.dataTransfer;
         handleFile(files[0]);
     };
 
     const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { files } = e.target;
+        const {files} = e.target;
         if (files) {
             handleFile(files[0]);
         }

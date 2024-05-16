@@ -1,5 +1,5 @@
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {DelimiterSelector} from "@/components/delimiter-selector";
+import {SymbolSelector} from "@/components/symbol-selector";
 import {
     Dialog,
     DialogContent,
@@ -11,8 +11,16 @@ import {
 import {Button} from "@/components/ui/button";
 import {Pencil2Icon, Share2Icon} from "@radix-ui/react-icons";
 import * as React from "react";
+import {useContext} from "react";
+import {DataContext} from "@/context/data-context";
 
 export function ExportOptions() {
+    const {data} = useContext(DataContext)
+
+    function onExport() {
+
+    }
+
     return (
         <div className="flex flex-col">
             <Tabs defaultValue="csv" className="md:mb-5">
@@ -30,7 +38,7 @@ export function ExportOptions() {
                 <TabsContent value="csv">
                     <div className="text-sm font-medium space-y-1">
                         <span>Delimiter</span>
-                        <DelimiterSelector/>
+                        <SymbolSelector/>
                     </div>
                 </TabsContent>
                 <TabsContent value="txt" className="space-y-2">
@@ -55,7 +63,7 @@ export function ExportOptions() {
                     </div>
                     <div className="text-sm font-medium space-y-1">
                         <span>Padding Symbol</span>
-                        <DelimiterSelector/>
+                        <SymbolSelector/>
                     </div>
                 </TabsContent>
             </Tabs>

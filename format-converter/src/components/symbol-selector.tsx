@@ -1,25 +1,15 @@
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
+import {CaretSortIcon, CheckIcon} from "@radix-ui/react-icons"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-} from "@/components/ui/command"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
+import {cn} from "@/lib/utils"
+import {Button} from "@/components/ui/button"
+import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem,} from "@/components/ui/command"
+import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover"
 import {useState} from "react";
-import {delimiters} from "@/data/delimiters";
+import {symbols} from "@/data/symbols";
 
-export function DelimiterSelector() {
+export function SymbolSelector() {
     const [open, setOpen] = useState(false)
-    const [selectedDelimiter, setSelectedDelimiter] = useState<string>("")
+    const [selectedSymbol, setSelectedSymbol] = useState<string>("")
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -27,23 +17,23 @@ export function DelimiterSelector() {
                 <Button
                     variant="outline"
                     role="combobox"
-                    aria-label="Select delimiter..."
+                    aria-label="Select a symbol..."
                     aria-expanded={open}
                     className="flex-1 justify-between w-full"
                 >
-                    {selectedDelimiter ? selectedDelimiter : "Select delimiter..."}
-                    <CaretSortIcon className="ml-2 opacity-50" />
+                    {selectedSymbol ? selectedSymbol : "Select a symbol..."}
+                    <CaretSortIcon className="ml-2 opacity-50"/>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
+            <PopoverContent align="start" className="w-[200px] p-0">
                 <Command>
-                    <CommandInput placeholder="Search delimiters..." />
-                    <CommandGroup heading="Delimiters">
-                        {delimiters.map((delimiter) => (
+                    <CommandInput placeholder="Search symbols..."/>
+                    <CommandGroup heading="Symbols">
+                        {symbols.map((delimiter) => (
                             <CommandItem
                                 key={delimiter}
                                 onSelect={() => {
-                                    setSelectedDelimiter(delimiter)
+                                    setSelectedSymbol(delimiter)
                                     setOpen(false)
                                 }}
                             >
@@ -51,7 +41,7 @@ export function DelimiterSelector() {
                                 <CheckIcon
                                     className={cn(
                                         "ml-auto",
-                                        selectedDelimiter === delimiter
+                                        selectedSymbol === delimiter
                                             ? "opacity-100"
                                             : "opacity-0"
                                     )}
@@ -59,7 +49,7 @@ export function DelimiterSelector() {
                             </CommandItem>
                         ))}
                     </CommandGroup>
-                    <CommandEmpty>No delimiters found.</CommandEmpty>
+                    <CommandEmpty>No symbols found.</CommandEmpty>
                 </Command>
             </PopoverContent>
         </Popover>

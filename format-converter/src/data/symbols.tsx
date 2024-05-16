@@ -1,4 +1,4 @@
-export const delimiters = [
+export const symbols = [
     ",",
     ";",
     ":",
