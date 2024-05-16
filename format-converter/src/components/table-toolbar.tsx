@@ -94,8 +94,8 @@ export function TableToolbar() {
                     <div className="flex flex-row gap-x-2">
                         <ColumnSelector/>
                         <Input placeholder="Change to..." className="flex-1"/>
-                        <Button size="icon" className="flex-shrink">
-                            <Pencil1Icon/>
+                        <Button className="flex-shrink">
+                            Edit
                         </Button>
                     </div>
                 </DialogContent>

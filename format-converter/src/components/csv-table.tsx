@@ -123,14 +123,14 @@ export function CSVTable() {
 
     return (
         <div className="rounded-md border flex-grow">
-            <ScrollArea>
-                {data.length > 0 ? (
-                    <DndContext
-                        collisionDetection={closestCenter}
-                        modifiers={[restrictToHorizontalAxis]}
-                        onDragEnd={handleDragEnd}
-                        sensors={sensors}
-                    >
+            {data.length > 0 ? (
+                <DndContext
+                    collisionDetection={closestCenter}
+                    modifiers={[restrictToHorizontalAxis]}
+                    onDragEnd={handleDragEnd}
+                    sensors={sensors}
+                >
+                    <ScrollArea>
                         <Table>
                             <TableHeader>
                                 {table.getHeaderGroups().map((headerGroup) => (
@@ -157,20 +157,20 @@ export function CSVTable() {
                                 ))}
                             </TableBody>
                         </Table>
-                    </DndContext>
-                ) : (
-                    <div className="flex items-center justify-center h-full">
-                        <Alert className="md:w-1/2 m-3">
-                            <InfoCircledIcon/>
-                            <AlertTitle>No File Uploaded</AlertTitle>
-                            <AlertDescription>
-                                Upload a file above to get started.
-                            </AlertDescription>
-                        </Alert>
-                    </div>
-                )}
-                <ScrollBar orientation="horizontal"/>
-            </ScrollArea>
+                        <ScrollBar orientation="horizontal"/>
+                    </ScrollArea>
+                </DndContext>
+            ) : (
+                <div className="flex items-center justify-center h-full">
+                    <Alert className="md:w-1/2 m-3">
+                        <InfoCircledIcon/>
+                        <AlertTitle>No File Uploaded</AlertTitle>
+                        <AlertDescription>
+                            Upload a file above to get started.
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            )}
         </div>
 
     );
