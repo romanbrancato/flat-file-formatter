@@ -9,12 +9,15 @@ import {useContext, useState} from "react";
 import {DataContext} from "@/context/data-context";
 import {ScrollArea, ScrollAreaViewport} from "@/components/ui/scroll-area";
 
-export function ColumnSelector() {
+interface FieldSelectorProps {
+    onFieldSelect: (field: string) => void
+}
+export function FieldSelector({onFieldSelect}: FieldSelectorProps) {
     const {data} = useContext(DataContext)
     const [open, setOpen] = useState(false)
-    const [selectedColumn, setSelectedColumn] = useState<string>()
+    const [selectedField, setSelectedField] = useState<string>()
 
-    const columns = data.length > 0 ? Object.keys(data[0]) : [];
+    const fields = data.length > 0 ? Object.keys(data[0]) : [];
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -22,33 +25,34 @@ export function ColumnSelector() {
                 <Button
                     variant="outline"
                     role="combobox"
-                    aria-label="Select a column..."
+                    aria-label="Select a field..."
                     aria-expanded={open}
-                    className="flex-1 justify-between min-w-[100px] sm:min-w-[300px]"
+                    className="w-full justify-between min-w-[100px] sm:min-w-[300px]"
                 >
-                    {selectedColumn ? selectedColumn : "Select a column..."}
+                    {selectedField ? selectedField : "Select a field..."}
                     <CaretSortIcon className="ml-2 opacity-50"/>
                 </Button>
             </PopoverTrigger>
             <PopoverContent align="start" side="bottom" className="p-0">
                 <Command>
-                    <CommandInput placeholder="Search columns..." className="sticky top-0"/>
+                    <CommandInput placeholder="Search fields..." className="sticky top-0"/>
                     <ScrollArea>
                         <ScrollAreaViewport className="max-h-[300px]">
-                            <CommandGroup heading="Columns">
-                                {columns.map((column) => (
+                            <CommandGroup heading="Fields">
+                                {fields.map((field) => (
                                     <CommandItem
-                                        key={column}
+                                        key={field}
                                         onSelect={() => {
-                                            setSelectedColumn(column)
+                                            setSelectedField(field)
                                             setOpen(false)
+                                            onFieldSelect(field)
                                         }}
                                     >
-                                        {column}
+                                        {field}
                                         <CheckIcon
                                             className={cn(
                                                 "ml-auto",
-                                                selectedColumn === column
+                                                selectedField === field
                                                     ? "opacity-100"
                                                     : "opacity-0"
                                             )}
@@ -56,7 +60,7 @@ export function ColumnSelector() {
                                     </CommandItem>
                                 ))}
                             </CommandGroup>
-                            <CommandEmpty>No columns found.</CommandEmpty>
+                            <CommandEmpty>No fields found.</CommandEmpty>
                         </ScrollAreaViewport>
                     </ScrollArea>
                 </Command>

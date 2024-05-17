@@ -11,15 +11,8 @@ import {
 import {Button} from "@/components/ui/button";
 import {Pencil2Icon, Share2Icon} from "@radix-ui/react-icons";
 import * as React from "react";
-import {useContext} from "react";
-import {DataContext} from "@/context/data-context";
 
 export function ExportOptions() {
-    const {data} = useContext(DataContext)
-
-    function onExport() {
-
-    }
 
     return (
         <div className="flex flex-col">
@@ -55,7 +48,7 @@ export function ExportOptions() {
                                 <DialogHeader>
                                     <DialogTitle>Define Widths</DialogTitle>
                                     <DialogDescription>
-                                        Define the widths of each column in characters.
+                                        Define the widths of each field in characters.
                                     </DialogDescription>
                                 </DialogHeader>
                             </DialogContent>
