@@ -37,6 +37,7 @@ export function EditFieldButton() {
     function onSubmit(values: z.infer<typeof editFieldSchema>) {
         editField(values.field, values.value);
         setOpen(false);
+        form.reset()
     }
 
     return (

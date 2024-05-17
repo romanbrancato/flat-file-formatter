@@ -31,6 +31,7 @@ export function RemoveFieldButton() {
     function onSubmit(values: z.infer<typeof removeFieldSchema>) {
         removeField(values.field);
         setOpen(false);
+        form.reset()
     }
 
     return (

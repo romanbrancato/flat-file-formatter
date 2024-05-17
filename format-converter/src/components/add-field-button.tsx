@@ -36,6 +36,7 @@ export function AddFieldButton() {
     function onSubmit(values: z.infer<typeof addFieldSchema>) {
         addField(values.name, values.value);
         setOpen(false);
+        form.reset()
     }
 
     return (
