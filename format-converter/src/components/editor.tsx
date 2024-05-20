@@ -17,7 +17,7 @@ export function Editor() {
                 </div>
                 <div className="flex flex-col">
                     <ExportOptions/>
-                    <Button className="md:mt-auto mt-5">
+                    <Button className="md:mt-auto">
                         <Share2Icon className="mr-2"/>
                         Export File
                     </Button>
