@@ -51,7 +51,7 @@ export function AddFieldButton() {
                 <DialogHeader>
                     <DialogTitle>Add Field</DialogTitle>
                     <DialogDescription>
-                        Define field and what to populate it with.
+                        Define a field and what to populate it with.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>

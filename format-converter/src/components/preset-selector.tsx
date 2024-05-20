@@ -65,8 +65,8 @@ export function PresetSelector() {
                             <CommandItem
                                 key={index}
                                 onSelect={() => {
-                                    setSelectedPreset(preset)
                                     onPresetSelect(preset)
+                                    setSelectedPreset(preset)
                                     setOpen(false)
                                 }}
                             >
