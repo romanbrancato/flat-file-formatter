@@ -38,11 +38,14 @@ export function Dropzone({
     };
 
     const handleFile = (file: File) => {
-        if (fileExtension && file && !file.name.endsWith(`.${fileExtension}`)) {
+        if(!file){
+            return
+        }
+
+        if (fileExtension && !file.name.endsWith(`.${fileExtension}`)) {
             setError(`Invalid file type. Expected: .${fileExtension}`);
             return;
         }
-
         const fileSizeInKB = Math.round(file.size / 1024);
         onChange(file);
         setFileInfo(`Uploaded file: ${file.name} (${fileSizeInKB} KB)`);
