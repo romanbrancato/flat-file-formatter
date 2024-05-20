@@ -78,7 +78,7 @@ export function AddFieldButton() {
                                 <FormItem className="flex-1">
                                     <FormControl>
                                         <Input
-                                            placeholder="Populate with... (optional)"
+                                            placeholder="Populate with..."
                                             {...field}
                                         />
                                     </FormControl>

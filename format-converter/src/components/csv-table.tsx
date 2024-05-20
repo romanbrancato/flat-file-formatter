@@ -41,7 +41,7 @@ const DraggableTableHeader = ({header}: any) => {
                 ? null
                 : <div className="flex flex-row items-center">
                     <span>{flexRender(header.column.columnDef.header, header.getContext())} </span>
-                    <DragHandleDots2Icon className="ml-2"/>
+                    <DragHandleDots2Icon className="ml-auto"/>
                 </div>}
         </TableHead>
     )
@@ -69,7 +69,7 @@ const DraggableCell = ({cell}: any) => {
 
 
 export function CSVTable() {
-    const {data, setData} = useContext(DataContext);
+    const {data, arrangeFields, setData} = useContext(DataContext);
     const [columns, setColumns] = useState<ColumnDef<Record<string, unknown>>[]>(() => {
         const keys = Object.keys(data[0] || {});
         return keys.map(key => ({
@@ -107,11 +107,11 @@ export function CSVTable() {
     function handleDragEnd(event: DragEndEvent) {
         const {active, over} = event;
         if (active && over && active.id !== over.id) {
-            setColumnOrder(columnOrder => {
-                const oldIndex = columnOrder.indexOf(active.id as string);
-                const newIndex = columnOrder.indexOf(over.id as string);
-                return arrayMove(columnOrder, oldIndex, newIndex);
-            });
+            const oldIndex = columnOrder.indexOf(active.id as string);
+            const newIndex = columnOrder.indexOf(over.id as string);
+            const newColumnOrder = arrayMove(columnOrder, oldIndex, newIndex);
+            setColumnOrder(newColumnOrder);
+            arrangeFields(newColumnOrder);
         }
     }
 

@@ -1,23 +1,14 @@
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {SymbolSelector} from "@/components/symbol-selector";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger
-} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
-import {Pencil2Icon, Share2Icon} from "@radix-ui/react-icons";
-import * as React from "react";
+import {Share2Icon} from "@radix-ui/react-icons";
+import {DefineWidthsButton} from "@/components/define-widths-button";
 
 export function ExportOptions() {
 
     return (
-        <div className="flex flex-col">
             <Tabs defaultValue="csv" className="md:mb-5">
-                <div className="text-sm font-medium space-y-1 mb-3">
+                <div className="text-sm font-medium space-y-1">
                     <span> Export As </span>
                     <TabsList className="grid grid-cols-2">
                         <TabsTrigger value="csv">
@@ -28,42 +19,30 @@ export function ExportOptions() {
                         </TabsTrigger>
                     </TabsList>
                 </div>
-                <TabsContent value="csv">
+                <TabsContent value="csv" className="flex flex-col space-y-2">
                     <div className="text-sm font-medium space-y-1">
                         <span>Delimiter</span>
                         <SymbolSelector/>
                     </div>
+                    <Button>
+                        <Share2Icon className="mr-2"/>
+                        Export File
+                    </Button>
                 </TabsContent>
-                <TabsContent value="txt" className="space-y-2">
+                <TabsContent value="txt" className="flex flex-col space-y-2">
                     <div className="text-sm font-medium space-y-1">
                         <span>Configure</span>
-                        <Dialog>
-                            <DialogTrigger className="w-full">
-                                <Button variant="outline" size="sm" className="w-full border-dashed mb-2">
-                                    <Pencil2Icon className="mr-2"/>
-                                    Define Widths
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[600px] max-h-[800px]">
-                                <DialogHeader>
-                                    <DialogTitle>Define Widths</DialogTitle>
-                                    <DialogDescription>
-                                        Define the widths of each field in characters.
-                                    </DialogDescription>
-                                </DialogHeader>
-                            </DialogContent>
-                        </Dialog>
+                        <DefineWidthsButton/>
                     </div>
                     <div className="text-sm font-medium space-y-1">
                         <span>Padding Symbol</span>
                         <SymbolSelector/>
                     </div>
+                    <Button className="mt-auto">
+                        <Share2Icon className="mr-2"/>
+                        Export File
+                    </Button>
                 </TabsContent>
             </Tabs>
-            <Button className="mt-5 md:mt-auto">
-                <Share2Icon className="mr-2"/>
-                Export File
-            </Button>
-        </div>
     )
 }

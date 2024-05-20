@@ -6,13 +6,13 @@ import {Editor} from "@/components/editor";
 import {DataContext} from "@/context/data-context";
 
 export default function App() {
-    const {setData, setInitial} = useContext(DataContext);
+    const {setData, setInitialFields} = useContext(DataContext);
     const [file, setFile] = useState<File | null>(null);
 
     // Parse the CSV file when a new file is set
     useEffect(() => {
         if (file) {
-            setInitial([])
+            setInitialFields([])
             setData([])
             parse(file, {
                 header: true,
@@ -20,7 +20,7 @@ export default function App() {
                 complete: function (results) {
                     console.log("Parsing complete:", results);
                     setData(results.data as Record<string, unknown>[]);
-                    setInitial(results.data as Record<string, unknown>[]);
+                    setInitialFields(results.meta.fields || []);
                 }
             });
         }
