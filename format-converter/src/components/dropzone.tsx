@@ -38,7 +38,7 @@ export function Dropzone({
     };
 
     const handleFile = (file: File) => {
-        if (fileExtension && !file.name.endsWith(`.${fileExtension}`)) {
+        if (fileExtension && file && !file.name.endsWith(`.${fileExtension}`)) {
             setError(`Invalid file type. Expected: .${fileExtension}`);
             return;
         }

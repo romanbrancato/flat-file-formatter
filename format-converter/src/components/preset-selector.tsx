@@ -28,7 +28,7 @@ export function PresetSelector() {
         }
     ]
 
-    async function onPresetSelect(preset: Preset) {
+    const onPresetSelect = (preset: Preset) => {
         if (preset.removed) {
             preset.removed.forEach(field => removeField(field))
         }
@@ -51,7 +51,7 @@ export function PresetSelector() {
                     role="combobox"
                     aria-label="Load a preset..."
                     aria-expanded={open}
-                    className="flex-1 justify-between min-w-[100px] sm:min-w-[300px]"
+                    className="flex-1 justify-between min-w-[200px] sm:min-w-[300px]"
                 >
                     {selectedPreset ? selectedPreset.name : "Load a preset..."}
                     <CaretSortIcon className="ml-2 opacity-50"/>
