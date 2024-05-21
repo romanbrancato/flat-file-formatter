@@ -6,22 +6,19 @@ import {Editor} from "@/components/editor";
 import {DataContext} from "@/context/data-context";
 
 export default function App() {
-    const {setData, setInitialFields} = useContext(DataContext);
+    const {setData} = useContext(DataContext);
     const [file, setFile] = useState<File | null>(null);
 
     // Parse the CSV file when a new file is set
     useEffect(() => {
         if (file) {
-            setInitialFields([])
             setData([])
             parse(file, {
                 header: true,
                 skipEmptyLines: true,
                 complete: function (results) {
                     console.log("Parsing complete:", results);
-                    setData(results.data as Record<string, unknown>[]);
-                    setInitialFields(results.meta.fields || []);
-                }
+                    setData(results.data as Record<string, unknown>[]);}
             });
         }
     }, [file]);

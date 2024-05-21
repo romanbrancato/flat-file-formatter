@@ -1,92 +1,83 @@
 "use client"
-import {createContext, useState} from 'react';
+import {createContext, ReactNode, useReducer} from 'react';
 
 interface DataContextProps {
     data: Record<string, unknown>[];
-    initialFields: string[]; // Keeps track of initial shape of data
     setData: (data: Record<string, unknown>[]) => void;
-    setInitialFields: (data: string[]) => void;
     addField: (name: string, value: string) => void;
     removeField: (field: string) => void;
     editField: (field: string, value: string) => void;
-    arrangeFields: (newFieldOrder: string[]) => void;
+    arrangeFields: (order: string[]) => void;
+    children?: ReactNode;
 }
+
+const dataReducer = (state: Record<string, unknown>[], action: any) => {
+    switch (action.type) {
+        case 'SET_DATA':
+            return action.data;
+        case 'ADD_FIELD':
+            return state.map((row) => ({ ...row, [action.name]: action.value }));
+        case 'REMOVE_FIELD':
+            return state.map((row) => {
+                delete row[action.field];
+                return row;
+            });
+        case 'EDIT_FIELD':
+            return state.map((row) => {
+                row[action.field] = action.value;
+                return row;
+            });
+        case 'ARRANGE_FIELDS':
+            return state.map((record) => {
+                const reorderedRecord: Record<string, unknown> = {};
+                action.order.forEach((field: string) => {
+                    if (field in record) {
+                        reorderedRecord[field] = record[field];
+                    }
+                });
+                return reorderedRecord;
+            });
+        default:
+            return state;
+    }
+};
 
 export const DataContext = createContext<DataContextProps>({
     data: [],
-    initialFields: [],
-    setData: () => {
-    },
-    setInitialFields: () => {
-    },
-    addField: () => {
-    },
-    removeField: () => {
-    },
-    editField: () => {
-    },
-    arrangeFields: () => {
-    }
+    setData: () => {},
+    addField: () => {},
+    removeField: () => {},
+    editField: () => {},
+    arrangeFields: () => {},
 });
 
-export const DataContextProvider = (props: any) => {
-    const [data, setData] = useState<Record<string, unknown>[]>([]);
-    const [initialFields, setInitialFields] = useState<string[]>([]);
+export const DataContextProvider = (props: DataContextProps) => {
+    const [data, dispatch] = useReducer(dataReducer, []);
+    const setData = (data: Record<string, unknown>[]) => {
+        dispatch({ type: 'SET_DATA', data: data });
+    };
 
     const addField = (name: string, value: string) => {
-        const newData = data.map((row) => {
-            return {
-                ...row,
-                [name]: value
-            };
-        });
-        setData(newData);
-    }
+        dispatch({ type: 'ADD_FIELD', name, value });
+    };
 
     const removeField = (field: string) => {
-        const newData = data.map((row) => {
-            delete row[field];
-            return row;
-        });
-        setData(newData);
-
-    }
+        dispatch({ type: 'REMOVE_FIELD', field });
+    };
 
     const editField = (field: string, value: string) => {
-        const newData = data.map((row) => {
-            row[field] = value;
-            return row;
-        });
-        setData(newData);
+        dispatch({ type: 'EDIT_FIELD', field, value });
+    };
 
-    }
-
-    const arrangeFields = (newFieldOrder: string[]) => {
-        // Map over each record in data
-        const newData = data.map((record) => {
-            // Create a new object to store the reordered keys
-            const reorderedRecord: Record<string, unknown> = {};
-            // Iterate over the new field order
-            newFieldOrder.forEach((fieldName) => {
-                // Check if the field exists in the original record
-                if (fieldName in record) {
-                    // Add the field to the reordered record
-                    reorderedRecord[fieldName] = record[fieldName];
-                }
-            });
-            return reorderedRecord;
-        });
-        // Update the data state with the reordered records
-        setData(newData);
+    const arrangeFields = (order: string[]) => {
+        dispatch({ type: 'ARRANGE_FIELDS', order });
     };
 
     return (
         <DataContext.Provider
             value={{
                 data,
-                initialFields: initialFields,
                 setData,
-                setInitialFields: setInitialFields,
                 addField,
                 removeField,
                 editField,

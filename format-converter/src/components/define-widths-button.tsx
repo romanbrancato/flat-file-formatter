@@ -1,3 +1,5 @@
+import {useContext, useState} from "react";
+import {DataContext} from "@/context/data-context";
 import {
     Dialog,
     DialogContent,
@@ -6,33 +8,30 @@ import {
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog";
-import {Button} from "@/components/ui/button";
-import {useState} from "react";
 import {Pencil2Icon} from "@radix-ui/react-icons";
-import {FieldSelector} from "@/components/field-selector";
-import {z} from "zod";
+import {Button} from "@/components/ui/button";
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {Form, FormControl, FormField, FormItem, FormMessage} from "@/components/ui/form";
+import {Input} from "@/components/ui/input";
+import {ScrollArea, ScrollAreaViewport} from "@/components/ui/scroll-area";
 
-const widthsSchema = z.object({
-    field: z.string({required_error: "Select a field to remove."})
-});
+export function DefineWidthsButton() {
+    const [open, setOpen] = useState(false)
+    const {data} = useContext(DataContext)
 
-export function DefineWidthsButton() {const [open, setOpen] = useState(false)
-
-    const form = useForm<z.infer<typeof widthsSchema>>({
-        resolver: zodResolver(widthsSchema),
+    const form = useForm({
+        defaultValues: data[0] ? Object.keys(data[0]).reduce((acc, curr) => ({...acc, [curr]: 0}), {}) : {},
     })
 
-    function onSubmit(values: z.infer<typeof widthsSchema>) {
+    function onSubmit(values: Record<string, number>) {
+        // Update the widths field in the data here
         setOpen(false);
         form.reset()
     }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild className="flex-1">
+            <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="w-full border-dashed mb-2">
                     <Pencil2Icon className="mr-2"/>
                     Define Widths
@@ -41,29 +40,43 @@ export function DefineWidthsButton() {const [open, setOpen] = useState(false)
             <DialogContent className="sm:max-w-[600px] max-h-[800px]">
                 <DialogHeader>
                     <DialogTitle>Define Widths</DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="flex flex-row justify-between">
                         Define the widths of each field in characters.
+                        <Button type="submit">
+                            Save
+                        </Button>
                     </DialogDescription>
                 </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-row gap-x-2">
-                        <FormField
-                            control={form.control}
-                            name="field"
-                            render={({field}) => (
-                                <FormItem className="flex-1">
-                                    <FormControl>
-                                        <FieldSelector onFieldSelect={selectedField => form.setValue("field", selectedField)}/>
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit" className="flex-shrink">
-                            Remove
-                        </Button>
-                    </form>
-                </Form>
+                <ScrollArea>
+                    <ScrollAreaViewport className="max-h-[400px]">
+                        <Form {...form}>
+                            <form
+                                className="space-y-2"
+                                onSubmit={form.handleSubmit(onSubmit)}>
+                                {data[0] ? Object.keys(data[0]).map((column) => (
+                                    <FormField
+                                        control={form.control}
+                                        name={column as any}
+                                        key={column}
+                                        render={({field}) => (
+                                            <FormItem>
+                                                <FormLabel>{column}</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        {...field}
+                                                        type="number"
+                                                        min="1"
+                                                    />
+                                                </FormControl>
+                                                <FormMessage/>
+                                            </FormItem>
+                                        )}
+                                    />
+                                )) : <p>Awaiting File...</p>}
+                            </form>
+                        </Form>
+                    </ScrollAreaViewport>
+                </ScrollArea>
             </DialogContent>
         </Dialog>
     );

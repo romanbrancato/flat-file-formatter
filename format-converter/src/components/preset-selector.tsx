@@ -10,14 +10,13 @@ import {Preset} from "@/types/preset";
 import {DataContext} from "@/context/data-context";
 
 export function PresetSelector() {
-    const {initialFields, removeField, addField, editField, arrangeFields} = useContext(DataContext)
+    const {removeField, addField, editField, arrangeFields} = useContext(DataContext)
     const [open, setOpen] = useState(false)
     const [selectedPreset, setSelectedPreset] = useState<Preset>()
 
     const presets: Preset[] = [
         {
             name: "Default CSV",
-            initial: initialFields,
             removed: ['BINNumber'],
             added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
             edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
@@ -28,18 +27,24 @@ export function PresetSelector() {
         }
     ]
 
-    const onPresetSelect = (preset: Preset) => {
+    const onPresetSelect = async (preset: Preset) => {
         if (preset.removed) {
-            preset.removed.forEach(field => removeField(field))
+            for (const field of preset.removed) {
+                removeField(field);
+            }
         }
         if (preset.added) {
-            preset.added.forEach(({field, value}) => addField(field, value))
+            for (const {field, value} of preset.added) {
+                addField(field, value);
+            }
         }
         if (preset.edited) {
-            preset.edited.forEach(({field, value}) => editField(field, value))
+            for (const {field, value} of preset.edited) {
+                editField(field, value);
+            }
         }
         if (preset.order) {
-            arrangeFields(preset.order)
+            arrangeFields(preset.order);
         }
     }
 
@@ -51,7 +56,7 @@ export function PresetSelector() {
                     role="combobox"
                     aria-label="Load a preset..."
                     aria-expanded={open}
-                    className="flex-1 justify-between min-w-[200px] sm:min-w-[300px]"
+                    className="flex-1 justify-between min-w-[225px] md:min-w-[300px]"
                 >
                     {selectedPreset ? selectedPreset.name : "Load a preset..."}
                     <CaretSortIcon className="ml-2 opacity-50"/>

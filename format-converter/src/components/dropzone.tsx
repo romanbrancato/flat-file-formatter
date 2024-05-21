@@ -35,6 +35,8 @@ export function Dropzone({
         if (files) {
             handleFile(files[0]);
         }
+        // Makes onChange trigger even if user uploads the same file (allows for "resetting" the file to default if needed)
+        e.target.value = '';
     };
 
     const handleFile = (file: File) => {
