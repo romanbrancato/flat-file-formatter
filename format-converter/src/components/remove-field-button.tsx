@@ -54,16 +54,16 @@ export function RemoveFieldButton() {
                         <FormField
                             control={form.control}
                             name="field"
-                            render={({field}) => (
+                            render={() => (
                                 <FormItem className="flex-1">
                                     <FormControl>
-                                        <FieldSelector onFieldSelect={selectedField => form.setValue("field", selectedField)}/>
+                                        <FieldSelector onFieldSelect={selectedField => form.setValue("field", selectedField, { shouldValidate: true })}/>
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="flex-shrink">
+                        <Button type="submit" disabled={!form.formState.isValid}>
                             Remove
                         </Button>
                     </form>

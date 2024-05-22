@@ -86,7 +86,7 @@ export function AddFieldButton() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="flex-shrink">
+                        <Button type="submit" disabled={!form.formState.isValid}>
                             Add
                         </Button>
                     </form>

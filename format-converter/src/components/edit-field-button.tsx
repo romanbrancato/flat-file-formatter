@@ -60,10 +60,10 @@ export function EditFieldButton() {
                         <FormField
                             control={form.control}
                             name="field"
-                            render={({field}) => (
+                            render={() => (
                                 <FormItem className="flex-1">
                                     <FormControl>
-                                        <FieldSelector onFieldSelect={selectedField => form.setValue("field", selectedField)}/>
+                                        <FieldSelector onFieldSelect={selectedField => form.setValue("field", selectedField, { shouldValidate: true })}/>
                                     </FormControl>
                                     <FormMessage/>
                                 </FormItem>
@@ -84,7 +84,7 @@ export function EditFieldButton() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="flex-shrink">
+                        <Button type="submit" disabled={!form.formState.isValid}>
                             Edit
                         </Button>
                     </form>

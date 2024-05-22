@@ -162,7 +162,7 @@ export function CSVTable() {
                 </DndContext>
             ) : (
                 <div className="flex items-center justify-center h-full">
-                    <Alert className="md:w-1/2 m-3">
+                    <Alert className="md:w-1/2 m-3 min-w-fit">
                         <InfoCircledIcon/>
                         <AlertTitle>No File Uploaded</AlertTitle>
                         <AlertDescription>

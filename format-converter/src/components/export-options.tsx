@@ -5,7 +5,7 @@ import {DefineWidthsButton} from "@/components/define-widths-button";
 export function ExportOptions() {
 
     return (
-            <Tabs defaultValue="csv" className="mb-5">
+            <Tabs defaultValue="csv" className="mb-5 md:w-[175px]">
                 <div className="text-sm font-medium space-y-1">
                     <span> Export As </span>
                     <TabsList className="grid grid-cols-2">
