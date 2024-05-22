@@ -8,7 +8,19 @@ interface DataContextProps {
     removeField: (field: string) => void;
     editField: (field: string, value: string) => void;
     arrangeFields: (order: string[]) => void;
-    children?: ReactNode;
+}
+
+export const DataContext = createContext<DataContextProps>({
+    data: [],
+    setData: () => {},
+    addField: () => {},
+    removeField: () => {},
+    editField: () => {},
+    arrangeFields: () => {},
+});
+
+interface DataProviderProps {
+    children: ReactNode;
 }
 
 const dataReducer = (state: Record<string, unknown>[], action: any) => {
@@ -42,16 +54,8 @@ const dataReducer = (state: Record<string, unknown>[], action: any) => {
     }
 };
 
-export const DataContext = createContext<DataContextProps>({
-    data: [],
-    setData: () => {},
-    addField: () => {},
-    removeField: () => {},
-    editField: () => {},
-    arrangeFields: () => {},
-});
 
-export const DataContextProvider = (props: DataContextProps) => {
+export const DataContextProvider = ({children}: DataProviderProps) => {
     const [data, dispatch] = useReducer(dataReducer, []);
     const setData = (data: Record<string, unknown>[]) => {
         dispatch({ type: 'SET_DATA', data: data });
@@ -84,7 +88,7 @@ export const DataContextProvider = (props: DataContextProps) => {
                 arrangeFields
             }}
         >
-            {props.children}
+            {children}
         </DataContext.Provider>
     );
 };

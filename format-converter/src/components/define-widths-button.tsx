@@ -31,8 +31,11 @@ export function DefineWidthsButton() {
     })
 
     const onSubmit: SubmitHandler<FieldValues> = (values) => {
-        console.log(values);
+        const widthsArray = Object.entries(values.widths).map(([key, value]) => ({ [key]: value }));
+        console.log(widthsArray); // You can do whatever you want with this array
+
         setOpen(false);
+        form.reset();
     };
 
 

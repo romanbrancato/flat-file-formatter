@@ -27,25 +27,11 @@ export function PresetSelector() {
         }
     ]
 
-    const onPresetSelect = async (preset: Preset) => {
-        if (preset.removed) {
-            for (const field of preset.removed) {
-                removeField(field);
-            }
-        }
-        if (preset.added) {
-            for (const {field, value} of preset.added) {
-                addField(field, value);
-            }
-        }
-        if (preset.edited) {
-            for (const {field, value} of preset.edited) {
-                editField(field, value);
-            }
-        }
-        if (preset.order) {
-            arrangeFields(preset.order);
-        }
+    const onPresetSelect = (preset: Preset) => {
+        preset.removed?.forEach(field => removeField(field));
+        preset.added?.forEach(({ field, value }) => addField(field, value));
+        preset.edited?.forEach(({ field, value }) => editField(field, value));
+        preset.order && arrangeFields(preset.order);
     }
 
     return (

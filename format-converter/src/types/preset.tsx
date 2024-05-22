@@ -1,10 +1,14 @@
-export interface Preset {
-    name: string,
-    removed: string[] | null, // The fields that were removed
-    added: Record<string, string>[] | null, // The fields that were added: {field, value}
-    edited: Record<string, string>[] | null, // The fields that were edited: {field, value}
-    order: string[], // The order of the fields
-    export: "csv" | "txt",
-    widths: Record<string, number>[] | null, // The width of each field in characters (if applicable): {field, width}
-    symbol: string // The delimiter or padding symbol
-}
+import { z } from "zod";
+
+const PresetSchema = z.object({
+    name: z.string(),
+    removed: z.array(z.string()).nullable(),
+    added: z.array(z.record(z.string())).nullable(),
+    edited: z.array(z.record(z.string())).nullable(),
+    order: z.array(z.string()),
+    export: z.enum(["csv", "txt"]),
+    widths: z.array(z.record(z.number())).nullable(),
+    symbol: z.string(),
+});
+
+export type Preset = z.infer<typeof PresetSchema>;
