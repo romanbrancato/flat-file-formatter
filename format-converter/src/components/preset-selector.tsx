@@ -8,6 +8,8 @@ import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover"
 import {useContext, useState} from "react";
 import {Preset} from "@/types/preset";
 import {DataContext} from "@/context/data-context";
+import {Dropzone} from "@/components/dropzone";
+import {ScrollArea, ScrollAreaViewport} from "@/components/ui/scroll-area";
 
 export function PresetSelector() {
     const {removeField, addField, editField, arrangeFields} = useContext(DataContext)
@@ -24,14 +26,77 @@ export function PresetSelector() {
             export: "csv",
             widths: null,
             symbol: ","
+        },
+        {
+            name: "Default CS",
+            removed: ['BINNumber'],
+            added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
+            edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
+            order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
+            export: "csv",
+            widths: null,
+            symbol: ","
+        },
+        {
+            name: "Default C",
+            removed: ['BINNumber'],
+            added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
+            edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
+            order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
+            export: "csv",
+            widths: null,
+            symbol: ","
+        },
+        {
+            name: "Default",
+            removed: ['BINNumber'],
+            added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
+            edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
+            order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
+            export: "csv",
+            widths: null,
+            symbol: ","
+        },
+        {
+            name: "Defaul",
+            removed: ['BINNumber'],
+            added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
+            edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
+            order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
+            export: "csv",
+            widths: null,
+            symbol: ","
+        },
+        {
+            name: "Defau",
+            removed: ['BINNumber'],
+            added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
+            edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
+            order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
+            export: "csv",
+            widths: null,
+            symbol: ","
+        },
+        {
+            name: "Defa",
+            removed: ['BINNumber'],
+            added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
+            edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
+            order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
+            export: "csv",
+            widths: null,
+            symbol: ","
         }
     ]
 
     const onPresetSelect = (preset: Preset) => {
         preset.removed?.forEach(field => removeField(field));
-        preset.added?.forEach(({ field, value }) => addField(field, value));
-        preset.edited?.forEach(({ field, value }) => editField(field, value));
+        preset.added?.forEach(({field, value}) => addField(field, value));
+        preset.edited?.forEach(({field, value}) => editField(field, value));
         preset.order && arrangeFields(preset.order);
+    }
+
+    const onPresetLoad = (file: File) => {
     }
 
     return (
@@ -48,30 +113,42 @@ export function PresetSelector() {
                     <CaretSortIcon className="ml-2 opacity-50"/>
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="p-0">
+            <PopoverContent align="start" className="p-0">
                 <Command>
                     <CommandInput placeholder="Search presets..."/>
+                    <CommandGroup heading="Import">
+                        <Dropzone
+                            onChange={(file) => onPresetLoad(file)}
+                            className="w-full"
+                            fileExtension="json"
+                        >
+                        </Dropzone>
+                    </CommandGroup>
                     <CommandGroup heading="Presets">
-                        {presets.map((preset, index) => (
-                            <CommandItem
-                                key={index}
-                                onSelect={() => {
-                                    onPresetSelect(preset)
-                                    setSelectedPreset(preset)
-                                    setOpen(false)
-                                }}
-                            >
-                                {preset.name}
-                                <CheckIcon
-                                    className={cn(
-                                        "ml-auto",
-                                        selectedPreset === preset
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                    )}
-                                />
-                            </CommandItem>
-                        ))}
+                        <ScrollArea>
+                            <ScrollAreaViewport className="max-h-[150px]">
+                                {presets.map((preset, index) => (
+                                    <CommandItem
+                                        key={index}
+                                        onSelect={() => {
+                                            onPresetSelect(preset)
+                                            setSelectedPreset(preset)
+                                            setOpen(false)
+                                        }}
+                                    >
+                                        {preset.name}
+                                        <CheckIcon
+                                            className={cn(
+                                                "ml-auto",
+                                                selectedPreset === preset
+                                                    ? "opacity-100"
+                                                    : "opacity-0"
+                                            )}
+                                        />
+                                    </CommandItem>
+                                ))}
+                            </ScrollAreaViewport>
+                        </ScrollArea>
                     </CommandGroup>
                     <CommandEmpty>No presets found.</CommandEmpty>
                 </Command>

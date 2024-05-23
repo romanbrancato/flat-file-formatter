@@ -18,7 +18,8 @@ import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 
 const defineWidthsSchema = z.object({
-    widths: z.record(z.coerce.number().gte(1, "Width must be at least 1."))
+    widths: z.record(z.coerce.number({message: "Enter a width."
+    }).gte(1, "Width must be at least 1."))
 });
 
 export function DefineWidthsButton() {
@@ -27,7 +28,10 @@ export function DefineWidthsButton() {
     const fields = Object.keys(data[0] || {})
 
     const form = useForm({
-        resolver: zodResolver(defineWidthsSchema)
+        resolver: zodResolver(defineWidthsSchema),
+        defaultValues:{
+            widths: Object.fromEntries(fields.map((field) => [field, 0]))
+        }
     })
 
     const onSubmit: SubmitHandler<FieldValues> = (values) => {
@@ -52,7 +56,7 @@ export function DefineWidthsButton() {
                     <DialogTitle>Define Widths</DialogTitle>
                     <DialogDescription className="flex flex-row justify-between">
                         Define the widths of each field in characters.
-                        <Button disabled={!form.formState.isValid} onClick={()=> form.handleSubmit(onSubmit)()}>
+                        <Button onClick={()=> form.handleSubmit(onSubmit)()}>
                             Save
                         </Button>
                     </DialogDescription>
@@ -75,6 +79,7 @@ export function DefineWidthsButton() {
                                                         <Input
                                                             {...field}
                                                             type="number"
+                                                            min={0}
                                                         />
                                                     </FormControl>
                                                 <FormMessage/>

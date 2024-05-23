@@ -10,7 +10,7 @@ import {Button} from "@/components/ui/button";
 import {Pencil1Icon} from "@radix-ui/react-icons";
 import {FieldSelector} from "@/components/field-selector";
 import {Input} from "@/components/ui/input";
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {DataContext} from "@/context/data-context";
 import {Form, FormControl, FormField, FormItem, FormMessage} from "@/components/ui/form";
 import {z} from "zod";
@@ -18,14 +18,13 @@ import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 
 const editFieldSchema = z.object({
-    field: z.string({required_error: "Select a field to remove."}),
+    field: z.string({required_error: "Select a field to edit."}),
     value: z.string()
 });
 
 export function EditFieldButton() {
     const {editField} = useContext(DataContext);
     const [open, setOpen] = useState(false)
-
 
     const form = useForm<z.infer<typeof editFieldSchema>>({
         resolver: zodResolver(editFieldSchema),
@@ -84,7 +83,7 @@ export function EditFieldButton() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" disabled={!form.formState.isValid}>
+                        <Button type="submit">
                             Edit
                         </Button>
                     </form>

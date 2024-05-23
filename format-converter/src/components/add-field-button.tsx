@@ -86,7 +86,7 @@ export function AddFieldButton() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" disabled={!form.formState.isValid}>
+                        <Button type="submit">
                             Add
                         </Button>
                     </form>

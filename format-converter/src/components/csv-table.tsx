@@ -58,6 +58,7 @@ const DraggableCell = ({cell}: any) => {
         cursor: isDragging ? 'grabbing' : 'grab',
         transform: CSS.Translate.toString(transform),
         zIndex: isDragging ? 1 : 0,
+        whiteSpace: 'nowrap'
     }
 
     return (
@@ -69,18 +70,9 @@ const DraggableCell = ({cell}: any) => {
 
 
 export function CSVTable() {
-    const {data, arrangeFields, setData} = useContext(DataContext);
-    const [columns, setColumns] = useState<ColumnDef<Record<string, unknown>>[]>(() => {
-        const keys = Object.keys(data[0] || {});
-        return keys.map(key => ({
-            accessorKey: key,
-            header: () => <span>{key}</span>,
-            id: key,
-        }));
-    });
-    const [columnOrder, setColumnOrder] = useState<string[]>(() =>
-        columns.map(c => c.id!)
-    );
+    const {data, arrangeFields} = useContext(DataContext);
+    const [columns, setColumns] = useState<ColumnDef<Record<string, unknown>>[]>([])
+    const [columnOrder, setColumnOrder] = useState<string[]>([])
 
     const table = useReactTable({
         data,
@@ -93,14 +85,12 @@ export function CSVTable() {
     })
 
     useEffect(() => {
-        const keys = Object.keys(data[0] || {});
-        const newColumns = keys.map(key => ({
-            accessorKey: key,
-            header: () => <span>{key}</span>,
-            id: key,
+        const fields = Object.keys(data[0] || {});
+        const newColumns = fields.map(field => ({
+            accessorKey: field
         }));
         setColumns(newColumns);
-        setColumnOrder(newColumns.map(c => c.id!));
+        setColumnOrder(newColumns.map(c => c.accessorKey!));
     }, [data]);
 
 
@@ -130,7 +120,7 @@ export function CSVTable() {
                     onDragEnd={handleDragEnd}
                     sensors={sensors}
                 >
-                    <ScrollArea>
+                    <ScrollArea className="h-full">
                         <Table>
                             <TableHeader>
                                 {table.getHeaderGroups().map((headerGroup) => (

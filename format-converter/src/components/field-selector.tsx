@@ -12,6 +12,7 @@ import {ScrollArea, ScrollAreaViewport} from "@/components/ui/scroll-area";
 interface FieldSelectorProps {
     onFieldSelect: (field: string) => void
 }
+
 export function FieldSelector({onFieldSelect}: FieldSelectorProps) {
     const {data} = useContext(DataContext)
     const [open, setOpen] = useState(false)
@@ -36,9 +37,9 @@ export function FieldSelector({onFieldSelect}: FieldSelectorProps) {
             <PopoverContent align="start" side="bottom" className="p-0">
                 <Command>
                     <CommandInput placeholder="Search fields..." className="sticky top-0"/>
-                    <ScrollArea>
-                        <ScrollAreaViewport className="max-h-[300px]">
-                            <CommandGroup heading="Fields">
+                    <CommandGroup heading="Fields">
+                        <ScrollArea>
+                            <ScrollAreaViewport className="max-h-[300px]">
                                 {fields.map((field) => (
                                     <CommandItem
                                         key={field}
@@ -59,10 +60,10 @@ export function FieldSelector({onFieldSelect}: FieldSelectorProps) {
                                         />
                                     </CommandItem>
                                 ))}
-                            </CommandGroup>
-                            <CommandEmpty>No fields found.</CommandEmpty>
-                        </ScrollAreaViewport>
-                    </ScrollArea>
+                            </ScrollAreaViewport>
+                        </ScrollArea>
+                    </CommandGroup>
+                    <CommandEmpty>No fields found.</CommandEmpty>
                 </Command>
             </PopoverContent>
         </Popover>

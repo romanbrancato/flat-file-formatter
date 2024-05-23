@@ -63,7 +63,7 @@ export function RemoveFieldButton() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" disabled={!form.formState.isValid}>
+                        <Button type="submit">
                             Remove
                         </Button>
                     </form>
