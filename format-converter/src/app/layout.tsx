@@ -5,6 +5,7 @@ import {Header} from "@/components/header";
 import {DataContextProvider} from "@/context/data-context";
 import {ThemeProvider} from "@/context/theme-context";
 import {ReactNode} from "react";
+import {Toaster} from "@/components/ui/sonner";
 
 
 export const metadata: Metadata = {
@@ -29,6 +30,7 @@ export default function RootLayout({
                     {children}
                 </DataContextProvider>
             </Container>
+            <Toaster position="bottom-right" richColors/>
         </ThemeProvider>
         </body>
         </html>

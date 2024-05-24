@@ -105,13 +105,13 @@ export const DataContextProvider = ({children}: DataProviderProps) => {
     };
 
     const loadPreset = (preset: Preset) => {
-        console.log(preset)
-        setPreset(prev => ({...prev, export: preset.export}));
-        setPreset(prev => ({...prev, symbol: preset.symbol}));
         preset.removed?.forEach(field => removeField(field));
         preset.added?.forEach(({field, value}) => addField(field, value));
         preset.edited?.forEach(({field, value}) => editField(field, value));
         preset.order && arrangeFields(preset.order);
+        setPreset(prev => ({...prev, export: preset.export}));
+        setPreset(prev => ({...prev, widths: preset.widths}));
+        setPreset(prev => ({...prev, symbol: preset.symbol}));
     }
 
     const savePreset = (name: string) => {

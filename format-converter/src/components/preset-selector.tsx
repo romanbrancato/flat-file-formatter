@@ -10,6 +10,7 @@ import {Preset} from "@/types/preset";
 import {DataContext} from "@/context/data-context";
 import {Dropzone} from "@/components/dropzone";
 import {ScrollArea, ScrollAreaViewport} from "@/components/ui/scroll-area";
+import {toast} from "sonner";
 
 export function PresetSelector() {
     const {preset, loadPreset} = useContext(DataContext)
@@ -90,9 +91,13 @@ export function PresetSelector() {
 
     const onPresetSelect = (preset: Preset) => {
         loadPreset(preset);
+        toast.success(
+            "Preset Loaded", {
+                description: `The preset "${preset.name}" has been loaded.`
+            })
     }
 
-    const onPresetLoad = (file: File | null) => {
+    const onPresetImport = (file: File | null) => {
     }
 
     return (
@@ -105,7 +110,7 @@ export function PresetSelector() {
                     aria-expanded={open}
                     className="flex-1 justify-between min-w-[225px] md:min-w-[300px]"
                 >
-                    {preset && preset.name? preset.name: "Load a preset..."}
+                    {preset && preset.name ? preset.name : "Load a preset..."}
                     <CaretSortIcon className="ml-2 opacity-50"/>
                 </Button>
             </PopoverTrigger>
@@ -114,7 +119,7 @@ export function PresetSelector() {
                     <CommandInput placeholder="Search presets..."/>
                     <CommandGroup heading="Import">
                         <Dropzone
-                            onChange={(file) => onPresetLoad(file)}
+                            onChange={(file) => onPresetImport(file)}
                             className="w-full"
                             fileExtension="json"
                         >
