@@ -16,6 +16,7 @@ import {Input} from "@/components/ui/input";
 import {ScrollArea, ScrollAreaViewport} from "@/components/ui/scroll-area";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {Label} from "@/components/ui/label";
 
 const defineWidthsSchema = z.object({
     widths: z.record(z.coerce.number({message: "Enter a width."
@@ -30,7 +31,7 @@ export function DefineWidthsButton() {
     const form = useForm({
         resolver: zodResolver(defineWidthsSchema),
         defaultValues:{
-            widths: Object.fromEntries(fields.map((field) => [field, 0]))
+            widths: Object.fromEntries(fields.map((field) => [field, ""]))
         }
     })
 
@@ -74,7 +75,7 @@ export function DefineWidthsButton() {
                                         key={fieldName}
                                         render={({field}) => (
                                             <FormItem className="pr-3 pl-1">
-                                                <FormLabel>{fieldName}</FormLabel>
+                                                <Label>{fieldName}</Label>
                                                     <FormControl>
                                                         <Input
                                                             {...field}

@@ -12,9 +12,8 @@ import {Dropzone} from "@/components/dropzone";
 import {ScrollArea, ScrollAreaViewport} from "@/components/ui/scroll-area";
 
 export function PresetSelector() {
-    const {removeField, addField, editField, arrangeFields} = useContext(DataContext)
+    const {preset, loadPreset} = useContext(DataContext)
     const [open, setOpen] = useState(false)
-    const [selectedPreset, setSelectedPreset] = useState<Preset>()
 
     const presets: Preset[] = [
         {
@@ -23,7 +22,7 @@ export function PresetSelector() {
             added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
             edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
             order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
-            export: "csv",
+            export: "txt",
             widths: null,
             symbol: ","
         },
@@ -33,7 +32,7 @@ export function PresetSelector() {
             added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
             edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
             order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
-            export: "csv",
+            export: "txt",
             widths: null,
             symbol: ","
         },
@@ -43,7 +42,7 @@ export function PresetSelector() {
             added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
             edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
             order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
-            export: "csv",
+            export: "txt",
             widths: null,
             symbol: ","
         },
@@ -53,7 +52,7 @@ export function PresetSelector() {
             added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
             edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
             order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
-            export: "csv",
+            export: "txt",
             widths: null,
             symbol: ","
         },
@@ -63,7 +62,7 @@ export function PresetSelector() {
             added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
             edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
             order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
-            export: "csv",
+            export: "txt",
             widths: null,
             symbol: ","
         },
@@ -73,7 +72,7 @@ export function PresetSelector() {
             added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
             edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
             order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
-            export: "csv",
+            export: "txt",
             widths: null,
             symbol: ","
         },
@@ -83,20 +82,17 @@ export function PresetSelector() {
             added: [{field: 'NewField', value: '21'}, {field: 'NewField2', value: '21'}],
             edited: [{field: 'ClaimType', value: ''}, {field: 'PharmacyStatusCode', value: ''}],
             order: ['NewField', 'NewField2', 'ClaimType', 'PharmacyStatusCode', 'ClaimCounter'],
-            export: "csv",
+            export: "txt",
             widths: null,
             symbol: ","
         }
     ]
 
     const onPresetSelect = (preset: Preset) => {
-        preset.removed?.forEach(field => removeField(field));
-        preset.added?.forEach(({field, value}) => addField(field, value));
-        preset.edited?.forEach(({field, value}) => editField(field, value));
-        preset.order && arrangeFields(preset.order);
+        loadPreset(preset);
     }
 
-    const onPresetLoad = (file: File) => {
+    const onPresetLoad = (file: File | null) => {
     }
 
     return (
@@ -109,7 +105,7 @@ export function PresetSelector() {
                     aria-expanded={open}
                     className="flex-1 justify-between min-w-[225px] md:min-w-[300px]"
                 >
-                    {selectedPreset ? selectedPreset.name : "Load a preset..."}
+                    {preset && preset.name? preset.name: "Load a preset..."}
                     <CaretSortIcon className="ml-2 opacity-50"/>
                 </Button>
             </PopoverTrigger>
@@ -127,20 +123,19 @@ export function PresetSelector() {
                     <CommandGroup heading="Presets">
                         <ScrollArea>
                             <ScrollAreaViewport className="max-h-[150px]">
-                                {presets.map((preset, index) => (
+                                {presets.map((p, index) => (
                                     <CommandItem
                                         key={index}
                                         onSelect={() => {
-                                            onPresetSelect(preset)
-                                            setSelectedPreset(preset)
+                                            onPresetSelect(p)
                                             setOpen(false)
                                         }}
                                     >
-                                        {preset.name}
+                                        {p.name}
                                         <CheckIcon
                                             className={cn(
                                                 "ml-auto",
-                                                selectedPreset === preset
+                                                JSON.stringify(preset) === JSON.stringify(p)
                                                     ? "opacity-100"
                                                     : "opacity-0"
                                             )}

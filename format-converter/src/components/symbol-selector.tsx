@@ -4,12 +4,13 @@ import {cn} from "@/lib/utils"
 import {Button} from "@/components/ui/button"
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem,} from "@/components/ui/command"
 import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover"
-import {useState} from "react";
+import {useContext, useState} from "react";
 import {symbols} from "@/data/symbols";
+import {DataContext} from "@/context/data-context";
 
 export function SymbolSelector() {
+    const {preset} = useContext(DataContext)
     const [open, setOpen] = useState(false)
-    const [selectedSymbol, setSelectedSymbol] = useState<string>("")
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -21,7 +22,7 @@ export function SymbolSelector() {
                     aria-expanded={open}
                     className="flex-1 justify-between w-full"
                 >
-                    {selectedSymbol ? selectedSymbol : "Select a symbol..."}
+                    {preset && preset.symbol? preset.symbol: "Select a symbol..."}
                     <CaretSortIcon className="ml-2 opacity-50"/>
                 </Button>
             </PopoverTrigger>
@@ -29,19 +30,19 @@ export function SymbolSelector() {
                 <Command>
                     <CommandInput placeholder="Search symbols..."/>
                     <CommandGroup heading="Symbols">
-                        {symbols.map((delimiter) => (
+                        {symbols.map((symbol) => (
                             <CommandItem
-                                key={delimiter}
+                                key={symbol}
                                 onSelect={() => {
-                                    setSelectedSymbol(delimiter)
+                                    preset.symbol = symbol
                                     setOpen(false)
                                 }}
                             >
-                                {delimiter}
+                                {symbol}
                                 <CheckIcon
                                     className={cn(
                                         "ml-auto",
-                                        selectedSymbol === delimiter
+                                        preset.symbol === symbol
                                             ? "opacity-100"
                                             : "opacity-0"
                                     )}

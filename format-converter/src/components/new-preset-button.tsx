@@ -7,34 +7,31 @@ import {
     DialogTrigger
 } from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
-import {Pencil1Icon} from "@radix-ui/react-icons";
-import {FieldSelector} from "@/components/field-selector";
 import {Input} from "@/components/ui/input";
 import {useContext,useState} from "react";
 import {DataContext} from "@/context/data-context";
-import {Form, FormControl, FormField, FormItem, FormMessage} from "@/components/ui/form";
+import {Form, FormControl, FormDescription, FormField, FormItem, FormMessage} from "@/components/ui/form";
 import {z} from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 
-const editFieldSchema = z.object({
-    field: z.string({required_error: "Select a field to edit."}),
-    value: z.string()
+const newPresetSchema = z.object({
+    name: z.string().min(1, "Enter a preset name.")
 });
 
-export function EditFieldButton() {
-    const {editField} = useContext(DataContext);
+export function NewPresetButton() {
+    const {savePreset} = useContext(DataContext);
     const [open, setOpen] = useState(false)
 
-    const form = useForm<z.infer<typeof editFieldSchema>>({
-        resolver: zodResolver(editFieldSchema),
+    const form = useForm<z.infer<typeof newPresetSchema>>({
+        resolver: zodResolver(newPresetSchema),
         defaultValues: {
-            value: ""
+            name: ""
         },
     })
 
-    function onSubmit(values: z.infer<typeof editFieldSchema>) {
-        editField(values.field, values.value);
+    function onSubmit(values: z.infer<typeof newPresetSchema>) {
+        savePreset(values.name);
         setOpen(false);
         form.reset()
     }
@@ -42,49 +39,39 @@ export function EditFieldButton() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild className="flex-1">
-                <Button variant="outline" size="sm" className="w-full border-dashed">
-                    <Pencil1Icon className="mr-2"/>
-                    Edit Field
+                <Button variant="secondary" className="hidden sm:flex">
+                    New Preset
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px] max-h-[800px]">
                 <DialogHeader>
-                    <DialogTitle>Edit Field</DialogTitle>
+                    <DialogTitle>New Preset</DialogTitle>
                     <DialogDescription>
-                        Select a field and change all its values.
+                        Define a new preset to save the current configuration.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-row gap-x-2">
                         <FormField
                             control={form.control}
-                            name="field"
-                            render={() => (
-                                <FormItem className="flex-1">
-                                    <FormControl>
-                                        <FieldSelector onFieldSelect={selectedField => form.setValue("field", selectedField, { shouldValidate: true })}/>
-                                    </FormControl>
-                                    <FormMessage/>
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="value"
+                            name="name"
                             render={({field}) => (
                                 <FormItem className="flex-1">
                                     <FormControl>
                                         <Input
-                                            placeholder="Change values to..."
+                                            placeholder="Name"
                                             {...field}
                                         />
                                     </FormControl>
+                                    <FormDescription>
+                                        Give a name to the new preset.
+                                    </FormDescription>
                                     <FormMessage/>
                                 </FormItem>
                             )}
                         />
                         <Button type="submit">
-                            Edit
+                            Save
                         </Button>
                     </form>
                 </Form>

@@ -8,7 +8,7 @@ import {ReactNode} from "react";
 
 
 export const metadata: Metadata = {
-    title: ".csv Formatter",
+    title: ".csv Formatter"
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
             <Header/>
             <Container>
                 <DataContextProvider>
-                {children}
+                    {children}
                 </DataContextProvider>
             </Container>
         </ThemeProvider>
