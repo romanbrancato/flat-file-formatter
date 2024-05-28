@@ -4,8 +4,11 @@ import {ExportOptions} from "@/components/export-options";
 import {TableToolbar} from "@/components/table-toolbar";
 import {Button} from "@/components/ui/button";
 import {Share2Icon} from "@radix-ui/react-icons";
+import {useContext} from "react";
+import {DataContext} from "@/context/data-context";
 
 export function Editor() {
+    const {data} = useContext(DataContext);
 
     return (
         <div className="rounded-md border">
@@ -17,7 +20,7 @@ export function Editor() {
                 </div>
                 <div className="flex flex-col">
                     <ExportOptions/>
-                    <Button className="md:mt-auto">
+                    <Button className="md:mt-auto" disabled={data.length === 0}>
                         <Share2Icon className="mr-2"/>
                         Export File
                     </Button>

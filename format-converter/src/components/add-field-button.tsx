@@ -21,7 +21,7 @@ const addFieldSchema = z.object({
     value: z.string()
 });
 
-export function AddFieldButton() {
+export function AddFieldButton({ disabled }: { disabled: boolean}) {
     const {addField} = useContext(DataContext);
     const [open, setOpen] = useState(false)
 
@@ -42,7 +42,7 @@ export function AddFieldButton() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild className="flex-1">
-                <Button variant="outline" size="sm" className="w-full border-dashed">
+                <Button variant="outline" size="sm" className="w-full border-dashed" disabled={disabled}>
                     <PlusCircledIcon className="mr-2"/>
                     Add Field
                 </Button>

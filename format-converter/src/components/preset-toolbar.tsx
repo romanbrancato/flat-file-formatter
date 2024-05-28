@@ -8,15 +8,15 @@ import {DataContext} from "@/context/data-context";
 import {NewPresetButton} from "@/components/new-preset-button";
 
 export function PresetToolbar() {
-    const {exportPreset} = useContext(DataContext)
+    const {data, preset, exportPreset} = useContext(DataContext)
     return (
         <>
             <div className="flex items-center justify-between py-2 px-5">
                 <h2 className="text-md font-semibold whitespace-nowrap">File Preview</h2>
                 <div className="flex flex-row items-center space-x-3">
-                    <PresetSelector/>
-                    <NewPresetButton/>
-                    <Button variant="secondary" size="icon" onClick={exportPreset} className="hidden sm:flex">
+                    <PresetSelector disabled={data.length === 0}/>
+                    <NewPresetButton disabled={data.length === 0}/>
+                    <Button variant="secondary" size="icon" onClick={exportPreset} className="hidden sm:flex" disabled={!preset.name}>
                         <Share2Icon/>
                     </Button>
                     <DropdownMenu>

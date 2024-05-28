@@ -22,7 +22,7 @@ const editFieldSchema = z.object({
     value: z.string()
 });
 
-export function EditFieldButton() {
+export function EditFieldButton({ disabled }: { disabled: boolean}) {
     const {editField} = useContext(DataContext);
     const [open, setOpen] = useState(false)
 
@@ -42,7 +42,7 @@ export function EditFieldButton() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild className="flex-1">
-                <Button variant="outline" size="sm" className="w-full border-dashed">
+                <Button variant="outline" size="sm" className="w-full border-dashed" disabled={disabled}>
                     <Pencil1Icon className="mr-2"/>
                     Edit Field
                 </Button>

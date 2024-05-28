@@ -19,7 +19,7 @@ const newPresetSchema = z.object({
     name: z.string().min(1, "Enter a preset name.")
 });
 
-export function NewPresetButton() {
+export function NewPresetButton({ disabled }: { disabled: boolean}) {
     const {savePreset} = useContext(DataContext);
     const [open, setOpen] = useState(false)
 
@@ -39,7 +39,7 @@ export function NewPresetButton() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild className="flex-1">
-                <Button variant="secondary" className="hidden sm:flex">
+                <Button variant="secondary" className="hidden sm:flex" disabled={disabled}>
                     New Preset
                 </Button>
             </DialogTrigger>

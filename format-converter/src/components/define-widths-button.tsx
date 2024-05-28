@@ -23,7 +23,7 @@ const defineWidthsSchema = z.object({
     }).gte(1, "Width must be at least 1."))
 });
 
-export function DefineWidthsButton() {
+export function DefineWidthsButton({ disabled }: { disabled: boolean}) {
     const [open, setOpen] = useState(false)
     const {data} = useContext(DataContext)
     const fields = Object.keys(data[0] || {})
@@ -47,7 +47,7 @@ export function DefineWidthsButton() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full border-dashed mb-2">
+                <Button variant="outline" size="sm" className="w-full border-dashed mb-2" disabled={disabled}>
                     <Pencil2Icon className="mr-2"/>
                     Define Widths
                 </Button>

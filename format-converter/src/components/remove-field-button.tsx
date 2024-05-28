@@ -20,7 +20,7 @@ const removeFieldSchema = z.object({
     field: z.string({required_error: "Select a field to remove."})
 });
 
-export function RemoveFieldButton() {
+export function RemoveFieldButton({ disabled }: { disabled: boolean}) {
     const {removeField} = useContext(DataContext);
     const [open, setOpen] = useState(false)
 
@@ -37,7 +37,7 @@ export function RemoveFieldButton() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild className="flex-1">
-                <Button variant="outline" size="sm" className="w-full border-dashed">
+                <Button variant="outline" size="sm" className="w-full border-dashed" disabled={disabled}>
                     <MinusCircledIcon className="mr-2"/>
                     Remove Field
                 </Button>

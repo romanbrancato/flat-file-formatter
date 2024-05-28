@@ -12,7 +12,7 @@ import {Dropzone} from "@/components/dropzone";
 import {ScrollArea, ScrollAreaViewport} from "@/components/ui/scroll-area";
 import {toast} from "sonner";
 
-export function PresetSelector() {
+export function PresetSelector({ disabled }: { disabled: boolean}) {
     const {preset, loadPreset} = useContext(DataContext)
     const [open, setOpen] = useState(false)
 
@@ -109,6 +109,7 @@ export function PresetSelector() {
                     aria-label="Load a preset..."
                     aria-expanded={open}
                     className="flex-1 justify-between min-w-[225px] md:min-w-[300px]"
+                    disabled={disabled}
                 >
                     {preset && preset.name ? preset.name : "Load a preset..."}
                     <CaretSortIcon className="ml-2 opacity-50"/>

@@ -8,7 +8,7 @@ import {useContext, useState} from "react";
 import {symbols} from "@/data/symbols";
 import {DataContext} from "@/context/data-context";
 
-export function SymbolSelector() {
+export function SymbolSelector({ disabled }: { disabled: boolean}) {
     const {preset} = useContext(DataContext)
     const [open, setOpen] = useState(false)
 
@@ -21,6 +21,7 @@ export function SymbolSelector() {
                     aria-label="Select a symbol..."
                     aria-expanded={open}
                     className="flex-1 justify-between w-full"
+                    disabled = {disabled}
                 >
                     {preset && preset.symbol? preset.symbol: "Select a symbol..."}
                     <CaretSortIcon className="ml-2 opacity-50"/>
