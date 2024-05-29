@@ -130,18 +130,11 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
   const [savedPresets, setSavedPresets] = useState<Preset[]>([]);
 
   useEffect(() => {
-    const allPresets: Preset[] = [];
-
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith("preset")) {
-        const preset = localStorage.getItem(key);
-        if (preset) {
-          allPresets.push(JSON.parse(preset));
-        }
-      }
-    });
-    console.log(allPresets);
-    setSavedPresets(allPresets);
+    setSavedPresets(
+      Object.keys(localStorage)
+        .filter((key) => key.startsWith("preset"))
+        .map((key) => JSON.parse(localStorage.getItem(key) || "")),
+    );
   }, []);
 
   const setData = (data: Record<string, unknown>[]) => {
@@ -182,12 +175,21 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
 
   const newPreset = (name: string) => {
     dispatchPreset({ type: "SET_NAME", name });
-    const newPreset = { ...preset, name };
-    localStorage.setItem(`preset ${name}`, JSON.stringify(newPreset, null, 2));
+    localStorage.setItem(
+      `preset ${name}`,
+      JSON.stringify({ ...preset, name }, null, 2),
+    );
   };
 
   const exportPreset = () => {
-    console.log(JSON.stringify(preset, null, 2));
+    const dataStr = JSON.stringify(preset, null, 2);
+    let dataUri =
+      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+
+    let linkElement = document.createElement("a");
+    linkElement.setAttribute("href", dataUri);
+    linkElement.setAttribute("download", `${preset.name}.json`);
+    linkElement.click();
   };
 
   return (

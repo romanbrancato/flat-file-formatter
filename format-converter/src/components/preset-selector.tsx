@@ -28,7 +28,6 @@ export function PresetSelector() {
 
   const onPresetSelect = (preset: Preset) => {
     loadPreset(preset);
-    console.log(`Loaded Preset: ${JSON.stringify(preset, null, 2)}`);
     toast.success("Preset Loaded", {
       description: `The preset "${preset.name}" has been loaded.`,
     });
