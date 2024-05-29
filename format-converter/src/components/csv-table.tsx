@@ -88,7 +88,7 @@ const DraggableCell = ({ cell }: any) => {
 };
 
 export function CSVTable() {
-  const { data, arrangeFields } = useContext(DataContext);
+  const { data, orderFields } = useContext(DataContext);
   const [columns, setColumns] = useState<ColumnDef<Record<string, unknown>>[]>(
     [],
   );
@@ -120,7 +120,7 @@ export function CSVTable() {
       const newIndex = columnOrder.indexOf(over.id as string);
       const newColumnOrder = arrayMove(columnOrder, oldIndex, newIndex);
       setColumnOrder(newColumnOrder);
-      arrangeFields(newColumnOrder);
+      orderFields(newColumnOrder);
     }
   }
 

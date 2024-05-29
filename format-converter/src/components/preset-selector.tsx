@@ -23,55 +23,8 @@ import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 
 export function PresetSelector() {
-  const { data, preset, loadPreset } = useContext(DataContext);
+  const { data, preset, savedPresets, loadPreset } = useContext(DataContext);
   const [open, setOpen] = useState(false);
-
-  const presets: Preset[] = [
-    {
-      name: "Default CSV",
-      removed: ["BINNumber"],
-      added: [
-        { field: "NewField", value: "21" },
-        { field: "NewField2", value: "21" },
-      ],
-      edited: [
-        { field: "ClaimType", value: "" },
-        { field: "PharmacyStatusCode", value: "" },
-      ],
-      order: [
-        "NewField",
-        "NewField2",
-        "ClaimType",
-        "PharmacyStatusCode",
-        "ClaimCounter",
-      ],
-      export: "txt",
-      widths: null,
-      symbol: ",",
-    },
-    {
-      name: "Default CS",
-      removed: ["yung bluge"],
-      added: [
-        { field: "NewField", value: "21" },
-        { field: "NewField2", value: "21" },
-      ],
-      edited: [
-        { field: "ClaimType", value: "" },
-        { field: "PharmacyStatusCode", value: "" },
-      ],
-      order: [
-        "NewField",
-        "NewField2",
-        "ClaimType",
-        "PharmacyStatusCode",
-        "ClaimCounter",
-      ],
-      export: "txt",
-      widths: null,
-      symbol: ",",
-    },
-  ];
 
   const onPresetSelect = (preset: Preset) => {
     loadPreset(preset);
@@ -111,7 +64,7 @@ export function PresetSelector() {
           <CommandGroup heading="Presets">
             <ScrollArea>
               <ScrollAreaViewport className="max-h-[150px]">
-                {presets.map((p, index) => (
+                {savedPresets.map((p, index) => (
                   <CommandItem
                     key={index}
                     onSelect={() => {

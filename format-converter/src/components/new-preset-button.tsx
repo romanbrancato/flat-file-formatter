@@ -27,7 +27,7 @@ const newPresetSchema = z.object({
 });
 
 export function NewPresetButton() {
-  const { data, savePreset } = useContext(DataContext);
+  const { data, newPreset } = useContext(DataContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof newPresetSchema>>({
@@ -38,7 +38,7 @@ export function NewPresetButton() {
   });
 
   function onSubmit(values: z.infer<typeof newPresetSchema>) {
-    savePreset(values.name);
+    newPreset(values.name);
     setOpen(false);
     form.reset();
   }

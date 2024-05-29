@@ -11,26 +11,28 @@ import { Preset } from "@/types/preset";
 interface DataContextProps {
   data: Record<string, unknown>[];
   preset: Preset;
+  savedPresets: Preset[];
   setData: (data: Record<string, unknown>[]) => void;
   addField: (name: string, value: string) => void;
   removeField: (field: string) => void;
   editField: (field: string, value: string) => void;
-  arrangeFields: (order: string[]) => void;
+  orderFields: (order: string[]) => void;
   loadPreset: (preset: Preset) => void;
-  savePreset: (name: string) => void;
+  newPreset: (name: string) => void;
   exportPreset: () => void;
 }
 
 export const DataContext = createContext<DataContextProps>({
   data: [],
   preset: {} as Preset,
+  savedPresets: [],
   setData: () => {},
   addField: () => {},
   removeField: () => {},
   editField: () => {},
-  arrangeFields: () => {},
+  orderFields: () => {},
   loadPreset: () => {},
-  savePreset: () => {},
+  newPreset: () => {},
   exportPreset: () => {},
 });
 
@@ -125,6 +127,7 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
     widths: null,
     symbol: null,
   });
+  const [savedPresets, setSavedPresets] = useState<Preset[]>([]);
 
   useEffect(() => {
     const allPresets: Preset[] = [];
@@ -137,8 +140,8 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
         }
       }
     });
-
     console.log(allPresets);
+    setSavedPresets(allPresets);
   }, []);
 
   const setData = (data: Record<string, unknown>[]) => {
@@ -171,12 +174,14 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
     preset.added?.forEach(({ field, value }) => addField(field, value));
     preset.edited?.forEach(({ field, value }) => editField(field, value));
     preset.order && orderFields(preset.order);
+    dispatchPreset({ type: "SET_NAME", name: preset.name });
     dispatchPreset({ type: "SET_EXPORT", export: preset.export });
     dispatchPreset({ type: "SET_WIDTHS", widths: preset.widths });
     dispatchPreset({ type: "SET_SYMBOL", symbol: preset.symbol });
   };
 
-  const savePreset = (name: string) => {
+  const newPreset = (name: string) => {
+    dispatchPreset({ type: "SET_NAME", name });
     const newPreset = { ...preset, name };
     localStorage.setItem(`preset ${name}`, JSON.stringify(newPreset, null, 2));
   };
@@ -190,13 +195,14 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
       value={{
         data,
         preset,
+        savedPresets,
         setData,
         addField,
         removeField,
         editField,
-        arrangeFields: orderFields,
+        orderFields,
         loadPreset,
-        savePreset,
+        newPreset,
         exportPreset,
       }}
     >
