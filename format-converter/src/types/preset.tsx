@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const PresetSchema = z.object({
+export const PresetSchema = z.object({
     name: z.string().nullable(),
     removed: z.array(z.string()).nullable(),
     added: z.array(z.record(z.string())).nullable(),

@@ -1,144 +1,206 @@
-"use client"
-import {createContext, ReactNode, useReducer, useState} from 'react';
-import {Preset} from "@/types/preset";
+"use client";
+import {
+  createContext,
+  ReactNode,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
+import { Preset } from "@/types/preset";
 
 interface DataContextProps {
-    data: Record<string, unknown>[];
-    preset: Preset;
-    setData: (data: Record<string, unknown>[]) => void;
-    addField: (name: string, value: string) => void;
-    removeField: (field: string) => void;
-    editField: (field: string, value: string) => void;
-    arrangeFields: (order: string[]) => void;
-    loadPreset: (preset: Preset) => void;
-    savePreset: (name: string) => void;
-    exportPreset: () => void;
+  data: Record<string, unknown>[];
+  preset: Preset;
+  setData: (data: Record<string, unknown>[]) => void;
+  addField: (name: string, value: string) => void;
+  removeField: (field: string) => void;
+  editField: (field: string, value: string) => void;
+  arrangeFields: (order: string[]) => void;
+  loadPreset: (preset: Preset) => void;
+  savePreset: (name: string) => void;
+  exportPreset: () => void;
 }
 
 export const DataContext = createContext<DataContextProps>({
-    data: [],
-    preset: {} as Preset,
-    setData: () => {},
-    addField: () => {},
-    removeField: () => {},
-    editField: () => {},
-    arrangeFields: () => {},
-    loadPreset: () => {},
-    savePreset: () => {},
-    exportPreset: () => {}
+  data: [],
+  preset: {} as Preset,
+  setData: () => {},
+  addField: () => {},
+  removeField: () => {},
+  editField: () => {},
+  arrangeFields: () => {},
+  loadPreset: () => {},
+  savePreset: () => {},
+  exportPreset: () => {},
 });
 
 interface DataProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 const dataReducer = (state: Record<string, unknown>[], action: any) => {
-    switch (action.type) {
-        case 'SET_DATA':
-            return action.data;
-        case 'ADD_FIELD':
-            return state.map((row) => ({ ...row, [action.name]: action.value }));
-        case 'REMOVE_FIELD':
-            return state.map((row) => {
-                delete row[action.field];
-                return row;
-            });
-        case 'EDIT_FIELD':
-            return state.map((row) => {
-                row[action.field] = action.value;
-                return row;
-            });
-        case 'ARRANGE_FIELDS':
-            return state.map((record) => {
-                const reorderedRecord: Record<string, unknown> = {};
-                action.order.forEach((field: string) => {
-                    if (field in record) {
-                        reorderedRecord[field] = record[field];
-                    }
-                });
-                return reorderedRecord;
-            });
-        default:
-            return state;
-    }
+  switch (action.type) {
+    case "SET_DATA":
+      return action.data;
+    case "ADD_FIELD":
+      return state.map((row) => ({ ...row, [action.name]: action.value }));
+    case "REMOVE_FIELD":
+      return state.map((row) => {
+        delete row[action.field];
+        return row;
+      });
+    case "EDIT_FIELD":
+      return state.map((row) => {
+        row[action.field] = action.value;
+        return row;
+      });
+    case "ORDER_FIELDS":
+      return state.map((record) => {
+        const reorderedRecord: Record<string, unknown> = {};
+        action.order.forEach((field: string) => {
+          if (field in record) {
+            reorderedRecord[field] = record[field];
+          }
+        });
+        return reorderedRecord;
+      });
+    default:
+      return state;
+  }
 };
 
+const presetReducer = (state: Preset, action: any): Preset => {
+  switch (action.type) {
+    case "SET_NAME":
+      return { ...state, name: action.name };
+    case "ADD_FIELD":
+      const added = [
+        ...(state.added || []),
+        { field: action.name, value: action.value },
+      ];
+      return {
+        ...state,
+        added: [...new Set(added.map((i) => JSON.stringify(i)))].map((i) =>
+          JSON.parse(i),
+        ),
+      };
+    case "REMOVE_FIELD":
+      return {
+        ...state,
+        removed: [...new Set([...(state.removed || []), action.field])],
+      };
+    case "EDIT_FIELD":
+      const edited = [
+        ...(state.edited || []),
+        { field: action.field, value: action.value },
+      ];
+      return {
+        ...state,
+        edited: [...new Set(edited.map((i) => JSON.stringify(i)))].map((i) =>
+          JSON.parse(i),
+        ),
+      };
+    case "SET_ORDER":
+      return { ...state, order: action.order };
+    case "SET_EXPORT":
+      return { ...state, export: action.export };
+    case "SET_WIDTHS":
+      return { ...state, widths: action.widths };
+    case "SET_SYMBOL":
+      return { ...state, symbol: action.symbol };
+    default:
+      return state;
+  }
+};
 
-export const DataContextProvider = ({children}: DataProviderProps) => {
-    const [data, dispatch] = useReducer(dataReducer, []);
-    const [preset, setPreset] = useState<Preset>(
-        {
-            name: null,
-            removed: null,
-            added: null,
-            edited: null,
-            order: [],
-            export: "csv",
-            widths: null,
-            symbol: null
+export const DataContextProvider = ({ children }: DataProviderProps) => {
+  const [data, dispatchData] = useReducer(dataReducer, []);
+  const [preset, dispatchPreset] = useReducer(presetReducer, {
+    name: null,
+    removed: null,
+    added: null,
+    edited: null,
+    order: [],
+    export: "csv",
+    widths: null,
+    symbol: null,
+  });
+
+  useEffect(() => {
+    const allPresets: Preset[] = [];
+
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith("preset")) {
+        const preset = localStorage.getItem(key);
+        if (preset) {
+          allPresets.push(JSON.parse(preset));
         }
-    );
+      }
+    });
 
-    const setData = (data: Record<string, unknown>[]) => {
-        dispatch({ type: 'SET_DATA', data: data });
-        setPreset(prev => ({...prev, order: Object.keys(data[0] || {})}));
-    };
+    console.log(allPresets);
+  }, []);
 
-    const addField = (name: string, value: string) => {
-        dispatch({ type: 'ADD_FIELD', name, value });
-        setPreset(prev => ({...prev, added: [...prev.added || [], {field: name, value}]}));
-    };
+  const setData = (data: Record<string, unknown>[]) => {
+    dispatchData({ type: "SET_DATA", data: data });
+    dispatchPreset({ type: "SET_ORDER", order: Object.keys(data[0] || {}) });
+  };
 
-    const removeField = (field: string) => {
-        dispatch({ type: 'REMOVE_FIELD', field });
-        setPreset(prev => ({...prev, removed: [...prev.removed || [], field]}));
-    };
+  const addField = (name: string, value: string) => {
+    dispatchData({ type: "ADD_FIELD", name, value });
+    dispatchPreset({ type: "ADD_FIELD", name, value });
+  };
 
-    const editField = (field: string, value: string) => {
-        dispatch({ type: 'EDIT_FIELD', field, value });
-        setPreset(prev => ({...prev, edited: [...prev.edited || [], {field, value}]}));
-    };
+  const removeField = (field: string) => {
+    dispatchData({ type: "REMOVE_FIELD", field });
+    dispatchPreset({ type: "REMOVE_FIELD", field });
+  };
 
-    const arrangeFields = (order: string[]) => {
-        dispatch({ type: 'ARRANGE_FIELDS', order });
-        setPreset(prev => ({...prev, order}));
-    };
+  const editField = (field: string, value: string) => {
+    dispatchData({ type: "EDIT_FIELD", field, value });
+    dispatchPreset({ type: "EDIT_FIELD", field, value });
+  };
 
-    const loadPreset = (preset: Preset) => {
-        preset.removed?.forEach(field => removeField(field));
-        preset.added?.forEach(({field, value}) => addField(field, value));
-        preset.edited?.forEach(({field, value}) => editField(field, value));
-        preset.order && arrangeFields(preset.order);
-        setPreset(prev => ({...prev, export: preset.export}));
-        setPreset(prev => ({...prev, widths: preset.widths}));
-        setPreset(prev => ({...prev, symbol: preset.symbol}));
-    }
+  const orderFields = (order: string[]) => {
+    dispatchData({ type: "ORDER_FIELDS", order });
+    dispatchPreset({ type: "SET_ORDER", order });
+  };
 
-    const savePreset = (name: string) => {
-        setPreset(prev => ({...prev, name}));
-        // Save preset to local storage
-    }
+  const loadPreset = (preset: Preset) => {
+    preset.removed?.forEach((field) => removeField(field));
+    preset.added?.forEach(({ field, value }) => addField(field, value));
+    preset.edited?.forEach(({ field, value }) => editField(field, value));
+    preset.order && orderFields(preset.order);
+    dispatchPreset({ type: "SET_EXPORT", export: preset.export });
+    dispatchPreset({ type: "SET_WIDTHS", widths: preset.widths });
+    dispatchPreset({ type: "SET_SYMBOL", symbol: preset.symbol });
+  };
 
-    const exportPreset = () => {
-        console.log(JSON.stringify(preset, null, 2))
-    }
+  const savePreset = (name: string) => {
+    const newPreset = { ...preset, name };
+    localStorage.setItem(`preset ${name}`, JSON.stringify(newPreset, null, 2));
+  };
 
-    return (
-        <DataContext.Provider
-            value={{
-                data,
-                preset,
-                setData,
-                addField,
-                removeField,
-                editField,
-                arrangeFields,
-                loadPreset,
-                savePreset,
-                exportPreset
-            }}
-        >
-            {children}
-        </DataContext.Provider>
-    );
+  const exportPreset = () => {
+    console.log(JSON.stringify(preset, null, 2));
+  };
+
+  return (
+    <DataContext.Provider
+      value={{
+        data,
+        preset,
+        setData,
+        addField,
+        removeField,
+        editField,
+        arrangeFields: orderFields,
+        loadPreset,
+        savePreset,
+        exportPreset,
+      }}
+    >
+      {children}
+    </DataContext.Provider>
+  );
 };
