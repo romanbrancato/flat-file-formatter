@@ -1,5 +1,4 @@
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,14 +15,15 @@ import {
 } from "@/components/ui/popover";
 
 import { useContext, useState } from "react";
-import { Preset } from "@/types/preset";
+import { Preset, PresetSchema } from "@/types/preset";
 import { DataContext } from "@/context/data-context";
 import { Dropzone } from "@/components/dropzone";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 
 export function PresetSelector() {
-  const { data, preset, savedPresets, loadPreset } = useContext(DataContext);
+  const { data, preset, savedPresets, loadPreset, newPreset } =
+    useContext(DataContext);
   const [open, setOpen] = useState(false);
 
   const onPresetSelect = (preset: Preset) => {
@@ -33,7 +33,26 @@ export function PresetSelector() {
     });
   };
 
-  const onPresetImport = (file: File | null) => {};
+  const onPresetImport = (file: File | null) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const obj = JSON.parse(event.target?.result as string);
+          const importedPreset = PresetSchema.parse(obj);
+          loadPreset(importedPreset);
+          if (importedPreset.name) {
+            newPreset(importedPreset.name);
+          }
+        } catch (error) {
+          toast.error("Invalid Preset", {
+            description: "The selected file is not a valid preset.",
+          });
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

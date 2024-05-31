@@ -1,4 +1,5 @@
 "use client";
+import { unparse } from "papaparse";
 import {
   createContext,
   ReactNode,
@@ -17,6 +18,9 @@ interface DataContextProps {
   removeField: (field: string) => void;
   editField: (field: string, value: string) => void;
   orderFields: (order: string[]) => void;
+  exportFile: () => void;
+  setSymbol: (symbol: string) => void;
+  setExport: (exportType: string) => void;
   loadPreset: (preset: Preset) => void;
   newPreset: (name: string) => void;
   exportPreset: () => void;
@@ -31,6 +35,9 @@ export const DataContext = createContext<DataContextProps>({
   removeField: () => {},
   editField: () => {},
   orderFields: () => {},
+  exportFile: () => {},
+  setSymbol: () => {},
+  setExport: () => {},
   loadPreset: () => {},
   newPreset: () => {},
   exportPreset: () => {},
@@ -110,6 +117,17 @@ const presetReducer = (state: Preset, action: any): Preset => {
       return { ...state, widths: action.widths };
     case "SET_SYMBOL":
       return { ...state, symbol: action.symbol };
+    case "RESET":
+      return {
+        name: null,
+        removed: null,
+        added: null,
+        edited: null,
+        order: [],
+        export: "csv",
+        widths: null,
+        symbol: null,
+      };
     default:
       return state;
   }
@@ -140,6 +158,7 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
   const setData = (data: Record<string, unknown>[]) => {
     dispatchData({ type: "SET_DATA", data: data });
     dispatchPreset({ type: "SET_ORDER", order: Object.keys(data[0] || {}) });
+    dispatchPreset({ type: "RESET" });
   };
 
   const addField = (name: string, value: string) => {
@@ -162,15 +181,41 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
     dispatchPreset({ type: "SET_ORDER", order });
   };
 
+  const exportFile = () => {
+    const config = {
+      delimiter: preset.symbol ? preset.symbol : ",",
+      header: true,
+      skipEmptyLines: true,
+    };
+    const result = unparse(data, config);
+
+    const blob = new Blob([result], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "data.csv";
+    document.body.appendChild(link);
+    link.click();
+  };
+
+  const setSymbol = (symbol: string) => {
+    dispatchPreset({ type: "SET_SYMBOL", symbol });
+  };
+
+  const setExport = (exportType: string) => {
+    dispatchPreset({ type: "SET_EXPORT", export: exportType });
+  };
+
   const loadPreset = (preset: Preset) => {
-    preset.removed?.forEach((field) => removeField(field));
-    preset.added?.forEach(({ field, value }) => addField(field, value));
-    preset.edited?.forEach(({ field, value }) => editField(field, value));
-    preset.order && orderFields(preset.order);
     dispatchPreset({ type: "SET_NAME", name: preset.name });
     dispatchPreset({ type: "SET_EXPORT", export: preset.export });
     dispatchPreset({ type: "SET_WIDTHS", widths: preset.widths });
     dispatchPreset({ type: "SET_SYMBOL", symbol: preset.symbol });
+    preset.removed?.forEach((field) => removeField(field));
+    preset.added?.forEach(({ field, value }) => addField(field, value));
+    preset.edited?.forEach(({ field, value }) => editField(field, value));
+    preset.order && orderFields(preset.order);
   };
 
   const newPreset = (name: string) => {
@@ -186,10 +231,10 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
     let dataUri =
       "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
 
-    let linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", `${preset.name}.json`);
-    linkElement.click();
+    let link = document.createElement("a");
+    link.setAttribute("href", dataUri);
+    link.setAttribute("download", `${preset.name}.json`);
+    link.click();
   };
 
   return (
@@ -203,6 +248,9 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
         removeField,
         editField,
         orderFields,
+        exportFile,
+        setSymbol,
+        setExport,
         loadPreset,
         newPreset,
         exportPreset,

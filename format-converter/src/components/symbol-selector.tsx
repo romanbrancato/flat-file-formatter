@@ -19,7 +19,7 @@ import { symbols } from "@/data/symbols";
 import { DataContext } from "@/context/data-context";
 
 export function SymbolSelector() {
-  const { data, preset } = useContext(DataContext);
+  const { data, preset, setSymbol } = useContext(DataContext);
   const [open, setOpen] = useState(false);
 
   return (
@@ -45,7 +45,7 @@ export function SymbolSelector() {
               <CommandItem
                 key={symbol}
                 onSelect={() => {
-                  preset.symbol = symbol;
+                  setSymbol(symbol);
                   setOpen(false);
                 }}
               >

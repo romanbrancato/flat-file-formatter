@@ -5,22 +5,17 @@ import { DataContext } from "@/context/data-context";
 import { useContext, useEffect, useState } from "react";
 
 export function ExportOptions() {
-  const { data, preset } = useContext(DataContext);
+  const { data, preset, setExport } = useContext(DataContext);
   const [tab, setTab] = useState<"csv" | "txt">(preset.export);
 
   useEffect(() => {
     setTab(preset.export);
   }, [preset.export]);
 
-  const onTabChange = (value: "csv" | "txt") => {
-    setTab(value);
-    preset.export = value;
-  };
-
   return (
     <Tabs
       value={tab}
-      onValueChange={(value: string) => onTabChange(value as "csv" | "txt")}
+      onValueChange={(value) => setExport(value)}
       className="mb-5 md:w-[175px]"
     >
       <div className="text-sm font-medium space-y-1">

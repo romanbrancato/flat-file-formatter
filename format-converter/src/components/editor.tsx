@@ -8,7 +8,7 @@ import { useContext } from "react";
 import { DataContext } from "@/context/data-context";
 
 export function Editor() {
-  const { data } = useContext(DataContext);
+  const { data, exportFile } = useContext(DataContext);
 
   return (
     <div className="rounded-md border">
@@ -20,7 +20,11 @@ export function Editor() {
         </div>
         <div className="flex flex-col">
           <ExportOptions />
-          <Button className="md:mt-auto" disabled={data.length === 0}>
+          <Button
+            disabled={data.length === 0}
+            onClick={() => exportFile()}
+            className="md:mt-auto"
+          >
             <Share2Icon className="mr-2" />
             Export File
           </Button>
