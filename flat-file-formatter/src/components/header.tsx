@@ -20,7 +20,7 @@ export function Header() {
       <Container>
         <div className="flex flex-row items-center justify-between">
           <span className="text-md font-medium peer-disabled:cursor-not-allowed">
-            .csv Formatter
+            Flat File Formatter
           </span>
           <Button variant="ghost" size="icon" onClick={toggleTheme}>
             {theme === "dark" ? <MoonIcon /> : <SunIcon />}
