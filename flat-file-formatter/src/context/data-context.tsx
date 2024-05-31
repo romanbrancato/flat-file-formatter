@@ -19,8 +19,9 @@ interface DataContextProps {
   editField: (field: string, value: string) => void;
   orderFields: (order: string[]) => void;
   exportFile: () => void;
-  setSymbol: (symbol: string) => void;
   setExport: (exportType: string) => void;
+  setWidths: (widths: Record<string, number>[]) => void;
+  setSymbol: (symbol: string) => void;
   loadPreset: (preset: Preset) => void;
   newPreset: (name: string) => void;
   exportPreset: () => void;
@@ -36,8 +37,9 @@ export const DataContext = createContext<DataContextProps>({
   editField: () => {},
   orderFields: () => {},
   exportFile: () => {},
-  setSymbol: () => {},
   setExport: () => {},
+  setWidths: () => {},
+  setSymbol: () => {},
   loadPreset: () => {},
   newPreset: () => {},
   exportPreset: () => {},
@@ -120,13 +122,13 @@ const presetReducer = (state: Preset, action: any): Preset => {
     case "RESET":
       return {
         name: null,
-        removed: null,
-        added: null,
-        edited: null,
+        removed: [],
+        added: [],
+        edited: [],
         order: [],
         export: "csv",
-        widths: null,
-        symbol: null,
+        widths: [],
+        symbol: ",",
       };
     default:
       return state;
@@ -137,13 +139,13 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
   const [data, dispatchData] = useReducer(dataReducer, []);
   const [preset, dispatchPreset] = useReducer(presetReducer, {
     name: null,
-    removed: null,
-    added: null,
-    edited: null,
+    removed: [],
+    added: [],
+    edited: [],
     order: [],
     export: "csv",
-    widths: null,
-    symbol: null,
+    widths: [],
+    symbol: ",",
   });
   const [savedPresets, setSavedPresets] = useState<Preset[]>([]);
 
@@ -182,25 +184,32 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
   };
 
   const exportFile = () => {
-    const config = {
-      delimiter: preset.symbol ? preset.symbol : ",",
-      header: true,
-      skipEmptyLines: true,
-    };
-    const result = unparse(data, config);
+    if (preset.export === "csv") {
+      const config = {
+        delimiter: preset.symbol ? preset.symbol : ",",
+        header: true,
+        skipEmptyLines: true,
+      };
+      const result = unparse(data, config);
 
-    const blob = new Blob([result], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+      const blob = new Blob([result], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
 
-    link.href = url;
-    link.download = "data.csv";
-    document.body.appendChild(link);
-    link.click();
+      link.href = url;
+      link.download = "data.csv";
+      document.body.appendChild(link);
+      link.click();
+    } else {
+    }
   };
 
   const setSymbol = (symbol: string) => {
     dispatchPreset({ type: "SET_SYMBOL", symbol });
+  };
+
+  const setWidths = (widths: Record<string, number>[]) => {
+    dispatchPreset({ type: "SET_WIDTHS", widths });
   };
 
   const setExport = (exportType: string) => {
@@ -249,6 +258,7 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
         editField,
         orderFields,
         exportFile,
+        setWidths,
         setSymbol,
         setExport,
         loadPreset,

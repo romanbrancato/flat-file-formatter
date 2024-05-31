@@ -35,8 +35,8 @@ const defineWidthsSchema = z.object({
 });
 
 export function DefineWidthsButton() {
+  const { data, setWidths } = useContext(DataContext);
   const [open, setOpen] = useState(false);
-  const { data } = useContext(DataContext);
   const fields = Object.keys(data[0] || {});
 
   const form = useForm({
@@ -47,10 +47,13 @@ export function DefineWidthsButton() {
   });
 
   const onSubmit: SubmitHandler<FieldValues> = (values) => {
-    const widthsArray = Object.entries(values.widths).map(([key, value]) => ({
-      [key]: value,
+    const widthsArray: Record<string, number>[] = Object.entries(
+      values.widths,
+    ).map(([key, value]) => ({
+      [key]: value as number,
     }));
-    console.log(widthsArray); // You can do whatever you want with this array
+
+    setWidths(widthsArray);
 
     setOpen(false);
     form.reset();

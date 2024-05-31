@@ -1,6 +1,5 @@
 "use client";
-import
-{ useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { parse } from "papaparse";
 import { Dropzone } from "@/components/dropzone";
 import { Editor } from "@/components/editor";
