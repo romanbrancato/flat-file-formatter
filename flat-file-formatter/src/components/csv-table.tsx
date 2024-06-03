@@ -25,7 +25,11 @@ import {
 } from "@dnd-kit/sortable";
 import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
-import { ColumnDef, getCoreRowModel } from "@tanstack/table-core";
+import {
+  ColumnDef,
+  getCoreRowModel,
+  getPaginationRowModel,
+} from "@tanstack/table-core";
 import { flexRender, useReactTable } from "@tanstack/react-table";
 import { DragHandleDots2Icon, InfoCircledIcon } from "@radix-ui/react-icons";
 import { DataContext } from "@/context/data-context";
@@ -98,8 +102,13 @@ export function CSVTable() {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
       columnOrder,
+      pagination: {
+        pageIndex: 0,
+        pageSize: 20,
+      },
     },
     onColumnOrderChange: setColumnOrder,
   });
