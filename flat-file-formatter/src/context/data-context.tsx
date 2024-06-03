@@ -150,11 +150,21 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
   const [savedPresets, setSavedPresets] = useState<Preset[]>([]);
 
   useEffect(() => {
-    setSavedPresets(
-      Object.keys(localStorage)
-        .filter((key) => key.startsWith("preset"))
-        .map((key) => JSON.parse(localStorage.getItem(key) || "")),
-    );
+    function getSavedPresets() {
+      setSavedPresets(
+        Object.keys(localStorage)
+          .filter((key) => key.startsWith("preset"))
+          .map((key) => JSON.parse(localStorage.getItem(key) || "")),
+      );
+    }
+
+    getSavedPresets();
+
+    window.addEventListener("storage", getSavedPresets);
+
+    return () => {
+      window.removeEventListener("storage", getSavedPresets);
+    };
   }, []);
 
   const setData = (data: Record<string, unknown>[]) => {
@@ -233,6 +243,7 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
       `preset ${name}`,
       JSON.stringify({ ...preset, name }, null, 2),
     );
+    window.dispatchEvent(new Event("storage"));
   };
 
   const exportPreset = () => {

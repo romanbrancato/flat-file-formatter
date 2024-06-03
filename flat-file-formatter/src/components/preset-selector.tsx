@@ -1,4 +1,4 @@
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon, CheckIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,16 +20,22 @@ import { DataContext } from "@/context/data-context";
 import { Dropzone } from "@/components/dropzone";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 export function PresetSelector() {
   const { data, preset, savedPresets, loadPreset, newPreset } =
     useContext(DataContext);
   const [open, setOpen] = useState(false);
 
-  const onPresetSelect = (preset: Preset) => {
-    loadPreset(preset);
+  const onPresetSelect = (selectedPreset: Preset) => {
+    loadPreset(selectedPreset);
     toast.success("Preset Loaded", {
-      description: `The preset "${preset.name}" has been loaded.`,
+      description: `The preset "${selectedPreset.name}" has been loaded.`,
     });
   };
 
@@ -44,6 +50,9 @@ export function PresetSelector() {
           if (importedPreset.name) {
             newPreset(importedPreset.name);
           }
+          toast.success("Preset Loaded", {
+            description: `The preset "${preset.name}" has been loaded.`,
+          });
         } catch (error) {
           toast.error("Invalid Preset", {
             description: "The selected file is not a valid preset.",
@@ -52,6 +61,11 @@ export function PresetSelector() {
       };
       reader.readAsText(file);
     }
+  };
+
+  const onPresetDelete = (selectedPreset: Preset) => {
+    localStorage.removeItem(`preset ${selectedPreset.name}`);
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (
@@ -82,24 +96,36 @@ export function PresetSelector() {
           <CommandGroup heading="Presets">
             <ScrollArea>
               <ScrollAreaViewport className="max-h-[150px]">
-                {savedPresets.map((p, index) => (
-                  <CommandItem
-                    key={index}
-                    onSelect={() => {
-                      onPresetSelect(p);
-                      setOpen(false);
-                    }}
-                  >
-                    {p.name}
-                    <CheckIcon
-                      className={cn(
-                        "ml-auto",
-                        JSON.stringify(preset) === JSON.stringify(p)
-                          ? "opacity-100"
-                          : "opacity-0",
-                      )}
-                    />
-                  </CommandItem>
+                {savedPresets.map((p) => (
+                  <ContextMenu key={JSON.stringify(p)}>
+                    <ContextMenuTrigger>
+                      <CommandItem
+                        onSelect={() => {
+                          onPresetSelect(p);
+                          setOpen(false);
+                        }}
+                      >
+                        {p.name}
+                        <CheckIcon
+                          className={cn(
+                            "ml-auto",
+                            JSON.stringify(preset) === JSON.stringify(p)
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
+                      </CommandItem>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                      <ContextMenuItem
+                        className="text-destructive"
+                        onClick={() => onPresetDelete(p)}
+                      >
+                        Delete
+                        <Cross2Icon className="ml-auto" />
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
                 ))}
               </ScrollAreaViewport>
             </ScrollArea>
