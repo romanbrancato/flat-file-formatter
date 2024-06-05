@@ -1,7 +1,11 @@
-import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
-
-import { cn } from "@/lib/utils";
+import { useState, useContext } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import {
   Command,
   CommandEmpty,
@@ -9,15 +13,10 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { useContext, useState } from "react";
-import { symbols } from "@/data/symbols";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
+import { symbols } from "@/data/symbols";
+import { cn } from "@/lib/utils";
 
 export function SymbolSelector() {
   const { data } = useContext(DataContext);
@@ -35,7 +34,11 @@ export function SymbolSelector() {
           className="flex-1 justify-between w-full"
           disabled={data.length === 0}
         >
-          {preset && preset.symbol ? preset.symbol : "Select a symbol..."}
+          {preset && preset.symbol
+            ? Array.from(symbols.entries()).find(
+                ([key, value]) => value === preset.symbol,
+              )?.[0] || preset.symbol
+            : "Select a symbol..."}
           <CaretSortIcon className="ml-2 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -43,11 +46,11 @@ export function SymbolSelector() {
         <Command>
           <CommandInput placeholder="Search symbols..." />
           <CommandGroup heading="Symbols">
-            {symbols.map((symbol) => (
+            {Array.from(symbols.entries()).map(([symbol, value]) => (
               <CommandItem
                 key={symbol}
                 onSelect={() => {
-                  setSymbol(symbol);
+                  setSymbol(value);
                   setOpen(false);
                 }}
               >
@@ -55,7 +58,7 @@ export function SymbolSelector() {
                 <CheckIcon
                   className={cn(
                     "ml-auto",
-                    preset.symbol === symbol ? "opacity-100" : "opacity-0",
+                    preset.symbol === value ? "opacity-100" : "opacity-0",
                   )}
                 />
               </CommandItem>

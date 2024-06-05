@@ -1,9 +1,9 @@
-export const symbols = [
-    ",",
-    ";",
-    ":",
-    "|",
-    "Tab",
-    "Space",
-    "="
-]
+export const symbols = new Map([
+  [",", ","],
+  [";", ";"],
+  [":", ":"],
+  ["|", "|"],
+  ["Tab", "\t"],
+  ["Space", " "],
+  ["=", "="],
+]);
