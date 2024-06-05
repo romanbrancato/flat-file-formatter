@@ -6,9 +6,33 @@ import { Button } from "@/components/ui/button";
 import { Share2Icon } from "@radix-ui/react-icons";
 import { useContext } from "react";
 import { DataContext } from "@/context/data-context";
+import { PresetContext } from "@/context/preset-context";
+import { unparse } from "papaparse";
 
 export function Editor() {
-  const { data, exportFile } = useContext(DataContext);
+  const { data } = useContext(DataContext);
+  const { preset } = useContext(PresetContext);
+
+  const exportFile = () => {
+    if (preset.export === "csv") {
+      const config = {
+        delimiter: preset.symbol ? preset.symbol : ",",
+        header: true,
+        skipEmptyLines: true,
+      };
+      const result = unparse(data, config);
+
+      const blob = new Blob([result], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "data.csv";
+      document.body.appendChild(link);
+      link.click();
+    } else {
+    }
+  };
 
   return (
     <div className="rounded-md border">

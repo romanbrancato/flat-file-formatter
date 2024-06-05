@@ -26,11 +26,55 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { PresetContext } from "@/context/preset-context";
 
 export function PresetSelector() {
-  const { data, preset, savedPresets, loadPreset, newPreset } =
-    useContext(DataContext);
+  const {
+    data,
+    removeField: dataRemoveField,
+    addField: dataAddField,
+    editField: dataEditField,
+    orderFields,
+  } = useContext(DataContext);
+  const {
+    preset,
+    savedPresets,
+    setName,
+    setOrder,
+    setSymbol,
+    setWidths,
+    setExport,
+    removeField: presetRemoveField,
+    addField: presetAddField,
+    editField: presetEditField,
+    savePreset,
+  } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
+
+  const loadPreset = (preset: Preset) => {
+    preset.name && setName(preset.name);
+    setSymbol(preset.symbol);
+    setWidths(preset.widths);
+    setExport(preset.export);
+
+    preset.removed?.forEach((field) => {
+      dataRemoveField(field);
+      presetRemoveField(field);
+    });
+
+    preset.added?.forEach(({ field, value }) => {
+      dataAddField(field, value);
+      presetAddField(field, value);
+    });
+
+    preset.edited?.forEach(({ field, value }) => {
+      dataEditField(field, value);
+      presetEditField(field, value);
+    });
+
+    orderFields(preset.order);
+    setOrder(preset.order);
+  };
 
   const onPresetSelect = (selectedPreset: Preset) => {
     loadPreset(selectedPreset);
@@ -46,13 +90,8 @@ export function PresetSelector() {
         try {
           const obj = JSON.parse(event.target?.result as string);
           const importedPreset = PresetSchema.parse(obj);
-          loadPreset(importedPreset);
-          if (importedPreset.name) {
-            newPreset(importedPreset.name);
-          }
-          toast.success("Preset Loaded", {
-            description: `The preset "${preset.name}" has been loaded.`,
-          });
+          onPresetSelect(importedPreset);
+          savePreset();
         } catch (error) {
           toast.error("Invalid Preset", {
             description: "The selected file is not a valid preset.",
@@ -64,7 +103,7 @@ export function PresetSelector() {
   };
 
   const onPresetDelete = (selectedPreset: Preset) => {
-    localStorage.removeItem(`preset ${selectedPreset.name}`);
+    localStorage.removeItem(`preset_${selectedPreset.name}`);
     window.dispatchEvent(new Event("storage"));
   };
 
@@ -97,7 +136,7 @@ export function PresetSelector() {
             <ScrollArea>
               <ScrollAreaViewport className="max-h-[150px]">
                 {savedPresets.map((p) => (
-                  <ContextMenu key={JSON.stringify(p)}>
+                  <ContextMenu key={p.name}>
                     <ContextMenuTrigger>
                       <CommandItem
                         onSelect={() => {
@@ -109,7 +148,7 @@ export function PresetSelector() {
                         <CheckIcon
                           className={cn(
                             "ml-auto",
-                            JSON.stringify(preset) === JSON.stringify(p)
+                            preset.name === p.name
                               ? "opacity-100"
                               : "opacity-0",
                           )}

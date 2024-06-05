@@ -22,6 +22,7 @@ import {
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PresetContext } from "@/context/preset-context";
 
 const editFieldSchema = z.object({
   field: z.string({ required_error: "Select a field to edit." }),
@@ -29,7 +30,8 @@ const editFieldSchema = z.object({
 });
 
 export function EditFieldButton() {
-  const { data, editField } = useContext(DataContext);
+  const { data, editField: dataEditField } = useContext(DataContext);
+  const { editField: presetEditField } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof editFieldSchema>>({
@@ -40,7 +42,8 @@ export function EditFieldButton() {
   });
 
   function onSubmit(values: z.infer<typeof editFieldSchema>) {
-    editField(values.field, values.value);
+    dataEditField(values.field, values.value);
+    presetEditField(values.field, values.value);
     setOpen(false);
     form.reset();
   }

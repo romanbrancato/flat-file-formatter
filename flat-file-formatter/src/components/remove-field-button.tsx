@@ -21,13 +21,15 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { PresetContext } from "@/context/preset-context";
 
 const removeFieldSchema = z.object({
   field: z.string({ required_error: "Select a field to remove." }),
 });
 
 export function RemoveFieldButton() {
-  const { data, removeField } = useContext(DataContext);
+  const { data, removeField: dataRemoveField } = useContext(DataContext);
+  const { removeField: presetRemoveField } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof removeFieldSchema>>({
@@ -35,7 +37,8 @@ export function RemoveFieldButton() {
   });
 
   function onSubmit(values: z.infer<typeof removeFieldSchema>) {
-    removeField(values.field);
+    dataRemoveField(values.field);
+    presetRemoveField(values.field);
     setOpen(false);
     form.reset();
   }

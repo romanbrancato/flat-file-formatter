@@ -12,12 +12,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useContext } from "react";
-import { DataContext } from "@/context/data-context";
 import { NewPresetButton } from "@/components/new-preset-button";
+import { ExportPresetButton } from "@/components/export-preset-button";
 
 export function PresetToolbar() {
-  const { preset, exportPreset } = useContext(DataContext);
   return (
     <>
       <div className="flex items-center justify-between py-2 px-5">
@@ -27,15 +25,7 @@ export function PresetToolbar() {
         <div className="flex flex-row items-center space-x-3">
           <PresetSelector />
           <NewPresetButton />
-          <Button
-            variant="secondary"
-            size="icon"
-            onClick={exportPreset}
-            className="hidden sm:flex"
-            disabled={!preset.name}
-          >
-            <Share2Icon />
-          </Button>
+          <ExportPresetButton />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button

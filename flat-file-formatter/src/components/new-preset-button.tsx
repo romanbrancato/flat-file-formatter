@@ -21,13 +21,15 @@ import {
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PresetContext } from "@/context/preset-context";
 
 const newPresetSchema = z.object({
   name: z.string().min(1, "Enter a preset name."),
 });
 
 export function NewPresetButton() {
-  const { data, newPreset } = useContext(DataContext);
+  const { data } = useContext(DataContext);
+  const { setName, savePreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof newPresetSchema>>({
@@ -38,7 +40,8 @@ export function NewPresetButton() {
   });
 
   function onSubmit(values: z.infer<typeof newPresetSchema>) {
-    newPreset(values.name);
+    setName(values.name);
+    savePreset();
     setOpen(false);
     form.reset();
   }

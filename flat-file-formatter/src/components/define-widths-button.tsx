@@ -23,6 +23,7 @@ import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
+import { PresetContext } from "@/context/preset-context";
 
 const defineWidthsSchema = z.object({
   widths: z.record(
@@ -35,7 +36,8 @@ const defineWidthsSchema = z.object({
 });
 
 export function DefineWidthsButton() {
-  const { data, setWidths } = useContext(DataContext);
+  const { data } = useContext(DataContext);
+  const { setWidths } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const fields = Object.keys(data[0] || {});
 

@@ -4,9 +4,11 @@ import { parse } from "papaparse";
 import { Dropzone } from "@/components/dropzone";
 import { Editor } from "@/components/editor";
 import { DataContext } from "@/context/data-context";
+import { PresetContext } from "@/context/preset-context";
 
 export default function App() {
-  const { setSymbol, setData } = useContext(DataContext);
+  const { setData } = useContext(DataContext);
+  const { setOrder, setSymbol, resetPreset } = useContext(PresetContext);
   const [file, setFile] = useState<File | null>(null);
 
   // Parse the CSV file when a new file is set
@@ -16,8 +18,9 @@ export default function App() {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          console.log("Parsing complete:", results);
+          resetPreset();
           setData(results.data as Record<string, unknown>[]);
+          setOrder(results.meta.fields as string[]);
           setSymbol(results.meta.delimiter);
         },
       });

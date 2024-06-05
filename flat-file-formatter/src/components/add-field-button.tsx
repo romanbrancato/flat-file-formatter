@@ -21,6 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { PresetContext } from "@/context/preset-context";
 
 const addFieldSchema = z.object({
   name: z.string().min(1, "Enter a field name."),
@@ -28,7 +29,8 @@ const addFieldSchema = z.object({
 });
 
 export function AddFieldButton() {
-  const { data, addField } = useContext(DataContext);
+  const { data, addField: dataAddField } = useContext(DataContext);
+  const { addField: presetAddField } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof addFieldSchema>>({
@@ -40,7 +42,8 @@ export function AddFieldButton() {
   });
 
   function onSubmit(values: z.infer<typeof addFieldSchema>) {
-    addField(values.name, values.value);
+    dataAddField(values.name, values.value);
+    presetAddField(values.name, values.value);
     setOpen(false);
     form.reset();
   }

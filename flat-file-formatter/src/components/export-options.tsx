@@ -3,9 +3,11 @@ import { SymbolSelector } from "@/components/symbol-selector";
 import { DefineWidthsButton } from "@/components/define-widths-button";
 import { DataContext } from "@/context/data-context";
 import { useContext, useEffect, useState } from "react";
+import { PresetContext } from "@/context/preset-context";
 
 export function ExportOptions() {
-  const { data, preset, setExport } = useContext(DataContext);
+  const { data } = useContext(DataContext);
+  const { preset, setExport } = useContext(PresetContext);
   const [tab, setTab] = useState<"csv" | "txt">(preset.export);
 
   useEffect(() => {

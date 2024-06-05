@@ -17,9 +17,11 @@ import {
 import { useContext, useState } from "react";
 import { symbols } from "@/data/symbols";
 import { DataContext } from "@/context/data-context";
+import { PresetContext } from "@/context/preset-context";
 
 export function SymbolSelector() {
-  const { data, preset, setSymbol } = useContext(DataContext);
+  const { data } = useContext(DataContext);
+  const { preset, setSymbol } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
   return (
