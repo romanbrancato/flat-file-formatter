@@ -32,12 +32,13 @@ export function Editor() {
             name: field,
             start: start,
             width: width,
-            padString: preset.symbol,
+            padPosition: "end",
           };
           start += width;
           return column;
         }),
       );
+      console.log(fixedWidthParser);
       result = fixedWidthParser.unparse(data);
     }
 
