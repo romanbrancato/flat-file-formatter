@@ -28,9 +28,9 @@ export default function App() {
   }, [file]);
 
   return (
-    <main className="flex flex-col justify-between] gap-y-3 mb-3">
+    <main className="flex flex-col gap-y-3">
       <span className="text-center text-md font-bold">Format a Flat File.</span>
-      <Dropzone onChange={setFile} className="w-full" fileExtension="csv" />
+      <Dropzone onChange={setFile} fileExtension=".csv, .txt" />
       <Editor />
     </main>
   );

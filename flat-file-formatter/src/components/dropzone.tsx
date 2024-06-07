@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState, DragEvent, ChangeEvent } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { UploadIcon } from "@radix-ui/react-icons";
 
@@ -18,19 +18,18 @@ export function Dropzone({
   const [fileInfo, setFileInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    const { files } = e.dataTransfer;
-    handleFile(files[0]);
+    handleFile(e.dataTransfer.files[0]);
   };
 
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
     if (files) {
       handleFile(files[0]);
@@ -44,10 +43,20 @@ export function Dropzone({
       return;
     }
 
-    if (fileExtension && !file.name.endsWith(`.${fileExtension}`)) {
-      setError(`Invalid file type. Expected: .${fileExtension}`);
-      return;
+    if (fileExtension) {
+      const allowedExtensions = fileExtension
+        .split(",")
+        .map((ext) => ext.trim());
+      const isValidExtension = allowedExtensions.some((ext) =>
+        file.name.toLowerCase().endsWith(`${ext.toLowerCase()}`),
+      );
+
+      if (!isValidExtension) {
+        setError(`Invalid file type. Expected: ${fileExtension}`);
+        return;
+      }
     }
+
     const fileSizeInKB = Math.round(file.size / 1024);
     onChange(file);
     setFileInfo(`Uploaded file: ${file.name} (${fileSizeInKB} KB)`);
@@ -77,7 +86,7 @@ export function Dropzone({
           <input
             ref={fileInputRef}
             type="file"
-            accept={`.${fileExtension}`}
+            accept={fileExtension}
             onChange={handleFileInputChange}
             className="hidden"
           />

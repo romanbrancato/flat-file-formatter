@@ -37,14 +37,19 @@ const defineWidthsSchema = z.object({
 
 export function DefineWidthsButton() {
   const { data } = useContext(DataContext);
-  const { setWidths } = useContext(PresetContext);
+  const { preset, setWidths } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const fields = Object.keys(data[0] || {});
 
   const form = useForm({
     resolver: zodResolver(defineWidthsSchema),
     defaultValues: {
-      widths: Object.fromEntries(fields.map((field) => [field, ""])),
+      widths: Object.fromEntries(
+        fields.map((field) => {
+          const presetWidth = preset.widths.find((item) => field in item);
+          return [field, presetWidth ? presetWidth[field] : ""];
+        }),
+      ),
     },
   });
 
@@ -58,7 +63,6 @@ export function DefineWidthsButton() {
     setWidths(widthsArray);
 
     setOpen(false);
-    form.reset();
   };
 
   return (

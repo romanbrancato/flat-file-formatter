@@ -7,31 +7,48 @@ import { Share2Icon } from "@radix-ui/react-icons";
 import { useContext } from "react";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
-import { unparse } from "papaparse";
+import Papa from "papaparse";
+import { FixedWidthParser } from "fixed-width-parser";
 
 export function Editor() {
   const { data } = useContext(DataContext);
   const { preset } = useContext(PresetContext);
 
   const exportFile = () => {
+    let result;
     if (preset.export === "csv") {
       const config = {
-        delimiter: preset.symbol ? preset.symbol : ",",
+        delimiter: preset.symbol,
         header: true,
         skipEmptyLines: true,
       };
-      const result = unparse(data, config);
-
-      const blob = new Blob([result], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-
-      link.href = url;
-      link.download = "data.csv";
-      document.body.appendChild(link);
-      link.click();
+      result = Papa.unparse(data, config);
     } else {
+      let start = 0;
+      const fixedWidthParser = new FixedWidthParser(
+        preset.order.map((field) => {
+          const width = preset.widths.find((widths) => field in widths)[field];
+          const column = {
+            name: field,
+            start: start,
+            width: width,
+            padString: preset.symbol,
+          };
+          start += width;
+          return column;
+        }),
+      );
+      result = fixedWidthParser.unparse(data);
     }
+
+    const blob = new Blob([result]);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `data.${preset.export}`;
+    document.body.appendChild(link);
+    link.click();
   };
 
   return (
