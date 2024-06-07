@@ -27,7 +27,10 @@ export function Editor() {
       let start = 0;
       const fixedWidthParser = new FixedWidthParser(
         preset.order.map((field) => {
-          const width = preset.widths.find((widths) => field in widths)[field];
+          const width = preset.widths.find((widths) => field in widths)?.[
+            field
+          ];
+          if (!width) throw new Error(`Width not found for field ${field}`);
           const column: ParseConfigInput = {
             name: field,
             start: start,
