@@ -8,7 +8,7 @@ import { useContext } from "react";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import Papa from "papaparse";
-import { FixedWidthParser } from "fixed-width-parser";
+import { FixedWidthParser, ParseConfigInput } from "fixed-width-parser";
 
 export function Editor() {
   const { data } = useContext(DataContext);
@@ -28,7 +28,7 @@ export function Editor() {
       const fixedWidthParser = new FixedWidthParser(
         preset.order.map((field) => {
           const width = preset.widths.find((widths) => field in widths)[field];
-          const column = {
+          const column: ParseConfigInput = {
             name: field,
             start: start,
             width: width,
