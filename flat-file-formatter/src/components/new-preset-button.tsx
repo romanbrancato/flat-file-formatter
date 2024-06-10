@@ -23,12 +23,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PresetContext } from "@/context/preset-context";
 
+interface NewPresetButtonProps {
+  trigger: React.ReactNode;
+}
+
 const newPresetSchema = z.object({
   name: z.string().min(1, "Enter a preset name."),
 });
 
-export function NewPresetButton() {
-  const { data } = useContext(DataContext);
+export function NewPresetButton({ trigger }: NewPresetButtonProps) {
   const { setName, savePreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
@@ -48,15 +51,7 @@ export function NewPresetButton() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild className="flex-1">
-        <Button
-          variant="secondary"
-          className="hidden sm:flex"
-          disabled={data.length === 0}
-        >
-          New Preset
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[800px]">
         <DialogHeader>
           <DialogTitle>New Preset</DialogTitle>

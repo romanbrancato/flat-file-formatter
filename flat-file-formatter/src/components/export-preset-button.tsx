@@ -1,9 +1,11 @@
-import { Share2Icon } from "@radix-ui/react-icons";
-import { Button } from "@/components/ui/button";
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
 
-export function ExportPresetButton() {
+interface ExportPresetButtonProps {
+  trigger: React.ReactNode;
+}
+
+export function ExportPresetButton({ trigger }: ExportPresetButtonProps) {
   const { preset } = useContext(PresetContext);
 
   const exportPreset = () => {
@@ -17,15 +19,8 @@ export function ExportPresetButton() {
     link.click();
   };
 
-  return (
-    <Button
-      variant="secondary"
-      size="icon"
-      onClick={exportPreset}
-      className="hidden sm:flex"
-      disabled={!preset.name}
-    >
-      <Share2Icon />
-    </Button>
+  return React.cloneElement(
+    React.Children.only(trigger as React.ReactElement),
+    { onClick: exportPreset },
   );
 }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { DataContext } from "@/context/data-context";
 import {
   Dialog,
@@ -24,8 +24,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { PresetContext } from "@/context/preset-context";
-
-export const FormStateContext = createContext({ isValid: false });
 
 const defineWidthsSchema = z.object({
   widths: z.record(
@@ -68,55 +66,54 @@ export function DefineWidthsButton() {
   };
 
   return (
-    <FormStateContext.Provider value={{ isValid: form.formState.isValid }}>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full border-dashed mb-2"
-            disabled={data.length === 0}
-          >
-            <Pencil2Icon className="mr-2" />
-            Define Widths
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[600px] max-h-[800px]">
-          <DialogHeader>
-            <DialogTitle>Define Widths</DialogTitle>
-            <DialogDescription className="flex flex-row justify-between">
-              Define the widths of each field in characters.
-              <Button onClick={() => form.handleSubmit(onSubmit)()}>
-                Save
-              </Button>
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea>
-            <ScrollAreaViewport className="max-h-[400px]">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}>
-                  {fields.map((fieldName) => (
-                    <FormField
-                      control={form.control}
-                      name={`widths.${fieldName}`}
-                      key={fieldName}
-                      render={({ field }) => (
-                        <FormItem className="pr-3 pl-1 pb-1">
-                          <Label>{fieldName}</Label>
-                          <FormControl>
-                            <Input {...field} type="number" min={0} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  ))}
-                </form>
-              </Form>
-            </ScrollAreaViewport>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
-    </FormStateContext.Provider>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full border-dashed mb-2"
+          disabled={data.length === 0}
+        >
+          <Pencil2Icon className="mr-2" />
+          Define Widths
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px] max-h-[800px]">
+        <DialogHeader>
+          <DialogTitle>Define Widths</DialogTitle>
+          <DialogDescription className="flex flex-row justify-between">
+            Define the widths of each field in characters.
+            <Button onClick={() => form.handleSubmit(onSubmit)()}>Save</Button>
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea>
+          <ScrollAreaViewport className="max-h-[400px]">
+            <Form {...form}>
+              <form
+                className="space-y-2"
+                onSubmit={form.handleSubmit(onSubmit)}
+              >
+                {fields.map((fieldName) => (
+                  <FormField
+                    control={form.control}
+                    name={`widths.${fieldName}`}
+                    key={fieldName}
+                    render={({ field }) => (
+                      <FormItem className="pr-3 pl-1">
+                        <Label>{fieldName}</Label>
+                        <FormControl>
+                          <Input {...field} type="number" min={0} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ))}
+              </form>
+            </Form>
+          </ScrollAreaViewport>
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
   );
 }
