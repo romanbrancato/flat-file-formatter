@@ -4,6 +4,7 @@ import { DefineWidthsButton } from "@/components/define-widths-button";
 import { DataContext } from "@/context/data-context";
 import { useContext, useEffect, useState } from "react";
 import { PresetContext } from "@/context/preset-context";
+import { PadPositionRadio } from "@/components/pad-position-radio";
 
 export function ExportOptions() {
   const { data } = useContext(DataContext);
@@ -39,12 +40,16 @@ export function ExportOptions() {
       </TabsContent>
       <TabsContent value="txt" className="space-y-2">
         <div className="text-sm font-medium space-y-1">
-          <span>Configure</span>
+          <span>Widths</span>
           <DefineWidthsButton />
         </div>
         <div className="text-sm font-medium space-y-1">
           <span>Padding Symbol</span>
           <SymbolSelector />
+        </div>
+        <div className="text-sm font-medium space-y-1">
+          <span>Pad Position</span>
+          <PadPositionRadio />
         </div>
       </TabsContent>
     </Tabs>

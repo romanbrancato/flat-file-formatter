@@ -9,12 +9,21 @@ import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import Papa from "papaparse";
 import { FixedWidthParser, ParseConfigInput } from "fixed-width-parser";
+import { FormStateContext } from "@/components/define-widths-button";
+import { toast } from "sonner";
 
 export function Editor() {
   const { data } = useContext(DataContext);
   const { preset } = useContext(PresetContext);
+  const { isValid } = useContext(FormStateContext);
 
   const exportFile = () => {
+    if (!isValid) {
+      toast.error("Unable to Export File", {
+        description: "Please ensure all columns have a defined width.",
+      });
+      return;
+    }
     let result;
     if (preset.export === "csv") {
       const config = {
@@ -35,7 +44,8 @@ export function Editor() {
             name: field,
             start: start,
             width: width,
-            padPosition: "end",
+            padPosition: preset.padPos,
+            padChar: preset.symbol,
           };
           start += width;
           return column;
