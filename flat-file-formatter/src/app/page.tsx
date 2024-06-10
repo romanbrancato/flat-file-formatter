@@ -5,6 +5,13 @@ import { Dropzone } from "@/components/dropzone";
 import { Editor } from "@/components/editor";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function App() {
   const { setData } = useContext(DataContext);
@@ -29,7 +36,23 @@ export default function App() {
 
   return (
     <main className="flex flex-col gap-y-3">
-      <span className="text-center text-md font-bold">Format a Flat File.</span>
+      <span className="text-md font-bold absolute left-1/2 -translate-x-1/2">
+        Format a Flat File
+      </span>
+      <Select defaultValue="single">
+        <SelectTrigger className="h-7 w-[145px] text-xs ml-auto">
+          <span className="text-muted-foreground">Mode: </span>
+          <SelectValue placeholder="Select mode" />
+        </SelectTrigger>
+        <SelectContent className="text-xs">
+          <SelectItem key="single" value="single">
+            Single
+          </SelectItem>
+          <SelectItem key="batch" value="batch">
+            Batch
+          </SelectItem>
+        </SelectContent>
+      </Select>
       <Dropzone onChange={setFile} fileExtension=".csv, .txt" />
       <Editor />
     </main>

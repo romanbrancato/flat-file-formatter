@@ -34,6 +34,7 @@ export function SymbolSelector() {
           className="flex-1 justify-between w-full"
           disabled={data.length === 0}
         >
+          <span className="text-muted-foreground text-xs">Symbol: </span>
           {preset && preset.symbol
             ? Array.from(symbols.entries()).find(
                 ([key, value]) => value === preset.symbol,
@@ -45,7 +46,7 @@ export function SymbolSelector() {
       <PopoverContent align="start" className="w-[200px] p-0">
         <Command>
           <CommandInput placeholder="Search symbols..." />
-          <CommandGroup heading="Symbols">
+          <CommandGroup>
             {Array.from(symbols.entries()).map(([symbol, value]) => (
               <CommandItem
                 key={symbol}

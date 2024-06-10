@@ -129,8 +129,8 @@ export function PresetSelector() {
             <Dropzone
               onChange={(file) => onPresetImport(file)}
               className="w-full"
-              fileExtension="json"
-            ></Dropzone>
+              fileExtension=".json"
+            />
           </CommandGroup>
           <CommandGroup heading="Presets">
             <ScrollArea>
