@@ -44,11 +44,11 @@ export default function App() {
           <span className="text-muted-foreground">Mode: </span>
           <SelectValue placeholder="Select mode" />
         </SelectTrigger>
-        <SelectContent className="text-xs">
-          <SelectItem key="single" value="single">
+        <SelectContent>
+          <SelectItem key="single" value="single" className="text-xs">
             Single
           </SelectItem>
-          <SelectItem key="batch" value="batch">
+          <SelectItem key="batch" value="batch" className="text-xs">
             Batch
           </SelectItem>
         </SelectContent>

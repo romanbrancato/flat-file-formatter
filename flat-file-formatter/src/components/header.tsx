@@ -1,6 +1,6 @@
 "use client";
 import { Container } from "@/components/ui/container";
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { GitHubLogoIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 
@@ -18,9 +18,24 @@ export function Header() {
           <span className="text-md font-medium peer-disabled:cursor-not-allowed">
             Flat File Formatter
           </span>
-          <Button variant="ghost" size="icon" onClick={toggleTheme}>
-            {theme === "dark" ? <MoonIcon /> : <SunIcon />}
-          </Button>
+          <div className="flex flex-row items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() =>
+                window.open(
+                  "https://github.com/romanbrancato/flat-file-formatter",
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
+            >
+              <GitHubLogoIcon />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={toggleTheme}>
+              {theme === "dark" ? <MoonIcon /> : <SunIcon />}
+            </Button>
+          </div>
         </div>
       </Container>
     </header>
