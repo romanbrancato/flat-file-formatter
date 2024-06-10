@@ -2,61 +2,9 @@ import { PresetToolbar } from "@/components/preset-toolbar";
 import { CSVTable } from "@/components/csv-table";
 import { ExportOptions } from "@/components/export-options";
 import { TableToolbar } from "@/components/table-toolbar";
-import { Button } from "@/components/ui/button";
-import { Share2Icon } from "@radix-ui/react-icons";
-import { useContext } from "react";
-import { DataContext } from "@/context/data-context";
-import { PresetContext } from "@/context/preset-context";
-import Papa from "papaparse";
-import { FixedWidthParser, ParseConfigInput } from "fixed-width-parser";
-import { toast } from "sonner";
+import { ExportFileButton } from "@/components/export-file-button";
 
 export function Editor() {
-  const { data } = useContext(DataContext);
-  const { preset } = useContext(PresetContext);
-
-  const exportFile = () => {
-    let result;
-    if (preset.export === "csv") {
-      const config = {
-        delimiter: preset.symbol,
-        header: true,
-        skipEmptyLines: true,
-      };
-      result = Papa.unparse(data, config);
-    } else {
-      let start = 0;
-      const fixedWidthParser = new FixedWidthParser(
-        preset.order.map((field) => {
-          const width = preset.widths.find((widths) => field in widths)?.[
-            field
-          ];
-          if (!width) throw new Error(`Width not found for field ${field}`);
-          const column: ParseConfigInput = {
-            name: field,
-            start: start,
-            width: width,
-            padPosition: preset.padPos,
-            padChar: preset.symbol,
-          };
-          start += width;
-          return column;
-        }),
-      );
-      console.log(fixedWidthParser);
-      result = fixedWidthParser.unparse(data);
-    }
-
-    const blob = new Blob([result]);
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = `data.${preset.export}`;
-    document.body.appendChild(link);
-    link.click();
-  };
-
   return (
     <div className="rounded-md border">
       <PresetToolbar />
@@ -67,14 +15,7 @@ export function Editor() {
         </div>
         <div className="flex flex-col">
           <ExportOptions />
-          <Button
-            disabled={data.length === 0}
-            onClick={() => exportFile()}
-            className="md:mt-auto"
-          >
-            <Share2Icon className="mr-2" />
-            Export File
-          </Button>
+          <ExportFileButton />
         </div>
       </div>
     </div>

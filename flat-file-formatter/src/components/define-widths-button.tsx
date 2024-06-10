@@ -89,17 +89,14 @@ export function DefineWidthsButton() {
         <ScrollArea>
           <ScrollAreaViewport className="max-h-[400px]">
             <Form {...form}>
-              <form
-                className="space-y-2"
-                onSubmit={form.handleSubmit(onSubmit)}
-              >
+              <form onSubmit={form.handleSubmit(onSubmit)}>
                 {fields.map((fieldName) => (
                   <FormField
                     control={form.control}
                     name={`widths.${fieldName}`}
                     key={fieldName}
                     render={({ field }) => (
-                      <FormItem className="pr-3 pl-1">
+                      <FormItem className="pr-3 pl-1 pb-1">
                         <Label>{fieldName}</Label>
                         <FormControl>
                           <Input {...field} type="number" min={0} />
