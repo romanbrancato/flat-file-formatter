@@ -1,0 +1,32 @@
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useContext } from "react";
+import { ModeContext } from "@/context/mode-context";
+
+export function ModeSelect() {
+  const { mode, setMode } = useContext(ModeContext);
+  return (
+    <Select
+      defaultValue={mode}
+      onValueChange={(value: "single" | "batch") => setMode(value)}
+    >
+      <SelectTrigger className="h-7 w-[145px] text-xs ml-auto">
+        <span className="text-muted-foreground">Mode: </span>
+        <SelectValue placeholder="Select mode" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem key="single" value="single" className="text-xs">
+          Single
+        </SelectItem>
+        <SelectItem key="batch" value="batch" className="text-xs">
+          Batch
+        </SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}

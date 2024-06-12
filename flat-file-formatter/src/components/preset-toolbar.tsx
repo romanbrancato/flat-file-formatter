@@ -17,10 +17,12 @@ import { ExportPresetButton } from "@/components/export-preset-button";
 import { useContext } from "react";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
+import { ModeContext } from "@/context/mode-context";
 
 export function PresetToolbar() {
   const { data } = useContext(DataContext);
   const { preset } = useContext(PresetContext);
+  const { mode } = useContext(ModeContext);
 
   return (
     <>
@@ -35,7 +37,7 @@ export function PresetToolbar() {
               <Button
                 variant="secondary"
                 className="hidden sm:flex"
-                disabled={data.length === 0}
+                disabled={data.length === 0 || mode === "batch"}
               >
                 New Preset
               </Button>
@@ -59,7 +61,7 @@ export function PresetToolbar() {
                 variant="secondary"
                 size="icon"
                 className="flex sm:hidden"
-                disabled={data.length === 0}
+                disabled={data.length === 0 || mode === "batch"}
               >
                 <DotsHorizontalIcon />
               </Button>

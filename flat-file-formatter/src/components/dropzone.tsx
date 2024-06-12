@@ -1,65 +1,67 @@
-import { useRef, useState, DragEvent, ChangeEvent } from "react";
+import { useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { UploadIcon } from "@radix-ui/react-icons";
 
 interface DropzoneProps {
-  onChange: (file: File | null) => void;
+  onChange: React.Dispatch<React.SetStateAction<File[]>>;
   className?: string;
   fileExtension?: string;
+  multiple?: boolean;
+  showInfo?: boolean;
 }
 
 export function Dropzone({
   onChange,
   className,
   fileExtension,
+  multiple = false,
+  showInfo = true,
   ...props
 }: DropzoneProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileInfo, setFileInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    handleFile(e.dataTransfer.files[0]);
+    const { files } = e.dataTransfer;
+    handleFiles(files);
   };
 
-  const handleFileInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
     if (files) {
-      handleFile(files[0]);
+      handleFiles(files);
     }
     // Makes onChange trigger even if user uploads the same file (allows for "resetting" the file to default if needed)
     e.target.value = "";
   };
 
-  const handleFile = (file: File) => {
-    if (!file) {
-      return;
-    }
+  const handleFiles = (files: FileList) => {
+    const uploadedFiles = Array.from(files);
 
     if (fileExtension) {
-      const allowedExtensions = fileExtension
-        .split(",")
-        .map((ext) => ext.trim());
-      const isValidExtension = allowedExtensions.some((ext) =>
-        file.name.toLowerCase().endsWith(`${ext.toLowerCase()}`),
+      const invalidFiles = uploadedFiles.filter(
+        (file) => !file.name.endsWith(fileExtension),
       );
-
-      if (!isValidExtension) {
+      if (invalidFiles.length) {
         setError(`Invalid file type. Expected: ${fileExtension}`);
         return;
       }
     }
 
-    const fileSizeInKB = Math.round(file.size / 1024);
-    onChange(file);
-    setFileInfo(`Uploaded file: ${file.name} (${fileSizeInKB} KB)`);
+    uploadedFiles.forEach((file) => {
+      const fileSizeInKB = Math.round(file.size / 1024);
+      setFileInfo(`Uploaded file: ${file.name} (${fileSizeInKB} KB)`);
+      onChange((prevFiles) => [...prevFiles, file]);
+    });
+
     setError(null);
   };
 
@@ -82,16 +84,19 @@ export function Dropzone({
       >
         <UploadIcon />
         <div className="flex items-center justify-center">
-          <span>Drag file here or click to upload.</span>
+          <span>Drag files here or click to upload.</span>
           <input
             ref={fileInputRef}
             type="file"
             accept={fileExtension}
             onChange={handleFileInputChange}
             className="hidden"
+            multiple={multiple}
           />
         </div>
-        {fileInfo && <p className="text-muted-foreground">{fileInfo}</p>}
+        {showInfo && fileInfo && (
+          <p className="text-muted-foreground">{fileInfo}</p>
+        )}
         {error && <span className="text-destructive">{error}</span>}
       </CardContent>
     </Card>

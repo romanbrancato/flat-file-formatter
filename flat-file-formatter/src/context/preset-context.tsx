@@ -11,6 +11,7 @@ import { Preset } from "@/types/preset";
 interface PresetContextProps {
   preset: Preset;
   savedPresets: Preset[];
+  setPreset: (preset: Preset) => void;
   setName: (name: string) => void;
   setOrder: (order: string[]) => void;
   setSymbol: (symbol: string) => void;
@@ -27,6 +28,7 @@ interface PresetContextProps {
 export const PresetContext = createContext<PresetContextProps>({
   preset: {} as Preset,
   savedPresets: [],
+  setPreset: () => {},
   setName: () => {},
   setOrder: () => {},
   setSymbol: () => {},
@@ -46,6 +48,8 @@ interface PresetProviderProps {
 
 const presetReducer = (state: Preset, action: any): Preset => {
   switch (action.type) {
+    case "SET_PRESET":
+      return action.preset;
     case "SET_NAME":
       return { ...state, name: action.name };
     case "SET_ORDER":
@@ -59,8 +63,10 @@ const presetReducer = (state: Preset, action: any): Preset => {
     case "SET_PAD_POS":
       return { ...state, padPos: action.padPos };
     case "REMOVE_FIELD":
+      const newOrder = state.order.filter((field) => field !== action.field);
       return {
         ...state,
+        order: newOrder,
         removed: [...new Set([...(state.removed || []), action.field])],
       };
     case "ADD_FIELD":
@@ -141,6 +147,10 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
     };
   }, []);
 
+  const setPreset = (preset: Preset) => {
+    dispatchPreset({ type: "SET_PRESET", preset });
+  };
+
   const setName = (name: string) => {
     dispatchPreset({ type: "SET_NAME", name });
   };
@@ -190,6 +200,7 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
       value={{
         preset,
         savedPresets,
+        setPreset,
         setName,
         setOrder,
         setSymbol,

@@ -14,7 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Preset, PresetSchema } from "@/types/preset";
 import { DataContext } from "@/context/data-context";
 import { Dropzone } from "@/components/dropzone";
@@ -29,51 +29,29 @@ import {
 import { PresetContext } from "@/context/preset-context";
 
 export function PresetSelector() {
-  const {
-    data,
-    removeField: dataRemoveField,
-    addField: dataAddField,
-    editField: dataEditField,
-    orderFields,
-  } = useContext(DataContext);
-  const {
-    preset,
-    savedPresets,
-    setName,
-    setOrder,
-    setSymbol,
-    setWidths,
-    setExport,
-    removeField: presetRemoveField,
-    addField: presetAddField,
-    editField: presetEditField,
-    savePreset,
-  } = useContext(PresetContext);
+  const { data, removeField, addField, editField, orderFields } =
+    useContext(DataContext);
+  const { preset, savedPresets, setPreset, savePreset } =
+    useContext(PresetContext);
   const [open, setOpen] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
 
   const loadPreset = (preset: Preset) => {
-    preset.name && setName(preset.name);
-    setSymbol(preset.symbol);
-    setWidths(preset.widths);
-    setExport(preset.export);
-
     preset.removed?.forEach((field) => {
-      dataRemoveField(field);
-      presetRemoveField(field);
+      removeField(field);
     });
 
     preset.added?.forEach(({ field, value }) => {
-      dataAddField(field, value);
-      presetAddField(field, value);
+      addField(field, value);
     });
 
     preset.edited?.forEach(({ field, value }) => {
-      dataEditField(field, value);
-      presetEditField(field, value);
+      editField(field, value);
     });
 
     orderFields(preset.order);
-    setOrder(preset.order);
+
+    setPreset(preset);
   };
 
   const onPresetSelect = (selectedPreset: Preset) => {
@@ -83,29 +61,29 @@ export function PresetSelector() {
     });
   };
 
-  const onPresetImport = (file: File | null) => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const obj = JSON.parse(event.target?.result as string);
-          const importedPreset = PresetSchema.parse(obj);
-          onPresetSelect(importedPreset);
-          savePreset();
-        } catch (error) {
-          toast.error("Invalid Preset", {
-            description: "The selected file is not a valid preset.",
-          });
-        }
-      };
-      reader.readAsText(file);
-    }
-  };
-
   const onPresetDelete = (selectedPreset: Preset) => {
     localStorage.removeItem(`preset_${selectedPreset.name}`);
     window.dispatchEvent(new Event("storage"));
   };
+
+  // Handle imported presets
+  useEffect(() => {
+    if (!files.length) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const obj = JSON.parse(event.target?.result as string);
+        const importedPreset = PresetSchema.parse(obj);
+        onPresetSelect(importedPreset);
+        savePreset();
+      } catch (error) {
+        toast.error("Invalid Preset", {
+          description: "The selected file is not a valid preset.",
+        });
+      }
+    };
+    reader.readAsText(files[files.length - 1]);
+  }, [files]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -127,9 +105,10 @@ export function PresetSelector() {
           <CommandInput placeholder="Search presets..." />
           <CommandGroup heading="Import">
             <Dropzone
-              onChange={(file) => onPresetImport(file)}
+              onChange={setFiles}
               className="w-full"
               fileExtension=".json"
+              showInfo={false}
             />
           </CommandGroup>
           <CommandGroup heading="Presets">

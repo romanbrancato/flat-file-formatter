@@ -2,59 +2,47 @@
 import { useContext, useEffect, useState } from "react";
 import { parse } from "papaparse";
 import { Dropzone } from "@/components/dropzone";
-import { Editor } from "@/components/editor";
+import { Preview } from "@/components/preview";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ModeSelect } from "@/components/mode-select";
+import { ModeContext } from "@/context/mode-context";
 
 export default function App() {
+  const { mode } = useContext(ModeContext);
   const { setData } = useContext(DataContext);
   const { setOrder, setSymbol, resetPreset } = useContext(PresetContext);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
 
   // Parse the CSV file when a new file is set
   useEffect(() => {
-    if (file) {
-      parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: function (results) {
-          resetPreset();
-          setData(results.data as Record<string, unknown>[]);
-          setOrder(results.meta.fields as string[]);
-          setSymbol(results.meta.delimiter);
-        },
-      });
-    }
-  }, [file]);
+    if (!files.length) return;
+    parse(files[files.length - 1], {
+      header: true,
+      skipEmptyLines: true,
+      complete: function (results) {
+        resetPreset();
+        setData(results.data as Record<string, unknown>[]);
+        setOrder(results.meta.fields as string[]);
+        setSymbol(results.meta.delimiter);
+      },
+    });
+    console.log(files);
+  }, [files]);
 
   return (
     <main className="flex flex-col gap-y-3">
       <span className="text-md font-bold absolute left-1/2 -translate-x-1/2">
         Format a Flat File
       </span>
-      <Select defaultValue="single">
-        <SelectTrigger className="h-7 w-[145px] text-xs ml-auto">
-          <span className="text-muted-foreground">Mode: </span>
-          <SelectValue placeholder="Select mode" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem key="single" value="single" className="text-xs">
-            Single
-          </SelectItem>
-          <SelectItem key="batch" value="batch" className="text-xs">
-            Batch
-          </SelectItem>
-        </SelectContent>
-      </Select>
-      <Dropzone onChange={setFile} fileExtension=".csv, .txt" />
-      <Editor />
+      <ModeSelect />
+      <Dropzone
+        onChange={setFiles}
+        fileExtension=".csv"
+        multiple={mode === "batch"}
+        showInfo={mode === "single"}
+      />
+      <Preview files={files} />
     </main>
   );
 }
