@@ -143,7 +143,7 @@ export function CSVTable() {
   );
 
   return (
-    <div className="rounded-md border flex-grow">
+    <div className="rounded-md border flex-grow overflow-hidden">
       {data.length > 0 ? (
         <DndContext
           collisionDetection={closestCenter}
