@@ -17,7 +17,8 @@ interface PresetContextProps {
   setSymbol: (symbol: string) => void;
   setWidths: (widths: Record<string, number>[]) => void;
   setExport: (exportType: string) => void;
-  setPadPos: (padPos: string) => void;
+  setAlign: (padPos: string) => void;
+  setHeader: (header: boolean) => void;
   removeField: (field: string) => void;
   addField: (name: string, value: string) => void;
   editField: (field: string, value: string) => void;
@@ -34,7 +35,8 @@ export const PresetContext = createContext<PresetContextProps>({
   setSymbol: () => {},
   setWidths: () => {},
   setExport: () => {},
-  setPadPos: () => {},
+  setAlign: () => {},
+  setHeader: () => {},
   removeField: () => {},
   addField: () => {},
   editField: () => {},
@@ -60,8 +62,10 @@ const presetReducer = (state: Preset, action: any): Preset => {
       return { ...state, widths: action.widths };
     case "SET_EXPORT":
       return { ...state, export: action.export };
-    case "SET_PAD_POS":
-      return { ...state, padPos: action.padPos };
+    case "SET_ALIGN":
+      return { ...state, align: action.align };
+    case "SET_HEADER":
+      return { ...state, header: action.header };
     case "REMOVE_FIELD":
       const newOrder = state.order.filter((field) => field !== action.field);
       return {
@@ -98,7 +102,8 @@ const presetReducer = (state: Preset, action: any): Preset => {
         symbol: ",",
         widths: [],
         export: "csv",
-        padPos: "end",
+        align: "left",
+        header: true,
         removed: [],
         added: [],
         edited: [],
@@ -122,7 +127,8 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
     symbol: ",",
     widths: [],
     export: "csv",
-    padPos: "end",
+    align: "left",
+    header: true,
     removed: [],
     added: [],
     edited: [],
@@ -167,8 +173,12 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
     dispatchPreset({ type: "SET_WIDTHS", widths });
   };
 
-  const setPadPos = (padPos: string) => {
-    dispatchPreset({ type: "SET_PAD_POS", padPos });
+  const setAlign = (align: string) => {
+    dispatchPreset({ type: "SET_ALIGN", align });
+  };
+
+  const setHeader = (header: boolean) => {
+    dispatchPreset({ type: "SET_HEADER", header });
   };
 
   const setExport = (exportType: string) => {
@@ -206,7 +216,8 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
         setSymbol,
         setWidths,
         setExport,
-        setPadPos,
+        setAlign,
+        setHeader,
         removeField,
         addField,
         editField,

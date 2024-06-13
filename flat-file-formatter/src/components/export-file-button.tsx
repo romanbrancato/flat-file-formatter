@@ -1,54 +1,74 @@
 "use client";
 import { Share2Icon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { useContext } from "react";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import Papa from "papaparse";
-import { FixedWidthParser, ParseConfigInput } from "fixed-width-parser";
-import { toast } from "sonner";
+import { stringify } from "@evologi/fixed-width";
 
 export function ExportFileButton() {
   const { data } = useContext(DataContext);
   const { preset } = useContext(PresetContext);
 
   const exportFile = () => {
-    let result;
+    let flatData;
     try {
+      // CSV Export
       if (preset.export === "csv") {
         const config = {
           delimiter: preset.symbol,
-          header: true,
+          header: preset.header,
           skipEmptyLines: true,
         };
-        result = Papa.unparse(data, config);
+        flatData = Papa.unparse(data, config);
       } else {
-        let start = 0;
-        const fixedWidthParser = new FixedWidthParser(
-          preset.order.map((field) => {
-            const width = preset.widths.find((widths) => field in widths)?.[
-              field
-            ];
-            if (!width) throw new Error(`Width not found for field: ${field}`);
-            const column: ParseConfigInput = {
-              name: field,
-              start: start,
-              width: width,
-              padPosition: preset.padPos,
-              padChar: preset.symbol,
-            };
-            start += width;
-            return column;
-          }),
-        );
-        result = fixedWidthParser.unparse(data);
+        // Fixed Width Export
+        const config = preset.order.map((field) => {
+          const width = preset.widths.find((widths) => field in widths)?.[
+            field
+          ];
+          if (!width) throw new Error(`Width not found for field: ${field}`);
+          return {
+            property: field,
+            width: width,
+            align: preset.align,
+          };
+        });
+
+        let headerLine = "";
+        if (preset.header) {
+          if (preset.align === "right") {
+            headerLine =
+              config
+                .map((field) =>
+                  field.property.padStart(field.width, preset.symbol),
+                )
+                .join("") + "\n";
+          } else {
+            headerLine =
+              config
+                .map((field) =>
+                  field.property.padEnd(field.width, preset.symbol),
+                )
+                .join("") + "\n";
+          }
+        }
+
+        flatData =
+          headerLine +
+          stringify(data, {
+            pad: preset.symbol,
+            fields: config,
+          });
       }
     } catch (error: any) {
       toast.error("Failed to Export File", { description: error.message });
       return;
     }
 
-    const blob = new Blob([result]);
+    const blob = new Blob([flatData]);
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 

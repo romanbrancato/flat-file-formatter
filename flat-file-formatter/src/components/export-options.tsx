@@ -4,7 +4,8 @@ import { DefineWidthsButton } from "@/components/define-widths-button";
 import { DataContext } from "@/context/data-context";
 import { useContext, useEffect, useState } from "react";
 import { PresetContext } from "@/context/preset-context";
-import { PadPositionRadio } from "@/components/pad-position-radio";
+import { AlignRadio } from "@/components/align-radio";
+import { HeaderCheckbox } from "@/components/header-checkbox";
 
 export function ExportOptions() {
   const { data } = useContext(DataContext);
@@ -21,7 +22,7 @@ export function ExportOptions() {
       onValueChange={(value) => setExport(value)}
       className="mb-5 md:w-[175px]"
     >
-      <div className="text-sm font-medium space-y-1">
+      <div className="text-sm font-medium space-y-1 leading-none">
         <span> Export As </span>
         <TabsList className="grid grid-cols-2">
           <TabsTrigger value="csv" disabled={data.length === 0}>
@@ -32,25 +33,27 @@ export function ExportOptions() {
           </TabsTrigger>
         </TabsList>
       </div>
-      <TabsContent value="csv">
-        <div className="text-sm font-medium space-y-1">
+      <TabsContent value="csv" className="space-y-2">
+        <div className="text-sm font-medium space-y-1 leading-none">
           <span>Delimiter</span>
           <SymbolSelector />
         </div>
+        <HeaderCheckbox />
       </TabsContent>
       <TabsContent value="txt" className="space-y-2">
-        <div className="text-sm font-medium space-y-1">
+        <div className="text-sm font-medium space-y-1 leading-none">
           <span>Widths</span>
           <DefineWidthsButton />
         </div>
-        <div className="text-sm font-medium space-y-1">
+        <div className="text-sm font-medium space-y-1 leading-none">
           <span>Padding Symbol</span>
           <SymbolSelector />
         </div>
-        <div className="text-sm font-medium space-y-1">
-          <span>Pad Position</span>
-          <PadPositionRadio />
+        <div className="text-sm font-medium space-y-1 leading-none">
+          <span>Align</span>
+          <AlignRadio />
         </div>
+        <HeaderCheckbox />
       </TabsContent>
     </Tabs>
   );
