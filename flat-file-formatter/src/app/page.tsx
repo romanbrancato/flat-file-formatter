@@ -7,10 +7,11 @@ import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import { ModeSelect } from "@/components/mode-select";
 import { ModeContext } from "@/context/mode-context";
+import path from "node:path";
 
 export default function App() {
   const { mode } = useContext(ModeContext);
-  const { setData } = useContext(DataContext);
+  const { setData, setName } = useContext(DataContext);
   const { setOrder, setSymbol, resetPreset } = useContext(PresetContext);
   const [files, setFiles] = useState<File[]>([]);
 
@@ -27,7 +28,7 @@ export default function App() {
         setSymbol(results.meta.delimiter);
       },
     });
-    console.log(files);
+    setName(path.parse(files[files.length - 1].name).name)
   }, [files]);
 
   return (

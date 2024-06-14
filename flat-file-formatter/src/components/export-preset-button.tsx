@@ -12,7 +12,6 @@ export function ExportPresetButton({ trigger }: ExportPresetButtonProps) {
     const dataStr = JSON.stringify(preset, null, 2);
     let dataUri =
       "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-
     let link = document.createElement("a");
     link.setAttribute("href", dataUri);
     link.setAttribute("download", `${preset.name}.json`);

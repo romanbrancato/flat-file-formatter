@@ -9,7 +9,7 @@ import Papa from "papaparse";
 import { stringify } from "@evologi/fixed-width";
 
 export function ExportFileButton() {
-  const { data } = useContext(DataContext);
+  const { data, name } = useContext(DataContext);
   const { preset } = useContext(PresetContext);
 
   const exportFile = () => {
@@ -68,13 +68,10 @@ export function ExportFileButton() {
       return;
     }
 
-    const blob = new Blob([flatData]);
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(new Blob([flatData]));
     const link = document.createElement("a");
-
-    link.href = url;
-    link.download = `data.${preset.export}`;
-    document.body.appendChild(link);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${name}.${preset.export}`);
     link.click();
   };
 
@@ -82,9 +79,9 @@ export function ExportFileButton() {
     <Button
       onClick={() => exportFile()}
       disabled={data.length === 0}
-      className="md:mt-auto"
+      className="gap-x-2 md:mt-auto"
     >
-      <Share2Icon className="mr-2" />
+      <Share2Icon />
       Export File
     </Button>
   );

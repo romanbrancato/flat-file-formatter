@@ -29,39 +29,22 @@ import {
 import { PresetContext } from "@/context/preset-context";
 
 export function PresetSelector() {
-  const { data, removeField, addField, editField, orderFields } =
+  const { data, applyPreset } =
     useContext(DataContext);
   const { preset, savedPresets, setPreset, savePreset } =
     useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
 
-  const loadPreset = (preset: Preset) => {
-    preset.removed?.forEach((field) => {
-      removeField(field);
-    });
-
-    preset.added?.forEach(({ field, value }) => {
-      addField(field, value);
-    });
-
-    preset.edited?.forEach(({ field, value }) => {
-      editField(field, value);
-    });
-
-    orderFields(preset.order);
-
-    setPreset(preset);
-  };
-
-  const onPresetSelect = (selectedPreset: Preset) => {
-    loadPreset(selectedPreset);
+  const onSelect = (selectedPreset: Preset) => {
+    applyPreset(selectedPreset);
+    setPreset(selectedPreset);
     toast.success("Preset Loaded", {
       description: `The preset "${selectedPreset.name}" has been loaded.`,
     });
   };
 
-  const onPresetDelete = (selectedPreset: Preset) => {
+  const onDelete = (selectedPreset: Preset) => {
     localStorage.removeItem(`preset_${selectedPreset.name}`);
     window.dispatchEvent(new Event("storage"));
   };
@@ -74,7 +57,7 @@ export function PresetSelector() {
       try {
         const obj = JSON.parse(event.target?.result as string);
         const importedPreset = PresetSchema.parse(obj);
-        onPresetSelect(importedPreset);
+        onSelect(importedPreset);
         savePreset();
       } catch (error) {
         toast.error("Invalid Preset", {
@@ -119,7 +102,7 @@ export function PresetSelector() {
                     <ContextMenuTrigger>
                       <CommandItem
                         onSelect={() => {
-                          onPresetSelect(p);
+                          onSelect(p);
                           setOpen(false);
                         }}
                       >
@@ -137,7 +120,7 @@ export function PresetSelector() {
                     <ContextMenuContent>
                       <ContextMenuItem
                         className="text-destructive"
-                        onClick={() => onPresetDelete(p)}
+                        onClick={() => onDelete(p)}
                       >
                         Delete
                         <Cross2Icon className="ml-auto" />
@@ -148,7 +131,6 @@ export function PresetSelector() {
               </ScrollAreaViewport>
             </ScrollArea>
           </CommandGroup>
-          <CommandEmpty>No presets found.</CommandEmpty>
         </Command>
       </PopoverContent>
     </Popover>
