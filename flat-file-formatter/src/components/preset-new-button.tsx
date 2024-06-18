@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useContext, useState } from "react";
-import { DataContext } from "@/context/data-context";
 import {
   Form,
   FormControl,
@@ -31,7 +30,7 @@ const newPresetSchema = z.object({
   name: z.string().min(1, "Enter a preset name."),
 });
 
-export function NewPresetButton({ trigger }: NewPresetButtonProps) {
+export function PresetNewButton({ trigger }: NewPresetButtonProps) {
   const { setName, savePreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 

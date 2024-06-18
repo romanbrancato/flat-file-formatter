@@ -29,7 +29,7 @@ const editFieldSchema = z.object({
   value: z.string(),
 });
 
-export function EditFieldButton() {
+export function FieldEditButton() {
   const { data, editField: dataEditField } = useContext(DataContext);
   const { editField: presetEditField } = useContext(PresetContext);
   const [open, setOpen] = useState(false);

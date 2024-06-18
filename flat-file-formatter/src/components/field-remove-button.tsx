@@ -27,7 +27,7 @@ const removeFieldSchema = z.object({
   field: z.string({ required_error: "Select a field to remove." }),
 });
 
-export function RemoveFieldButton() {
+export function FieldRemoveButton() {
   const { data, removeField: dataRemoveField } = useContext(DataContext);
   const { removeField: presetRemoveField } = useContext(PresetContext);
   const [open, setOpen] = useState(false);

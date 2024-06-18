@@ -12,8 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { NewPresetButton } from "@/components/new-preset-button";
-import { ExportPresetButton } from "@/components/export-preset-button";
+import { PresetNewButton } from "@/components/preset-new-button";
+import { PresetExportButton } from "@/components/preset-export-button";
 import { useContext } from "react";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
@@ -32,7 +32,7 @@ export function PresetToolbar() {
         </h2>
         <div className="flex flex-row items-center space-x-3">
           <PresetSelector />
-          <NewPresetButton
+          <PresetNewButton
             trigger={
               <Button
                 variant="secondary"
@@ -43,7 +43,7 @@ export function PresetToolbar() {
               </Button>
             }
           />
-          <ExportPresetButton
+          <PresetExportButton
             trigger={
               <Button
                 variant="secondary"
@@ -67,7 +67,7 @@ export function PresetToolbar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <NewPresetButton
+              <PresetNewButton
                 trigger={
                   <DropdownMenuItem
                     onSelect={(event) => event.preventDefault()}
@@ -77,7 +77,7 @@ export function PresetToolbar() {
                   </DropdownMenuItem>
                 }
               />
-              <ExportPresetButton
+              <PresetExportButton
                 trigger={
                   <DropdownMenuItem disabled={!preset.name}>
                     <Share2Icon className="mr-2" />

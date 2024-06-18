@@ -28,7 +28,7 @@ const addFieldSchema = z.object({
   value: z.string(),
 });
 
-export function AddFieldButton() {
+export function FieldAddButton() {
   const { data, addField: dataAddField } = useContext(DataContext);
   const { addField: presetAddField } = useContext(PresetContext);
   const [open, setOpen] = useState(false);

@@ -6,11 +6,11 @@ interface ExportPresetButtonProps {
   trigger: React.ReactNode;
 }
 
-export function ExportPresetButton({ trigger }: ExportPresetButtonProps) {
+export function PresetExportButton({ trigger }: ExportPresetButtonProps) {
   const { preset } = useContext(PresetContext);
   const exportPreset = () => {
-    const dataStr = JSON.stringify(preset, null, 2);
-    download(dataStr, preset.name || "preset", "json");
+    const presetStr = JSON.stringify(preset, null, 2);
+    download(presetStr, preset.name || "preset", "json");
   };
 
   return React.cloneElement(

@@ -31,8 +31,7 @@ import { ModeContext } from "@/context/mode-context";
 export function PresetSelector() {
   const { mode } = useContext(ModeContext);
   const { data, applyPreset } = useContext(DataContext);
-  const { preset, savedPresets, setPreset, savePreset } =
-    useContext(PresetContext);
+  const { preset, savedPresets, setPreset, savePreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
 
@@ -49,7 +48,6 @@ export function PresetSelector() {
     window.dispatchEvent(new Event("storage"));
   };
 
-  // Handle imported presets
   useEffect(() => {
     if (!files.length) return;
     const reader = new FileReader();
