@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
 import { download } from "@/lib/utils";
-import { DataContext } from "@/context/data-context";
 
 interface ExportPresetButtonProps {
   trigger: React.ReactNode;
@@ -9,11 +8,9 @@ interface ExportPresetButtonProps {
 
 export function ExportPresetButton({ trigger }: ExportPresetButtonProps) {
   const { preset } = useContext(PresetContext);
-  const { name } = useContext(DataContext);
-
   const exportPreset = () => {
     const dataStr = JSON.stringify(preset, null, 2);
-    download(dataStr, name, "json");
+    download(dataStr, preset.name || "preset", "json");
   };
 
   return React.cloneElement(
