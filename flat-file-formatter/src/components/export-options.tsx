@@ -4,7 +4,7 @@ import { DefineWidthsButton } from "@/components/define-widths-button";
 import { DataContext } from "@/context/data-context";
 import { useContext, useEffect, useState } from "react";
 import { PresetContext } from "@/context/preset-context";
-import { AlignRadio } from "@/components/align-radio";
+import { AlignRadioGroup } from "@/components/align-radio-group";
 import { HeaderCheckbox } from "@/components/header-checkbox";
 
 export function ExportOptions() {
@@ -50,8 +50,8 @@ export function ExportOptions() {
           <SymbolSelector />
         </div>
         <div className="text-sm font-medium space-y-1 leading-none">
-          <span>Align</span>
-          <AlignRadio />
+          <span>Align Values</span>
+          <AlignRadioGroup />
         </div>
         <HeaderCheckbox />
       </TabsContent>

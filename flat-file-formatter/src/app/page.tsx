@@ -2,7 +2,7 @@
 import { useContext, useEffect, useState } from "react";
 import { parse } from "papaparse";
 import { Dropzone } from "@/components/dropzone";
-import { Preview } from "@/components/preview";
+import { FilePreview } from "@/components/file-preview";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import { ModeSelect } from "@/components/mode-select";
@@ -15,21 +15,26 @@ export default function App() {
   const { setOrder, setSymbol, resetPreset } = useContext(PresetContext);
   const [files, setFiles] = useState<File[]>([]);
 
-  // Parse the CSV file when a new file is set
   useEffect(() => {
-    if (!files.length) return;
+    if (!files.length || mode === "batch") return;
     parse(files[files.length - 1], {
       header: true,
       skipEmptyLines: true,
       complete: function (results) {
         resetPreset();
         setData(results.data as Record<string, unknown>[]);
+        setName(`${path.parse(files[files.length - 1].name).name}_export`);
         setOrder(results.meta.fields as string[]);
         setSymbol(results.meta.delimiter);
       },
     });
-    setName(path.parse(files[files.length - 1].name).name)
   }, [files]);
+
+  useEffect(() => {
+    setFiles([]);
+    setData([]);
+    resetPreset();
+  }, [mode]);
 
   return (
     <main className="flex flex-col gap-y-3">
@@ -43,7 +48,7 @@ export default function App() {
         multiple={mode === "batch"}
         showInfo={mode === "single"}
       />
-      <Preview files={files} />
+      <FilePreview files={files} />
     </main>
   );
 }

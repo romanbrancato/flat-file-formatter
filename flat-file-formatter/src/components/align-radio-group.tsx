@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
 
-export function AlignRadio() {
+export function AlignRadioGroup() {
   const { preset, setAlign } = useContext(PresetContext);
 
   return (
