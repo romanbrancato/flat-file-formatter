@@ -51,7 +51,7 @@ const dataReducer = (state: Record<string, unknown>[], action: any) => {
       return state.map((row) => {
         const [field, value] = Object.entries(action.field)[0];
         if (field in row) {
-          row[value] = row[field];
+          row[value as string] = row[field];
           delete row[field];
         }
         return row;
