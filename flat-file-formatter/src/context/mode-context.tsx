@@ -5,7 +5,10 @@ import {
   ReactNode,
   Dispatch,
   SetStateAction,
+  useContext,
+  useEffect,
 } from "react";
+import { PresetContext } from "@/context/preset-context";
 
 interface ModeContextProps {
   mode: "single" | "batch";
@@ -22,7 +25,12 @@ interface ModeProviderProps {
 }
 
 export const ModeProvider = ({ children }: ModeProviderProps) => {
+  const { resetPreset } = useContext(PresetContext);
   const [mode, setMode] = useState<"single" | "batch">("single");
+
+  useEffect(() => {
+    resetPreset();
+  }, [mode]);
 
   return (
     <ModeContext.Provider value={{ mode, setMode }}>

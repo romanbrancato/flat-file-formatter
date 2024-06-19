@@ -30,12 +30,6 @@ export default function App() {
     });
   }, [files]);
 
-  useEffect(() => {
-    setFiles([]);
-    setData([]);
-    resetPreset();
-  }, [mode]);
-
   return (
     <main className="flex flex-col gap-y-3">
       <span className="text-md font-bold absolute left-1/2 -translate-x-1/2">
@@ -48,7 +42,7 @@ export default function App() {
         multiple={mode === "batch"}
         showInfo={mode === "single"}
       />
-      <FilePreview files={files} />
+      <FilePreview files={files} setFiles={setFiles} />
     </main>
   );
 }

@@ -24,11 +24,11 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="system" enableSystem>
           <Header />
           <Container>
-            <ModeProvider>
-              <DataContextProvider>
-                <PresetContextProvider>{children}</PresetContextProvider>
-              </DataContextProvider>
-            </ModeProvider>
+            <DataContextProvider>
+              <PresetContextProvider>
+                <ModeProvider>{children} </ModeProvider>
+              </PresetContextProvider>
+            </DataContextProvider>
           </Container>
           <Toaster position="bottom-right" richColors />
         </ThemeProvider>

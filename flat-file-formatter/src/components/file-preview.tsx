@@ -5,19 +5,21 @@ import { TableToolbar } from "@/components/table-toolbar";
 import { ExportFileButton } from "@/components/export-file-button";
 import { useContext } from "react";
 import { ModeContext } from "@/context/mode-context";
-import {
-  Cross2Icon,
-  FileTextIcon,
-  InfoCircledIcon,
-} from "@radix-ui/react-icons";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { BatchFileRow } from "@/components/batch-file-row";
 
 interface PreviewProps {
   files: File[];
+  setFiles: (files: File[]) => void;
 }
 
-export function FilePreview({ files }: PreviewProps) {
+export function FilePreview({ files, setFiles }: PreviewProps) {
   const { mode } = useContext(ModeContext);
+
+  const handleFileDelete = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index));
+  };
 
   return (
     <div className="rounded-md border">
@@ -42,21 +44,16 @@ export function FilePreview({ files }: PreviewProps) {
                   <InfoCircledIcon />
                   <AlertTitle>No Files Uploaded</AlertTitle>
                   <AlertDescription>
-                    Upload some files above to get started.
+                    Upload files above to get started.
                   </AlertDescription>
                 </Alert>
               )}
               {files.map((file, index) => (
-                <div
+                <BatchFileRow
                   key={index}
-                  className="flex flex-row justify-between items-center rounded-md px-5 py-3 bg-muted text-xs font-bold"
-                >
-                  <div className="flex flex-row items-center gap-x-2">
-                    <FileTextIcon /> {file.name}
-                  </div>
-                  <span>{(file.size / 1024).toFixed(2)} KB</span>
-                  <Cross2Icon />
-                </div>
+                  file={file}
+                  onFileDelete={() => handleFileDelete(index)}
+                />
               ))}
             </div>
             <div className="ml-auto">

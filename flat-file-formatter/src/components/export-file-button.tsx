@@ -41,6 +41,7 @@ export function ExportFileButton({ files }: ExportFileButtonProps) {
           setData(results.data as Record<string, unknown>[]);
           setName(`${path.parse(files[files.length - 1].name).name}_export`);
           applyPreset(preset);
+          //NEED STATE UPDATE HERE
           exportFile();
         },
       });
