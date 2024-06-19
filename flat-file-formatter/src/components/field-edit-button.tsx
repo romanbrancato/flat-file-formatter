@@ -23,6 +23,13 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PresetContext } from "@/context/preset-context";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const editFieldSchema = z.object({
   field: z.string({ required_error: "Select a field to edit." }),
@@ -30,9 +37,15 @@ const editFieldSchema = z.object({
 });
 
 export function FieldEditButton() {
-  const { data, editField: dataEditField } = useContext(DataContext);
-  const { editField: presetEditField } = useContext(PresetContext);
+  const {
+    data,
+    editValues: dataEditValues,
+    editHeader: dataEditHeader,
+  } = useContext(DataContext);
+  const { editValues: presetEditValues, editHeader: presetEditHeader } =
+    useContext(PresetContext);
   const [open, setOpen] = useState(false);
+  const [target, setTarget] = useState<"header" | "values">("header");
 
   const form = useForm<z.infer<typeof editFieldSchema>>({
     resolver: zodResolver(editFieldSchema),
@@ -42,8 +55,13 @@ export function FieldEditButton() {
   });
 
   function onSubmit(values: z.infer<typeof editFieldSchema>) {
-    dataEditField(values.field, values.value);
-    presetEditField(values.field, values.value);
+    if (target === "values") {
+      dataEditValues({ [values.field]: values.value });
+      presetEditValues({ [values.field]: values.value });
+    } else {
+      dataEditHeader({ [values.field]: values.value });
+      presetEditHeader({ [values.field]: values.value });
+    }
     setOpen(false);
     form.reset();
   }
@@ -64,8 +82,25 @@ export function FieldEditButton() {
       <DialogContent className="sm:max-w-[600px] max-h-[800px]">
         <DialogHeader>
           <DialogTitle>Edit Field</DialogTitle>
-          <DialogDescription>
-            Select a field and change all its values.
+          <DialogDescription className="flex flex-row justify-between items-center">
+            Select a field then change its name or values.
+            <Select
+              defaultValue={target}
+              onValueChange={(value: "header" | "values") => setTarget(value)}
+            >
+              <SelectTrigger className="h-7 w-[145px] text-xs ml-auto text-foreground">
+                <span className="text-muted-foreground">Target: </span>
+                <SelectValue placeholder="Select target" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem key="header" value="header" className="text-xs">
+                  Header
+                </SelectItem>
+                <SelectItem key="values" value="values" className="text-xs">
+                  Values
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -97,7 +132,14 @@ export function FieldEditButton() {
               render={({ field }) => (
                 <FormItem className="flex-1">
                   <FormControl>
-                    <Input placeholder="Change values to..." {...field} />
+                    <Input
+                      placeholder={
+                        target === "header"
+                          ? "Change name to..."
+                          : "Change values to..."
+                      }
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

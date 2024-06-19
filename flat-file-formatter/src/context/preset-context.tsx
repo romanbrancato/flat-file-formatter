@@ -20,8 +20,9 @@ interface PresetContextProps {
   setAlign: (padPos: string) => void;
   setHeader: (header: boolean) => void;
   removeField: (field: string) => void;
-  addField: (name: string, value: string) => void;
-  editField: (field: string, value: string) => void;
+  addField: (field: Record<string, unknown>) => void;
+  editValues: (field: Record<string, unknown>) => void;
+  editHeader: (field: Record<string, unknown>) => void;
   resetPreset: () => void;
   savePreset: () => void;
 }
@@ -39,7 +40,8 @@ export const PresetContext = createContext<PresetContextProps>({
   setHeader: () => {},
   removeField: () => {},
   addField: () => {},
-  editField: () => {},
+  editValues: () => {},
+  editHeader: () => {},
   resetPreset: () => {},
   savePreset: () => {},
 });
@@ -67,33 +69,24 @@ const presetReducer = (state: Preset, action: any): Preset => {
     case "SET_HEADER":
       return { ...state, header: action.header };
     case "REMOVE_FIELD":
-      const newOrder = state.order.filter((field) => field !== action.field);
       return {
         ...state,
-        order: newOrder,
-        removed: [...new Set([...(state.removed || []), action.field])],
+        removed: [...state.removed, action.field],
       };
     case "ADD_FIELD":
-      const added = [
-        ...(state.added || []),
-        { field: action.name, value: action.value },
-      ];
       return {
         ...state,
-        added: [...new Set(added.map((i) => JSON.stringify(i)))].map((i) =>
-          JSON.parse(i),
-        ),
+        added: [...state.added, action.field],
       };
-    case "EDIT_FIELD":
-      const edited = [
-        ...(state.edited || []),
-        { field: action.field, value: action.value },
-      ];
+    case "EDIT_VALUES":
       return {
         ...state,
-        edited: [...new Set(edited.map((i) => JSON.stringify(i)))].map((i) =>
-          JSON.parse(i),
-        ),
+        editedValues: [...state.editedValues, action.field],
+      };
+    case "EDIT_HEADER":
+      return {
+        ...state,
+        editedHeaders: [...state.editedHeaders, action.field],
       };
     case "RESET":
       return {
@@ -106,7 +99,8 @@ const presetReducer = (state: Preset, action: any): Preset => {
         header: true,
         removed: [],
         added: [],
-        edited: [],
+        editedValues: [],
+        editedHeaders: [],
       };
     case "SAVE":
       localStorage.setItem(
@@ -131,7 +125,8 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
     header: true,
     removed: [],
     added: [],
-    edited: [],
+    editedValues: [],
+    editedHeaders: [],
   });
   const [savedPresets, setSavedPresets] = useState<Preset[]>([]);
 
@@ -189,12 +184,16 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
     dispatchPreset({ type: "REMOVE_FIELD", field });
   };
 
-  const addField = (name: string, value: string) => {
-    dispatchPreset({ type: "ADD_FIELD", name, value });
+  const addField = (field: Record<string, unknown>) => {
+    dispatchPreset({ type: "ADD_FIELD", field });
   };
 
-  const editField = (field: string, value: string) => {
-    dispatchPreset({ type: "EDIT_FIELD", field, value });
+  const editValues = (field: Record<string, unknown>) => {
+    dispatchPreset({ type: "EDIT_VALUES", field });
+  };
+
+  const editHeader = (field: Record<string, unknown>) => {
+    dispatchPreset({ type: "EDIT_HEADER", field });
   };
 
   const resetPreset = () => {
@@ -220,7 +219,8 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
         setHeader,
         removeField,
         addField,
-        editField,
+        editValues,
+        editHeader,
         resetPreset,
         savePreset,
       }}

@@ -10,7 +10,7 @@ import { PresetContextProvider } from "@/context/preset-context";
 import { ModeProvider } from "@/context/mode-context";
 
 export const metadata: Metadata = {
-  title: ".csv Formatter",
+  title: "Flat File Formatter",
 };
 
 export default function RootLayout({

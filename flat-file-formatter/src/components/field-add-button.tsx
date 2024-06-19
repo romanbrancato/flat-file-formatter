@@ -42,8 +42,8 @@ export function FieldAddButton() {
   });
 
   function onSubmit(values: z.infer<typeof addFieldSchema>) {
-    dataAddField(values.name, values.value);
-    presetAddField(values.name, values.value);
+    dataAddField({ [values.name]: values.value });
+    presetAddField({ [values.name]: values.value });
     setOpen(false);
     form.reset();
   }

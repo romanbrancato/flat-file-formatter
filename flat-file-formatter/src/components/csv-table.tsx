@@ -132,7 +132,6 @@ export function CSVTable() {
       const newColumnOrder = arrayMove(columnOrder, oldIndex, newIndex);
       setColumnOrder(newColumnOrder);
       orderFields(newColumnOrder);
-      setOrder(newColumnOrder);
     }
   }
 

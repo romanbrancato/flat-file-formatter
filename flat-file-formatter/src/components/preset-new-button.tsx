@@ -21,6 +21,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PresetContext } from "@/context/preset-context";
+import { DataContext } from "@/context/data-context";
 
 interface NewPresetButtonProps {
   trigger: React.ReactNode;
@@ -31,7 +32,8 @@ const newPresetSchema = z.object({
 });
 
 export function PresetNewButton({ trigger }: NewPresetButtonProps) {
-  const { setName, savePreset } = useContext(PresetContext);
+  const { data } = useContext(DataContext);
+  const { setOrder, setName, savePreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof newPresetSchema>>({
@@ -43,6 +45,7 @@ export function PresetNewButton({ trigger }: NewPresetButtonProps) {
 
   function onSubmit(values: z.infer<typeof newPresetSchema>) {
     setName(values.name);
+    setOrder(Object.keys(data[0]));
     savePreset();
     setOpen(false);
     form.reset();

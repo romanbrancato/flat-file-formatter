@@ -10,7 +10,8 @@ export const PresetSchema = z.object({
   export: z.enum(["csv", "txt"]),
   removed: z.array(z.string()),
   added: z.array(z.record(z.string())),
-  edited: z.array(z.record(z.string())),
+  editedValues: z.array(z.record(z.string())),
+  editedHeaders: z.array(z.record(z.string())),
 });
 
 export type Preset = z.infer<typeof PresetSchema>;
