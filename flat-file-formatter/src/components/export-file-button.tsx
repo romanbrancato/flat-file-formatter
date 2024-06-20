@@ -102,7 +102,7 @@ export function ExportFileButton({ files }: ExportFileButtonProps) {
   return (
     <Button
       onClick={mode === "batch" ? exportBatch : exportFile}
-      disabled={data.length === 0 && mode === "single"}
+      disabled={data.length === 0 || files?.length === 0}
       className="gap-x-2 md:mt-auto px-10"
     >
       <Share2Icon />

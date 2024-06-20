@@ -12,7 +12,7 @@ import path from "node:path";
 export default function App() {
   const { mode } = useContext(ModeContext);
   const { setData, setName } = useContext(DataContext);
-  const { setOrder, setSymbol, resetPreset } = useContext(PresetContext);
+  const { setSymbol, resetPreset } = useContext(PresetContext);
   const [files, setFiles] = useState<File[]>([]);
 
   useEffect(() => {
@@ -24,7 +24,6 @@ export default function App() {
         resetPreset();
         setData(results.data as Record<string, unknown>[]);
         setName(`${path.parse(files[files.length - 1].name).name}_export`);
-        setOrder(results.meta.fields as string[]);
         setSymbol(results.meta.delimiter);
       },
     });
