@@ -48,11 +48,16 @@ const dataReducer = (state: Record<string, unknown>[], action: any) => {
     case "EDIT_VALUES":
       return state.map((row) => ({ ...row, ...action.field }));
     case "EDIT_HEADER":
-      return state.map((row) => {
+      return state.map(row => {
         const [field, value] = Object.entries(action.field)[0];
         if (field in row) {
-          row[value as string] = row[field];
-          delete row[field];
+          return {
+            ...Object.fromEntries(
+                Object.entries(row).map(([key, val]) =>
+                    key === field ? [value, val] : [key, val]
+                )
+            )
+          };
         }
         return row;
       });
