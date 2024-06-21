@@ -8,7 +8,7 @@ import {
 import { useContext } from "react";
 import { ModeContext } from "@/context/mode-context";
 
-export function ModeSelect() {
+export function SelectMode() {
   const { mode, setMode } = useContext(ModeContext);
   return (
     <Select

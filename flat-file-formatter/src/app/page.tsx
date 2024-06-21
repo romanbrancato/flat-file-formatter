@@ -5,7 +5,7 @@ import { Dropzone } from "@/components/dropzone";
 import { FilePreview } from "@/components/file-preview";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
-import { ModeSelect } from "@/components/mode-select";
+import { SelectMode } from "@/components/select-mode";
 import { ModeContext } from "@/context/mode-context";
 import path from "node:path";
 
@@ -34,7 +34,7 @@ export default function App() {
       <span className="text-md font-bold absolute left-1/2 -translate-x-1/2">
         Format a Flat File
       </span>
-      <ModeSelect />
+      <SelectMode />
       <Dropzone
         onChange={setFiles}
         fileExtension=".csv"

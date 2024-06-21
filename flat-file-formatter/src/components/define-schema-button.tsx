@@ -94,7 +94,7 @@ export function DefineSchemaButton() {
               )}
             />
             <Button type="submit" className="ml-auto">
-              Save Schema
+              Save
             </Button>
           </form>
         </Form>

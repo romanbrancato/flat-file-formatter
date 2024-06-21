@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Pencil1Icon } from "@radix-ui/react-icons";
-import { FieldSelector } from "@/components/field-selector";
+import { SelectField } from "@/components/select-field";
 import { Input } from "@/components/ui/input";
 import { useContext, useState } from "react";
 import { DataContext } from "@/context/data-context";
@@ -114,7 +114,7 @@ export function FieldEditButton() {
               render={() => (
                 <FormItem className="flex-1">
                   <FormControl>
-                    <FieldSelector
+                    <SelectField
                       onFieldSelect={(selectedField) =>
                         form.setValue("field", selectedField, {
                           shouldValidate: true,

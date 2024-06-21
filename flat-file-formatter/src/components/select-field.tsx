@@ -23,7 +23,7 @@ interface FieldSelectorProps {
   onFieldSelect: (field: string) => void;
 }
 
-export function FieldSelector({ onFieldSelect }: FieldSelectorProps) {
+export function SelectField({ onFieldSelect }: FieldSelectorProps) {
   const { data } = useContext(DataContext);
   const [open, setOpen] = useState(false);
   const [selectedField, setSelectedField] = useState<string>();

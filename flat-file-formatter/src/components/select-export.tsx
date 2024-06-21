@@ -6,28 +6,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useContext } from "react";
-import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
+import { DataContext } from "@/context/data-context";
 
-export function AlignSelect() {
-  const { preset, setAlign } = useContext(PresetContext);
+export function SelectExport() {
   const { data } = useContext(DataContext);
+  const { preset, setExport } = useContext(PresetContext);
+
   return (
     <Select
-      value={preset.align}
-      onValueChange={(value: "left" | "right") => setAlign(value)}
+      value={preset.export}
+      onValueChange={(value: "csv" | "txt") => setExport(value)}
       disabled={data.length === 0}
     >
-      <SelectTrigger>
-        <span className="text-xs text-muted-foreground">Align: </span>
+      <SelectTrigger className="text-xs w-auto gap-x-1">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem key="left" value="left">
-          Left
+        <SelectItem key="csv" value="csv" className="text-xs">
+          .csv
         </SelectItem>
-        <SelectItem key="right" value="right">
-          Right
+        <SelectItem key="txt" value="txt" className="text-xs">
+          .txt
         </SelectItem>
       </SelectContent>
     </Select>

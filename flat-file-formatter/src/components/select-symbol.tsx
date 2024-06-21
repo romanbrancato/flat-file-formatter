@@ -14,7 +14,7 @@ interface SymbolSelectProps {
   label: string;
 }
 
-export function SymbolSelect({ label }: SymbolSelectProps) {
+export function SelectSymbol({ label }: SymbolSelectProps) {
   const { preset, setSymbol } = useContext(PresetContext);
   const { data } = useContext(DataContext);
 

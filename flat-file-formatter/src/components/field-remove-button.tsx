@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useContext, useState } from "react";
 import { DataContext } from "@/context/data-context";
 import { MinusCircledIcon } from "@radix-ui/react-icons";
-import { FieldSelector } from "@/components/field-selector";
+import { SelectField } from "@/components/select-field";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -72,7 +72,7 @@ export function FieldRemoveButton() {
               render={() => (
                 <FormItem className="flex-1">
                   <FormControl>
-                    <FieldSelector
+                    <SelectField
                       onFieldSelect={(selectedField) =>
                         form.setValue("field", selectedField, {
                           shouldValidate: true,

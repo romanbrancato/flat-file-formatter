@@ -1,4 +1,4 @@
-import { PresetSelector } from "@/components/preset-selector";
+import { PresetSelect } from "@/components/preset-select";
 import { Button } from "@/components/ui/button";
 import {
   DotsHorizontalIcon,
@@ -36,7 +36,7 @@ export function PresetToolbar() {
           {mode === "single" && <DefineSchemaButton />}
         </div>
         <div className="flex flex-row space-x-3 justify-end">
-          <PresetSelector />
+          <PresetSelect />
           <PresetNewButton
             trigger={
               <Button

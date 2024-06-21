@@ -8,7 +8,7 @@ import { ModeContext } from "@/context/mode-context";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BatchFileRow } from "@/components/batch-file-row";
-import { ExportSelect } from "@/components/export-select";
+import { SelectExport } from "@/components/select-export";
 import { PresetContext } from "@/context/preset-context";
 
 interface PreviewProps {
@@ -38,7 +38,7 @@ export function FilePreview({ files, setFiles }: PreviewProps) {
               <FormatMenu />
               <div className="flex flex-row items-center gap-x-1">
                 <ExportFileButton />
-                {preset.format === "csv" && <ExportSelect />}
+                {preset.format === "csv" && <SelectExport />}
               </div>
             </div>
           </>

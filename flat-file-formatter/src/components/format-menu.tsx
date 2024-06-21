@@ -3,9 +3,9 @@ import { DefineWidthsButton } from "@/components/define-widths-button";
 import { DataContext } from "@/context/data-context";
 import { useContext, useEffect, useState } from "react";
 import { PresetContext } from "@/context/preset-context";
-import { AlignSelect } from "@/components/align-select";
+import { SelectAlign } from "@/components/select-align";
 import { HeaderCheckbox } from "@/components/header-checkbox";
-import { SymbolSelect } from "@/components/symbol-select";
+import { SelectSymbol } from "@/components/select-symbol";
 
 export function FormatMenu() {
   const { data } = useContext(DataContext);
@@ -31,13 +31,13 @@ export function FormatMenu() {
       </div>
       <div className="my-5">
         <TabsContent value="csv" className="space-y-2">
-          <SymbolSelect label="Delimiter" />
+          <SelectSymbol label="Delimiter" />
           <HeaderCheckbox />
         </TabsContent>
         <TabsContent value="fixed" className="space-y-2">
           <DefineWidthsButton />
-          <SymbolSelect label="Padding" />
-          <AlignSelect />
+          <SelectSymbol label="Padding" />
+          <SelectAlign />
           <HeaderCheckbox />
         </TabsContent>
       </div>
