@@ -1,6 +1,7 @@
 "use client";
 import { createContext, ReactNode, useReducer, useState } from "react";
 import { Preset } from "@/types/preset";
+import { tokenize } from "@/lib/utils";
 
 interface DataContextProps {
   data: Record<string, unknown>[];
@@ -12,6 +13,7 @@ interface DataContextProps {
   editValues: (field: Record<string, unknown>) => void;
   editHeader: (field: Record<string, unknown>) => void;
   orderFields: (order: string[]) => void;
+  applySchema: (schema: string) => void;
   applyPreset: (preset: Preset) => void;
 }
 
@@ -25,6 +27,7 @@ export const DataContext = createContext<DataContextProps>({
   editValues: () => {},
   editHeader: () => {},
   orderFields: () => {},
+  applySchema: () => {},
   applyPreset: () => {},
 });
 
@@ -48,15 +51,15 @@ const dataReducer = (state: Record<string, unknown>[], action: any) => {
     case "EDIT_VALUES":
       return state.map((row) => ({ ...row, ...action.field }));
     case "EDIT_HEADER":
-      return state.map(row => {
+      return state.map((row) => {
         const [field, value] = Object.entries(action.field)[0];
         if (field in row) {
           return {
             ...Object.fromEntries(
-                Object.entries(row).map(([key, val]) =>
-                    key === field ? [value, val] : [key, val]
-                )
-            )
+              Object.entries(row).map(([key, val]) =>
+                key === field ? [value, val] : [key, val],
+              ),
+            ),
           };
         }
         return row;
@@ -78,7 +81,7 @@ const dataReducer = (state: Record<string, unknown>[], action: any) => {
 
 export const DataContextProvider = ({ children }: DataProviderProps) => {
   const [data, dispatch] = useReducer(dataReducer, []);
-  const [name, setName] = useState<string>("data");
+  const [name, setName] = useState<string>("");
   const setData = (data: Record<string, unknown>[]) => {
     dispatch({ type: "SET_DATA", data: data });
   };
@@ -100,6 +103,17 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
 
   const orderFields = (order: string[]) => {
     dispatch({ type: "ORDER_FIELDS", order });
+  };
+
+  const applySchema = (schema: string) => {
+    if (!schema) return;
+    const tokenized = tokenize(name);
+    setName(
+      schema.replace(/{(\d+)}/g, (match: string, index: string) => {
+        const tokenIndex = parseInt(index, 10);
+        return tokenized[tokenIndex] ?? "";
+      }),
+    );
   };
 
   const applyPreset = (preset: Preset) => {
@@ -134,6 +148,7 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
         editValues,
         editHeader,
         orderFields,
+        applySchema,
         applyPreset,
       }}
     >

@@ -18,19 +18,23 @@ import { useContext } from "react";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import { ModeContext } from "@/context/mode-context";
+import { DefineSchemaButton } from "@/components/define-schema-button";
 
 export function PresetToolbar() {
-  const { data } = useContext(DataContext);
+  const { data, name } = useContext(DataContext);
   const { preset } = useContext(PresetContext);
   const { mode } = useContext(ModeContext);
 
   return (
     <>
-      <div className="flex items-center justify-between py-2 px-5">
-        <h2 className="text-md font-semibold whitespace-nowrap">
-          File Preview
-        </h2>
-        <div className="flex flex-row items-center space-x-3">
+      <div className="flex py-2 px-5 justify-between">
+        <div className="flex flex-row items-center w-full min-w-0 gap-x-1">
+          <h2 className="text-md font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[80%]">
+            {name ? name : "File Preview"}
+          </h2>
+          <DefineSchemaButton />
+        </div>
+        <div className="flex flex-row space-x-3 justify-end">
           <PresetSelector />
           <PresetNewButton
             trigger={

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const PresetSchema = z.object({
   name: z.string().nullable(),
+  schema: z.string(),
   order: z.array(z.string()),
   symbol: z.string(),
   widths: z.array(z.record(z.number())),

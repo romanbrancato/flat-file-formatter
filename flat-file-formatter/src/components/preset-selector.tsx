@@ -30,12 +30,14 @@ import { ModeContext } from "@/context/mode-context";
 
 export function PresetSelector() {
   const { mode } = useContext(ModeContext);
-  const { data, applyPreset } = useContext(DataContext);
-  const { preset, savedPresets, setPreset, savePreset } = useContext(PresetContext);
+  const { data, applySchema, applyPreset } = useContext(DataContext);
+  const { preset, savedPresets, setPreset, savePreset } =
+    useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
 
   const onSelect = (selectedPreset: Preset) => {
+    applySchema(selectedPreset.schema);
     applyPreset(selectedPreset);
     setPreset(selectedPreset);
     toast.success("Preset Loaded", {

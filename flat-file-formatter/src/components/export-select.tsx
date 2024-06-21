@@ -7,14 +7,17 @@ import {
 } from "@/components/ui/select";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
+import { DataContext } from "@/context/data-context";
 
 export function ExportSelect() {
+  const { data } = useContext(DataContext);
   const { preset, setExport } = useContext(PresetContext);
 
   return (
     <Select
       value={preset.export}
       onValueChange={(value: "csv" | "txt") => setExport(value)}
+      disabled={data.length === 0}
     >
       <SelectTrigger className="text-xs w-auto gap-x-1">
         <SelectValue />

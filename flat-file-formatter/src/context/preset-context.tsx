@@ -13,6 +13,7 @@ interface PresetContextProps {
   savedPresets: Preset[];
   setPreset: (preset: Preset) => void;
   setName: (name: string) => void;
+  setSchema: (nameTemplate: string) => void;
   setOrder: (order: string[]) => void;
   setSymbol: (symbol: string) => void;
   setWidths: (widths: Record<string, number>[]) => void;
@@ -33,6 +34,7 @@ export const PresetContext = createContext<PresetContextProps>({
   savedPresets: [],
   setPreset: () => {},
   setName: () => {},
+  setSchema: () => {},
   setOrder: () => {},
   setSymbol: () => {},
   setWidths: () => {},
@@ -58,6 +60,8 @@ const presetReducer = (state: Preset, action: any): Preset => {
       return action.preset;
     case "SET_NAME":
       return { ...state, name: action.name };
+    case "SET_SCHEMA":
+      return { ...state, schema: action.schema };
     case "SET_ORDER":
       return { ...state, order: action.order };
     case "SET_SYMBOL":
@@ -95,6 +99,7 @@ const presetReducer = (state: Preset, action: any): Preset => {
     case "RESET":
       return {
         name: null,
+        schema: "",
         order: [],
         symbol: ",",
         widths: [],
@@ -122,6 +127,7 @@ const presetReducer = (state: Preset, action: any): Preset => {
 export const PresetContextProvider = ({ children }: PresetProviderProps) => {
   const [preset, dispatchPreset] = useReducer(presetReducer, {
     name: null,
+    schema: "",
     order: [],
     symbol: ",",
     widths: [],
@@ -160,6 +166,10 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
 
   const setName = (name: string) => {
     dispatchPreset({ type: "SET_NAME", name });
+  };
+
+  const setSchema = (schema: string) => {
+    dispatchPreset({ type: "SET_SCHEMA", schema });
   };
 
   const setOrder = (order: string[]) => {
@@ -221,6 +231,7 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
         savedPresets,
         setPreset,
         setName,
+        setSchema,
         setOrder,
         setSymbol,
         setWidths,
