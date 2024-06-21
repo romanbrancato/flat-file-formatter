@@ -16,6 +16,7 @@ interface PresetContextProps {
   setOrder: (order: string[]) => void;
   setSymbol: (symbol: string) => void;
   setWidths: (widths: Record<string, number>[]) => void;
+  setFormat: (format: string) => void;
   setExport: (exportType: string) => void;
   setAlign: (padPos: string) => void;
   setHeader: (header: boolean) => void;
@@ -35,6 +36,7 @@ export const PresetContext = createContext<PresetContextProps>({
   setOrder: () => {},
   setSymbol: () => {},
   setWidths: () => {},
+  setFormat: () => {},
   setExport: () => {},
   setAlign: () => {},
   setHeader: () => {},
@@ -62,6 +64,8 @@ const presetReducer = (state: Preset, action: any): Preset => {
       return { ...state, symbol: action.symbol };
     case "SET_WIDTHS":
       return { ...state, widths: action.widths };
+    case "SET_FORMAT":
+      return { ...state, format: action.format };
     case "SET_EXPORT":
       return { ...state, export: action.export };
     case "SET_ALIGN":
@@ -94,6 +98,7 @@ const presetReducer = (state: Preset, action: any): Preset => {
         order: [],
         symbol: ",",
         widths: [],
+        format: "csv",
         export: "csv",
         align: "left",
         header: true,
@@ -120,6 +125,7 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
     order: [],
     symbol: ",",
     widths: [],
+    format: "csv",
     export: "csv",
     align: "left",
     header: true,
@@ -176,6 +182,10 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
     dispatchPreset({ type: "SET_HEADER", header });
   };
 
+  const setFormat = (format: string) => {
+    dispatchPreset({ type: "SET_FORMAT", format });
+  };
+
   const setExport = (exportType: string) => {
     dispatchPreset({ type: "SET_EXPORT", export: exportType });
   };
@@ -214,6 +224,7 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
         setOrder,
         setSymbol,
         setWidths,
+        setFormat,
         setExport,
         setAlign,
         setHeader,

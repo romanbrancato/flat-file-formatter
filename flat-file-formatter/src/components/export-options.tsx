@@ -9,27 +9,27 @@ import { HeaderCheckbox } from "@/components/header-checkbox";
 
 export function ExportOptions() {
   const { data } = useContext(DataContext);
-  const { preset, setExport } = useContext(PresetContext);
-  const [tab, setTab] = useState<"csv" | "txt">(preset.export);
+  const { preset, setFormat } = useContext(PresetContext);
+  const [tab, setTab] = useState<"csv" | "fixed">(preset.format);
 
   useEffect(() => {
-    setTab(preset.export);
-  }, [preset.export]);
+    setTab(preset.format);
+  }, [preset.format]);
 
   return (
     <Tabs
       value={tab}
-      onValueChange={(value) => setExport(value)}
-      className="mb-5 md:w-[175px]"
+      onValueChange={(value) => setFormat(value)}
+      className="mb-10"
     >
-      <div className="text-sm font-medium space-y-1 leading-none">
-        <span> Export As </span>
+      <div className="text-sm font-medium space-y-1 mb-2 leading-none">
+        <span> Format </span>
         <TabsList className="grid grid-cols-2">
           <TabsTrigger value="csv" disabled={data.length === 0}>
-            .csv
+            csv
           </TabsTrigger>
-          <TabsTrigger value="txt" disabled={data.length === 0}>
-            .txt
+          <TabsTrigger value="fixed" disabled={data.length === 0}>
+            Fixed
           </TabsTrigger>
         </TabsList>
       </div>
@@ -40,13 +40,10 @@ export function ExportOptions() {
         </div>
         <HeaderCheckbox />
       </TabsContent>
-      <TabsContent value="txt" className="space-y-2">
+      <TabsContent value="fixed" className="space-y-2">
+        <DefineWidthsButton />
         <div className="text-sm font-medium space-y-1 leading-none">
-          <span>Widths</span>
-          <DefineWidthsButton />
-        </div>
-        <div className="text-sm font-medium space-y-1 leading-none">
-          <span>Padding Symbol</span>
+          <span>Padding</span>
           <SymbolSelector />
         </div>
         <div className="text-sm font-medium space-y-1 leading-none">

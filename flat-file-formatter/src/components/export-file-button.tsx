@@ -51,8 +51,7 @@ export function ExportFileButton({ files }: ExportFileButtonProps) {
   const exportFile = () => {
     let flatData;
     try {
-      // CSV Export
-      if (preset.export === "csv") {
+      if (preset.format === "csv") {
         const config = {
           delimiter: preset.symbol,
           header: preset.header,
@@ -60,7 +59,6 @@ export function ExportFileButton({ files }: ExportFileButtonProps) {
         };
         flatData = Papa.unparse(data, config);
       } else {
-        // Fixed Width Export
         const config = preset.order.map((field) => {
           const width = preset.widths.find((widths) => field in widths)?.[
             field
@@ -96,14 +94,14 @@ export function ExportFileButton({ files }: ExportFileButtonProps) {
       return;
     }
 
-    download(flatData, name, preset.export);
+    download(flatData, name, preset.format === "fixed" ? "txt" : preset.export);
   };
 
   return (
     <Button
       onClick={mode === "batch" ? exportBatch : exportFile}
       disabled={data.length === 0 || files?.length === 0}
-      className="gap-x-2 md:mt-auto px-10"
+      className="gap-x-2 md:mt-auto w-full"
     >
       <Share2Icon />
       {mode === "batch" ? "Export Files" : "Export File"}

@@ -8,7 +8,7 @@ export function AlignRadioGroup() {
 
   return (
     <RadioGroup
-      defaultValue={preset.align}
+      value={preset.align}
       onValueChange={(value) => setAlign(value)}
       className="grid grid-cols-2 gap-2"
     >

@@ -12,12 +12,10 @@ export function HeaderCheckbox() {
       <Checkbox
         id="header"
         onCheckedChange={setHeader}
-        defaultChecked={preset.header}
+        checked={preset.header}
         disabled={data.length === 0}
       />
-      <Label className="text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Include Header
-      </Label>
+      <Label className="text-sm font-medium">Include Header</Label>
     </div>
   );
 }

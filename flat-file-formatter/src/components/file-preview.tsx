@@ -8,6 +8,8 @@ import { ModeContext } from "@/context/mode-context";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BatchFileRow } from "@/components/batch-file-row";
+import { ExportSelect } from "@/components/export-select";
+import { PresetContext } from "@/context/preset-context";
 
 interface PreviewProps {
   files: File[];
@@ -16,6 +18,7 @@ interface PreviewProps {
 
 export function FilePreview({ files, setFiles }: PreviewProps) {
   const { mode } = useContext(ModeContext);
+  const { preset } = useContext(PresetContext);
 
   const handleFileDelete = (index: number) => {
     setFiles(files.filter((_, i) => i !== index));
@@ -33,7 +36,10 @@ export function FilePreview({ files, setFiles }: PreviewProps) {
             </div>
             <div className="flex flex-col">
               <ExportOptions />
-              <ExportFileButton />
+              <div className="flex flex-row items-center gap-x-1">
+                <ExportFileButton />
+                {preset.format === "csv" && <ExportSelect />}
+              </div>
             </div>
           </>
         ) : (
@@ -56,7 +62,7 @@ export function FilePreview({ files, setFiles }: PreviewProps) {
                 />
               ))}
             </div>
-            <div className="ml-auto">
+            <div className="ml-auto w-1/5">
               <ExportFileButton files={files} />
             </div>
           </div>

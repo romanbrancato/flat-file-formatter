@@ -71,7 +71,7 @@ export function DefineWidthsButton() {
         <Button
           variant="outline"
           size="sm"
-          className="w-full border-dashed mb-2"
+          className="w-full border-dashed"
           disabled={data.length === 0}
         >
           <Pencil2Icon className="mr-2" />
