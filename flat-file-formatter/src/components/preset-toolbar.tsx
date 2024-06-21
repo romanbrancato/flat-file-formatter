@@ -19,6 +19,7 @@ import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import { ModeContext } from "@/context/mode-context";
 import { DefineSchemaButton } from "@/components/define-schema-button";
+import { Label } from "@/components/ui/label";
 
 export function PresetToolbar() {
   const { data, name } = useContext(DataContext);
@@ -29,10 +30,10 @@ export function PresetToolbar() {
     <>
       <div className="flex py-2 px-5 justify-between">
         <div className="flex flex-row items-center w-full min-w-0 gap-x-1">
-          <h2 className="text-md font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[80%]">
-            {name ? name : "File Preview"}
-          </h2>
-          <DefineSchemaButton />
+          <Label className="text-md font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[80%]">
+            {name && mode === "single" ? name : "File Preview"}
+          </Label>
+          {mode === "single" && <DefineSchemaButton />}
         </div>
         <div className="flex flex-row space-x-3 justify-end">
           <PresetSelector />

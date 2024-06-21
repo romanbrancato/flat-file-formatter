@@ -1,6 +1,6 @@
 import { PresetToolbar } from "@/components/preset-toolbar";
 import { CSVTable } from "@/components/csv-table";
-import { ExportOptions } from "@/components/export-options";
+import { FormatMenu } from "@/components/format-menu";
 import { TableToolbar } from "@/components/table-toolbar";
 import { ExportFileButton } from "@/components/export-file-button";
 import { useContext } from "react";
@@ -35,7 +35,7 @@ export function FilePreview({ files, setFiles }: PreviewProps) {
               <TableToolbar />
             </div>
             <div className="flex flex-col">
-              <ExportOptions />
+              <FormatMenu />
               <div className="flex flex-row items-center gap-x-1">
                 <ExportFileButton />
                 {preset.format === "csv" && <ExportSelect />}
