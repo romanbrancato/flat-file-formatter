@@ -15,8 +15,10 @@ import { DataContext } from "@/context/data-context";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { z } from "zod";
@@ -106,13 +108,13 @@ export function FieldEditButton() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-row gap-x-2"
+            className="flex flex-col gap-y-2"
           >
             <FormField
               control={form.control}
               name="field"
               render={() => (
-                <FormItem className="flex-1">
+                <FormItem>
                   <FormControl>
                     <SelectField
                       onFieldSelect={(selectedField) =>
@@ -130,7 +132,7 @@ export function FieldEditButton() {
               control={form.control}
               name="value"
               render={({ field }) => (
-                <FormItem className="flex-1">
+                <FormItem>
                   <FormControl>
                     <Input
                       placeholder={
@@ -145,7 +147,9 @@ export function FieldEditButton() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Edit</Button>
+            <Button type="submit" className="w-1/3 ml-auto">
+              Edit
+            </Button>
           </form>
         </Form>
       </DialogContent>

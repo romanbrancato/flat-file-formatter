@@ -71,15 +71,15 @@ export function FieldAddButton() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-row gap-x-2"
+            className="flex flex-col gap-y-2"
           >
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem className="flex-1">
+                <FormItem>
                   <FormControl>
-                    <Input placeholder="Field name" {...field} />
+                    <Input placeholder="Name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -89,7 +89,7 @@ export function FieldAddButton() {
               control={form.control}
               name="value"
               render={({ field }) => (
-                <FormItem className="flex-1">
+                <FormItem>
                   <FormControl>
                     <Input placeholder="Populate with..." {...field} />
                   </FormControl>
@@ -97,7 +97,9 @@ export function FieldAddButton() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Add</Button>
+            <Button type="submit" className="w-1/3 ml-auto">
+              Add
+            </Button>
           </form>
         </Form>
       </DialogContent>

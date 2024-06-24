@@ -83,7 +83,12 @@ export function DefineWidthsButton() {
           <DialogTitle>Define Widths</DialogTitle>
           <DialogDescription className="flex flex-row justify-between items-center">
             Define the widths of each field in characters.
-            <Button onClick={() => form.handleSubmit(onSubmit)()}>Save</Button>
+            <Button
+              onClick={() => form.handleSubmit(onSubmit)()}
+              className="w-1/3"
+            >
+              Save
+            </Button>
           </DialogDescription>
         </DialogHeader>
         <ScrollArea>

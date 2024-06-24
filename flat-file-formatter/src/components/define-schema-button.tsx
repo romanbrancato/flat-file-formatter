@@ -65,7 +65,7 @@ export function DefineSchemaButton() {
             To preserve a part of the original file name add the index of the token in curly braces.`}
           </DialogDescription>
         </DialogHeader>
-        <Label className="font-mono">
+        <Label className="grid grid-cols-5 font-mono">
           {tokenized.map((token, index) => (
             <span key={index} className="mr-2">
               {index}: {token}

@@ -64,13 +64,13 @@ export function FieldRemoveButton() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-row gap-x-2"
+            className="flex flex-col gap-y-2"
           >
             <FormField
               control={form.control}
               name="field"
               render={() => (
-                <FormItem className="flex-1">
+                <FormItem>
                   <FormControl>
                     <SelectField
                       onFieldSelect={(selectedField) =>
@@ -84,7 +84,9 @@ export function FieldRemoveButton() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Remove</Button>
+            <Button type="submit" className="w-1/3 ml-auto">
+              Remove
+            </Button>
           </form>
         </Form>
       </DialogContent>

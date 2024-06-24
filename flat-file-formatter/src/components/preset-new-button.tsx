@@ -64,7 +64,7 @@ export function PresetNewButton({ trigger }: NewPresetButtonProps) {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-row gap-x-2"
+            className="flex flex-col gap-y-2"
           >
             <FormField
               control={form.control}
@@ -81,7 +81,9 @@ export function PresetNewButton({ trigger }: NewPresetButtonProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit">Save</Button>
+            <Button type="submit" className="w-1/3 ml-auto">
+              Save
+            </Button>
           </form>
         </Form>
       </DialogContent>

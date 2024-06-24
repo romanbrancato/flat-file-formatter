@@ -8,6 +8,7 @@ export function TableToolbar() {
       <FieldAddButton />
       <FieldRemoveButton />
       <FieldEditButton />
+      {/*<TestFieldEditButton />*/}
     </div>
   );
 }
