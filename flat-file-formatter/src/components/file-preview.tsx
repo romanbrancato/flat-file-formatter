@@ -36,10 +36,7 @@ export function FilePreview({ files, setFiles }: PreviewProps) {
             </div>
             <div className="flex flex-col">
               <FormatMenu />
-              <div className="flex flex-row items-center gap-x-1">
-                <ExportFileButton />
-                {preset.format === "csv" && <SelectExport />}
-              </div>
+              <ExportFileButton />
             </div>
           </>
         ) : (

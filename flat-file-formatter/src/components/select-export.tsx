@@ -19,14 +19,15 @@ export function SelectExport() {
       onValueChange={(value: "csv" | "txt") => setExport(value)}
       disabled={data.length === 0}
     >
-      <SelectTrigger className="text-xs w-auto gap-x-1">
+      <SelectTrigger className="w-full">
+        <span className="text-xs text-muted-foreground">Export As:</span>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem key="csv" value="csv" className="text-xs">
+        <SelectItem key="csv" value="csv">
           .csv
         </SelectItem>
-        <SelectItem key="txt" value="txt" className="text-xs">
+        <SelectItem key="txt" value="txt">
           .txt
         </SelectItem>
       </SelectContent>

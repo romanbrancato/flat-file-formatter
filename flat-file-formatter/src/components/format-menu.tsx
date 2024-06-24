@@ -6,6 +6,7 @@ import { PresetContext } from "@/context/preset-context";
 import { SelectAlign } from "@/components/select-align";
 import { HeaderCheckbox } from "@/components/header-checkbox";
 import { SelectSymbol } from "@/components/select-symbol";
+import { SelectExport } from "@/components/select-export";
 
 export function FormatMenu() {
   const { data } = useContext(DataContext);
@@ -32,6 +33,7 @@ export function FormatMenu() {
       <div className="my-5">
         <TabsContent value="csv" className="space-y-2">
           <SelectSymbol label="Delimiter" />
+          <SelectExport />
           <HeaderCheckbox />
         </TabsContent>
         <TabsContent value="fixed" className="space-y-2">
