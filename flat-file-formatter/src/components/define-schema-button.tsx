@@ -60,9 +60,9 @@ export function DefineSchemaButton() {
       <DialogContent className="sm:max-w-[600px] max-h-[800px]">
         <DialogHeader>
           <DialogTitle>Define Naming Schema</DialogTitle>
-          <DialogDescription className="whitespace-pre-line">
+          <DialogDescription className="whitespace-pre-line leading-tight">
             {`Define a schema for naming exported files. 
-            To preserve a part of the original file name add the index of the token in curly braces.`}
+            To preserve a part of the original file name, add the index of the token in curly braces.`}
           </DialogDescription>
         </DialogHeader>
         <Label className="grid grid-cols-5 font-mono">
