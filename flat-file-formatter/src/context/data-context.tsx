@@ -1,6 +1,6 @@
 "use client";
 import { createContext, ReactNode, useReducer, useState } from "react";
-import { Preset } from "@/types/preset";
+import {Func, Preset} from "@/types/preset";
 import { tokenize } from "@/lib/utils";
 
 interface DataContextProps {
@@ -10,7 +10,7 @@ interface DataContextProps {
   setName: (name: string) => void;
   removeField: (field: string) => void;
   addField: (field: Record<string, unknown>) => void;
-  editValues: (field: Record<string, unknown>) => void;
+  runFunction: (func: Func) => void;
   editHeader: (field: Record<string, unknown>) => void;
   orderFields: (order: string[]) => void;
   applySchema: (schema: string) => void;
@@ -24,7 +24,7 @@ export const DataContext = createContext<DataContextProps>({
   setName: () => {},
   removeField: () => {},
   addField: () => {},
-  editValues: () => {},
+  runFunction: () => {},
   editHeader: () => {},
   orderFields: () => {},
   applySchema: () => {},
@@ -48,8 +48,23 @@ const dataReducer = (state: Record<string, unknown>[], action: any) => {
       });
     case "ADD_FIELD":
       return state.map((row) => ({ ...row, ...action.field }));
-    case "EDIT_VALUES":
-      return state.map((row) => ({ ...row, ...action.field }));
+    case "RUN_FUNCTION":
+      const { field, func, condition, then, valueTrue, valueFalse } = action.func;
+      return state.map((row) => {
+        if (row[field] !== undefined) {
+          const conditionPassed = condition === "" || (func === "if"
+              ? row[field] === condition
+              : row[field] !== condition);
+
+          if (conditionPassed) {
+            return { ...row, [then]: valueTrue };
+          } else {
+            return { ...row, [then]: valueFalse };
+          }
+        }
+        return row;
+      });
+
     case "EDIT_HEADER":
       return state.map((row) => {
         const [field, value] = Object.entries(action.field)[0];
@@ -93,9 +108,9 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
     dispatch({ type: "ADD_FIELD", field });
   };
 
-  const editValues = (field: Record<string, unknown>) => {
-    dispatch({ type: "EDIT_VALUES", field });
-  };
+  const runFunction = (func: Func) => {
+    dispatch({ type: "RUN_FUNCTION", func});
+  }
 
   const editHeader = (field: Record<string, unknown>) => {
     dispatch({ type: "EDIT_HEADER", field });
@@ -129,8 +144,8 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
       editHeader(item);
     });
 
-    preset.editedValues?.forEach((item) => {
-      editValues(item);
+    preset.functions?.forEach((item) => {
+      runFunction(item);
     });
 
     orderFields(preset.order);
@@ -145,7 +160,7 @@ export const DataContextProvider = ({ children }: DataProviderProps) => {
         setName,
         removeField,
         addField,
-        editValues,
+        runFunction,
         editHeader,
         orderFields,
         applySchema,

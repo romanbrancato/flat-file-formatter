@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useContext, useState} from "react";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SelectFunction } from "@/components/select-function";
+import {FuncSchema} from "@/types/preset";
+import {DataContext} from "@/context/data-context";
+import {PresetContext} from "@/context/preset-context";
 
 const editFieldValuesSchema = z.object({
   field: z.string({ required_error: "Select a field to edit." }),
@@ -45,6 +48,8 @@ const editFieldHeaderSchema = z.object({
 });
 
 export function TestFieldEditButton() {
+  const {editHeader: dataEditHeader, runFunction} = useContext(DataContext);
+  const {editHeader: presetEditHeader, addFunction} = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [target, setTarget] = useState<"header" | "values">("values");
 
@@ -52,10 +57,27 @@ export function TestFieldEditButton() {
     resolver: zodResolver(
       target === "header" ? editFieldHeaderSchema : editFieldValuesSchema,
     ),
+    defaultValues: {
+      field: "",
+      name: "",
+      function: "",
+      condition: "",
+      then: "",
+      valueTrue: "",
+      valueFalse: ""
+    }
   });
 
   function onSubmit(values: any) {
-    console.log(values);
+    console.log(values)
+    if (target === "values") {
+      const func = FuncSchema.parse(values)
+      runFunction(func);
+      addFunction(func);
+    } else {
+      dataEditHeader({ [values.field]: values.name });
+      presetEditHeader({ [values.field]: values.name });
+    }
     setOpen(false);
     form.reset();
   }
@@ -173,13 +195,13 @@ export function TestFieldEditButton() {
                 </div>
                 <FormField
                   control={form.control}
-                  name="thenField"
+                  name="then"
                   render={() => (
                     <FormItem>
                       <FormControl>
                         <SelectField
                           onFieldSelect={(selectedField) =>
-                            form.setValue("thenField", selectedField, {
+                            form.setValue("then", selectedField, {
                               shouldValidate: true,
                             })
                           }

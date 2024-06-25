@@ -6,7 +6,7 @@ import {
   useReducer,
   useState,
 } from "react";
-import { Preset } from "@/types/preset";
+import {Func, Preset} from "@/types/preset";
 
 interface PresetContextProps {
   preset: Preset;
@@ -23,7 +23,7 @@ interface PresetContextProps {
   setHeader: (header: boolean) => void;
   removeField: (field: string) => void;
   addField: (field: Record<string, unknown>) => void;
-  editValues: (field: Record<string, unknown>) => void;
+  addFunction: (func: Func) => void;
   editHeader: (field: Record<string, unknown>) => void;
   resetPreset: () => void;
   savePreset: () => void;
@@ -44,7 +44,7 @@ export const PresetContext = createContext<PresetContextProps>({
   setHeader: () => {},
   removeField: () => {},
   addField: () => {},
-  editValues: () => {},
+  addFunction: () => {},
   editHeader: () => {},
   resetPreset: () => {},
   savePreset: () => {},
@@ -86,10 +86,10 @@ const presetReducer = (state: Preset, action: any): Preset => {
         ...state,
         added: [...state.added, action.field],
       };
-    case "EDIT_VALUES":
+    case "ADD_FUNCTION":
       return {
         ...state,
-        editedValues: [...state.editedValues, action.field],
+        functions: [...state.functions, action.func],
       };
     case "EDIT_HEADER":
       return {
@@ -109,7 +109,7 @@ const presetReducer = (state: Preset, action: any): Preset => {
         header: true,
         removed: [],
         added: [],
-        editedValues: [],
+        functions: [],
         editedHeaders: [],
       };
     case "SAVE":
@@ -137,7 +137,7 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
     header: true,
     removed: [],
     added: [],
-    editedValues: [],
+    functions: [],
     editedHeaders: [],
   });
   const [savedPresets, setSavedPresets] = useState<Preset[]>([]);
@@ -208,8 +208,8 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
     dispatchPreset({ type: "ADD_FIELD", field });
   };
 
-  const editValues = (field: Record<string, unknown>) => {
-    dispatchPreset({ type: "EDIT_VALUES", field });
+  const addFunction = (func: Func) => {
+    dispatchPreset({ type: "ADD_FUNCTION", func });
   };
 
   const editHeader = (field: Record<string, unknown>) => {
@@ -241,7 +241,7 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
         setHeader,
         removeField,
         addField,
-        editValues,
+        addFunction,
         editHeader,
         resetPreset,
         savePreset,
