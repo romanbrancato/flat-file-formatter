@@ -1,15 +1,15 @@
 import { z } from "zod";
 
-export const FuncSchema = z.object({
+export const FunctionSchema = z.object({
   field: z.string(),
-  function: z.string(),
+  function: z.enum(["if", "if not"]),
   condition: z.string(),
-  then: z.string(),
+  resultField: z.string(),
   valueTrue: z.string(),
-  valueFalse: z.string()
+  valueFalse: z.string(),
 });
 
-export type Func = z.infer<typeof FuncSchema>;
+export type Function = z.infer<typeof FunctionSchema>;
 
 export const PresetSchema = z.object({
   name: z.string().nullable(),
@@ -23,7 +23,7 @@ export const PresetSchema = z.object({
   export: z.enum(["csv", "txt"]),
   removed: z.array(z.string()),
   added: z.array(z.record(z.string())),
-  functions: z.array(FuncSchema),
+  functions: z.array(FunctionSchema),
   editedHeaders: z.array(z.record(z.string())),
 });
 

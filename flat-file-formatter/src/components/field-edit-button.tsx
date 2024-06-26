@@ -1,3 +1,4 @@
+import React, { useContext, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,21 +11,17 @@ import { Button } from "@/components/ui/button";
 import { Pencil1Icon } from "@radix-ui/react-icons";
 import { SelectField } from "@/components/select-field";
 import { Input } from "@/components/ui/input";
-import { useContext, useState } from "react";
-import { DataContext } from "@/context/data-context";
 import {
   Form,
   FormControl,
   FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PresetContext } from "@/context/preset-context";
 import {
   Select,
   SelectContent,
@@ -32,37 +29,71 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SelectFunction } from "@/components/select-function";
+import { DataContext } from "@/context/data-context";
+import { PresetContext } from "@/context/preset-context";
 
-const editFieldSchema = z.object({
+const editFieldValuesSchema = z.object({
   field: z.string({ required_error: "Select a field to edit." }),
-  value: z.string(),
+  function: z.string({ required_error: "Select a function." }),
+  condition: z.string(),
+  resultField: z.string({ required_error: "Select a field." }),
+  valueTrue: z.string({ required_error: "Enter a value." }),
+  valueFalse: z.string({ required_error: "Enter a value." }),
+});
+
+const editFieldHeaderSchema = z.object({
+  field: z.string({ required_error: "Select a field to edit." }),
+  name: z.string({ required_error: "Enter a new name." }),
 });
 
 export function FieldEditButton() {
   const {
     data,
-    editValues: dataEditValues,
     editHeader: dataEditHeader,
+    runFunction,
   } = useContext(DataContext);
-  const { editValues: presetEditValues, editHeader: presetEditHeader } =
+  const { editHeader: presetEditHeader, addFunction } =
     useContext(PresetContext);
   const [open, setOpen] = useState(false);
-  const [target, setTarget] = useState<"header" | "values">("header");
+  const [target, setTarget] = useState<"header" | "values">("values");
 
-  const form = useForm<z.infer<typeof editFieldSchema>>({
-    resolver: zodResolver(editFieldSchema),
+  const form = useForm({
+    resolver: zodResolver(
+      target === "header" ? editFieldHeaderSchema : editFieldValuesSchema,
+    ),
     defaultValues: {
-      value: "",
+      field: "",
+      name: "",
+      function: "",
+      condition: "",
+      resultField: "",
+      valueTrue: "",
+      valueFalse: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof editFieldSchema>) {
+  function onSubmit(values: any) {
     if (target === "values") {
-      dataEditValues({ [values.field]: values.value });
-      presetEditValues({ [values.field]: values.value });
+      runFunction({
+        field: values.field,
+        function: values.function,
+        condition: values.condition,
+        resultField: values.resultField,
+        valueTrue: values.valueTrue,
+        valueFalse: values.valueFalse,
+      });
+      addFunction({
+        field: values.field,
+        function: values.function,
+        condition: values.condition,
+        resultField: values.resultField,
+        valueTrue: values.valueTrue,
+        valueFalse: values.valueFalse,
+      });
     } else {
-      dataEditHeader({ [values.field]: values.value });
-      presetEditHeader({ [values.field]: values.value });
+      dataEditHeader({ [values.field]: values.name });
+      presetEditHeader({ [values.field]: values.name });
     }
     setOpen(false);
     form.reset();
@@ -91,7 +122,7 @@ export function FieldEditButton() {
               onValueChange={(value: "header" | "values") => setTarget(value)}
             >
               <SelectTrigger className="h-7 w-[145px] text-xs ml-auto text-foreground">
-                <span className="text-muted-foreground">Target: </span>
+                <span className="text-muted-foreground">Edit: </span>
                 <SelectValue placeholder="Select target" />
               </SelectTrigger>
               <SelectContent>
@@ -128,25 +159,112 @@ export function FieldEditButton() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="value"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      placeholder={
-                        target === "header"
-                          ? "Change name to..."
-                          : "Change values to..."
-                      }
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {target === "header" && (
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder="Change name to..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            {target === "values" && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="function"
+                  render={() => (
+                    <FormItem>
+                      <FormControl>
+                        <SelectFunction
+                          onFunctionSelect={(selectedFunc: string) =>
+                            form.setValue("function", selectedFunc, {
+                              shouldValidate: true,
+                            })
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="condition"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Condition" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Enter * to match all values.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      then
+                    </span>
+                  </div>
+                </div>
+                <FormField
+                  control={form.control}
+                  name="resultField"
+                  render={() => (
+                    <FormItem>
+                      <FormControl>
+                        <SelectField
+                          onFieldSelect={(selectedField) =>
+                            form.setValue("resultField", selectedField, {
+                              shouldValidate: true,
+                            })
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="valueTrue"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Value if true" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="valueFalse"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Value if false" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Enter ... to preserve value.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
             <Button type="submit" className="w-1/3 ml-auto">
               Edit
             </Button>

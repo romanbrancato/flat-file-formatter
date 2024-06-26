@@ -22,14 +22,16 @@ export function SelectFunction({ onFunctionSelect }: SelectFunctionProps) {
       }}
     >
       <SelectTrigger className="font-medium">
-        <span className="text-xs text-muted-foreground">Function:</span>
+        <span className="text-xs font-normal text-muted-foreground">
+          Function:
+        </span>
         <SelectValue placeholder="Select function..." />
       </SelectTrigger>
       <SelectContent>
         <SelectItem key="if" value="if">
           IF
         </SelectItem>
-        <SelectItem key="ifnot" value="ifnot">
+        <SelectItem key="if not" value="if not">
           IF NOT
         </SelectItem>
       </SelectContent>

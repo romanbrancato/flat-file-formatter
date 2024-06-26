@@ -38,9 +38,11 @@ export function SelectField({ onFieldSelect }: SelectFieldProps) {
           role="combobox"
           aria-label="Select a field..."
           aria-expanded={open}
-          className="w-full justify-between min-w-[100px] sm:min-w-[300px]"
+          className="w-full justify-between px-3 min-w-[100px] sm:min-w-[300px]"
         >
-          <span className="text-xs text-muted-foreground">Field: </span>
+          <span className="text-xs font-normal text-muted-foreground">
+            Field:{" "}
+          </span>
           {selectedField ? selectedField : "Select a field..."}
           <CaretSortIcon className="ml-2 opacity-50" />
         </Button>
