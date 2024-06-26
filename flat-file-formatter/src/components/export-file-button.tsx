@@ -2,7 +2,7 @@
 import { Share2Icon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import Papa, { parse } from "papaparse";
@@ -19,6 +19,9 @@ export function ExportFileButton({ files }: ExportFileButtonProps) {
   const { mode } = useContext(ModeContext);
   const { data, name, setData, setName, applyPreset } = useContext(DataContext);
   const { preset } = useContext(PresetContext);
+  const [queue, setQueue] = useState<
+    { name: string; rows: Record<string, unknown>[] }[]
+  >([]);
 
   const exportBatch = () => {
     if (!files || files.length === 0) {
@@ -38,15 +41,21 @@ export function ExportFileButton({ files }: ExportFileButtonProps) {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          setData(results.data as Record<string, unknown>[]);
-          setName(`${path.parse(files[files.length - 1].name).name}_export`);
-          applyPreset(preset);
-          //NEED STATE UPDATE HERE
-          exportFile();
+          setQueue((queue) => [
+            ...queue,
+            {
+              rows: results.data as Record<string, unknown>[],
+              name: `${path.parse(file.name).name}`,
+            },
+          ]);
         },
       });
     });
   };
+
+  useEffect(() => {
+    console.log(queue);
+  }, [queue]);
 
   const exportFile = () => {
     let flatData;
@@ -100,7 +109,6 @@ export function ExportFileButton({ files }: ExportFileButtonProps) {
   return (
     <Button
       onClick={mode === "batch" ? exportBatch : exportFile}
-      disabled={data.length === 0 || files?.length === 0}
       className="gap-x-2 md:mt-auto w-full"
     >
       <Share2Icon />

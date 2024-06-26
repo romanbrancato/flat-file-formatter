@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const FunctionSchema = z.object({
-  field: z.string(),
-  function: z.enum(["if", "if not"]),
+  field: z.string({ required_error: "Select a field to edit." }),
+  function: z.enum(["if", "if not"], { required_error: "Select a function." }),
   condition: z.string(),
-  resultField: z.string(),
+  resultField: z.string({ required_error: "Select a result field." }),
   valueTrue: z.string(),
   valueFalse: z.string(),
 });

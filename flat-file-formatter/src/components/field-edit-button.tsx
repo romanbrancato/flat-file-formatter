@@ -32,15 +32,7 @@ import {
 import { SelectFunction } from "@/components/select-function";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
-
-const editFieldValuesSchema = z.object({
-  field: z.string({ required_error: "Select a field to edit." }),
-  function: z.string({ required_error: "Select a function." }),
-  condition: z.string(),
-  resultField: z.string({ required_error: "Select a field." }),
-  valueTrue: z.string({ required_error: "Enter a value." }),
-  valueFalse: z.string({ required_error: "Enter a value." }),
-});
+import { FunctionSchema } from "@/types/preset";
 
 const editFieldHeaderSchema = z.object({
   field: z.string({ required_error: "Select a field to edit." }),
@@ -60,7 +52,7 @@ export function FieldEditButton() {
 
   const form = useForm({
     resolver: zodResolver(
-      target === "header" ? editFieldHeaderSchema : editFieldValuesSchema,
+      target === "header" ? editFieldHeaderSchema : FunctionSchema,
     ),
     defaultValues: {
       field: "",
@@ -257,7 +249,7 @@ export function FieldEditButton() {
                         <Input placeholder="Value if false" {...field} />
                       </FormControl>
                       <FormDescription>
-                        Enter ... to preserve value.
+                        Enter ... to preserve values.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
