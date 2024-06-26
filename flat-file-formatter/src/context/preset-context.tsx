@@ -6,7 +6,7 @@ import {
   useReducer,
   useState,
 } from "react";
-import {Func, Preset} from "@/types/preset";
+import { Function, Preset } from "@/types/preset";
 
 interface PresetContextProps {
   preset: Preset;
@@ -23,7 +23,7 @@ interface PresetContextProps {
   setHeader: (header: boolean) => void;
   removeField: (field: string) => void;
   addField: (field: Record<string, unknown>) => void;
-  addFunction: (func: Func) => void;
+  addFunction: (func: Function) => void;
   editHeader: (field: Record<string, unknown>) => void;
   resetPreset: () => void;
   savePreset: () => void;
@@ -208,7 +208,7 @@ export const PresetContextProvider = ({ children }: PresetProviderProps) => {
     dispatchPreset({ type: "ADD_FIELD", field });
   };
 
-  const addFunction = (func: Func) => {
+  const addFunction = (func: Function) => {
     dispatchPreset({ type: "ADD_FUNCTION", func });
   };
 
