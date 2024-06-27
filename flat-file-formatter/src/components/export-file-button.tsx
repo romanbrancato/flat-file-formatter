@@ -60,7 +60,7 @@ export function ExportFileButton({ files }: ExportFileButtonProps) {
   const exportFile = () => {
     let flatData;
     try {
-      if (preset.format === "csv") {
+      if (preset.format === "delimited") {
         const config = {
           delimiter: preset.symbol,
           header: preset.header,

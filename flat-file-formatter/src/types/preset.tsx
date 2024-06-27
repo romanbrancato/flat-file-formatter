@@ -19,7 +19,7 @@ export const PresetSchema = z.object({
   widths: z.array(z.record(z.number())),
   align: z.enum(["left", "right"]),
   header: z.boolean(),
-  format: z.enum(["csv", "fixed"]),
+  format: z.enum(["delimited", "fixed"]),
   export: z.enum(["csv", "txt"]),
   removed: z.array(z.string()),
   added: z.array(z.record(z.string())),

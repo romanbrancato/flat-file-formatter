@@ -11,7 +11,7 @@ import { SelectExport } from "@/components/select-export";
 export function FormatMenu() {
   const { data } = useContext(DataContext);
   const { preset, setFormat } = useContext(PresetContext);
-  const [tab, setTab] = useState<"csv" | "fixed">(preset.format);
+  const [tab, setTab] = useState<"delimited" | "fixed">(preset.format);
 
   useEffect(() => {
     setTab(preset.format);
@@ -22,8 +22,8 @@ export function FormatMenu() {
       <div className="text-sm font-medium space-y-1 leading-none min-w-[200px]">
         <span> Format </span>
         <TabsList className="grid grid-cols-2">
-          <TabsTrigger value="csv" disabled={data.length === 0}>
-            csv
+          <TabsTrigger value="delimited" disabled={data.length === 0}>
+            Delimited
           </TabsTrigger>
           <TabsTrigger value="fixed" disabled={data.length === 0}>
             Fixed
@@ -31,7 +31,7 @@ export function FormatMenu() {
         </TabsList>
       </div>
       <div className="my-5">
-        <TabsContent value="csv" className="space-y-2">
+        <TabsContent value="delimited" className="space-y-2">
           <SelectSymbol label="Delimiter" />
           <SelectExport />
           <HeaderCheckbox />
