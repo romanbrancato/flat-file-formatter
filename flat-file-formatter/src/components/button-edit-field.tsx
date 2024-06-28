@@ -39,7 +39,7 @@ const editFieldHeaderSchema = z.object({
   name: z.string({ required_error: "Enter a new name." }),
 });
 
-export function FieldEditButton() {
+export function ButtonEditField() {
   const {
     data,
     editHeader: dataEditHeader,

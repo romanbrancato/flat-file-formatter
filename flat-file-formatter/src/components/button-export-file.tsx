@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useContext, useEffect, useState } from "react";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
-import Papa, { parse } from "papaparse";
+import Papa from "papaparse";
 import { stringify } from "@evologi/fixed-width";
 import { download } from "@/lib/utils";
 import { ModeContext } from "@/context/mode-context";
@@ -15,7 +15,7 @@ interface ExportFileButtonProps {
   files?: File[];
 }
 
-export function ExportFileButton({ files }: ExportFileButtonProps) {
+export function ButtonExportFile({ files }: ExportFileButtonProps) {
   const { mode } = useContext(ModeContext);
   const { data, name, setData, setName, applyPreset } = useContext(DataContext);
   const { preset } = useContext(PresetContext);
@@ -37,7 +37,7 @@ export function ExportFileButton({ files }: ExportFileButtonProps) {
       return;
     }
     files.forEach((file) => {
-      parse(file, {
+      Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
@@ -68,7 +68,8 @@ export function ExportFileButton({ files }: ExportFileButtonProps) {
         };
         flatData = Papa.unparse(data, config);
       } else {
-        const config = preset.order.map((field) => {
+        const fields = Object.keys(data[0] || {});
+        const config = fields.map((field) => {
           const width = preset.widths.find((widths) => field in widths)?.[
             field
           ];

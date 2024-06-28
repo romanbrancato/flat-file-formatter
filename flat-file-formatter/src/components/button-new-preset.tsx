@@ -31,7 +31,7 @@ const newPresetSchema = z.object({
   name: z.string().min(1, "Enter a preset name."),
 });
 
-export function PresetNewButton({ trigger }: NewPresetButtonProps) {
+export function ButtonNewPreset({ trigger }: NewPresetButtonProps) {
   const { data } = useContext(DataContext);
   const { setOrder, setName, savePreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);

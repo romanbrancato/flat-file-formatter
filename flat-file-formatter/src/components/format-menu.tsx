@@ -1,10 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DefineWidthsButton } from "@/components/define-widths-button";
+import { ButtonDefineWidths } from "@/components/button-define-widths";
 import { DataContext } from "@/context/data-context";
 import { useContext, useEffect, useState } from "react";
 import { PresetContext } from "@/context/preset-context";
 import { SelectAlign } from "@/components/select-align";
-import { HeaderCheckbox } from "@/components/header-checkbox";
+import { CheckboxHeader } from "@/components/checkbox-header";
 import { SelectSymbol } from "@/components/select-symbol";
 import { SelectExport } from "@/components/select-export";
 
@@ -34,13 +34,13 @@ export function FormatMenu() {
         <TabsContent value="delimited" className="space-y-2">
           <SelectSymbol label="Delimiter" />
           <SelectExport />
-          <HeaderCheckbox />
+          <CheckboxHeader />
         </TabsContent>
         <TabsContent value="fixed" className="space-y-2">
-          <DefineWidthsButton />
+          <ButtonDefineWidths />
           <SelectSymbol label="Padding" />
           <SelectAlign />
-          <HeaderCheckbox />
+          <CheckboxHeader />
         </TabsContent>
       </div>
     </Tabs>

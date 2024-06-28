@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
 import { DataContext } from "@/context/data-context";
 
-export function HeaderCheckbox() {
+export function CheckboxHeader() {
   const { data } = useContext(DataContext);
   const { preset, setHeader } = useContext(PresetContext);
   return (

@@ -2,14 +2,12 @@ import { PresetToolbar } from "@/components/preset-toolbar";
 import { CSVTable } from "@/components/csv-table";
 import { FormatMenu } from "@/components/format-menu";
 import { TableToolbar } from "@/components/table-toolbar";
-import { ExportFileButton } from "@/components/export-file-button";
+import { ButtonExportFile } from "@/components/button-export-file";
 import { useContext } from "react";
 import { ModeContext } from "@/context/mode-context";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BatchFileRow } from "@/components/batch-file-row";
-import { SelectExport } from "@/components/select-export";
-import { PresetContext } from "@/context/preset-context";
 
 interface PreviewProps {
   files: File[];
@@ -18,7 +16,6 @@ interface PreviewProps {
 
 export function FilePreview({ files, setFiles }: PreviewProps) {
   const { mode } = useContext(ModeContext);
-  const { preset } = useContext(PresetContext);
 
   const handleFileDelete = (index: number) => {
     setFiles(files.filter((_, i) => i !== index));
@@ -36,7 +33,7 @@ export function FilePreview({ files, setFiles }: PreviewProps) {
             </div>
             <div className="flex flex-col">
               <FormatMenu />
-              <ExportFileButton />
+              <ButtonExportFile />
             </div>
           </>
         ) : (
@@ -60,7 +57,7 @@ export function FilePreview({ files, setFiles }: PreviewProps) {
               ))}
             </div>
             <div className="ml-auto w-1/5">
-              <ExportFileButton files={files} />
+              <ButtonExportFile files={files} />
             </div>
           </div>
         )}

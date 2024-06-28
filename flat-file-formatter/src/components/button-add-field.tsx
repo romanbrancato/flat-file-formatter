@@ -7,12 +7,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { PlusCircledIcon } from "@radix-ui/react-icons";
+import { Input } from "@/components/ui/input";
 import { useContext, useState } from "react";
 import { DataContext } from "@/context/data-context";
-import { MinusCircledIcon } from "@radix-ui/react-icons";
-import { SelectField } from "@/components/select-field";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -21,24 +20,30 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
 import { PresetContext } from "@/context/preset-context";
 
-const removeFieldSchema = z.object({
-  field: z.string({ required_error: "Select a field to remove." }),
+const addFieldSchema = z.object({
+  name: z.string().min(1, "Enter a field name."),
+  value: z.string(),
 });
 
-export function FieldRemoveButton() {
-  const { data, removeField: dataRemoveField } = useContext(DataContext);
-  const { removeField: presetRemoveField } = useContext(PresetContext);
+export function ButtonAddField() {
+  const { data, addField: dataAddField } = useContext(DataContext);
+  const { addField: presetAddField } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<z.infer<typeof removeFieldSchema>>({
-    resolver: zodResolver(removeFieldSchema),
+  const form = useForm<z.infer<typeof addFieldSchema>>({
+    resolver: zodResolver(addFieldSchema),
+    defaultValues: {
+      name: "",
+      value: "",
+    },
   });
 
-  function onSubmit(values: z.infer<typeof removeFieldSchema>) {
-    dataRemoveField(values.field);
-    presetRemoveField(values.field);
+  function onSubmit(values: z.infer<typeof addFieldSchema>) {
+    dataAddField({ [values.name]: values.value });
+    presetAddField({ [values.name]: values.value });
     setOpen(false);
     form.reset();
   }
@@ -52,14 +57,16 @@ export function FieldRemoveButton() {
           className="w-full border-dashed"
           disabled={data.length === 0}
         >
-          <MinusCircledIcon className="mr-2" />
-          Remove Field
+          <PlusCircledIcon className="mr-2" />
+          Add Field
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[800px]">
         <DialogHeader>
-          <DialogTitle>Remove Field</DialogTitle>
-          <DialogDescription>Select a field to remove.</DialogDescription>
+          <DialogTitle>Add Field</DialogTitle>
+          <DialogDescription>
+            Define a field and what to populate it with.
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -68,24 +75,30 @@ export function FieldRemoveButton() {
           >
             <FormField
               control={form.control}
-              name="field"
-              render={() => (
+              name="name"
+              render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <SelectField
-                      onFieldSelect={(selectedField) =>
-                        form.setValue("field", selectedField, {
-                          shouldValidate: true,
-                        })
-                      }
-                    />
+                    <Input placeholder="Name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="value"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input placeholder="Populate with..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <Button type="submit" className="w-1/3 ml-auto">
-              Remove
+              Add
             </Button>
           </form>
         </Form>

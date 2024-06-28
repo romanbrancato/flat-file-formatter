@@ -1,4 +1,4 @@
-import { PresetSelect } from "@/components/preset-select";
+import { SelectPreset } from "@/components/select-preset";
 import { Button } from "@/components/ui/button";
 import {
   DotsHorizontalIcon,
@@ -12,13 +12,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PresetNewButton } from "@/components/preset-new-button";
-import { PresetExportButton } from "@/components/preset-export-button";
+import { ButtonNewPreset } from "@/components/button-new-preset";
+import { ButtonExportPreset } from "@/components/button-export-preset";
 import { useContext } from "react";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import { ModeContext } from "@/context/mode-context";
-import { DefineSchemaButton } from "@/components/define-schema-button";
+import { ButtonDefineSchema } from "@/components/button-define-schema";
 import { Label } from "@/components/ui/label";
 
 export function PresetToolbar() {
@@ -33,11 +33,11 @@ export function PresetToolbar() {
           <Label className="text-md font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[80%]">
             {name && mode === "single" ? name : "File Preview"}
           </Label>
-          {mode === "single" && <DefineSchemaButton />}
+          {mode === "single" && <ButtonDefineSchema />}
         </div>
         <div className="flex flex-row space-x-3 justify-end">
-          <PresetSelect />
-          <PresetNewButton
+          <SelectPreset />
+          <ButtonNewPreset
             trigger={
               <Button
                 variant="secondary"
@@ -48,7 +48,7 @@ export function PresetToolbar() {
               </Button>
             }
           />
-          <PresetExportButton
+          <ButtonExportPreset
             trigger={
               <Button
                 variant="secondary"
@@ -72,7 +72,7 @@ export function PresetToolbar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <PresetNewButton
+              <ButtonNewPreset
                 trigger={
                   <DropdownMenuItem
                     onSelect={(event) => event.preventDefault()}
@@ -82,7 +82,7 @@ export function PresetToolbar() {
                   </DropdownMenuItem>
                 }
               />
-              <PresetExportButton
+              <ButtonExportPreset
                 trigger={
                   <DropdownMenuItem disabled={!preset.name}>
                     <Share2Icon className="mr-2" />

@@ -28,7 +28,7 @@ import {
 import { PresetContext } from "@/context/preset-context";
 import { ModeContext } from "@/context/mode-context";
 
-export function PresetSelect() {
+export function SelectPreset() {
   const { mode } = useContext(ModeContext);
   const { data, applySchema, applyPreset } = useContext(DataContext);
   const { preset, savedPresets, setPreset, savePreset } =

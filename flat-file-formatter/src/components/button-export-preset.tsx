@@ -6,7 +6,7 @@ interface ExportPresetButtonProps {
   trigger: React.ReactNode;
 }
 
-export function PresetExportButton({ trigger }: ExportPresetButtonProps) {
+export function ButtonExportPreset({ trigger }: ExportPresetButtonProps) {
   const { preset } = useContext(PresetContext);
   const exportPreset = () => {
     const presetStr = JSON.stringify(preset, null, 2);

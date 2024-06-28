@@ -35,7 +35,7 @@ const defineWidthsSchema = z.object({
   ),
 });
 
-export function DefineWidthsButton() {
+export function ButtonDefineWidths() {
   const { data } = useContext(DataContext);
   const { preset, setWidths } = useContext(PresetContext);
   const [open, setOpen] = useState(false);

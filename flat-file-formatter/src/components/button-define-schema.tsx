@@ -31,7 +31,7 @@ const FileNameEditSchema = z.object({
   schema: z.string(),
 });
 
-export function DefineSchemaButton() {
+export function ButtonDefineSchema() {
   const { data, name, applySchema } = useContext(DataContext);
   const { setSchema } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
@@ -93,7 +93,7 @@ export function DefineSchemaButton() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="ml-auto">
+            <Button type="submit" className="ml-auto w-1/3">
               Save
             </Button>
           </form>
