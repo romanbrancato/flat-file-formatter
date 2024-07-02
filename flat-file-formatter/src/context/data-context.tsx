@@ -52,9 +52,9 @@ const dataReducer = (state: Record<string, unknown>[], action: any) => {
       return state.map((row) => {
         const matches =
           action.condition === "*" ||
-          (action.function === "if" &&
+          (action.operation === "if" &&
             row[action.field] === action.condition) ||
-          (action.function === "if not" &&
+          (action.operation === "if not" &&
             row[action.field] !== action.condition);
         const value = matches
           ? action.valueTrue !== "..."

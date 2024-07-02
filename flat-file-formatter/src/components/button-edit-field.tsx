@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SelectFunction } from "@/components/select-function";
+import { SelectOperation } from "@/components/select-operation";
 import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import { FunctionSchema } from "@/types/preset";
@@ -57,7 +57,7 @@ export function ButtonEditField() {
     defaultValues: {
       field: "",
       name: "",
-      function: "",
+      operation: "",
       condition: "",
       resultField: "",
       valueTrue: "",
@@ -69,7 +69,7 @@ export function ButtonEditField() {
     if (target === "values") {
       runFunction({
         field: values.field,
-        function: values.function,
+        operation: values.operation,
         condition: values.condition,
         resultField: values.resultField,
         valueTrue: values.valueTrue,
@@ -77,7 +77,7 @@ export function ButtonEditField() {
       });
       addFunction({
         field: values.field,
-        function: values.function,
+        operation: values.operation,
         condition: values.condition,
         resultField: values.resultField,
         valueTrue: values.valueTrue,
@@ -169,13 +169,13 @@ export function ButtonEditField() {
               <>
                 <FormField
                   control={form.control}
-                  name="function"
+                  name="operation"
                   render={() => (
                     <FormItem>
                       <FormControl>
-                        <SelectFunction
-                          onFunctionSelect={(selectedFunc: string) =>
-                            form.setValue("function", selectedFunc, {
+                        <SelectOperation
+                          onFunctionSelect={(selectedOperation: string) =>
+                            form.setValue("operation", selectedOperation, {
                               shouldValidate: true,
                             })
                           }

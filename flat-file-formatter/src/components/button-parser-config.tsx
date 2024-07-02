@@ -12,7 +12,6 @@ import React, { useEffect, useState } from "react";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,15 +30,17 @@ import {
 import { Dropzone } from "@/components/dropzone";
 import { toast } from "sonner";
 import { download } from "@/lib/utils";
+import Papa from "papaparse";
+import {Options} from "@evologi/fixed-width";
 
-export const configSchema = z.array(
+export const widthSchema = z.array(
   z.object({
     property: z.string(),
     width: z.coerce.number(),
   }),
 );
 
-const parserConfigSchema = z.object({
+const widthConfigSchema = z.object({
   config: z.array(
     z.object({
       property: z.string(),
@@ -50,7 +51,7 @@ const parserConfigSchema = z.object({
 
 interface ParserConfigProps {
   setConfig: React.Dispatch<
-    React.SetStateAction<{ property: string; width: number }[]>
+    React.SetStateAction<Omit<Papa.ParseLocalConfig<unknown, any>, "complete"> | Options | undefined>
   >;
 }
 
@@ -58,8 +59,8 @@ export function ButtonParserConfig({ setConfig }: ParserConfigProps) {
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
 
-  const form = useForm<z.infer<typeof parserConfigSchema>>({
-    resolver: zodResolver(parserConfigSchema),
+  const form = useForm<z.infer<typeof widthConfigSchema>>({
+    resolver: zodResolver(widthConfigSchema),
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -68,7 +69,9 @@ export function ButtonParserConfig({ setConfig }: ParserConfigProps) {
   });
 
   function onSubmit() {
-    setConfig(form.getValues("config"));
+    setConfig({
+      fields: form.getValues("config")
+    });
     setOpen(false);
   }
 
@@ -83,7 +86,7 @@ export function ButtonParserConfig({ setConfig }: ParserConfigProps) {
     reader.onload = (event) => {
       try {
         const obj = JSON.parse(event.target?.result as string);
-        const config = configSchema.parse(obj);
+        const config = widthSchema.parse(obj);
         config.forEach((item) => {
           append(item);
         });

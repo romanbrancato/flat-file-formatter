@@ -30,7 +30,7 @@ import { ModeContext } from "@/context/mode-context";
 
 export function SelectPreset() {
   const { mode } = useContext(ModeContext);
-  const { data, applySchema, applyPreset } = useContext(DataContext);
+  const { applySchema, applyPreset } = useContext(DataContext);
   const { preset, savedPresets, setPreset, savePreset } =
     useContext(PresetContext);
   const [open, setOpen] = useState(false);
@@ -77,7 +77,7 @@ export function SelectPreset() {
           aria-label="Load a preset..."
           aria-expanded={open}
           className="flex-1 justify-between min-w-[225px] md:min-w-[300px]"
-          disabled={data.length === 0 && mode === "single"}
+          disabled={mode === "single"}
         >
           {preset && preset.name ? preset.name : "Load a preset..."}
           <CaretSortIcon className="ml-2 opacity-50" />

@@ -7,11 +7,11 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 
-interface SelectFunctionProps {
+interface SelectOperationProps {
   onFunctionSelect: (func: string) => void;
 }
 
-export function SelectFunction({ onFunctionSelect }: SelectFunctionProps) {
+export function SelectOperation({ onFunctionSelect }: SelectOperationProps) {
   const [selectedFunc, setSelectedFunc] = useState<string>("");
   return (
     <Select
@@ -23,9 +23,9 @@ export function SelectFunction({ onFunctionSelect }: SelectFunctionProps) {
     >
       <SelectTrigger className="font-medium">
         <span className="text-xs font-normal text-muted-foreground">
-          Function:
+          Operation:
         </span>
-        <SelectValue placeholder="Select function..." />
+        <SelectValue placeholder="Select operation..." />
       </SelectTrigger>
       <SelectContent>
         <SelectItem key="if" value="if">
