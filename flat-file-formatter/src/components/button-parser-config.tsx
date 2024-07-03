@@ -31,6 +31,7 @@ import {
 import { Dropzone } from "@/components/dropzone";
 import { toast } from "sonner";
 import { download } from "@/lib/utils";
+import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
 export const configSchema = z.array(
   z.object({
@@ -122,62 +123,66 @@ export function ButtonParserConfig({ setConfig }: ParserConfigProps) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-            <FormLabel className="grid grid-cols-7 gap-x-1">
-              <span className="col-span-5">Field</span>
-              <span>Width</span>
-            </FormLabel>
-            {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="grid grid-cols-7 gap-x-1 items-center"
-              >
-                <FormField
-                  control={form.control}
-                  name={`config.${index}.property`}
-                  render={({ field }) => (
-                    <FormItem className="col-span-5">
-                      <FormControl>
-                        <Input {...field} placeholder="Field" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`config.${index}.width`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="Width"
-                          type="number"
-                          min={0}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Cross2Icon
-                  className="hover:text-destructive mx-auto opacity-70"
-                  onClick={() => remove(index)}
-                />
-              </div>
-            ))}
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full border-dashed"
-              onClick={(event) => {
-                event.preventDefault();
-                append({ property: "", width: 0 });
-              }}
-            >
-              <PlusCircledIcon className="mr-2" />
-              Add Field
-            </Button>
+            <ScrollArea>
+              <ScrollAreaViewport className="max-h-[400px]">
+                <FormLabel className="grid grid-cols-7 gap-x-1">
+                  <span className="col-span-5">Field</span>
+                  <span>Width</span>
+                </FormLabel>
+                {fields.map((field, index) => (
+                  <div
+                    key={field.id}
+                    className="grid grid-cols-7 gap-x-1 items-center"
+                  >
+                    <FormField
+                      control={form.control}
+                      name={`config.${index}.property`}
+                      render={({ field }) => (
+                        <FormItem className="col-span-5">
+                          <FormControl>
+                            <Input {...field} placeholder="Field" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`config.${index}.width`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Width"
+                              type="number"
+                              min={0}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Cross2Icon
+                      className="hover:text-destructive mx-auto opacity-70"
+                      onClick={() => remove(index)}
+                    />
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-dashed"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    append({ property: "", width: 0 });
+                  }}
+                >
+                  <PlusCircledIcon className="mr-2" />
+                  Add Field
+                </Button>
+              </ScrollAreaViewport>
+            </ScrollArea>
           </form>
         </Form>
         <div className="relative">
