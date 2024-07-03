@@ -1,19 +1,20 @@
 import Papa from "papaparse";
 import {Options, parse} from "@evologi/fixed-width";
 
+export type MultiFormatConfig = ({
+    format: "delimited";
+} & Omit<Papa.ParseLocalConfig<unknown, any>, "complete">) | ({
+    format: "fixed";
+} & Options);
+
 export type ParserParams = {
     file: File;
-    format: "delimited";
-    config: Omit<Papa.ParseLocalConfig<unknown, any>, "complete">;
-} | {
-    file: File;
-    format: "fixed";
-    config: Options;
-};
+    config: MultiFormatConfig
+}
 
 export async function parseFile(params: ParserParams) {
     return new Promise<Record<string, unknown>[]>((resolve, reject) => {
-        if (params.format === "delimited") {
+        if (params.config.format === "delimited") {
             const config: Papa.ParseLocalConfig<unknown, any> = {
                 ...params.config,
                 complete: (results) => {
@@ -21,11 +22,11 @@ export async function parseFile(params: ParserParams) {
                 }
             };
             Papa.parse(params.file, config);
-        } else {
+        } else if(params.config.format === "fixed") {
             const reader = new FileReader();
             reader.onload = (event) => {
                 const fileContents = event.target?.result as string;
-                resolve(parse(fileContents, params.config));
+                resolve(parse(fileContents, params.config as Options));
             };
             reader.readAsText(params.file);
         }

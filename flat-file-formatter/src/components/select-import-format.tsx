@@ -8,19 +8,19 @@ import {
 import React, { useState } from "react";
 
 interface SelectImportFormatProps {
-  setImportFormat: React.Dispatch<React.SetStateAction<string>>;
+  onFormatSelect: (format: "delimited" | "fixed") => void;
 }
 
 export function SelectImportFormat({
-  setImportFormat: setImportFormat,
+  onFormatSelect,
 }: SelectImportFormatProps) {
-  const [selectedFormat, setSelectedFormat] = useState<string>("delimited");
+  const [selectedFormat, setSelectedFormat] = useState<"delimited" | "fixed">("delimited");
   return (
     <Select
       value={selectedFormat}
-      onValueChange={(value) => {
-        setSelectedFormat(value);
-        setImportFormat(value);
+      onValueChange={(field: "delimited" | "fixed") => {
+        setSelectedFormat(field);
+        onFormatSelect(field);
       }}
     >
       <SelectTrigger className="font-medium">

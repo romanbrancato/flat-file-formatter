@@ -6,18 +6,31 @@ import {Dropzone} from "@/components/dropzone";
 import {FilePreview} from "@/components/file-preview";
 import {SelectMode} from "@/components/select-mode";
 import {ModeContext} from "@/context/mode-context";
-import {ButtonParserConfig} from "@/components/button-parser-config";
+import {ButtonParserConfig, configSchema} from "@/components/button-parser-config";
 import {SelectImportFormat} from "@/components/select-import-format";
+import {ParserContext} from "@/context/parser-context";
+import {MultiFormatConfig} from "@/lib/parser-functions";
+import {Separator} from "@/components/ui/separator";
+
 
 export default function App() {
     const {mode} = useContext(ModeContext);
+    const {setParams, data} = useContext(ParserContext);
     const [files, setFiles] = useState<File[]>([]);
-    const [config, setConfig] = useState<Omit<Papa.ParseLocalConfig<unknown, any>, "complete"> | Options | undefined>();
-    const [importFormat, setImportFormat] = useState("delimited");
-
+    const [config, setConfig] = useState<MultiFormatConfig>({
+        format: "delimited",
+        header: false,
+        skipEmptyLines: true
+    });
 
     useEffect(() => {
-
+        if(!config || files.length === 0) return;
+        if (mode !== "batch") {
+            setParams({
+                file: files[0],
+                config: config
+            })
+        }
     }, [files]);
 
     return (
@@ -27,18 +40,16 @@ export default function App() {
             </span>
             <SelectMode/>
             <div className="space-y-1">
-                <div className="flex flex-row ml-auto gap-x-1">
-                    <SelectImportFormat setImportFormat={setImportFormat}/>
-                    <ButtonParserConfig setConfig={setConfig}/>
-                </div>
+                <ButtonParserConfig setConfig={setConfig}/>
                 <Dropzone
                     onChange={setFiles}
-                    fileExtension={importFormat === "delimited" ? ".csv" : ".txt"}
+                    fileExtension={config?.format === "delimited" ? ".csv" : ".txt"}
                     multiple={mode === "batch"}
                     showInfo={mode === "single"}
                 />
             </div>
             <FilePreview files={files} setFiles={setFiles}/>
+            <div>{JSON.stringify(data, null, 2)}</div>
         </main>
     );
 }
