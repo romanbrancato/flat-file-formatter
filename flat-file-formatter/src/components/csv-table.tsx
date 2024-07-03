@@ -35,6 +35,7 @@ import { DragHandleDots2Icon, InfoCircledIcon } from "@radix-ui/react-icons";
 import { DataContext } from "@/context/data-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ParserContext } from "@/context/parser-context";
 
 const DraggableTableHeader = ({ header }: any) => {
   const { attributes, isDragging, listeners, setNodeRef, transform } =
@@ -92,7 +93,7 @@ const DraggableCell = ({ cell }: any) => {
 };
 
 export function CSVTable() {
-  const { data, orderFields } = useContext(DataContext);
+  const { data, orderFields } = useContext(ParserContext);
   const [columns, setColumns] = useState<ColumnDef<Record<string, unknown>>[]>(
     [],
   );

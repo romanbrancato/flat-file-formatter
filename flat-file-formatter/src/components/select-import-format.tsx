@@ -8,18 +8,18 @@ import {
 import React, { useState } from "react";
 
 interface SelectImportFormatProps {
+  defaultValue: "delimited" | "fixed";
   onFormatSelect: (format: "delimited" | "fixed") => void;
 }
 
 export function SelectImportFormat({
+  defaultValue,
   onFormatSelect,
 }: SelectImportFormatProps) {
-  const [selectedFormat, setSelectedFormat] = useState<"delimited" | "fixed">("delimited");
   return (
     <Select
-      value={selectedFormat}
+      value={defaultValue}
       onValueChange={(field: "delimited" | "fixed") => {
-        setSelectedFormat(field);
         onFormatSelect(field);
       }}
     >

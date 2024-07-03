@@ -26,10 +26,8 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { PresetContext } from "@/context/preset-context";
-import { ModeContext } from "@/context/mode-context";
 
 export function SelectPreset() {
-  const { mode } = useContext(ModeContext);
   const { applySchema, applyPreset } = useContext(DataContext);
   const { preset, savedPresets, setPreset, savePreset } =
     useContext(PresetContext);
@@ -77,7 +75,6 @@ export function SelectPreset() {
           aria-label="Load a preset..."
           aria-expanded={open}
           className="flex-1 justify-between min-w-[225px] md:min-w-[300px]"
-          disabled={mode === "single"}
         >
           {preset && preset.name ? preset.name : "Load a preset..."}
           <CaretSortIcon className="ml-2 opacity-50" />

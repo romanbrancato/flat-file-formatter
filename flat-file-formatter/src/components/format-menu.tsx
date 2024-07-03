@@ -7,9 +7,10 @@ import { SelectAlign } from "@/components/select-align";
 import { CheckboxHeader } from "@/components/checkbox-header";
 import { SelectSymbol } from "@/components/select-symbol";
 import { SelectExport } from "@/components/select-export";
+import { ParserContext } from "@/context/parser-context";
 
 export function FormatMenu() {
-  const { data } = useContext(DataContext);
+  const { isReady } = useContext(ParserContext);
   const { preset, setFormat } = useContext(PresetContext);
   const [tab, setTab] = useState<"delimited" | "fixed">(preset.format);
 
@@ -22,10 +23,10 @@ export function FormatMenu() {
       <div className="text-sm font-medium space-y-1 leading-none min-w-[200px]">
         <span> Format </span>
         <TabsList className="grid grid-cols-2">
-          <TabsTrigger value="delimited" disabled={data.length === 0}>
+          <TabsTrigger value="delimited" disabled={!isReady}>
             Delimited
           </TabsTrigger>
-          <TabsTrigger value="fixed" disabled={data.length === 0}>
+          <TabsTrigger value="fixed" disabled={!isReady}>
             Fixed
           </TabsTrigger>
         </TabsList>
