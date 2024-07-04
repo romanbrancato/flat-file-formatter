@@ -3,12 +3,12 @@ import { Share2Icon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useContext } from "react";
-import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import Papa from "papaparse";
 import { stringify } from "@evologi/fixed-width";
 import { download } from "@/lib/utils";
 import { ModeContext } from "@/context/mode-context";
+import { ParserContext } from "@/context/parser-context";
 
 interface ExportFileButtonProps {
   files?: File[];
@@ -16,7 +16,7 @@ interface ExportFileButtonProps {
 
 export function ButtonExportFile({ files }: ExportFileButtonProps) {
   const { mode } = useContext(ModeContext);
-  const { data, name, setData, setName, applyPreset } = useContext(DataContext);
+  const { data, fileName } = useContext(ParserContext);
   const { preset } = useContext(PresetContext);
 
   const exportBatch = () => {};
@@ -32,7 +32,7 @@ export function ButtonExportFile({ files }: ExportFileButtonProps) {
         };
         flatData = Papa.unparse(data, config);
       } else {
-        const fields = Object.keys(data[0] || {});
+        const fields = Object.keys(data[0]);
         const config = fields.map((field) => {
           const width = preset.widths.find((widths) => field in widths)?.[
             field
@@ -68,7 +68,11 @@ export function ButtonExportFile({ files }: ExportFileButtonProps) {
       return;
     }
 
-    download(flatData, name, preset.format === "fixed" ? "txt" : preset.export);
+    download(
+      flatData,
+      fileName,
+      preset.format === "fixed" ? "txt" : preset.export,
+    );
   };
 
   return (

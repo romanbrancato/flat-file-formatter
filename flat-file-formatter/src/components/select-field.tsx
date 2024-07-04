@@ -16,15 +16,15 @@ import {
 } from "@/components/ui/popover";
 
 import { useContext, useState } from "react";
-import { DataContext } from "@/context/data-context";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
+import { ParserContext } from "@/context/parser-context";
 
 interface SelectFieldProps {
   onFieldSelect: (field: string) => void;
 }
 
 export function SelectField({ onFieldSelect }: SelectFieldProps) {
-  const { data } = useContext(DataContext);
+  const { data } = useContext(ParserContext);
   const [open, setOpen] = useState(false);
   const [selectedField, setSelectedField] = useState<string>();
 

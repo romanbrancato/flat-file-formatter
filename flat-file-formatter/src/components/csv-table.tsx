@@ -32,7 +32,6 @@ import {
 } from "@tanstack/table-core";
 import { flexRender, useReactTable } from "@tanstack/react-table";
 import { DragHandleDots2Icon, InfoCircledIcon } from "@radix-ui/react-icons";
-import { DataContext } from "@/context/data-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ParserContext } from "@/context/parser-context";

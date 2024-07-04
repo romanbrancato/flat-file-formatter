@@ -30,6 +30,7 @@ import { Dropzone } from "@/components/dropzone";
 import { toast } from "sonner";
 import { SelectImportFormat } from "@/components/select-import-format";
 import { MultiFormatConfig } from "@/lib/parser-functions";
+import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
 export const configSchema = z.discriminatedUnion("format", [
   z.object({
@@ -155,46 +156,50 @@ export function ButtonParserConfig({ setConfig }: ParserConfigProps) {
                     </span>
                   </div>
                 </div>
-                {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="grid grid-cols-7 mb-2 gap-x-1 items-center"
-                  >
-                    <FormField
-                      control={form.control}
-                      name={`fields.${index}.property`}
-                      render={({ field }) => (
-                        <FormItem className="col-span-5">
-                          <FormControl>
-                            <Input {...field} placeholder="Field" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`fields.${index}.width`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Width"
-                              type="number"
-                              min={0}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Cross2Icon
-                      className="hover:text-destructive mx-auto opacity-70"
-                      onClick={() => remove(index)}
-                    />
-                  </div>
-                ))}
+                <ScrollArea>
+                  <ScrollAreaViewport className="max-h-[400px]">
+                    {fields.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="grid grid-cols-7 mb-2 gap-x-1 items-center"
+                      >
+                        <FormField
+                          control={form.control}
+                          name={`fields.${index}.property`}
+                          render={({ field }) => (
+                            <FormItem className="col-span-5">
+                              <FormControl>
+                                <Input {...field} placeholder="Field" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`fields.${index}.width`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Width"
+                                  type="number"
+                                  min={0}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Cross2Icon
+                          className="hover:text-destructive mx-auto opacity-70"
+                          onClick={() => remove(index)}
+                        />
+                      </div>
+                    ))}
+                  </ScrollAreaViewport>
+                </ScrollArea>
                 <Button
                   variant="outline"
                   size="sm"

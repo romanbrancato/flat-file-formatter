@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { Preset } from "@/types/preset";
 import * as fns from "@/lib/data-functions";
-import { parseFile } from "@/lib/parser-functions";
-import { MultiFormatConfig } from "@/lib/parser-functions";
+import { MultiFormatConfig, parseFile } from "@/lib/parser-functions";
+import { Preset } from "@/context/preset-context";
 
 export type BatchParserParams = {
   files: File[];
@@ -35,7 +34,7 @@ export function useBatchParser() {
       setData(newData);
       setIsReady(true);
     },
-    [data, setIsReady],
+    [data],
   );
 
   return {

@@ -2,11 +2,10 @@ import type {Metadata} from "next";
 import "../styles/globals.css";
 import {Container} from "@/components/ui/container";
 import {Header} from "@/components/header";
-import {DataContextProvider} from "@/context/data-context";
 import {ThemeProvider} from "@/context/theme-context";
 import {ReactNode} from "react";
 import {Toaster} from "@/components/ui/sonner";
-import {PresetContextProvider} from "@/context/preset-context";
+import {PresetProvider} from "@/context/preset-context";
 import {ModeProvider} from "@/context/mode-context";
 import {ParserProvider} from "@/context/parser-context";
 import {BatchParserProvider} from "@/context/batch-parser-context";
@@ -26,8 +25,7 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="system" enableSystem>
             <Header/>
             <Container>
-                <DataContextProvider>
-                    <PresetContextProvider>
+                    <PresetProvider>
                         <ModeProvider>
                             <ParserProvider>
                                 <BatchParserProvider>
@@ -35,8 +33,7 @@ export default function RootLayout({
                                 </BatchParserProvider>
                             </ParserProvider>
                         </ModeProvider>
-                    </PresetContextProvider>
-                </DataContextProvider>
+                    </PresetProvider>
             </Container>
             <Toaster position="bottom-right" richColors/>
         </ThemeProvider>

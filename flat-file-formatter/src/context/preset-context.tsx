@@ -35,98 +35,20 @@ export type Preset = z.infer<typeof PresetSchema>;
 
 interface PresetContextProps {
   preset: Preset;
-  setName: (name: string) => void;
-  setSchema: (schema: string) => void;
-  setOrder: (order: string[]) => void;
-  setSymbol: (symbol: string) => void;
-  setWidths: (widths: Record<string, number>[]) => void;
-  setAlign: (align: "left" | "right") => void;
-  setHeader: (header: boolean) => void;
-  setFormat: (format: "delimited" | "fixed") => void;
-  setExport: (exportType: "csv" | "txt") => void;
-  removeField: (field: string) => void;
-  addField: (field: Record<string, string>) => void;
-  addFunction: (func: Function) => void;
-  editHeader: (field: Record<string, string>) => void;
+  setPreset: React.Dispatch<React.SetStateAction<Preset>>;
   resetPreset: () => void;
-  savePreset: () => void;
 }
 
 export const PresetContext = createContext<PresetContextProps>({
   preset: {} as Preset,
-  setName: () => {},
-  setSchema: () => {},
-  setOrder: () => {},
-  setSymbol: () => {},
-  setWidths: () => {},
-  setAlign: () => {},
-  setHeader: () => {},
-  setFormat: () => {},
-  setExport: () => {},
-  removeField: () => {},
-  addField: () => {},
-  addFunction: () => {},
-  editHeader: () => {},
+  setPreset: () => {},
   resetPreset: () => {},
-  savePreset: () => {},
 });
 
 export const PresetProvider = ({ children }: { children: ReactNode }) => {
   const [preset, setPreset] = useState<Preset>({} as Preset);
 
-  function setName(name: string) {
-    setPreset({ ...preset, name: name });
-  }
-
-  function setSchema(schema: string) {
-    setPreset({ ...preset, schema: schema });
-  }
-
-  function setOrder(order: string[]) {
-    setPreset({ ...preset, order: order });
-  }
-
-  function setSymbol(symbol: string) {
-    setPreset({ ...preset, symbol: symbol });
-  }
-
-  function setWidths(widths: Record<string, number>[]) {
-    setPreset({ ...preset, widths: widths });
-  }
-
-  function setAlign(align: "left" | "right") {
-    setPreset({ ...preset, align: align });
-  }
-
-  function setHeader(header: boolean) {
-    setPreset({ ...preset, header: header });
-  }
-
-  function setFormat(format: "delimited" | "fixed") {
-    setPreset({ ...preset, format: format });
-  }
-
-  function setExport(exportType: "csv" | "txt") {
-    setPreset({ ...preset, export: exportType });
-  }
-
-  function removeField(field: string) {
-    setPreset({ ...preset, removed: [...preset.removed, field] });
-  }
-
-  function addField(field: Record<string, string>) {
-    setPreset({ ...preset, added: [...preset.added, field] });
-  }
-
-  function addFunction(func: Function) {
-    setPreset({ ...preset, functions: [...preset.functions, func] });
-  }
-
-  function editHeader(field: Record<string, string>) {
-    setPreset({ ...preset, editedHeaders: [...preset.editedHeaders, field] });
-  }
-
-  function resetPreset(preset: Preset) {
+  function resetPreset() {
     setPreset({
       name: null,
       schema: "",
@@ -144,34 +66,12 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
     });
   }
 
-  function savePreset(preset: Preset) {
-    localStorage.setItem(
-      `preset_${preset.name}`,
-      JSON.stringify({ ...preset }, null, 2),
-    );
-    window.dispatchEvent(new Event("storage"));
-  }
-
   return (
     <PresetContext.Provider
       value={{
         preset,
         setPreset,
-        setName,
-        setSchema,
-        setOrder,
-        setSymbol,
-        setWidths,
-        setAlign,
-        setHeader,
-        setFormat,
-        setExport,
-        removeField,
-        addField,
-        addFunction,
-        editHeader,
         resetPreset,
-        savePreset,
       }}
     >
       {children}

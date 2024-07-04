@@ -8,17 +8,17 @@ import {
 import { useState } from "react";
 
 interface SelectOperationProps {
-  onFunctionSelect: (func: string) => void;
+  onOperationSelect: (operation: string) => void;
 }
 
-export function SelectOperation({ onFunctionSelect }: SelectOperationProps) {
-  const [selectedFunc, setSelectedFunc] = useState<string>("");
+export function SelectOperation({ onOperationSelect }: SelectOperationProps) {
+  const [operation, setOperation] = useState<string>("");
   return (
     <Select
-      value={selectedFunc}
+      value={operation}
       onValueChange={(value) => {
-        setSelectedFunc(value);
-        onFunctionSelect(value);
+        setOperation(value);
+        onOperationSelect(value);
       }}
     >
       <SelectTrigger className="font-medium">

@@ -1,5 +1,4 @@
 import { useContext, useState } from "react";
-import { DataContext } from "@/context/data-context";
 import {
   Dialog,
   DialogContent,
@@ -26,16 +25,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { tokenize } from "@/lib/utils";
 import { PresetContext } from "@/context/preset-context";
+import { ParserContext } from "@/context/parser-context";
 
 const FileNameEditSchema = z.object({
   schema: z.string(),
 });
 
 export function ButtonDefineSchema() {
-  const { data, name, applySchema } = useContext(DataContext);
-  const { setSchema } = useContext(PresetContext);
+  const { isReady, fileName, setName } = useContext(ParserContext);
+  const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-  const tokenized = tokenize(name);
 
   const form = useForm({
     resolver: zodResolver(FileNameEditSchema),
@@ -45,15 +44,15 @@ export function ButtonDefineSchema() {
   });
 
   const onSubmit: SubmitHandler<FieldValues> = (values) => {
-    setSchema(values.schema);
-    applySchema(values.schema);
+    setName(values.schema);
+    setPreset({ ...preset, schema: values.schema });
     setOpen(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" disabled={data.length === 0}>
+        <Button variant="ghost" size="icon" disabled={!isReady}>
           <Pencil2Icon />
         </Button>
       </DialogTrigger>
@@ -66,7 +65,7 @@ export function ButtonDefineSchema() {
           </DialogDescription>
         </DialogHeader>
         <Label className="grid grid-cols-5 font-mono">
-          {tokenized.map((token, index) => (
+          {tokenize(fileName).map((token, index) => (
             <span key={index} className="mr-2">
               {index}: {token}
             </span>

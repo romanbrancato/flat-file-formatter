@@ -10,7 +10,7 @@ import { MultiFormatConfig } from "@/lib/parser-functions";
 
 export default function App() {
   const { mode } = useContext(ModeContext);
-  const { setParams, data } = useContext(ParserContext);
+  const { setParams } = useContext(ParserContext);
   const [files, setFiles] = useState<File[]>([]);
   const [config, setConfig] = useState<MultiFormatConfig>({
     format: "delimited",
@@ -42,7 +42,6 @@ export default function App() {
         />
       </div>
       <FilePreview files={files} setFiles={setFiles} />
-      <div>{JSON.stringify(data, null, 2)}</div>
     </main>
   );
 }

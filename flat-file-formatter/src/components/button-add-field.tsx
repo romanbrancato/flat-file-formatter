@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { useContext, useState } from "react";
-import { DataContext } from "@/context/data-context";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -22,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { PresetContext } from "@/context/preset-context";
+import { ParserContext } from "@/context/parser-context";
 
 const addFieldSchema = z.object({
   name: z.string().min(1, "Enter a field name."),
@@ -29,8 +29,8 @@ const addFieldSchema = z.object({
 });
 
 export function ButtonAddField() {
-  const { data, addField: dataAddField } = useContext(DataContext);
-  const { addField: presetAddField } = useContext(PresetContext);
+  const { isReady, addField } = useContext(ParserContext);
+  const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof addFieldSchema>>({
@@ -42,8 +42,11 @@ export function ButtonAddField() {
   });
 
   function onSubmit(values: z.infer<typeof addFieldSchema>) {
-    dataAddField({ [values.name]: values.value });
-    presetAddField({ [values.name]: values.value });
+    addField({ [values.name]: values.value });
+    setPreset({
+      ...preset,
+      added: [...preset.added, { [values.name]: values.value }],
+    });
     setOpen(false);
     form.reset();
   }
@@ -55,7 +58,7 @@ export function ButtonAddField() {
           variant="outline"
           size="sm"
           className="w-full border-dashed"
-          disabled={data.length === 0}
+          disabled={!isReady}
         >
           <PlusCircledIcon className="mr-2" />
           Add Field

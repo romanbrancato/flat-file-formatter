@@ -7,17 +7,19 @@ import {
 } from "@/components/ui/select";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
-import { DataContext } from "@/context/data-context";
+import { ParserContext } from "@/context/parser-context";
 
 export function SelectExport() {
-  const { data } = useContext(DataContext);
-  const { preset, setExport } = useContext(PresetContext);
+  const { isReady } = useContext(ParserContext);
+  const { preset, setPreset } = useContext(PresetContext);
 
   return (
     <Select
       value={preset.export}
-      onValueChange={(value: "csv" | "txt") => setExport(value)}
-      disabled={data.length === 0}
+      onValueChange={(value: "csv" | "txt") =>
+        setPreset({ ...preset, export: value })
+      }
+      disabled={!isReady}
     >
       <SelectTrigger className="w-full">
         <span className="text-xs text-muted-foreground">Export As:</span>

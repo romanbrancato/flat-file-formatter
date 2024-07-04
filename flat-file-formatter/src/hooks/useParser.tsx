@@ -1,11 +1,12 @@
 import { parseFile, ParserParams } from "@/lib/parser-functions";
 import { useCallback, useEffect, useState } from "react";
-import { Function } from "@/types/preset";
 import * as fns from "@/lib/data-functions";
+import { Function, Preset } from "@/context/preset-context";
 
 export function useParser() {
   const [isReady, setIsReady] = useState(false);
   const [params, setParams] = useState<ParserParams | null>(null);
+  const [fileName, setFileName] = useState("");
   const [data, setData] = useState<Record<string, unknown>[]>([]);
 
   useEffect(() => {
@@ -13,6 +14,7 @@ export function useParser() {
     parseFile(params)
       .then((data) => {
         setData(data);
+        setFileName(params.file.name);
         setIsReady(true);
       })
       .catch((e) => {
@@ -20,13 +22,23 @@ export function useParser() {
       });
   }, [params]);
 
+  const setName = useCallback(
+    (schema: string) => {
+      if (!params) return;
+      setIsReady(false);
+      setFileName(fns.setName(params?.file.name, schema));
+      setIsReady(true);
+    },
+    [params],
+  );
+
   const removeField = useCallback(
     (field: string) => {
       setIsReady(false);
       setData(fns.removeField(data, field));
       setIsReady(true);
     },
-    [data, isReady],
+    [data],
   );
 
   const addField = useCallback(
@@ -35,7 +47,7 @@ export function useParser() {
       setData(fns.addField(data, field));
       setIsReady(true);
     },
-    [data, isReady],
+    [data],
   );
 
   const orderFields = useCallback(
@@ -44,7 +56,7 @@ export function useParser() {
       setData(fns.orderFields(data, order));
       setIsReady(true);
     },
-    [data, isReady],
+    [data],
   );
 
   const editHeader = useCallback(
@@ -53,7 +65,7 @@ export function useParser() {
       setData(fns.editHeader(data, field));
       setIsReady(true);
     },
-    [data, isReady],
+    [data],
   );
 
   const runFunction = useCallback(
@@ -62,17 +74,30 @@ export function useParser() {
       setData(fns.runFunction(data, func));
       setIsReady(true);
     },
-    [data, setIsReady],
+    [data],
+  );
+
+  const applyPreset = useCallback(
+    (preset: Preset) => {
+      setIsReady(false);
+      const newData = fns.applyPreset(data, preset);
+      setData(newData);
+      setIsReady(true);
+    },
+    [data],
   );
 
   return {
     isReady,
+    fileName,
     setParams,
     data,
+    setName,
     removeField,
     addField,
     orderFields,
     editHeader,
     runFunction,
+    applyPreset,
   };
 }

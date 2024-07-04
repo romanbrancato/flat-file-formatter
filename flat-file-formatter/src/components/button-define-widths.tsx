@@ -1,5 +1,4 @@
 import { useContext, useState } from "react";
-import { DataContext } from "@/context/data-context";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +23,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { PresetContext } from "@/context/preset-context";
+import { ParserContext } from "@/context/parser-context";
 
 const defineWidthsSchema = z.object({
   widths: z.record(
@@ -36,16 +36,15 @@ const defineWidthsSchema = z.object({
 });
 
 export function ButtonDefineWidths() {
-  const { data } = useContext(DataContext);
-  const { preset, setWidths } = useContext(PresetContext);
+  const { data, isReady } = useContext(ParserContext);
+  const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-  const fields = Object.keys(data[0] || {});
 
   const form = useForm({
     resolver: zodResolver(defineWidthsSchema),
     defaultValues: {
       widths: Object.fromEntries(
-        fields.map((field) => {
+        Object.keys(data[0]).map((field) => {
           const presetWidth = preset.widths.find((item) => field in item);
           return [field, presetWidth ? presetWidth[field] : ""];
         }),
@@ -60,7 +59,7 @@ export function ButtonDefineWidths() {
       [key]: value as number,
     }));
 
-    setWidths(widthsArray);
+    setPreset({ ...preset, widths: widthsArray });
 
     setOpen(false);
   };
@@ -72,7 +71,7 @@ export function ButtonDefineWidths() {
           variant="outline"
           size="sm"
           className="w-full border-dashed"
-          disabled={data.length === 0}
+          disabled={!isReady}
         >
           <Pencil2Icon className="mr-2" />
           Define Widths
@@ -95,7 +94,7 @@ export function ButtonDefineWidths() {
           <ScrollAreaViewport className="max-h-[400px]">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                {fields.map((fieldName) => (
+                {Object.keys(data[0]).map((fieldName) => (
                   <FormField
                     control={form.control}
                     name={`widths.${fieldName}`}
