@@ -9,12 +9,13 @@ import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BatchFileRow } from "@/components/batch-file-row";
 
-interface PreviewProps {
+export function FileDisplay({
+  files,
+  setFiles,
+}: {
   files: File[];
   setFiles: (files: File[]) => void;
-}
-
-export function FilePreview({ files, setFiles }: PreviewProps) {
+}) {
   const { mode } = useContext(ModeContext);
 
   const handleFileDelete = (index: number) => {

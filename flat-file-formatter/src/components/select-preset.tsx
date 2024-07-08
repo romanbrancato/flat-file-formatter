@@ -1,5 +1,4 @@
 import { CaretSortIcon, CheckIcon, Cross2Icon } from "@radix-ui/react-icons";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -15,22 +14,24 @@ import {
 
 import { useContext, useEffect, useState } from "react";
 import { Dropzone } from "@/components/dropzone";
-import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { Preset, PresetContext, PresetSchema } from "@/context/preset-context";
+import { ParserContext } from "@/context/parser-context";
+import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { Preset, PresetContext, PresetSchema } from "@/context/preset-context";
-import { ParserContext } from "@/context/parser-context";
+import { cn } from "@/lib/utils";
 
 export function SelectPreset() {
   const { setName, applyPreset } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [storedPresets, setStoredPresets] = useState<Preset[]>([]);
 
   const onSelect = (selectedPreset: Preset) => {
     setName(selectedPreset.schema);
@@ -68,7 +69,22 @@ export function SelectPreset() {
   }, [files]);
 
   useEffect(() => {
-    // Load saved presets from local storage
+    const handleStorageChange = () => {
+      setStoredPresets(
+        Object.keys(localStorage)
+          .filter((key) => key.startsWith("preset_"))
+          .map((key) => {
+            return JSON.parse(localStorage.getItem(key) as string);
+          }),
+      );
+    };
+    handleStorageChange();
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, []);
 
   return (
@@ -96,43 +112,43 @@ export function SelectPreset() {
               showInfo={false}
             />
           </CommandGroup>
-          {/*<CommandGroup heading="Presets">*/}
-          {/*  <ScrollArea>*/}
-          {/*    <ScrollAreaViewport className="max-h-[150px]">*/}
-          {/*      {savedPresets.map((p) => (*/}
-          {/*        <ContextMenu key={p.name}>*/}
-          {/*          <ContextMenuTrigger>*/}
-          {/*            <CommandItem*/}
-          {/*              onSelect={() => {*/}
-          {/*                onSelect(p);*/}
-          {/*                setOpen(false);*/}
-          {/*              }}*/}
-          {/*            >*/}
-          {/*              {p.name}*/}
-          {/*              <CheckIcon*/}
-          {/*                className={cn(*/}
-          {/*                  "ml-auto",*/}
-          {/*                  preset.name === p.name*/}
-          {/*                    ? "opacity-100"*/}
-          {/*                    : "opacity-0",*/}
-          {/*                )}*/}
-          {/*              />*/}
-          {/*            </CommandItem>*/}
-          {/*          </ContextMenuTrigger>*/}
-          {/*          <ContextMenuContent>*/}
-          {/*            <ContextMenuItem*/}
-          {/*              className="text-destructive"*/}
-          {/*              onClick={() => onDelete(p)}*/}
-          {/*            >*/}
-          {/*              Delete*/}
-          {/*              <Cross2Icon className="ml-auto" />*/}
-          {/*            </ContextMenuItem>*/}
-          {/*          </ContextMenuContent>*/}
-          {/*        </ContextMenu>*/}
-          {/*      ))}*/}
-          {/*    </ScrollAreaViewport>*/}
-          {/*  </ScrollArea>*/}
-          {/*</CommandGroup>*/}
+          <CommandGroup heading="Presets">
+            <ScrollArea>
+              <ScrollAreaViewport className="max-h-[150px]">
+                {storedPresets.map((p) => (
+                  <ContextMenu key={p.name}>
+                    <ContextMenuTrigger>
+                      <CommandItem
+                        onSelect={() => {
+                          onSelect(p);
+                          setOpen(false);
+                        }}
+                      >
+                        {p.name}
+                        <CheckIcon
+                          className={cn(
+                            "ml-auto",
+                            preset.name === p.name
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
+                      </CommandItem>
+                    </ContextMenuTrigger>
+                    <ContextMenuContent>
+                      <ContextMenuItem
+                        className="text-destructive"
+                        onClick={() => onDelete(p)}
+                      >
+                        Delete
+                        <Cross2Icon className="ml-auto" />
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
+                ))}
+              </ScrollAreaViewport>
+            </ScrollArea>
+          </CommandGroup>
         </Command>
       </PopoverContent>
     </Popover>

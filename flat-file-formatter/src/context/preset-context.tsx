@@ -33,13 +33,11 @@ export const PresetSchema = z.object({
 
 export type Preset = z.infer<typeof PresetSchema>;
 
-interface PresetContextProps {
+export const PresetContext = createContext<{
   preset: Preset;
   setPreset: React.Dispatch<React.SetStateAction<Preset>>;
   resetPreset: () => void;
-}
-
-export const PresetContext = createContext<PresetContextProps>({
+}>({
   preset: {} as Preset,
   setPreset: () => {},
   resetPreset: () => {},

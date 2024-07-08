@@ -7,11 +7,11 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 
-interface SelectOperationProps {
+export function SelectOperation({
+  onOperationSelect,
+}: {
   onOperationSelect: (operation: string) => void;
-}
-
-export function SelectOperation({ onOperationSelect }: SelectOperationProps) {
+}) {
   const [operation, setOperation] = useState<string>("");
   return (
     <Select

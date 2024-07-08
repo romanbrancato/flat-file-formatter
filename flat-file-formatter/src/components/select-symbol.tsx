@@ -10,11 +10,7 @@ import { PresetContext } from "@/context/preset-context";
 import { symbols } from "@/data/symbols";
 import { ParserContext } from "@/context/parser-context";
 
-interface SymbolSelectProps {
-  label: string;
-}
-
-export function SelectSymbol({ label }: SymbolSelectProps) {
+export function SelectSymbol({ label }: { label: string }) {
   const { preset, setPreset } = useContext(PresetContext);
   const { isReady } = useContext(ParserContext);
 

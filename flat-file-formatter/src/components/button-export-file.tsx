@@ -10,11 +10,7 @@ import { download } from "@/lib/utils";
 import { ModeContext } from "@/context/mode-context";
 import { ParserContext } from "@/context/parser-context";
 
-interface ExportFileButtonProps {
-  files?: File[];
-}
-
-export function ButtonExportFile({ files }: ExportFileButtonProps) {
+export function ButtonExportFile({ files }: { files?: File[] }) {
   const { mode } = useContext(ModeContext);
   const { data, fileName } = useContext(ParserContext);
   const { preset } = useContext(PresetContext);

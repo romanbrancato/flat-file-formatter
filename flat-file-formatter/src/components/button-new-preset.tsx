@@ -23,15 +23,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 
-interface NewPresetButtonProps {
-  trigger: React.ReactNode;
-}
-
 const newPresetSchema = z.object({
   name: z.string().min(1, "Enter a preset name."),
 });
 
-export function ButtonNewPreset({ trigger }: NewPresetButtonProps) {
+export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
   const { data, isReady } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
@@ -53,6 +49,7 @@ export function ButtonNewPreset({ trigger }: NewPresetButtonProps) {
       `preset_${tempPreset.name}`,
       JSON.stringify({ ...tempPreset }, null, 2),
     );
+    window.dispatchEvent(new Event("storage"));
     setPreset(tempPreset);
     setOpen(false);
     form.reset();

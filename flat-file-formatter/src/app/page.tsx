@@ -1,7 +1,7 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
 import { Dropzone } from "@/components/dropzone";
-import { FilePreview } from "@/components/file-preview";
+import { FileDisplay } from "@/components/file-display";
 import { SelectMode } from "@/components/select-mode";
 import { ModeContext } from "@/context/mode-context";
 import { ButtonParserConfig } from "@/components/button-parser-config";
@@ -41,7 +41,7 @@ export default function App() {
           showInfo={mode === "single"}
         />
       </div>
-      <FilePreview files={files} setFiles={setFiles} />
+      <FileDisplay files={files} setFiles={setFiles} />
     </main>
   );
 }

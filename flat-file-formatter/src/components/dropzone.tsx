@@ -2,14 +2,6 @@ import { useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { UploadIcon } from "@radix-ui/react-icons";
 
-interface DropzoneProps {
-  onChange: React.Dispatch<React.SetStateAction<File[]>>;
-  className?: string;
-  fileExtension?: string;
-  multiple?: boolean;
-  showInfo?: boolean;
-}
-
 export function Dropzone({
   onChange,
   className,
@@ -17,7 +9,13 @@ export function Dropzone({
   multiple = false,
   showInfo = true,
   ...props
-}: DropzoneProps) {
+}: {
+  onChange: React.Dispatch<React.SetStateAction<File[]>>;
+  className?: string;
+  fileExtension?: string;
+  multiple?: boolean;
+  showInfo?: boolean;
+}) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [fileInfo, setFileInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

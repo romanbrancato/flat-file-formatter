@@ -47,11 +47,11 @@ export const configSchema = z.discriminatedUnion("format", [
   }),
 ]);
 
-interface ParserConfigProps {
+export function ButtonParserConfig({
+  setConfig,
+}: {
   setConfig: React.Dispatch<React.SetStateAction<MultiFormatConfig>>;
-}
-
-export function ButtonParserConfig({ setConfig }: ParserConfigProps) {
+}) {
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
 

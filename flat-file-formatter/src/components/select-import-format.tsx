@@ -7,15 +7,13 @@ import {
 } from "@/components/ui/select";
 import React, { useState } from "react";
 
-interface SelectImportFormatProps {
-  defaultValue: "delimited" | "fixed";
-  onFormatSelect: (format: "delimited" | "fixed") => void;
-}
-
 export function SelectImportFormat({
   defaultValue,
   onFormatSelect,
-}: SelectImportFormatProps) {
+}: {
+  defaultValue: "delimited" | "fixed";
+  onFormatSelect: (format: "delimited" | "fixed") => void;
+}) {
   return (
     <Select
       value={defaultValue}

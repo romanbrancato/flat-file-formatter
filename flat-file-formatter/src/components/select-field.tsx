@@ -19,11 +19,11 @@ import { useContext, useState } from "react";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { ParserContext } from "@/context/parser-context";
 
-interface SelectFieldProps {
+export function SelectField({
+  onFieldSelect,
+}: {
   onFieldSelect: (field: string) => void;
-}
-
-export function SelectField({ onFieldSelect }: SelectFieldProps) {
+}) {
   const { data } = useContext(ParserContext);
   const [open, setOpen] = useState(false);
   const [selectedField, setSelectedField] = useState<string>();
