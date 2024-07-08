@@ -11,18 +11,20 @@ export type BatchParserParams = {
 
 export function useBatchParser() {
   const [isReady, setIsReady] = useState(false);
-  const [params, setParams] = useState<BatchParserParams | null>(null);
+  const [batchParams, setBatchParams] = useState<BatchParserParams | null>(
+    null,
+  );
   const [data, setData] = useState<Data[]>([]);
 
   useEffect(() => {
-    if (!params) return;
+    if (!batchParams) return;
     setIsReady(false);
-    for (const file of params.files) {
-      parseFile({ file: file, config: params.config })
+    for (const file of batchParams.files) {
+      parseFile({ file: file, config: batchParams.config })
         .then((data) => {
           setData((prevData) => [
             ...prevData,
-            fns.applyPreset(data, params.preset),
+            fns.applyPreset(data, batchParams.preset),
           ]);
           setIsReady(true);
         })
@@ -30,11 +32,11 @@ export function useBatchParser() {
           console.error(e);
         });
     }
-  }, [params]);
+  }, [batchParams]);
 
   return {
     isReady,
-    setParams,
+    setBatchParams,
     data,
   };
 }

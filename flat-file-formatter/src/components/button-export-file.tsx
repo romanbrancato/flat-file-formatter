@@ -25,14 +25,14 @@ export function ButtonExportFile({
   const {
     isReady,
     data: batchData,
-    setParams,
+    setBatchParams,
   } = useContext(BatchParserContext);
   const { data } = useContext(ParserContext);
   const { preset } = useContext(PresetContext);
 
-  const exportBatch = () => {
+  const handleBatch = () => {
     if (!files || !config) return;
-    setParams({
+    setBatchParams({
       files: files,
       config: config,
       preset: preset,
@@ -103,7 +103,7 @@ export function ButtonExportFile({
 
   return (
     <Button
-      onClick={mode === "batch" ? exportBatch : () => exportFile(data)}
+      onClick={mode === "batch" ? handleBatch : () => exportFile(data)}
       className="gap-x-2 md:mt-auto w-full"
     >
       <Share2Icon />
