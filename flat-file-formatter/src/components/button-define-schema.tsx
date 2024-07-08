@@ -32,7 +32,7 @@ const FileNameEditSchema = z.object({
 });
 
 export function ButtonDefineSchema() {
-  const { isReady, fileName, setName } = useContext(ParserContext);
+  const { data, isReady, setName } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
@@ -65,7 +65,7 @@ export function ButtonDefineSchema() {
           </DialogDescription>
         </DialogHeader>
         <Label className="grid grid-cols-5 font-mono">
-          {tokenize(fileName).map((token, index) => (
+          {tokenize(data.name).map((token, index) => (
             <span key={index} className="mr-2">
               {index}: {token}
             </span>

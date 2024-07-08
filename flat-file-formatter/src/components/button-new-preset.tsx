@@ -43,7 +43,7 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
     const tempPreset = {
       ...preset,
       name: values.name,
-      order: Object.keys(data[0]),
+      order: Object.keys(data.rows[0]),
     };
     localStorage.setItem(
       `preset_${tempPreset.name}`,

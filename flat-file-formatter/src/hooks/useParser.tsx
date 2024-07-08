@@ -1,20 +1,22 @@
-import { parseFile, ParserParams } from "@/lib/parser-functions";
+import { Data, parseFile, ParserParams } from "@/lib/parser-functions";
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
 import { Function, Preset } from "@/context/preset-context";
+import path from "node:path";
 
 export function useParser() {
   const [isReady, setIsReady] = useState(false);
   const [params, setParams] = useState<ParserParams | null>(null);
-  const [fileName, setFileName] = useState("");
-  const [data, setData] = useState<Record<string, unknown>[]>([]);
+  const [data, setData] = useState<Data>({
+    name: "",
+    rows: [],
+  });
 
   useEffect(() => {
     if (!params) return;
     parseFile(params)
       .then((data) => {
         setData(data);
-        setFileName(params.file.name);
         setIsReady(true);
       })
       .catch((e) => {
@@ -26,16 +28,19 @@ export function useParser() {
     (schema: string) => {
       if (!params) return;
       setIsReady(false);
-      setFileName(fns.setName(params?.file.name, schema));
+      setData({
+        ...data,
+        name: fns.setName(path.parse(params.file.name).name, schema),
+      });
       setIsReady(true);
     },
-    [params],
+    [params, data],
   );
 
   const removeField = useCallback(
     (field: string) => {
       setIsReady(false);
-      setData(fns.removeField(data, field));
+      setData({ ...data, rows: fns.removeField(data.rows, field) });
       setIsReady(true);
     },
     [data],
@@ -44,7 +49,7 @@ export function useParser() {
   const addField = useCallback(
     (field: Record<string, unknown>) => {
       setIsReady(false);
-      setData(fns.addField(data, field));
+      setData({ ...data, rows: fns.addField(data.rows, field) });
       setIsReady(true);
     },
     [data],
@@ -53,7 +58,7 @@ export function useParser() {
   const orderFields = useCallback(
     (order: string[]) => {
       setIsReady(false);
-      setData(fns.orderFields(data, order));
+      setData({ ...data, rows: fns.orderFields(data.rows, order) });
       setIsReady(true);
     },
     [data],
@@ -62,7 +67,7 @@ export function useParser() {
   const editHeader = useCallback(
     (field: Record<string, string>) => {
       setIsReady(false);
-      setData(fns.editHeader(data, field));
+      setData({ ...data, rows: fns.editHeader(data.rows, field) });
       setIsReady(true);
     },
     [data],
@@ -71,7 +76,7 @@ export function useParser() {
   const runFunction = useCallback(
     (func: Function) => {
       setIsReady(false);
-      setData(fns.runFunction(data, func));
+      setData({ ...data, rows: fns.runFunction(data.rows, func) });
       setIsReady(true);
     },
     [data],
@@ -80,8 +85,7 @@ export function useParser() {
   const applyPreset = useCallback(
     (preset: Preset) => {
       setIsReady(false);
-      const newData = fns.applyPreset(data, preset);
-      setData(newData);
+      setData(fns.applyPreset(data, preset));
       setIsReady(true);
     },
     [data],
@@ -89,7 +93,6 @@ export function useParser() {
 
   return {
     isReady,
-    fileName,
     setParams,
     data,
     setName,

@@ -41,7 +41,7 @@ export default function App() {
           showInfo={mode === "single"}
         />
       </div>
-      <FileDisplay files={files} setFiles={setFiles} />
+      <FileDisplay files={files} setFiles={setFiles} config={config} />
     </main>
   );
 }

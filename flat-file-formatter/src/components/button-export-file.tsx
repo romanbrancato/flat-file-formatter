@@ -2,22 +2,43 @@
 import { Share2Icon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { PresetContext } from "@/context/preset-context";
 import Papa from "papaparse";
 import { stringify } from "@evologi/fixed-width";
 import { download } from "@/lib/utils";
 import { ModeContext } from "@/context/mode-context";
 import { ParserContext } from "@/context/parser-context";
+import { Data, MultiFormatConfig } from "@/lib/parser-functions";
+import { BatchParserContext } from "@/context/batch-parser-context";
 
-export function ButtonExportFile({ files }: { files?: File[] }) {
+export function ButtonExportFile({
+  files,
+  config,
+}: {
+  files?: File[];
+  config?: MultiFormatConfig;
+}) {
   const { mode } = useContext(ModeContext);
-  const { data, fileName } = useContext(ParserContext);
+  const {
+    isReady,
+    data: batchData,
+    setParams,
+    applyPreset,
+  } = useContext(BatchParserContext);
+  const { data } = useContext(ParserContext);
   const { preset } = useContext(PresetContext);
 
-  const exportBatch = () => {};
+  const exportBatch = () => {
+    if (!files || !config) return;
+    setParams({
+      files: files,
+      config: config,
+    });
+    applyPreset(preset);
+  };
 
-  const exportFile = () => {
+  const exportFile = (data: Data) => {
     let flatData;
     try {
       if (preset.format === "delimited") {
@@ -26,9 +47,9 @@ export function ButtonExportFile({ files }: { files?: File[] }) {
           header: preset.header,
           skipEmptyLines: true,
         };
-        flatData = Papa.unparse(data, config);
+        flatData = Papa.unparse(data.rows, config);
       } else {
-        const fields = Object.keys(data[0]);
+        const fields = Object.keys(data.rows[0]);
         const config = fields.map((field) => {
           const width = preset.widths.find((widths) => field in widths)?.[
             field
@@ -54,7 +75,7 @@ export function ButtonExportFile({ files }: { files?: File[] }) {
 
         flatData =
           headerLine +
-          stringify(data, {
+          stringify(data.rows, {
             pad: preset.symbol,
             fields: config,
           });
@@ -66,14 +87,14 @@ export function ButtonExportFile({ files }: { files?: File[] }) {
 
     download(
       flatData,
-      fileName,
+      data.name,
       preset.format === "fixed" ? "txt" : preset.export,
     );
   };
 
   return (
     <Button
-      onClick={mode === "batch" ? exportBatch : exportFile}
+      onClick={mode === "batch" ? exportBatch : () => exportFile(data)}
       className="gap-x-2 md:mt-auto w-full"
     >
       <Share2Icon />

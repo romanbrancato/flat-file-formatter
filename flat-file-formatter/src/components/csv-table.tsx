@@ -92,14 +92,14 @@ const DraggableCell = ({ cell }: any) => {
 };
 
 export function CSVTable() {
-  const { data, orderFields } = useContext(ParserContext);
+  const { isReady, data, orderFields } = useContext(ParserContext);
   const [columns, setColumns] = useState<ColumnDef<Record<string, unknown>>[]>(
     [],
   );
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
 
   const table = useReactTable({
-    data,
+    data: data.rows,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -114,8 +114,7 @@ export function CSVTable() {
   });
 
   useEffect(() => {
-    const fields = Object.keys(data[0] || {});
-    const newColumns = fields.map((field) => ({
+    const newColumns = Object.keys(data.rows[0] || {}).map((field) => ({
       accessorKey: field,
     }));
     setColumns(newColumns);
@@ -141,7 +140,7 @@ export function CSVTable() {
 
   return (
     <div className="rounded-md border flex-grow overflow-hidden">
-      {data.length > 0 ? (
+      {isReady ? (
         <DndContext
           collisionDetection={closestCenter}
           modifiers={[restrictToHorizontalAxis]}

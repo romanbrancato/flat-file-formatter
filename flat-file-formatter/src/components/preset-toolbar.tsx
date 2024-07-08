@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { ParserContext } from "@/context/parser-context";
 
 export function PresetToolbar() {
-  const { isReady, fileName } = useContext(ParserContext);
+  const { isReady, data } = useContext(ParserContext);
   const { preset } = useContext(PresetContext);
   const { mode } = useContext(ModeContext);
 
@@ -31,7 +31,7 @@ export function PresetToolbar() {
       <div className="flex py-2 px-5 justify-between">
         <div className="flex flex-row items-center w-full min-w-0 gap-x-1">
           <Label className="text-md font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[80%]">
-            {fileName && mode === "single" ? fileName : "File Preview"}
+            {data.name && mode === "single" ? data.name : "File Preview"}
           </Label>
           {mode === "single" && <ButtonDefineSchema />}
         </div>

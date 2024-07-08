@@ -1,5 +1,6 @@
 import { Function, Preset } from "@/context/preset-context";
 import { tokenize } from "@/lib/utils";
+import { Data } from "@/lib/parser-functions";
 
 export function setName(originalName: string, schema = ""): string {
   if (!schema) return originalName;
@@ -86,24 +87,26 @@ export function runFunction(
   });
 }
 
-export function applyPreset(data: Record<string, unknown>[], preset: Preset) {
+export function applyPreset(data: Data, preset: Preset) {
   preset.removed?.forEach((field) => {
-    data = removeField(data, field);
+    data.rows = removeField(data.rows, field);
   });
 
   preset.added?.forEach((item) => {
-    data = addField(data, item);
+    data.rows = addField(data.rows, item);
   });
 
   preset.editedHeaders?.forEach((item) => {
-    data = editHeader(data, item);
+    data.rows = editHeader(data.rows, item);
   });
 
   preset.functions?.forEach((item) => {
-    data = runFunction(data, item);
+    data.rows = runFunction(data.rows, item);
   });
 
-  data = orderFields(data, preset.order);
+  data.rows = orderFields(data.rows, preset.order);
+
+  data.name = setName(data.name, preset.schema);
 
   return data;
 }

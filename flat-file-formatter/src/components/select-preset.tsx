@@ -25,8 +25,10 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
+import { ModeContext } from "@/context/mode-context";
 
 export function SelectPreset() {
+  const { mode } = useContext(ModeContext);
   const { setName, applyPreset } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
@@ -34,12 +36,9 @@ export function SelectPreset() {
   const [storedPresets, setStoredPresets] = useState<Preset[]>([]);
 
   const onSelect = (selectedPreset: Preset) => {
-    setName(selectedPreset.schema);
     applyPreset(selectedPreset);
+    setName(selectedPreset.schema);
     setPreset(selectedPreset);
-    toast.success("Preset Loaded", {
-      description: `The preset "${selectedPreset.name}" has been loaded.`,
-    });
   };
 
   const onDelete = (selectedPreset: Preset) => {

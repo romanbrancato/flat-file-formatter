@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
-import { MultiFormatConfig, parseFile } from "@/lib/parser-functions";
+import { Data, MultiFormatConfig, parseFile } from "@/lib/parser-functions";
 import { Preset } from "@/context/preset-context";
 
 export type BatchParserParams = {
@@ -11,7 +11,7 @@ export type BatchParserParams = {
 export function useBatchParser() {
   const [isReady, setIsReady] = useState(false);
   const [params, setParams] = useState<BatchParserParams | null>(null);
-  const [data, setData] = useState<Record<string, unknown>[][]>([]);
+  const [data, setData] = useState<Data[]>([]);
 
   useEffect(() => {
     if (!params) return;
@@ -30,8 +30,8 @@ export function useBatchParser() {
   const applyPreset = useCallback(
     (preset: Preset) => {
       setIsReady(false);
-      const newData = data.map((file) => fns.applyPreset(file, preset));
-      setData(newData);
+      data.map((file) => fns.applyPreset(file, preset));
+      setData(data.map((file) => fns.applyPreset(file, preset)));
       setIsReady(true);
     },
     [data],

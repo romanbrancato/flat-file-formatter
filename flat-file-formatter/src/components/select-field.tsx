@@ -28,8 +28,6 @@ export function SelectField({
   const [open, setOpen] = useState(false);
   const [selectedField, setSelectedField] = useState<string>();
 
-  const fields = data.length > 0 ? Object.keys(data[0]) : [];
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -56,7 +54,7 @@ export function SelectField({
           <CommandGroup heading="Fields">
             <ScrollArea>
               <ScrollAreaViewport className="max-h-[300px]">
-                {fields.map((field) => (
+                {Object.keys(data.rows[0]).map((field) => (
                   <CommandItem
                     key={field}
                     onSelect={() => {

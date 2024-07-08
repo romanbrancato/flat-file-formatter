@@ -8,13 +8,16 @@ import { ModeContext } from "@/context/mode-context";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BatchFileRow } from "@/components/batch-file-row";
+import { MultiFormatConfig } from "@/lib/parser-functions";
 
 export function FileDisplay({
   files,
   setFiles,
+  config,
 }: {
   files: File[];
   setFiles: (files: File[]) => void;
+  config: MultiFormatConfig;
 }) {
   const { mode } = useContext(ModeContext);
 
@@ -58,7 +61,7 @@ export function FileDisplay({
               ))}
             </div>
             <div className="ml-auto w-1/5">
-              <ButtonExportFile files={files} />
+              <ButtonExportFile files={files} config={config} />
             </div>
           </div>
         )}
