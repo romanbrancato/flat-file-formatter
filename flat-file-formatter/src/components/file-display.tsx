@@ -61,7 +61,11 @@ export function FileDisplay({
               ))}
             </div>
             <div className="ml-auto w-1/5">
-              <ButtonExportFile files={files} config={config} />
+              <ButtonExportFile
+                files={files}
+                setFiles={setFiles}
+                config={config}
+              />
             </div>
           </div>
         )}

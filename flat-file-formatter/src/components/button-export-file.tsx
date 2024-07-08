@@ -14,9 +14,11 @@ import { BatchParserContext } from "@/context/batch-parser-context";
 
 export function ButtonExportFile({
   files,
+  setFiles,
   config,
 }: {
   files?: File[];
+  setFiles?: (files: File[]) => void;
   config?: MultiFormatConfig;
 }) {
   const { mode } = useContext(ModeContext);
@@ -24,7 +26,6 @@ export function ButtonExportFile({
     isReady,
     data: batchData,
     setParams,
-    applyPreset,
   } = useContext(BatchParserContext);
   const { data } = useContext(ParserContext);
   const { preset } = useContext(PresetContext);
@@ -34,9 +35,17 @@ export function ButtonExportFile({
     setParams({
       files: files,
       config: config,
+      preset: preset,
     });
-    applyPreset(preset);
   };
+
+  useEffect(() => {
+    if (!isReady) return;
+    batchData.forEach((data) => {
+      exportFile(data);
+    });
+    if (setFiles) setFiles([]);
+  }, [isReady]);
 
   const exportFile = (data: Data) => {
     let flatData;
