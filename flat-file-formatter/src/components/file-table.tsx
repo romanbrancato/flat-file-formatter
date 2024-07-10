@@ -91,7 +91,7 @@ const DraggableCell = ({ cell }: any) => {
   );
 };
 
-export function CSVTable() {
+export function FileTable() {
   const { isReady, data, orderFields } = useContext(ParserContext);
   const [columns, setColumns] = useState<ColumnDef<Record<string, unknown>>[]>(
     [],

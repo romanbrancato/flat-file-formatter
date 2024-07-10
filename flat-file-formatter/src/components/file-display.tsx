@@ -1,5 +1,5 @@
 import { PresetToolbar } from "@/components/preset-toolbar";
-import { CSVTable } from "@/components/csv-table";
+import { FileTable } from "@/components/file-table";
 import { FormatMenu } from "@/components/format-menu";
 import { TableToolbar } from "@/components/table-toolbar";
 import { ButtonExportFile } from "@/components/button-export-file";
@@ -32,12 +32,12 @@ export function FileDisplay({
         {mode === "single" ? (
           <>
             <div className="flex flex-col gap-y-1 overflow-hidden flex-grow">
-              <CSVTable />
+              <FileTable />
               <TableToolbar />
             </div>
             <div className="flex flex-col">
               <FormatMenu />
-              <ButtonExportFile />
+              <ButtonExportFile files={files} />
             </div>
           </>
         ) : (

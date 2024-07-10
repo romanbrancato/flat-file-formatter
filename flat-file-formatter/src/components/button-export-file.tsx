@@ -1,15 +1,12 @@
 "use client";
 import { Share2Icon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { useContext, useEffect } from "react";
 import { PresetContext } from "@/context/preset-context";
-import Papa from "papaparse";
-import { stringify } from "@evologi/fixed-width";
 import { download } from "@/lib/utils";
 import { ModeContext } from "@/context/mode-context";
 import { ParserContext } from "@/context/parser-context";
-import { Data, MultiFormatConfig } from "@/lib/parser-functions";
+import { Data, MultiFormatConfig, unparseData } from "@/lib/parser-functions";
 import { BatchParserContext } from "@/context/batch-parser-context";
 
 export function ButtonExportFile({
@@ -23,15 +20,16 @@ export function ButtonExportFile({
 }) {
   const { mode } = useContext(ModeContext);
   const {
-    isReady,
+    isBatchReady,
     data: batchData,
     setBatchParams,
+    resetBatchParser,
   } = useContext(BatchParserContext);
-  const { data } = useContext(ParserContext);
+  const { data, isReady } = useContext(ParserContext);
   const { preset } = useContext(PresetContext);
 
   const handleBatch = () => {
-    if (!files || !config) return;
+    if (!files || !config || !preset.name) return;
     setBatchParams({
       files: files,
       config: config,
@@ -40,71 +38,34 @@ export function ButtonExportFile({
   };
 
   useEffect(() => {
-    if (!isReady) return;
+    if (!isBatchReady) return;
     batchData.forEach((data) => {
       exportFile(data);
     });
+    resetBatchParser();
     if (setFiles) setFiles([]);
-  }, [isReady]);
+  }, [isBatchReady]);
 
   const exportFile = (data: Data) => {
-    let flatData;
-    try {
-      if (preset.format === "delimited") {
-        const config = {
-          delimiter: preset.symbol,
-          header: preset.header,
-          skipEmptyLines: true,
-        };
-        flatData = Papa.unparse(data.rows, config);
-      } else {
-        const fields = Object.keys(data.rows[0]);
-        const config = fields.map((field) => {
-          const width = preset.widths.find((widths) => field in widths)?.[
-            field
-          ];
-          if (!width) throw new Error(`Width not found for field: ${field}`);
-          return {
-            property: field,
-            width: width,
-            align: preset.align,
-          };
-        });
-
-        let headerLine = "";
-        if (preset.header) {
-          const padFunction = preset.align === "right" ? "padStart" : "padEnd";
-          headerLine =
-            config
-              .map((field) =>
-                field.property[padFunction](field.width, preset.symbol),
-              )
-              .join("") + "\n";
-        }
-
-        flatData =
-          headerLine +
-          stringify(data.rows, {
-            pad: preset.symbol,
-            fields: config,
-          });
-      }
-    } catch (error: any) {
-      toast.error("Failed to Export File", { description: error.message });
-      return;
+    const flatData = unparseData(data, preset);
+    if (flatData) {
+      download(
+        flatData,
+        data.name,
+        preset.format === "fixed" ? "txt" : preset.export,
+      );
     }
-
-    download(
-      flatData,
-      data.name,
-      preset.format === "fixed" ? "txt" : preset.export,
-    );
   };
 
   return (
     <Button
       onClick={mode === "batch" ? handleBatch : () => exportFile(data)}
       className="gap-x-2 md:mt-auto w-full"
+      disabled={
+        (mode !== "single" && !preset.name) ||
+        files?.length === 0 ||
+        (mode !== "batch" && !isReady)
+      }
     >
       <Share2Icon />
       {mode === "batch" ? "Export Files" : "Export File"}

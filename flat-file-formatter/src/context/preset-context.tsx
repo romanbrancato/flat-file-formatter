@@ -1,6 +1,13 @@
 "use client";
-import { createContext, ReactNode, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { z } from "zod";
+import { ModeContext } from "@/context/mode-context";
 
 export const FunctionSchema = z.object({
   field: z.string({ required_error: "Select a field to edit." }),
@@ -44,6 +51,7 @@ export const PresetContext = createContext<{
 });
 
 export const PresetProvider = ({ children }: { children: ReactNode }) => {
+  const { mode } = useContext(ModeContext);
   const [preset, setPreset] = useState<Preset>({} as Preset);
 
   function resetPreset() {
@@ -63,6 +71,10 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
       editedHeaders: [],
     });
   }
+
+  useEffect(() => {
+    resetPreset();
+  }, [mode]);
 
   return (
     <PresetContext.Provider

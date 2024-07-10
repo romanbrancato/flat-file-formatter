@@ -161,7 +161,7 @@ export function ButtonParserConfig({
                     {fields.map((field, index) => (
                       <div
                         key={field.id}
-                        className="grid grid-cols-7 mb-2 gap-x-1 items-center"
+                        className="grid grid-cols-7 mb-2 gap-x-1 items-center p-1"
                       >
                         <FormField
                           control={form.control}
@@ -226,7 +226,7 @@ export function ButtonParserConfig({
             </span>
           </div>
         </div>
-        <Dropzone onChange={setFiles} fileExtension=".json" showInfo={false} />
+        <Dropzone onChange={setFiles} fileExtension=".json" />
       </DialogContent>
     </Dialog>
   );

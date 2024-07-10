@@ -29,15 +29,14 @@ import { ModeContext } from "@/context/mode-context";
 
 export function SelectPreset() {
   const { mode } = useContext(ModeContext);
-  const { setName, applyPreset } = useContext(ParserContext);
+  const { isReady, applyPreset } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [storedPresets, setStoredPresets] = useState<Preset[]>([]);
 
   const onSelect = (selectedPreset: Preset) => {
-    applyPreset(selectedPreset);
-    setName(selectedPreset.schema);
+    if (mode !== "batch") applyPreset(selectedPreset);
     setPreset(selectedPreset);
   };
 
@@ -95,6 +94,7 @@ export function SelectPreset() {
           aria-label="Load a preset..."
           aria-expanded={open}
           className="flex-1 justify-between min-w-[225px] md:min-w-[300px]"
+          disabled={mode !== "batch" && !isReady}
         >
           {preset && preset.name ? preset.name : "Load a preset..."}
           <CaretSortIcon className="ml-2 opacity-50" />
@@ -108,7 +108,6 @@ export function SelectPreset() {
               onChange={setFiles}
               className="w-full"
               fileExtension=".json"
-              showInfo={false}
             />
           </CommandGroup>
           <CommandGroup heading="Presets">

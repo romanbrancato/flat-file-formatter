@@ -25,7 +25,6 @@ export function FormatMenu() {
       }
     >
       <div className="text-sm font-medium space-y-1 leading-none min-w-[200px]">
-        <span> Format </span>
         <TabsList className="grid grid-cols-2">
           <TabsTrigger value="delimited" disabled={!isReady}>
             Delimited

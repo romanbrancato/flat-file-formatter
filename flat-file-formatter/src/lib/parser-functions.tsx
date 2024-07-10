@@ -1,6 +1,8 @@
 import Papa from "papaparse";
-import { Options, parse } from "@evologi/fixed-width";
+import { Options, parse, stringify } from "@evologi/fixed-width";
 import path from "node:path";
+import { toast } from "sonner";
+import { Preset } from "@/context/preset-context";
 
 export type Data = {
   name: string;
@@ -47,4 +49,46 @@ export async function parseFile(params: ParserParams) {
       reader.readAsText(params.file);
     }
   });
+}
+
+export function unparseData(data: Data, preset: Preset) {
+  try {
+    if (preset.format === "delimited") {
+      const config = {
+        delimiter: preset.symbol,
+        header: preset.header,
+        skipEmptyLines: true,
+      };
+      return Papa.unparse(data.rows, config);
+    } else {
+      const config = Object.keys(data.rows[0]).map((field) => {
+        const width = preset.widths.find((widths) => field in widths)?.[field];
+        if (!width) throw new Error(`Width not found for field: ${field}`);
+        return {
+          property: field,
+          width: width,
+          align: preset.align,
+        };
+      });
+
+      let headerLine = "";
+      if (preset.header) {
+        const padFunction = preset.align === "right" ? "padStart" : "padEnd";
+        headerLine =
+          config
+            .map((field) =>
+              field.property[padFunction](field.width, preset.symbol),
+            )
+            .join("") + "\n";
+      }
+
+      return (
+        headerLine +
+        stringify(data.rows, { pad: preset.symbol, fields: config })
+      );
+    }
+  } catch (error: any) {
+    toast.error("Failed to Export File", { description: error.message });
+    return;
+  }
 }

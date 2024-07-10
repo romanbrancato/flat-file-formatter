@@ -19,6 +19,7 @@ export default function App() {
   useEffect(() => {
     if (!config || files.length === 0) return;
     if (mode !== "batch") {
+      console.log("YO");
       setParams({
         file: files[files.length - 1],
         config: config,
@@ -38,7 +39,6 @@ export default function App() {
           onChange={setFiles}
           fileExtension={config?.format === "delimited" ? ".csv" : ".txt"}
           multiple={mode === "batch"}
-          showInfo={mode === "single"}
         />
       </div>
       <FileDisplay files={files} setFiles={setFiles} config={config} />
