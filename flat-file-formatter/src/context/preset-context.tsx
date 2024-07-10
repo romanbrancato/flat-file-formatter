@@ -2,249 +2,86 @@
 import {
   createContext,
   ReactNode,
+  useContext,
   useEffect,
-  useReducer,
   useState,
 } from "react";
-import { Function, Preset } from "@/types/preset";
+import { z } from "zod";
+import { ModeContext } from "@/context/mode-context";
 
-interface PresetContextProps {
-  preset: Preset;
-  savedPresets: Preset[];
-  setPreset: (preset: Preset) => void;
-  setName: (name: string) => void;
-  setSchema: (nameTemplate: string) => void;
-  setOrder: (order: string[]) => void;
-  setSymbol: (symbol: string) => void;
-  setWidths: (widths: Record<string, number>[]) => void;
-  setFormat: (format: string) => void;
-  setExport: (exportType: string) => void;
-  setAlign: (padPos: string) => void;
-  setHeader: (header: boolean) => void;
-  removeField: (field: string) => void;
-  addField: (field: Record<string, unknown>) => void;
-  addFunction: (func: Function) => void;
-  editHeader: (field: Record<string, unknown>) => void;
-  resetPreset: () => void;
-  savePreset: () => void;
-}
-
-export const PresetContext = createContext<PresetContextProps>({
-  preset: {} as Preset,
-  savedPresets: [],
-  setPreset: () => {},
-  setName: () => {},
-  setSchema: () => {},
-  setOrder: () => {},
-  setSymbol: () => {},
-  setWidths: () => {},
-  setFormat: () => {},
-  setExport: () => {},
-  setAlign: () => {},
-  setHeader: () => {},
-  removeField: () => {},
-  addField: () => {},
-  addFunction: () => {},
-  editHeader: () => {},
-  resetPreset: () => {},
-  savePreset: () => {},
+export const FunctionSchema = z.object({
+  field: z.string({ required_error: "Select a field to edit." }),
+  operation: z.enum(["if", "if not"], {
+    required_error: "Select a operation.",
+  }),
+  condition: z.string(),
+  resultField: z.string({ required_error: "Select a result field." }),
+  valueTrue: z.string(),
+  valueFalse: z.string(),
 });
 
-interface PresetProviderProps {
-  children: ReactNode;
-}
+export type Function = z.infer<typeof FunctionSchema>;
 
-const presetReducer = (state: Preset, action: any): Preset => {
-  switch (action.type) {
-    case "SET_PRESET":
-      return action.preset;
-    case "SET_NAME":
-      return { ...state, name: action.name };
-    case "SET_SCHEMA":
-      return { ...state, schema: action.schema };
-    case "SET_ORDER":
-      return { ...state, order: action.order };
-    case "SET_SYMBOL":
-      return { ...state, symbol: action.symbol };
-    case "SET_WIDTHS":
-      return { ...state, widths: action.widths };
-    case "SET_FORMAT":
-      return { ...state, format: action.format };
-    case "SET_EXPORT":
-      return { ...state, export: action.export };
-    case "SET_ALIGN":
-      return { ...state, align: action.align };
-    case "SET_HEADER":
-      return { ...state, header: action.header };
-    case "REMOVE_FIELD":
-      return {
-        ...state,
-        removed: [...state.removed, action.field],
-      };
-    case "ADD_FIELD":
-      return {
-        ...state,
-        added: [...state.added, action.field],
-      };
-    case "ADD_FUNCTION":
-      return {
-        ...state,
-        functions: [...state.functions, action.func],
-      };
-    case "EDIT_HEADER":
-      return {
-        ...state,
-        editedHeaders: [...state.editedHeaders, action.field],
-      };
-    case "RESET":
-      return {
-        name: null,
-        schema: "",
-        order: [],
-        symbol: ",",
-        widths: [],
-        format: "delimited",
-        export: "csv",
-        align: "left",
-        header: true,
-        removed: [],
-        added: [],
-        functions: [],
-        editedHeaders: [],
-      };
-    case "SAVE":
-      localStorage.setItem(
-        `preset_${state.name}`,
-        JSON.stringify({ ...state }, null, 2),
-      );
-      window.dispatchEvent(new Event("storage"));
-      return state;
-    default:
-      return state;
+export const PresetSchema = z.object({
+  name: z.string().nullable(),
+  schema: z.string(),
+  order: z.array(z.string()),
+  symbol: z.string(),
+  widths: z.array(z.record(z.number())),
+  align: z.enum(["left", "right"]),
+  header: z.boolean(),
+  format: z.enum(["delimited", "fixed"]),
+  export: z.enum(["csv", "txt"]),
+  removed: z.array(z.string()),
+  added: z.array(z.record(z.string())),
+  functions: z.array(FunctionSchema),
+  editedHeaders: z.array(z.record(z.string())),
+});
+
+export type Preset = z.infer<typeof PresetSchema>;
+
+export const PresetContext = createContext<{
+  preset: Preset;
+  setPreset: React.Dispatch<React.SetStateAction<Preset>>;
+  resetPreset: () => void;
+}>({
+  preset: {} as Preset,
+  setPreset: () => {},
+  resetPreset: () => {},
+});
+
+export const PresetProvider = ({ children }: { children: ReactNode }) => {
+  const { mode } = useContext(ModeContext);
+  const [preset, setPreset] = useState<Preset>({} as Preset);
+
+  function resetPreset() {
+    setPreset({
+      name: null,
+      schema: "",
+      order: [],
+      symbol: ",",
+      widths: [],
+      align: "left",
+      header: true,
+      format: "delimited",
+      export: "csv",
+      removed: [],
+      added: [],
+      functions: [],
+      editedHeaders: [],
+    });
   }
-};
-
-export const PresetContextProvider = ({ children }: PresetProviderProps) => {
-  const [preset, dispatchPreset] = useReducer(presetReducer, {
-    name: null,
-    schema: "",
-    order: [],
-    symbol: ",",
-    widths: [],
-    format: "delimited",
-    export: "csv",
-    align: "left",
-    header: true,
-    removed: [],
-    added: [],
-    functions: [],
-    editedHeaders: [],
-  });
-  const [savedPresets, setSavedPresets] = useState<Preset[]>([]);
 
   useEffect(() => {
-    function getSavedPresets() {
-      setSavedPresets(
-        Object.keys(localStorage)
-          .filter((key) => key.startsWith("preset"))
-          .map((key) => JSON.parse(localStorage.getItem(key) || "")),
-      );
-    }
-
-    getSavedPresets();
-
-    window.addEventListener("storage", getSavedPresets);
-
-    return () => {
-      window.removeEventListener("storage", getSavedPresets);
-    };
-  }, []);
-
-  const setPreset = (preset: Preset) => {
-    dispatchPreset({ type: "SET_PRESET", preset });
-  };
-
-  const setName = (name: string) => {
-    dispatchPreset({ type: "SET_NAME", name });
-  };
-
-  const setSchema = (schema: string) => {
-    dispatchPreset({ type: "SET_SCHEMA", schema });
-  };
-
-  const setOrder = (order: string[]) => {
-    dispatchPreset({ type: "SET_ORDER", order });
-  };
-
-  const setSymbol = (symbol: string) => {
-    dispatchPreset({ type: "SET_SYMBOL", symbol });
-  };
-
-  const setWidths = (widths: Record<string, number>[]) => {
-    dispatchPreset({ type: "SET_WIDTHS", widths });
-  };
-
-  const setAlign = (align: string) => {
-    dispatchPreset({ type: "SET_ALIGN", align });
-  };
-
-  const setHeader = (header: boolean) => {
-    dispatchPreset({ type: "SET_HEADER", header });
-  };
-
-  const setFormat = (format: string) => {
-    dispatchPreset({ type: "SET_FORMAT", format });
-  };
-
-  const setExport = (exportType: string) => {
-    dispatchPreset({ type: "SET_EXPORT", export: exportType });
-  };
-
-  const removeField = (field: string) => {
-    dispatchPreset({ type: "REMOVE_FIELD", field });
-  };
-
-  const addField = (field: Record<string, unknown>) => {
-    dispatchPreset({ type: "ADD_FIELD", field });
-  };
-
-  const addFunction = (func: Function) => {
-    dispatchPreset({ type: "ADD_FUNCTION", func });
-  };
-
-  const editHeader = (field: Record<string, unknown>) => {
-    dispatchPreset({ type: "EDIT_HEADER", field });
-  };
-
-  const resetPreset = () => {
-    dispatchPreset({ type: "RESET" });
-  };
-
-  const savePreset = () => {
-    dispatchPreset({ type: "SAVE" });
-  };
+    resetPreset();
+  }, [mode]);
 
   return (
     <PresetContext.Provider
       value={{
         preset,
-        savedPresets,
         setPreset,
-        setName,
-        setSchema,
-        setOrder,
-        setSymbol,
-        setWidths,
-        setFormat,
-        setExport,
-        setAlign,
-        setHeader,
-        removeField,
-        addField,
-        addFunction,
-        editHeader,
         resetPreset,
-        savePreset,
       }}
     >
       {children}

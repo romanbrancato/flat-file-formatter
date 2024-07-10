@@ -1,16 +1,16 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ButtonDefineWidths } from "@/components/button-define-widths";
-import { DataContext } from "@/context/data-context";
 import { useContext, useEffect, useState } from "react";
 import { PresetContext } from "@/context/preset-context";
 import { SelectAlign } from "@/components/select-align";
 import { CheckboxHeader } from "@/components/checkbox-header";
 import { SelectSymbol } from "@/components/select-symbol";
 import { SelectExport } from "@/components/select-export";
+import { ParserContext } from "@/context/parser-context";
 
 export function FormatMenu() {
-  const { data } = useContext(DataContext);
-  const { preset, setFormat } = useContext(PresetContext);
+  const { isReady } = useContext(ParserContext);
+  const { preset, setPreset } = useContext(PresetContext);
   const [tab, setTab] = useState<"delimited" | "fixed">(preset.format);
 
   useEffect(() => {
@@ -18,14 +18,18 @@ export function FormatMenu() {
   }, [preset.format]);
 
   return (
-    <Tabs value={tab} onValueChange={(value) => setFormat(value)}>
+    <Tabs
+      value={tab}
+      onValueChange={(value: string) =>
+        setPreset({ ...preset, format: value as "delimited" | "fixed" })
+      }
+    >
       <div className="text-sm font-medium space-y-1 leading-none min-w-[200px]">
-        <span> Format </span>
         <TabsList className="grid grid-cols-2">
-          <TabsTrigger value="delimited" disabled={data.length === 0}>
+          <TabsTrigger value="delimited" disabled={!isReady}>
             Delimited
           </TabsTrigger>
-          <TabsTrigger value="fixed" disabled={data.length === 0}>
+          <TabsTrigger value="fixed" disabled={!isReady}>
             Fixed
           </TabsTrigger>
         </TabsList>

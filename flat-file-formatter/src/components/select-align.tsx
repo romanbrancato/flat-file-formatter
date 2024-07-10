@@ -6,17 +6,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useContext } from "react";
-import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
+import { ParserContext } from "@/context/parser-context";
 
 export function SelectAlign() {
-  const { preset, setAlign } = useContext(PresetContext);
-  const { data } = useContext(DataContext);
+  const { preset, setPreset } = useContext(PresetContext);
+  const { isReady } = useContext(ParserContext);
   return (
     <Select
       value={preset.align}
-      onValueChange={(value: "left" | "right") => setAlign(value)}
-      disabled={data.length === 0}
+      onValueChange={(value: "left" | "right") =>
+        setPreset({ ...preset, align: value })
+      }
+      disabled={!isReady}
     >
       <SelectTrigger>
         <span className="text-xs text-muted-foreground">Align: </span>

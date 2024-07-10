@@ -7,20 +7,18 @@ import {
 } from "@/components/ui/select";
 import React, { useState } from "react";
 
-interface SelectImportFormatProps {
-  setImportFormat: React.Dispatch<React.SetStateAction<string>>;
-}
-
 export function SelectImportFormat({
-  setImportFormat: setImportFormat,
-}: SelectImportFormatProps) {
-  const [selectedFormat, setSelectedFormat] = useState<string>("delimited");
+  defaultValue,
+  onFormatSelect,
+}: {
+  defaultValue: "delimited" | "fixed";
+  onFormatSelect: (format: "delimited" | "fixed") => void;
+}) {
   return (
     <Select
-      value={selectedFormat}
-      onValueChange={(value) => {
-        setSelectedFormat(value);
-        setImportFormat(value);
+      value={defaultValue}
+      onValueChange={(field: "delimited" | "fixed") => {
+        onFormatSelect(field);
       }}
     >
       <SelectTrigger className="font-medium">

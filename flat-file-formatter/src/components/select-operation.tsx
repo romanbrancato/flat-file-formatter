@@ -7,25 +7,25 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 
-interface SelectFunctionProps {
-  onFunctionSelect: (func: string) => void;
-}
-
-export function SelectFunction({ onFunctionSelect }: SelectFunctionProps) {
-  const [selectedFunc, setSelectedFunc] = useState<string>("");
+export function SelectOperation({
+  onOperationSelect,
+}: {
+  onOperationSelect: (operation: string) => void;
+}) {
+  const [operation, setOperation] = useState<string>("");
   return (
     <Select
-      value={selectedFunc}
+      value={operation}
       onValueChange={(value) => {
-        setSelectedFunc(value);
-        onFunctionSelect(value);
+        setOperation(value);
+        onOperationSelect(value);
       }}
     >
       <SelectTrigger className="font-medium">
         <span className="text-xs font-normal text-muted-foreground">
-          Function:
+          Operation:
         </span>
-        <SelectValue placeholder="Select function..." />
+        <SelectValue placeholder="Select operation..." />
       </SelectTrigger>
       <SelectContent>
         <SelectItem key="if" value="if">

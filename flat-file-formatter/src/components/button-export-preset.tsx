@@ -2,11 +2,7 @@ import React, { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
 import { download } from "@/lib/utils";
 
-interface ExportPresetButtonProps {
-  trigger: React.ReactNode;
-}
-
-export function ButtonExportPreset({ trigger }: ExportPresetButtonProps) {
+export function ButtonExportPreset({ trigger }: { trigger: React.ReactNode }) {
   const { preset } = useContext(PresetContext);
   const exportPreset = () => {
     const presetStr = JSON.stringify(preset, null, 2);

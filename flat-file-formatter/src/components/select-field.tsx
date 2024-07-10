@@ -16,19 +16,17 @@ import {
 } from "@/components/ui/popover";
 
 import { useContext, useState } from "react";
-import { DataContext } from "@/context/data-context";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
+import { ParserContext } from "@/context/parser-context";
 
-interface SelectFieldProps {
+export function SelectField({
+  onFieldSelect,
+}: {
   onFieldSelect: (field: string) => void;
-}
-
-export function SelectField({ onFieldSelect }: SelectFieldProps) {
-  const { data } = useContext(DataContext);
+}) {
+  const { data } = useContext(ParserContext);
   const [open, setOpen] = useState(false);
   const [selectedField, setSelectedField] = useState<string>();
-
-  const fields = data.length > 0 ? Object.keys(data[0]) : [];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -56,7 +54,7 @@ export function SelectField({ onFieldSelect }: SelectFieldProps) {
           <CommandGroup heading="Fields">
             <ScrollArea>
               <ScrollAreaViewport className="max-h-[300px]">
-                {fields.map((field) => (
+                {Object.keys(data.rows[0]).map((field) => (
                   <CommandItem
                     key={field}
                     onSelect={() => {

@@ -1,11 +1,12 @@
 import { Cross2Icon, FileTextIcon } from "@radix-ui/react-icons";
 
-interface BatchFileRowProps {
+export function BatchFileRow({
+  file,
+  onFileDelete,
+}: {
   file: File;
   onFileDelete: () => void;
-}
-
-export function BatchFileRow({ file, onFileDelete }: BatchFileRowProps) {
+}) {
   return (
     <div className="flex flex-row justify-between items-center rounded-md px-5 py-3 bg-muted text-xs font-bold">
       <div className="flex flex-row items-center gap-x-2">

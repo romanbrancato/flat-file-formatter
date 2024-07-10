@@ -29,10 +29,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SelectFunction } from "@/components/select-function";
-import { DataContext } from "@/context/data-context";
-import { PresetContext } from "@/context/preset-context";
-import { FunctionSchema } from "@/types/preset";
+import { SelectOperation } from "@/components/select-operation";
+import { FunctionSchema, PresetContext } from "@/context/preset-context";
+import { ParserContext } from "@/context/parser-context";
 
 const editFieldHeaderSchema = z.object({
   field: z.string({ required_error: "Select a field to edit." }),
@@ -40,13 +39,8 @@ const editFieldHeaderSchema = z.object({
 });
 
 export function ButtonEditField() {
-  const {
-    data,
-    editHeader: dataEditHeader,
-    runFunction,
-  } = useContext(DataContext);
-  const { editHeader: presetEditHeader, addFunction } =
-    useContext(PresetContext);
+  const { isReady, editHeader, runFunction } = useContext(ParserContext);
+  const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [target, setTarget] = useState<"header" | "values">("values");
 
@@ -57,7 +51,7 @@ export function ButtonEditField() {
     defaultValues: {
       field: "",
       name: "",
-      function: "",
+      operation: "",
       condition: "",
       resultField: "",
       valueTrue: "",
@@ -67,25 +61,17 @@ export function ButtonEditField() {
 
   function onSubmit(values: any) {
     if (target === "values") {
-      runFunction({
-        field: values.field,
-        function: values.function,
-        condition: values.condition,
-        resultField: values.resultField,
-        valueTrue: values.valueTrue,
-        valueFalse: values.valueFalse,
-      });
-      addFunction({
-        field: values.field,
-        function: values.function,
-        condition: values.condition,
-        resultField: values.resultField,
-        valueTrue: values.valueTrue,
-        valueFalse: values.valueFalse,
-      });
+      runFunction({ ...values });
+      setPreset({ ...preset, functions: [...preset.functions, { ...values }] });
     } else {
-      dataEditHeader({ [values.field]: values.name });
-      presetEditHeader({ [values.field]: values.name });
+      editHeader({ [values.field]: values.name });
+      setPreset({
+        ...preset,
+        editedHeaders: [
+          ...preset.editedHeaders,
+          { [values.field]: values.name },
+        ],
+      });
     }
     setOpen(false);
     form.reset();
@@ -98,7 +84,7 @@ export function ButtonEditField() {
           variant="outline"
           size="sm"
           className="w-full border-dashed"
-          disabled={data.length === 0}
+          disabled={!isReady}
         >
           <Pencil1Icon className="mr-2" />
           Edit Field
@@ -169,13 +155,13 @@ export function ButtonEditField() {
               <>
                 <FormField
                   control={form.control}
-                  name="function"
+                  name="operation"
                   render={() => (
                     <FormItem>
                       <FormControl>
-                        <SelectFunction
-                          onFunctionSelect={(selectedFunc: string) =>
-                            form.setValue("function", selectedFunc, {
+                        <SelectOperation
+                          onOperationSelect={(selectedOperation: string) =>
+                            form.setValue("operation", selectedOperation, {
                               shouldValidate: true,
                             })
                           }

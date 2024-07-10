@@ -1,5 +1,5 @@
 import { PresetToolbar } from "@/components/preset-toolbar";
-import { CSVTable } from "@/components/csv-table";
+import { FileTable } from "@/components/file-table";
 import { FormatMenu } from "@/components/format-menu";
 import { TableToolbar } from "@/components/table-toolbar";
 import { ButtonExportFile } from "@/components/button-export-file";
@@ -8,13 +8,17 @@ import { ModeContext } from "@/context/mode-context";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BatchFileRow } from "@/components/batch-file-row";
+import { MultiFormatConfig } from "@/lib/parser-functions";
 
-interface PreviewProps {
+export function FileDisplay({
+  files,
+  setFiles,
+  config,
+}: {
   files: File[];
   setFiles: (files: File[]) => void;
-}
-
-export function FilePreview({ files, setFiles }: PreviewProps) {
+  config: MultiFormatConfig;
+}) {
   const { mode } = useContext(ModeContext);
 
   const handleFileDelete = (index: number) => {
@@ -28,12 +32,12 @@ export function FilePreview({ files, setFiles }: PreviewProps) {
         {mode === "single" ? (
           <>
             <div className="flex flex-col gap-y-1 overflow-hidden flex-grow">
-              <CSVTable />
+              <FileTable />
               <TableToolbar />
             </div>
             <div className="flex flex-col">
               <FormatMenu />
-              <ButtonExportFile />
+              <ButtonExportFile files={files} />
             </div>
           </>
         ) : (
@@ -57,7 +61,11 @@ export function FilePreview({ files, setFiles }: PreviewProps) {
               ))}
             </div>
             <div className="ml-auto w-1/5">
-              <ButtonExportFile files={files} />
+              <ButtonExportFile
+                files={files}
+                setFiles={setFiles}
+                config={config}
+              />
             </div>
           </div>
         )}

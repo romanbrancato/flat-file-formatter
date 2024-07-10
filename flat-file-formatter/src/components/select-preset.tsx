@@ -1,5 +1,4 @@
 import { CaretSortIcon, CheckIcon, Cross2Icon } from "@radix-ui/react-icons";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -14,35 +13,31 @@ import {
 } from "@/components/ui/popover";
 
 import { useContext, useEffect, useState } from "react";
-import { Preset, PresetSchema } from "@/types/preset";
-import { DataContext } from "@/context/data-context";
 import { Dropzone } from "@/components/dropzone";
-import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { Preset, PresetContext, PresetSchema } from "@/context/preset-context";
+import { ParserContext } from "@/context/parser-context";
+import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { PresetContext } from "@/context/preset-context";
+import { cn } from "@/lib/utils";
 import { ModeContext } from "@/context/mode-context";
 
 export function SelectPreset() {
   const { mode } = useContext(ModeContext);
-  const { data, applySchema, applyPreset } = useContext(DataContext);
-  const { preset, savedPresets, setPreset, savePreset } =
-    useContext(PresetContext);
+  const { isReady, applyPreset } = useContext(ParserContext);
+  const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [storedPresets, setStoredPresets] = useState<Preset[]>([]);
 
   const onSelect = (selectedPreset: Preset) => {
-    applySchema(selectedPreset.schema);
-    applyPreset(selectedPreset);
+    if (mode !== "batch") applyPreset(selectedPreset);
     setPreset(selectedPreset);
-    toast.success("Preset Loaded", {
-      description: `The preset "${selectedPreset.name}" has been loaded.`,
-    });
   };
 
   const onDelete = (selectedPreset: Preset) => {
@@ -58,7 +53,10 @@ export function SelectPreset() {
         const obj = JSON.parse(event.target?.result as string);
         const importedPreset = PresetSchema.parse(obj);
         onSelect(importedPreset);
-        savePreset();
+        localStorage.setItem(
+          `preset_${importedPreset.name}`,
+          JSON.stringify({ ...importedPreset }, null, 2),
+        );
       } catch (error) {
         toast.error("Invalid Preset", {
           description: "The selected file is not a valid preset.",
@@ -67,6 +65,25 @@ export function SelectPreset() {
     };
     reader.readAsText(files[files.length - 1]);
   }, [files]);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setStoredPresets(
+        Object.keys(localStorage)
+          .filter((key) => key.startsWith("preset_"))
+          .map((key) => {
+            return JSON.parse(localStorage.getItem(key) as string);
+          }),
+      );
+    };
+    handleStorageChange();
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -77,7 +94,7 @@ export function SelectPreset() {
           aria-label="Load a preset..."
           aria-expanded={open}
           className="flex-1 justify-between min-w-[225px] md:min-w-[300px]"
-          disabled={data.length === 0 && mode === "single"}
+          disabled={mode !== "batch" && !isReady}
         >
           {preset && preset.name ? preset.name : "Load a preset..."}
           <CaretSortIcon className="ml-2 opacity-50" />
@@ -91,13 +108,12 @@ export function SelectPreset() {
               onChange={setFiles}
               className="w-full"
               fileExtension=".json"
-              showInfo={false}
             />
           </CommandGroup>
           <CommandGroup heading="Presets">
             <ScrollArea>
               <ScrollAreaViewport className="max-h-[150px]">
-                {savedPresets.map((p) => (
+                {storedPresets.map((p) => (
                   <ContextMenu key={p.name}>
                     <ContextMenuTrigger>
                       <CommandItem

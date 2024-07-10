@@ -2,24 +2,19 @@ import { useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { UploadIcon } from "@radix-ui/react-icons";
 
-interface DropzoneProps {
-  onChange: React.Dispatch<React.SetStateAction<File[]>>;
-  className?: string;
-  fileExtension?: string;
-  multiple?: boolean;
-  showInfo?: boolean;
-}
-
 export function Dropzone({
   onChange,
   className,
   fileExtension,
   multiple = false,
-  showInfo = true,
   ...props
-}: DropzoneProps) {
+}: {
+  onChange: React.Dispatch<React.SetStateAction<File[]>>;
+  className?: string;
+  fileExtension?: string;
+  multiple?: boolean;
+}) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [fileInfo, setFileInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -57,8 +52,6 @@ export function Dropzone({
     }
 
     uploadedFiles.forEach((file) => {
-      const fileSizeInKB = Math.round(file.size / 1024);
-      setFileInfo(`Uploaded file: ${file.name} (${fileSizeInKB} KB)`);
       onChange((prevFiles) => [...prevFiles, file]);
     });
 
@@ -94,9 +87,6 @@ export function Dropzone({
             multiple={multiple}
           />
         </div>
-        {showInfo && fileInfo && (
-          <p className="text-muted-foreground">{fileInfo}</p>
-        )}
         {error && <span className="text-destructive">{error}</span>}
       </CardContent>
     </Card>

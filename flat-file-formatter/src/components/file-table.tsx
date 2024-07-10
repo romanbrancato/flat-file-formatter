@@ -32,9 +32,9 @@ import {
 } from "@tanstack/table-core";
 import { flexRender, useReactTable } from "@tanstack/react-table";
 import { DragHandleDots2Icon, InfoCircledIcon } from "@radix-ui/react-icons";
-import { DataContext } from "@/context/data-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ParserContext } from "@/context/parser-context";
 
 const DraggableTableHeader = ({ header }: any) => {
   const { attributes, isDragging, listeners, setNodeRef, transform } =
@@ -91,15 +91,15 @@ const DraggableCell = ({ cell }: any) => {
   );
 };
 
-export function CSVTable() {
-  const { data, orderFields } = useContext(DataContext);
+export function FileTable() {
+  const { isReady, data, orderFields } = useContext(ParserContext);
   const [columns, setColumns] = useState<ColumnDef<Record<string, unknown>>[]>(
     [],
   );
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
 
   const table = useReactTable({
-    data,
+    data: data.rows,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -114,8 +114,7 @@ export function CSVTable() {
   });
 
   useEffect(() => {
-    const fields = Object.keys(data[0] || {});
-    const newColumns = fields.map((field) => ({
+    const newColumns = Object.keys(data.rows[0] || {}).map((field) => ({
       accessorKey: field,
     }));
     setColumns(newColumns);
@@ -141,7 +140,7 @@ export function CSVTable() {
 
   return (
     <div className="rounded-md border flex-grow overflow-hidden">
-      {data.length > 0 ? (
+      {isReady ? (
         <DndContext
           collisionDetection={closestCenter}
           modifiers={[restrictToHorizontalAxis]}

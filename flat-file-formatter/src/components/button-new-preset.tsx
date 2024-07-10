@@ -21,19 +21,15 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PresetContext } from "@/context/preset-context";
-import { DataContext } from "@/context/data-context";
-
-interface NewPresetButtonProps {
-  trigger: React.ReactNode;
-}
+import { ParserContext } from "@/context/parser-context";
 
 const newPresetSchema = z.object({
   name: z.string().min(1, "Enter a preset name."),
 });
 
-export function ButtonNewPreset({ trigger }: NewPresetButtonProps) {
-  const { data } = useContext(DataContext);
-  const { setOrder, setName, savePreset } = useContext(PresetContext);
+export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
+  const { data, isReady } = useContext(ParserContext);
+  const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof newPresetSchema>>({
@@ -44,9 +40,17 @@ export function ButtonNewPreset({ trigger }: NewPresetButtonProps) {
   });
 
   function onSubmit(values: z.infer<typeof newPresetSchema>) {
-    setName(values.name);
-    setOrder(Object.keys(data[0]));
-    savePreset();
+    const tempPreset = {
+      ...preset,
+      name: values.name,
+      order: Object.keys(data.rows[0]),
+    };
+    localStorage.setItem(
+      `preset_${tempPreset.name}`,
+      JSON.stringify({ ...tempPreset }, null, 2),
+    );
+    window.dispatchEvent(new Event("storage"));
+    setPreset(tempPreset);
     setOpen(false);
     form.reset();
   }

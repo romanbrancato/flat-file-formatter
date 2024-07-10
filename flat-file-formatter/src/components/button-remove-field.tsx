@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useContext, useState } from "react";
-import { DataContext } from "@/context/data-context";
 import { MinusCircledIcon } from "@radix-ui/react-icons";
 import { SelectField } from "@/components/select-field";
 import { z } from "zod";
@@ -22,14 +21,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { PresetContext } from "@/context/preset-context";
+import { ParserContext } from "@/context/parser-context";
 
 const removeFieldSchema = z.object({
   field: z.string({ required_error: "Select a field to remove." }),
 });
 
 export function ButtonRemoveField() {
-  const { data, removeField: dataRemoveField } = useContext(DataContext);
-  const { removeField: presetRemoveField } = useContext(PresetContext);
+  const { isReady, removeField } = useContext(ParserContext);
+  const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<z.infer<typeof removeFieldSchema>>({
@@ -37,8 +37,8 @@ export function ButtonRemoveField() {
   });
 
   function onSubmit(values: z.infer<typeof removeFieldSchema>) {
-    dataRemoveField(values.field);
-    presetRemoveField(values.field);
+    removeField(values.field);
+    setPreset({ ...preset, removed: [...preset.removed, values.field] });
     setOpen(false);
     form.reset();
   }
@@ -50,7 +50,7 @@ export function ButtonRemoveField() {
           variant="outline"
           size="sm"
           className="w-full border-dashed"
-          disabled={data.length === 0}
+          disabled={!isReady}
         >
           <MinusCircledIcon className="mr-2" />
           Remove Field

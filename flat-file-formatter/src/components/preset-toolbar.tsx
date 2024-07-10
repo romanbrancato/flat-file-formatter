@@ -15,14 +15,14 @@ import {
 import { ButtonNewPreset } from "@/components/button-new-preset";
 import { ButtonExportPreset } from "@/components/button-export-preset";
 import { useContext } from "react";
-import { DataContext } from "@/context/data-context";
 import { PresetContext } from "@/context/preset-context";
 import { ModeContext } from "@/context/mode-context";
 import { ButtonDefineSchema } from "@/components/button-define-schema";
 import { Label } from "@/components/ui/label";
+import { ParserContext } from "@/context/parser-context";
 
 export function PresetToolbar() {
-  const { data, name } = useContext(DataContext);
+  const { isReady, data } = useContext(ParserContext);
   const { preset } = useContext(PresetContext);
   const { mode } = useContext(ModeContext);
 
@@ -31,7 +31,7 @@ export function PresetToolbar() {
       <div className="flex py-2 px-5 justify-between">
         <div className="flex flex-row items-center w-full min-w-0 gap-x-1">
           <Label className="text-md font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[80%]">
-            {name && mode === "single" ? name : "File Preview"}
+            {data.name && mode === "single" ? data.name : "File Preview"}
           </Label>
           {mode === "single" && <ButtonDefineSchema />}
         </div>
@@ -42,7 +42,7 @@ export function PresetToolbar() {
               <Button
                 variant="secondary"
                 className="hidden sm:flex"
-                disabled={data.length === 0 || mode === "batch"}
+                disabled={!isReady || mode === "batch"}
               >
                 New Preset
               </Button>
@@ -66,7 +66,7 @@ export function PresetToolbar() {
                 variant="secondary"
                 size="icon"
                 className="flex sm:hidden"
-                disabled={data.length === 0 || mode === "batch"}
+                disabled={!isReady || mode === "batch"}
               >
                 <DotsHorizontalIcon />
               </Button>
