@@ -19,7 +19,6 @@ export default function App() {
   useEffect(() => {
     if (!config || files.length === 0) return;
     if (mode !== "batch") {
-      console.log("YO");
       setParams({
         file: files[files.length - 1],
         config: config,

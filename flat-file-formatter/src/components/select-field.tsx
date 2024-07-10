@@ -39,7 +39,7 @@ export function SelectField({
           className="w-full justify-between px-3 min-w-[100px] sm:min-w-[300px]"
         >
           <span className="text-xs font-normal text-muted-foreground">
-            Field:{" "}
+            Field:
           </span>
           {selectedField ? selectedField : "Select a field..."}
           <CaretSortIcon className="ml-2 opacity-50" />
