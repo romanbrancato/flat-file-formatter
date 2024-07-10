@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { SelectImportFormat } from "@/components/select-import-format";
 import { MultiFormatConfig } from "@/lib/parser-functions";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
+import { download } from "@/lib/utils";
 
 export const configSchema = z.discriminatedUnion("format", [
   z.object({
@@ -38,12 +39,27 @@ export const configSchema = z.discriminatedUnion("format", [
   }),
   z.object({
     format: z.literal("fixed"),
-    fields: z.array(
-      z.object({
-        property: z.string(),
-        width: z.coerce.number(),
+    fields: z
+      .array(
+        z.object({
+          property: z.string(),
+          width: z.coerce.number(),
+        }),
+      )
+      .superRefine((widths, ctx) => {
+        widths.forEach((field, index) => {
+          if (!field.property) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+            });
+          }
+          if (field.width <= 0) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+            });
+          }
+        });
       }),
-    ),
   }),
 ]);
 
@@ -72,7 +88,11 @@ export function ButtonParserConfig({
     setOpen(false);
   }
 
-  const exportConfig = () => {};
+  const exportConfig = () => {
+    const result = configSchema.safeParse(form.getValues());
+    if (!result.success) return;
+    download(JSON.stringify(result.data, null, 2), "config", "json");
+  };
 
   useEffect(() => {
     if (!files.length) return;
@@ -124,7 +144,7 @@ export function ButtonParserConfig({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form>
             <FormField
               control={form.control}
               name={"format"}
