@@ -62,7 +62,7 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
       symbol: ",",
       widths: [],
       align: "left",
-      header: true,
+      header: false,
       format: "delimited",
       export: "csv",
       removed: [],

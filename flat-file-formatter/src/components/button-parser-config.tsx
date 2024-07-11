@@ -2,6 +2,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -32,6 +33,12 @@ import { SelectImportFormat } from "@/components/select-import-format";
 import { MultiFormatConfig } from "@/lib/parser-functions";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { download } from "@/lib/utils";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export const configSchema = z.discriminatedUnion("format", [
   z.object({
@@ -69,7 +76,7 @@ export function ButtonParserConfig({
   setConfig: React.Dispatch<React.SetStateAction<MultiFormatConfig>>;
 }) {
   const [open, setOpen] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
+  const [file, setFile] = useState<File>();
 
   const form = useForm<z.infer<typeof configSchema>>({
     resolver: zodResolver(configSchema),
@@ -95,7 +102,7 @@ export function ButtonParserConfig({
   };
 
   useEffect(() => {
-    if (!files.length) return;
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
@@ -116,8 +123,8 @@ export function ButtonParserConfig({
         });
       }
     };
-    reader.readAsText(files[files.length - 1]);
-  }, [files]);
+    reader.readAsText(file);
+  }, [file]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -129,20 +136,27 @@ export function ButtonParserConfig({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[800px]">
         <DialogHeader>
-          <DialogTitle>Parser Config</DialogTitle>
-          <DialogDescription className="flex flex-row items-center gap-x-1">
-            Configure the parser.
-            <Button
-              className="ml-auto w-1/5"
-              onClick={() => form.handleSubmit(onSubmit)()}
-            >
-              Save
-            </Button>
-            <Button size="icon" onClick={() => exportConfig()}>
-              <Share2Icon />
-            </Button>
-          </DialogDescription>
+          <DialogTitle>Parser Configuration</DialogTitle>
+          <DialogDescription>Configure the parser.</DialogDescription>
         </DialogHeader>
+        <div className="flex flex-row items-center gap-x-1">
+          <div className="flex-1">
+            <Input
+              type="file"
+              accept=".json"
+              onChange={(event) => setFile(event.target.files?.[0])}
+            />
+          </div>
+          <Button
+            className="w-1/5"
+            onClick={() => form.handleSubmit(onSubmit)()}
+          >
+            Save
+          </Button>
+          <Button size="icon" onClick={() => exportConfig()}>
+            <Share2Icon />
+          </Button>
+        </div>
         <Form {...form}>
           <form>
             <FormField
@@ -166,87 +180,201 @@ export function ButtonParserConfig({
             />
             {form.getValues().format === "fixed" && (
               <>
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      WIDTHS
-                    </span>
-                  </div>
-                </div>
-                <ScrollArea>
-                  <ScrollAreaViewport className="max-h-[400px]">
-                    {fields.map((field, index) => (
-                      <div
-                        key={field.id}
-                        className="grid grid-cols-7 mb-2 gap-x-1 items-center p-1"
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="header">
+                    <AccordionTrigger className="font-normal text-muted-foreground">
+                      Header Record Widths
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <ScrollArea>
+                        <ScrollAreaViewport className="max-h-[400px]">
+                          {fields.map((field, index) => (
+                            <div
+                              key={field.id}
+                              className="grid grid-cols-7 mb-2 gap-x-1 items-center"
+                            >
+                              <FormField
+                                control={form.control}
+                                name={`fields.${index}.property`}
+                                render={({ field }) => (
+                                  <FormItem className="col-span-5">
+                                    <FormControl>
+                                      <Input {...field} placeholder="Field" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`fields.${index}.width`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        placeholder="Width"
+                                        type="number"
+                                        min={0}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <Cross2Icon
+                                className="hover:text-destructive mx-auto opacity-70"
+                                onClick={() => remove(index)}
+                              />
+                            </div>
+                          ))}
+                        </ScrollAreaViewport>
+                      </ScrollArea>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-dashed"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          append({ property: "", width: 0 });
+                        }}
                       >
-                        <FormField
-                          control={form.control}
-                          name={`fields.${index}.property`}
-                          render={({ field }) => (
-                            <FormItem className="col-span-5">
-                              <FormControl>
-                                <Input {...field} placeholder="Field" />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`fields.${index}.width`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Width"
-                                  type="number"
-                                  min={0}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <Cross2Icon
-                          className="hover:text-destructive mx-auto opacity-70"
-                          onClick={() => remove(index)}
-                        />
-                      </div>
-                    ))}
-                  </ScrollAreaViewport>
-                </ScrollArea>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full border-dashed"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    append({ property: "", width: 0 });
-                  }}
-                >
-                  <PlusCircledIcon className="mr-2" />
-                  Add Field
-                </Button>
+                        <PlusCircledIcon className="mr-2" />
+                        Add Field
+                      </Button>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="detail">
+                    <AccordionTrigger className="font-normal text-muted-foreground">
+                      Detail Record Widths
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <ScrollArea>
+                        <ScrollAreaViewport className="max-h-[400px]">
+                          {fields.map((field, index) => (
+                            <div
+                              key={field.id}
+                              className="grid grid-cols-7 mb-2 gap-x-1 items-center"
+                            >
+                              <FormField
+                                control={form.control}
+                                name={`fields.${index}.property`}
+                                render={({ field }) => (
+                                  <FormItem className="col-span-5">
+                                    <FormControl>
+                                      <Input {...field} placeholder="Field" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`fields.${index}.width`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        placeholder="Width"
+                                        type="number"
+                                        min={0}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <Cross2Icon
+                                className="hover:text-destructive mx-auto opacity-70"
+                                onClick={() => remove(index)}
+                              />
+                            </div>
+                          ))}
+                        </ScrollAreaViewport>
+                      </ScrollArea>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-dashed"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          append({ property: "", width: 0 });
+                        }}
+                      >
+                        <PlusCircledIcon className="mr-2" />
+                        Add Field
+                      </Button>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="trailer">
+                    <AccordionTrigger className="font-normal text-muted-foreground">
+                      Trailer Record Widths
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <ScrollArea>
+                        <ScrollAreaViewport className="max-h-[400px]">
+                          {fields.map((field, index) => (
+                            <div
+                              key={field.id}
+                              className="grid grid-cols-7 mb-2 gap-x-1 items-center"
+                            >
+                              <FormField
+                                control={form.control}
+                                name={`fields.${index}.property`}
+                                render={({ field }) => (
+                                  <FormItem className="col-span-5">
+                                    <FormControl>
+                                      <Input {...field} placeholder="Field" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`fields.${index}.width`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        placeholder="Width"
+                                        type="number"
+                                        min={0}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <Cross2Icon
+                                className="hover:text-destructive mx-auto opacity-70"
+                                onClick={() => remove(index)}
+                              />
+                            </div>
+                          ))}
+                        </ScrollAreaViewport>
+                      </ScrollArea>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-dashed"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          append({ property: "", width: 0 });
+                        }}
+                      >
+                        <PlusCircledIcon className="mr-2" />
+                        Add Field
+                      </Button>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </>
             )}
           </form>
         </Form>
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              OR UPLOAD CONFIG
-            </span>
-          </div>
-        </div>
-        <Dropzone onChange={setFiles} fileExtension=".json" />
       </DialogContent>
     </Dialog>
   );

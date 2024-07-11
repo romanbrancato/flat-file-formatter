@@ -15,6 +15,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@evologi/fixed-width": "^1.0.1",
     "@hookform/resolvers": "^3.4.0",
+    "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-checkbox": "^1.0.4",
     "@radix-ui/react-context-menu": "^2.1.5",
     "@radix-ui/react-dialog": "^1.0.5",
