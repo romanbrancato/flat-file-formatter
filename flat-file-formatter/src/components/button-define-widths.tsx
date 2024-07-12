@@ -44,7 +44,7 @@ export function ButtonDefineWidths() {
     resolver: zodResolver(defineWidthsSchema),
     defaultValues: {
       widths: Object.fromEntries(
-        Object.keys(data.rows[0]).map((field) => {
+        Object.keys(data.detail[0]).map((field) => {
           const presetWidth = preset.widths.find((item) => field in item);
           return [field, presetWidth ? presetWidth[field] : ""];
         }),
@@ -94,7 +94,7 @@ export function ButtonDefineWidths() {
           <ScrollAreaViewport className="max-h-[400px]">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                {Object.keys(data.rows[0]).map((fieldName) => (
+                {Object.keys(data.detail[0]).map((fieldName) => (
                   <FormField
                     control={form.control}
                     name={`widths.${fieldName}`}

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,15 +26,20 @@ import { Label } from "@/components/ui/label";
 import { tokenize } from "@/lib/utils";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
+import path from "node:path";
 
 const FileNameEditSchema = z.object({
   schema: z.string(),
 });
 
 export function ButtonDefineSchema() {
-  const { data, isReady, setName } = useContext(ParserContext);
+  const { params, isReady, setName } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
+
+  const tokens = useMemo(() => {
+    return params?.file ? tokenize(path.parse(params.file.name).name) : [];
+  }, [params?.file]);
 
   const form = useForm({
     resolver: zodResolver(FileNameEditSchema),
@@ -65,7 +70,7 @@ export function ButtonDefineSchema() {
           </DialogDescription>
         </DialogHeader>
         <Label className="grid grid-cols-5 font-mono">
-          {tokenize(data.name).map((token, index) => (
+          {tokens.map((token, index) => (
             <span key={index} className="mr-2">
               {index}: {token}
             </span>

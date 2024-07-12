@@ -44,7 +44,6 @@ export function FormatMenu() {
           <ButtonDefineWidths />
           <SelectSymbol label="Padding" />
           <SelectAlign />
-          <CheckboxHeader />
         </TabsContent>
       </div>
     </Tabs>

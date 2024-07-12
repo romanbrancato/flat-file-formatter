@@ -6,7 +6,9 @@ import { Preset } from "@/context/preset-context";
 
 export type Data = {
   name: string;
-  rows: Record<string, unknown>[];
+  header: Record<string, unknown>[];
+  detail: Record<string, unknown>[];
+  trailer: Record<string, unknown>[];
 };
 
 export type MultiFormatConfig =
@@ -32,7 +34,17 @@ export async function parseFile(params: ParserParams) {
         complete: (results) => {
           resolve({
             name: path.parse(params.file.name).name,
-            rows: results.data as Record<string, unknown>[],
+            header: [],
+            detail: results.data as Record<string, unknown>[],
+            trailer: [
+              {
+                Col1: "1",
+                Col2: "P",
+                Col3: "R",
+                Col4: "610494",
+                Col5: "MRHCRI2",
+              },
+            ],
           });
         },
       };
@@ -43,7 +55,9 @@ export async function parseFile(params: ParserParams) {
         const fileContents = event.target?.result as string;
         resolve({
           name: path.parse(params.file.name).name,
-          rows: parse(fileContents, params.config as Options),
+          header: [],
+          detail: parse(fileContents, params.config as Options),
+          trailer: [],
         });
       };
       reader.readAsText(params.file);
@@ -59,9 +73,9 @@ export function unparseData(data: Data, preset: Preset) {
         header: preset.header,
         skipEmptyLines: true,
       };
-      return Papa.unparse(data.rows, config);
+      return Papa.unparse(data.detail, config);
     } else {
-      const config = Object.keys(data.rows[0]).map((field) => {
+      const config = Object.keys(data.detail[0]).map((field) => {
         const width = preset.widths.find((widths) => field in widths)?.[field];
         if (!width) throw new Error(`Width not found for field: ${field}`);
         return {
@@ -71,21 +85,7 @@ export function unparseData(data: Data, preset: Preset) {
         };
       });
 
-      let headerLine = "";
-      if (preset.header) {
-        const padFunction = preset.align === "right" ? "padStart" : "padEnd";
-        headerLine =
-          config
-            .map((field) =>
-              field.property[padFunction](field.width, preset.symbol),
-            )
-            .join("") + "\n";
-      }
-
-      return (
-        headerLine +
-        stringify(data.rows, { pad: preset.symbol, fields: config })
-      );
+      return stringify(data.detail, { pad: preset.symbol, fields: config });
     }
   } catch (error: any) {
     toast.error("Failed to Export File", { description: error.message });

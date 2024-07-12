@@ -9,13 +9,38 @@ import {
 import { z } from "zod";
 import { ModeContext } from "@/context/mode-context";
 
+export const FieldSchema = z.object(
+  {
+    flag: z.enum(["header", "detail", "trailer"]),
+    name: z.string(),
+  },
+  { required_error: "Select a field." },
+);
+
+export type Field = z.infer<typeof FieldSchema>;
+
+export const FieldValueSchema = z
+  .object({
+    value: z.string(),
+  })
+  .and(FieldSchema);
+
+export type FieldValue = z.infer<typeof FieldValueSchema>;
+
+export const OrderSchema = z.object({
+  flag: z.enum(["header", "detail", "trailer"]),
+  order: z.array(z.string()),
+});
+
+export type Order = z.infer<typeof OrderSchema>;
+
 export const FunctionSchema = z.object({
-  field: z.string({ required_error: "Select a field to edit." }),
+  field: FieldSchema,
   operation: z.enum(["if", "if not"], {
     required_error: "Select a operation.",
   }),
   condition: z.string(),
-  resultField: z.string({ required_error: "Select a result field." }),
+  resultField: FieldSchema,
   valueTrue: z.string(),
   valueFalse: z.string(),
 });
@@ -25,17 +50,17 @@ export type Function = z.infer<typeof FunctionSchema>;
 export const PresetSchema = z.object({
   name: z.string().nullable(),
   schema: z.string(),
-  order: z.array(z.string()),
+  order: z.array(OrderSchema),
   symbol: z.string(),
   widths: z.array(z.record(z.number())),
   align: z.enum(["left", "right"]),
   header: z.boolean(),
   format: z.enum(["delimited", "fixed"]),
   export: z.enum(["csv", "txt"]),
-  removed: z.array(z.string()),
-  added: z.array(z.record(z.string())),
+  removed: z.array(FieldSchema),
+  added: z.array(FieldValueSchema),
   functions: z.array(FunctionSchema),
-  editedHeaders: z.array(z.record(z.string())),
+  editedHeaders: z.array(FieldValueSchema),
 });
 
 export type Preset = z.infer<typeof PresetSchema>;

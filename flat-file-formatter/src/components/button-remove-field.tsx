@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { useContext, useState } from "react";
 import { MinusCircledIcon } from "@radix-ui/react-icons";
 import { SelectField } from "@/components/select-field";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -20,25 +19,25 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { PresetContext } from "@/context/preset-context";
+import { FieldSchema, PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
+import { z } from "zod";
 
-const removeFieldSchema = z.object({
-  field: z.string({ required_error: "Select a field to remove." }),
+const RemoveFieldSchema = z.object({
+  field: FieldSchema,
 });
-
 export function ButtonRemoveField() {
   const { isReady, removeField } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<z.infer<typeof removeFieldSchema>>({
-    resolver: zodResolver(removeFieldSchema),
+  const form = useForm<z.infer<typeof RemoveFieldSchema>>({
+    resolver: zodResolver(RemoveFieldSchema),
   });
 
-  function onSubmit(values: z.infer<typeof removeFieldSchema>) {
+  function onSubmit(values: z.infer<typeof RemoveFieldSchema>) {
     removeField(values.field);
-    setPreset({ ...preset, removed: [...preset.removed, values.field] });
+    // setPreset({ ...preset, removed: [...preset.removed, values.field.name] });
     setOpen(false);
     form.reset();
   }
@@ -73,11 +72,11 @@ export function ButtonRemoveField() {
                 <FormItem>
                   <FormControl>
                     <SelectField
-                      onFieldSelect={(selectedField) =>
-                        form.setValue("field", selectedField, {
+                      onFieldSelect={(field) => {
+                        form.setValue("field", field, {
                           shouldValidate: true,
-                        })
-                      }
+                        });
+                      }}
                     />
                   </FormControl>
                   <FormMessage />

@@ -19,7 +19,6 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -30,30 +29,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SelectOperation } from "@/components/select-operation";
-import { FunctionSchema, PresetContext } from "@/context/preset-context";
+import {
+  FieldValueSchema,
+  FunctionSchema,
+  PresetContext,
+} from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
-
-const editFieldHeaderSchema = z.object({
-  field: z.string({ required_error: "Select a field to edit." }),
-  name: z.string({ required_error: "Enter a new name." }),
-});
 
 export function ButtonEditField() {
   const { isReady, editHeader, runFunction } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-  const [target, setTarget] = useState<"header" | "values">("values");
+  const [target, setTarget] = useState<"name" | "values">("values");
 
   const form = useForm({
     resolver: zodResolver(
-      target === "header" ? editFieldHeaderSchema : FunctionSchema,
+      target === "name" ? FieldValueSchema : FunctionSchema,
     ),
     defaultValues: {
-      field: "",
-      name: "",
+      field: { flag: "detail", name: "" },
+      value: "",
       operation: "",
       condition: "",
-      resultField: "",
+      resultField: { flag: "detail", name: "" },
       valueTrue: "",
       valueFalse: "",
     },
@@ -61,10 +59,10 @@ export function ButtonEditField() {
 
   function onSubmit(values: any) {
     if (target === "values") {
-      runFunction({ ...values });
+      runFunction(values);
       setPreset({ ...preset, functions: [...preset.functions, { ...values }] });
     } else {
-      editHeader({ [values.field]: values.name });
+      editHeader(values);
       setPreset({
         ...preset,
         editedHeaders: [
@@ -97,15 +95,15 @@ export function ButtonEditField() {
             Select a field then change its name or values.
             <Select
               defaultValue={target}
-              onValueChange={(value: "header" | "values") => setTarget(value)}
+              onValueChange={(value: "name" | "values") => setTarget(value)}
             >
               <SelectTrigger className="h-7 w-[145px] text-xs ml-auto text-foreground">
                 <span className="text-muted-foreground">Edit: </span>
                 <SelectValue placeholder="Select target" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem key="header" value="header" className="text-xs">
-                  Header
+                <SelectItem key="name" value="name" className="text-xs">
+                  Name
                 </SelectItem>
                 <SelectItem key="values" value="values" className="text-xs">
                   Values
@@ -126,21 +124,21 @@ export function ButtonEditField() {
                 <FormItem>
                   <FormControl>
                     <SelectField
-                      onFieldSelect={(selectedField) =>
-                        form.setValue("field", selectedField, {
+                      onFieldSelect={(field) => {
+                        form.setValue("field", field, {
                           shouldValidate: true,
-                        })
-                      }
+                        });
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {target === "header" && (
+            {target === "name" && (
               <FormField
                 control={form.control}
-                name="name"
+                name="value"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -203,11 +201,11 @@ export function ButtonEditField() {
                     <FormItem>
                       <FormControl>
                         <SelectField
-                          onFieldSelect={(selectedField) =>
-                            form.setValue("resultField", selectedField, {
+                          onFieldSelect={(field) => {
+                            form.setValue("resultField", field, {
                               shouldValidate: true,
-                            })
-                          }
+                            });
+                          }}
                         />
                       </FormControl>
                       <FormMessage />

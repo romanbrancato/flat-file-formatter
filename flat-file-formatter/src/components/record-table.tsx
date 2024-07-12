@@ -31,8 +31,7 @@ import {
   getPaginationRowModel,
 } from "@tanstack/table-core";
 import { flexRender, useReactTable } from "@tanstack/react-table";
-import { DragHandleDots2Icon, InfoCircledIcon } from "@radix-ui/react-icons";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ParserContext } from "@/context/parser-context";
 
@@ -91,15 +90,19 @@ const DraggableCell = ({ cell }: any) => {
   );
 };
 
-export function FileTable() {
-  const { isReady, data, orderFields } = useContext(ParserContext);
+export function RecordTable({
+  flag,
+}: {
+  flag: "header" | "detail" | "trailer";
+}) {
+  const { data, orderFields } = useContext(ParserContext);
   const [columns, setColumns] = useState<ColumnDef<Record<string, unknown>>[]>(
     [],
   );
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
 
   const table = useReactTable({
-    data: data.rows,
+    data: data[flag],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -114,7 +117,7 @@ export function FileTable() {
   });
 
   useEffect(() => {
-    const newColumns = Object.keys(data.rows[0] || {}).map((field) => ({
+    const newColumns = Object.keys(data[flag][0] || {}).map((field) => ({
       accessorKey: field,
     }));
     setColumns(newColumns);
@@ -126,9 +129,9 @@ export function FileTable() {
     if (active && over && active.id !== over.id) {
       const oldIndex = columnOrder.indexOf(active.id as string);
       const newIndex = columnOrder.indexOf(over.id as string);
-      const newColumnOrder = arrayMove(columnOrder, oldIndex, newIndex);
-      setColumnOrder(newColumnOrder);
-      orderFields(newColumnOrder);
+      const order = arrayMove(columnOrder, oldIndex, newIndex);
+      setColumnOrder(order);
+      orderFields({ flag, order });
     }
   }
 
@@ -140,59 +143,47 @@ export function FileTable() {
 
   return (
     <div className="rounded-md border flex-grow overflow-hidden">
-      {isReady ? (
-        <DndContext
-          collisionDetection={closestCenter}
-          modifiers={[restrictToHorizontalAxis]}
-          onDragEnd={handleDragEnd}
-          sensors={sensors}
-        >
-          <ScrollArea className="h-full">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
+      <DndContext
+        collisionDetection={closestCenter}
+        modifiers={[restrictToHorizontalAxis]}
+        onDragEnd={handleDragEnd}
+        sensors={sensors}
+      >
+        <ScrollArea className="h-full">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  <SortableContext
+                    items={columnOrder}
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    {headerGroup.headers.map((header) => (
+                      <DraggableTableHeader key={header.id} header={header} />
+                    ))}
+                  </SortableContext>
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
                     <SortableContext
+                      key={cell.id}
                       items={columnOrder}
                       strategy={horizontalListSortingStrategy}
                     >
-                      {headerGroup.headers.map((header) => (
-                        <DraggableTableHeader key={header.id} header={header} />
-                      ))}
+                      <DraggableCell cell={cell} />
                     </SortableContext>
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <SortableContext
-                        key={cell.id}
-                        items={columnOrder}
-                        strategy={horizontalListSortingStrategy}
-                      >
-                        <DraggableCell cell={cell} />
-                      </SortableContext>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-        </DndContext>
-      ) : (
-        <div className="flex items-center justify-center h-full">
-          <Alert className="md:w-1/2 m-3 min-w-fit">
-            <InfoCircledIcon />
-            <AlertTitle>No File Uploaded</AlertTitle>
-            <AlertDescription>
-              Upload a file above to get started.
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      </DndContext>
     </div>
   );
 }
