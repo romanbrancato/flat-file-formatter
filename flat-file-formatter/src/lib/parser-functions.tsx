@@ -34,17 +34,9 @@ export async function parseFile(params: ParserParams) {
         complete: (results) => {
           resolve({
             name: path.parse(params.file.name).name,
-            header: [],
+            header: [{}],
             detail: results.data as Record<string, unknown>[],
-            trailer: [
-              {
-                Col1: "1",
-                Col2: "P",
-                Col3: "R",
-                Col4: "610494",
-                Col5: "MRHCRI2",
-              },
-            ],
+            trailer: [{}],
           });
         },
       };
@@ -55,9 +47,9 @@ export async function parseFile(params: ParserParams) {
         const fileContents = event.target?.result as string;
         resolve({
           name: path.parse(params.file.name).name,
-          header: [],
+          header: [{}],
           detail: parse(fileContents, params.config as Options),
-          trailer: [],
+          trailer: [{}],
         });
       };
       reader.readAsText(params.file);

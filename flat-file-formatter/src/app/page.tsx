@@ -59,10 +59,14 @@ export default function App() {
           {mode === "single" && isReady ? (
             <>
               <div className="flex flex-col gap-y-1 overflow-hidden flex-grow">
-                {data.header.length > 0 && <RecordTable flag="header" />}
+                {data.header.some((rec) => Object.keys(rec).length > 0) && (
+                  <RecordTable flag="header" />
+                )}
                 <RecordTable flag="detail" />
-                {data.trailer.length > 0 && <RecordTable flag="trailer" />}
-                <div className="flex flex-row gap-x-1 md:w-1/2">
+                {data.trailer.some((rec) => Object.keys(rec).length > 0) && (
+                  <RecordTable flag="trailer" />
+                )}
+                <div className="flex flex-row gap-x-1 md:w-2/3">
                   <ButtonAddField />
                   <ButtonRemoveField />
                   <ButtonEditField />

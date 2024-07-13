@@ -27,6 +27,10 @@ export function useParser() {
       });
   }, [params]);
 
+  useEffect(() => {
+    console.log(data.header);
+  }, [data]);
+
   const setName = useCallback(
     (schema: string) => {
       if (!params) return;
