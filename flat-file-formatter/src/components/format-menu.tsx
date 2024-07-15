@@ -3,7 +3,7 @@ import { ButtonDefineWidths } from "@/components/button-define-widths";
 import { useContext, useEffect, useState } from "react";
 import { PresetContext } from "@/context/preset-context";
 import { SelectAlign } from "@/components/select-align";
-import { CheckboxHeader } from "@/components/checkbox-header";
+import { CheckboxLabel } from "@/components/checkbox-label";
 import { SelectSymbol } from "@/components/select-symbol";
 import { SelectExport } from "@/components/select-export";
 import { ParserContext } from "@/context/parser-context";
@@ -38,7 +38,7 @@ export function FormatMenu() {
         <TabsContent value="delimited" className="space-y-2">
           <SelectSymbol label="Delimiter" />
           <SelectExport />
-          <CheckboxHeader />
+          <CheckboxLabel />
         </TabsContent>
         <TabsContent value="fixed" className="space-y-2">
           <ButtonDefineWidths />

@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 
-export function CheckboxHeader() {
+export function CheckboxLabel() {
   const { isReady } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   return (
@@ -12,12 +12,12 @@ export function CheckboxHeader() {
       <Checkbox
         id="header"
         onCheckedChange={(checked: boolean) =>
-          setPreset({ ...preset, header: checked })
+          setPreset({ ...preset, label: checked })
         }
-        checked={preset.header}
+        checked={preset.label}
         disabled={!isReady}
       />
-      <Label className="text-sm font-medium">Include Header</Label>
+      <Label className="text-sm font-medium">Include Field Labels</Label>
     </div>
   );
 }
