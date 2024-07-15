@@ -95,7 +95,7 @@ export function RecordTable({
 }: {
   flag: "header" | "detail" | "trailer";
 }) {
-  const { data, orderFields } = useContext(ParserContext);
+  const { isReady, data, orderFields } = useContext(ParserContext);
   const [columns, setColumns] = useState<ColumnDef<Record<string, unknown>>[]>(
     [],
   );
@@ -131,7 +131,7 @@ export function RecordTable({
       const newIndex = columnOrder.indexOf(over.id as string);
       const order = arrayMove(columnOrder, oldIndex, newIndex);
       setColumnOrder(order);
-      orderFields({ flag, order });
+      orderFields(flag, order);
     }
   }
 

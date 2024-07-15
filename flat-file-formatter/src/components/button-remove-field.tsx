@@ -19,25 +19,21 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { FieldSchema, PresetContext } from "@/context/preset-context";
+import { Field, FieldSchema, PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
-import { z } from "zod";
 
-const RemoveFieldSchema = z.object({
-  field: FieldSchema,
-});
 export function ButtonRemoveField() {
   const { isReady, removeField } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<z.infer<typeof RemoveFieldSchema>>({
-    resolver: zodResolver(RemoveFieldSchema),
+  const form = useForm<Field>({
+    resolver: zodResolver(FieldSchema),
   });
 
-  function onSubmit(values: z.infer<typeof RemoveFieldSchema>) {
-    removeField(values.field);
-    // setPreset({ ...preset, removed: [...preset.removed, values.field.name] });
+  function onSubmit(values: Field) {
+    removeField(values);
+    setPreset({ ...preset, removed: [...preset.removed, values] });
     setOpen(false);
     form.reset();
   }
@@ -67,13 +63,16 @@ export function ButtonRemoveField() {
           >
             <FormField
               control={form.control}
-              name="field"
+              name="flag"
               render={() => (
                 <FormItem>
                   <FormControl>
                     <SelectField
                       onFieldSelect={(field) => {
-                        form.setValue("field", field, {
+                        form.setValue("flag", field.flag, {
+                          shouldValidate: true,
+                        });
+                        form.setValue("name", field.name, {
                           shouldValidate: true,
                         });
                       }}

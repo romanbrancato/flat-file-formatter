@@ -65,11 +65,16 @@ export function unparseData(data: Data, preset: Preset) {
         header: preset.header,
         skipEmptyLines: true,
       };
-      return Papa.unparse(data.detail, config);
+      return (
+        Papa.unparse(data.header, config) +
+        Papa.unparse(data.detail, config) +
+        Papa.unparse(data.trailer, config)
+      );
     } else {
-      const config = Object.keys(data.detail[0]).map((field) => {
-        const width = preset.widths.find((widths) => field in widths)?.[field];
-        if (!width) throw new Error(`Width not found for field: ${field}`);
+      const headerConfig = Object.keys(data.header[0]).map((field) => {
+        const width = preset.widths?.header?.[field];
+        if (!width)
+          throw new Error(`Width not found for header field: ${field}`);
         return {
           property: field,
           width: width,
@@ -77,7 +82,33 @@ export function unparseData(data: Data, preset: Preset) {
         };
       });
 
-      return stringify(data.detail, { pad: preset.symbol, fields: config });
+      const detailConfig = Object.keys(data.detail[0]).map((field) => {
+        const width = preset.widths?.detail?.[field];
+        if (!width)
+          throw new Error(`Width not found for detail field: ${field}`);
+        return {
+          property: field,
+          width: width,
+          align: preset.align,
+        };
+      });
+
+      const trailerConfig = Object.keys(data.trailer[0]).map((field) => {
+        const width = preset.widths?.trailer?.[field];
+        if (!width)
+          throw new Error(`Width not found for trailer field: ${field}`);
+        return {
+          property: field,
+          width: width,
+          align: preset.align,
+        };
+      });
+
+      return (
+        stringify(data.header, { pad: preset.symbol, fields: headerConfig }) +
+        stringify(data.detail, { pad: preset.symbol, fields: detailConfig }) +
+        stringify(data.trailer, { pad: preset.symbol, fields: trailerConfig })
+      );
     }
   } catch (error: any) {
     toast.error("Failed to Export File", { description: error.message });

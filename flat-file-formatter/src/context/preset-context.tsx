@@ -28,11 +28,10 @@ export const FieldValueSchema = z
 export type FieldValue = z.infer<typeof FieldValueSchema>;
 
 export const OrderSchema = z.object({
-  flag: z.enum(["header", "detail", "trailer"]),
-  order: z.array(z.string()),
+  header: z.array(z.string()),
+  detail: z.array(z.string()),
+  trailer: z.array(z.string()),
 });
-
-export type Order = z.infer<typeof OrderSchema>;
 
 export const FunctionSchema = z.object({
   field: FieldSchema,
@@ -47,12 +46,20 @@ export const FunctionSchema = z.object({
 
 export type Function = z.infer<typeof FunctionSchema>;
 
+export const WidthsSchema = z.object({
+  header: z.record(z.coerce.number().min(1)),
+  detail: z.record(z.coerce.number().min(1)),
+  trailer: z.record(z.coerce.number().min(1)),
+});
+
+export type Widths = z.infer<typeof WidthsSchema>;
+
 export const PresetSchema = z.object({
   name: z.string().nullable(),
   schema: z.string(),
-  order: z.array(OrderSchema),
+  order: OrderSchema,
   symbol: z.string(),
-  widths: z.array(z.record(z.number())),
+  widths: WidthsSchema,
   align: z.enum(["left", "right"]),
   header: z.boolean(),
   format: z.enum(["delimited", "fixed"]),
@@ -83,9 +90,17 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
     setPreset({
       name: null,
       schema: "",
-      order: [],
+      order: {
+        header: [],
+        detail: [],
+        trailer: [],
+      },
       symbol: ",",
-      widths: [],
+      widths: {
+        header: {},
+        detail: {},
+        trailer: {},
+      },
       align: "left",
       header: false,
       format: "delimited",

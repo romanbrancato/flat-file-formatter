@@ -182,7 +182,7 @@ export function ButtonParserConfig({
               <>
                 <Accordion type="single" collapsible>
                   <AccordionItem value="header">
-                    <AccordionTrigger className="font-normal text-muted-foreground">
+                    <AccordionTrigger className="text-xs font-normal text-muted-foreground">
                       Header Record Widths
                     </AccordionTrigger>
                     <AccordionContent>
@@ -245,7 +245,7 @@ export function ButtonParserConfig({
                     </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="detail">
-                    <AccordionTrigger className="font-normal text-muted-foreground">
+                    <AccordionTrigger className="text-xs font-normal text-muted-foreground">
                       Detail Record Widths
                     </AccordionTrigger>
                     <AccordionContent>
@@ -308,7 +308,7 @@ export function ButtonParserConfig({
                     </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="trailer">
-                    <AccordionTrigger className="font-normal text-muted-foreground">
+                    <AccordionTrigger className="text-xs font-normal text-muted-foreground">
                       Trailer Record Widths
                     </AccordionTrigger>
                     <AccordionContent>

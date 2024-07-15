@@ -1,14 +1,8 @@
 import { Data, parseFile, ParserParams } from "@/lib/parser-functions";
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
-import {
-  Field,
-  FieldValue,
-  Function,
-  Order,
-  Preset,
-} from "@/context/preset-context";
 import path from "node:path";
+import { Field, FieldValue, Function, Preset } from "@/context/preset-context";
 
 export function useParser() {
   const [isReady, setIsReady] = useState(false);
@@ -17,6 +11,7 @@ export function useParser() {
 
   useEffect(() => {
     if (!params) return;
+    setIsReady(false);
     parseFile(params)
       .then((data) => {
         setData(data);
@@ -26,10 +21,6 @@ export function useParser() {
         console.error(e);
       });
   }, [params]);
-
-  useEffect(() => {
-    console.log(data.header);
-  }, [data]);
 
   const setName = useCallback(
     (schema: string) => {
@@ -69,7 +60,7 @@ export function useParser() {
   );
 
   const orderFields = useCallback(
-    ({ flag, order }: Order) => {
+    (flag: "header" | "detail" | "trailer", order: string[]) => {
       setIsReady(false);
       setData({ ...data, [flag]: fns.orderFields(data[flag], order) });
       setIsReady(true);
@@ -101,7 +92,7 @@ export function useParser() {
   const applyPreset = useCallback(
     (preset: Preset) => {
       setIsReady(false);
-      setData(fns.applyPreset(data, preset));
+      setData({ ...fns.applyPreset(data, preset) });
       setIsReady(true);
     },
     [data],

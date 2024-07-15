@@ -65,10 +65,7 @@ export function ButtonEditField() {
       editHeader(values);
       setPreset({
         ...preset,
-        editedHeaders: [
-          ...preset.editedHeaders,
-          { [values.field]: values.name },
-        ],
+        editedHeaders: [...preset.editedHeaders, { ...values }],
       });
     }
     setOpen(false);

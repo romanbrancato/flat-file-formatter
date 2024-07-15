@@ -43,10 +43,7 @@ export function ButtonAddField() {
 
   function onSubmit(values: FieldValue) {
     addField(values);
-    // setPreset({
-    //   ...preset,
-    //   added: [...preset.added, { [values.name]: values.value }],
-    // });
+    setPreset({ ...preset, added: [...preset.added, { ...values }] });
     setOpen(false);
     form.reset();
   }

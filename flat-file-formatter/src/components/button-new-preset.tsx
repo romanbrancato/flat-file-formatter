@@ -23,7 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 
-const newPresetSchema = z.object({
+const NewPresetSchema = z.object({
   name: z.string().min(1, "Enter a preset name."),
 });
 
@@ -32,18 +32,22 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<z.infer<typeof newPresetSchema>>({
-    resolver: zodResolver(newPresetSchema),
+  const form = useForm<z.infer<typeof NewPresetSchema>>({
+    resolver: zodResolver(NewPresetSchema),
     defaultValues: {
       name: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof newPresetSchema>) {
+  function onSubmit(values: z.infer<typeof NewPresetSchema>) {
     const tempPreset = {
       ...preset,
       name: values.name,
-      order: Object.keys(data.detail[0]),
+      order: {
+        header: Object.keys(data.header[0]),
+        detail: Object.keys(data.detail[0]),
+        trailer: Object.keys(data.trailer[0]),
+      },
     };
     localStorage.setItem(
       `preset_${tempPreset.name}`,

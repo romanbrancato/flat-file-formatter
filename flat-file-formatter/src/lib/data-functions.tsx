@@ -89,22 +89,44 @@ export function runFunction(
 
 export function applyPreset(data: Data, preset: Preset) {
   preset.removed?.forEach((field) => {
-    data.detail = removeField(data.detail, field);
+    if (field.flag === "header")
+      data.header = removeField(data.header, field.name);
+    if (field.flag === "detail")
+      data.detail = removeField(data.detail, field.name);
+    if (field.flag === "trailer")
+      data.trailer = removeField(data.trailer, field.name);
   });
 
   preset.added?.forEach((item) => {
-    data.detail = addField(data.detail, item);
+    if (item.flag === "header")
+      data.header = addField(data.header, { [item.name]: item.value });
+    if (item.flag === "detail")
+      data.detail = addField(data.detail, { [item.name]: item.value });
+    if (item.flag === "trailer")
+      data.trailer = addField(data.trailer, { [item.name]: item.value });
   });
 
   preset.editedHeaders?.forEach((item) => {
-    data.detail = editHeader(data.detail, item);
+    if (item.flag === "header")
+      data.header = editHeader(data.header, { [item.name]: item.value });
+    if (item.flag === "detail")
+      data.detail = editHeader(data.detail, { [item.name]: item.value });
+    if (item.flag === "trailer")
+      data.trailer = editHeader(data.trailer, { [item.name]: item.value });
   });
 
   preset.functions?.forEach((item) => {
-    data.detail = runFunction(data.detail, item);
+    if (item.resultField.flag === "header")
+      data.header = runFunction(data.header, item);
+    if (item.resultField.flag === "detail")
+      data.detail = runFunction(data.detail, item);
+    if (item.resultField.flag === "trailer")
+      data.trailer = runFunction(data.trailer, item);
   });
 
-  data.detail = orderFields(data.detail, preset.order);
+  data.header = orderFields(data.header, preset.order.header);
+  data.detail = orderFields(data.detail, preset.order.detail);
+  data.trailer = orderFields(data.trailer, preset.order.trailer);
 
   data.name = setName(data.name, preset.schema);
 
