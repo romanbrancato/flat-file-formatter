@@ -62,7 +62,7 @@ export function unparseData(data: Data, preset: Preset) {
     if (preset.format === "delimited") {
       const config = {
         delimiter: preset.symbol,
-        header: preset.header,
+        header: preset.label,
         skipEmptyLines: true,
       };
       return (
