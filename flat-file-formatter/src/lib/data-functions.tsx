@@ -15,9 +15,9 @@ export function removeField(
   data: Record<string, unknown>[],
   field: string,
 ): Record<string, unknown>[] {
-  return data.map((row) => {
-    delete row[field];
-    return row;
+  return data.map((record) => {
+    delete record[field];
+    return record;
   });
 }
 
@@ -25,7 +25,7 @@ export function addField(
   data: Record<string, unknown>[],
   field: Record<string, unknown>,
 ): Record<string, unknown>[] {
-  return data.map((row) => ({ ...field, ...row }));
+  return data.map((record) => ({ ...field, ...record }));
 }
 
 export function orderFields(
@@ -64,47 +64,69 @@ export function editHeader(
 
 export function runFunction(
   data: Record<string, unknown>[],
-  func: Function,
+  fn: Function,
 ): Record<string, unknown>[] {
-  return data.map((row) => {
+  return data.map((record) => {
     const { field, operation, condition, resultField, valueTrue, valueFalse } =
-      func;
+      fn;
 
     const matches =
       condition === "*" ||
-      (operation === "if" && row[field] === condition) ||
-      (operation === "if not" && row[field] !== condition);
+      (operation === "if" && record[field.name] === condition) ||
+      (operation === "if not" && record[field.name] !== condition);
 
     const value = matches
       ? valueTrue !== "..."
         ? valueTrue
-        : row[resultField]
+        : record[resultField.name]
       : valueFalse !== "..."
         ? valueFalse
-        : row[resultField];
+        : record[resultField.name];
 
-    return { ...row, [resultField]: value };
+    return { ...record, [resultField.name]: value };
   });
 }
 
 export function applyPreset(data: Data, preset: Preset) {
   preset.removed?.forEach((field) => {
-    data.rows = removeField(data.rows, field);
+    if (field.flag === "header")
+      data.header = removeField(data.header, field.name);
+    if (field.flag === "detail")
+      data.detail = removeField(data.detail, field.name);
+    if (field.flag === "trailer")
+      data.trailer = removeField(data.trailer, field.name);
   });
 
   preset.added?.forEach((item) => {
-    data.rows = addField(data.rows, item);
+    if (item.flag === "header")
+      data.header = addField(data.header, { [item.name]: item.value });
+    if (item.flag === "detail")
+      data.detail = addField(data.detail, { [item.name]: item.value });
+    if (item.flag === "trailer")
+      data.trailer = addField(data.trailer, { [item.name]: item.value });
   });
 
   preset.editedHeaders?.forEach((item) => {
-    data.rows = editHeader(data.rows, item);
+    if (item.flag === "header")
+      data.header = editHeader(data.header, { [item.name]: item.value });
+    if (item.flag === "detail")
+      data.detail = editHeader(data.detail, { [item.name]: item.value });
+    if (item.flag === "trailer")
+      data.trailer = editHeader(data.trailer, { [item.name]: item.value });
   });
 
   preset.functions?.forEach((item) => {
-    data.rows = runFunction(data.rows, item);
+    if (item.resultField.flag === "header")
+      data.header = runFunction(data.header, item);
+    if (item.resultField.flag === "detail")
+      data.detail = runFunction(data.detail, item);
+    if (item.resultField.flag === "trailer")
+      data.trailer = runFunction(data.trailer, item);
   });
 
-  data.rows = orderFields(data.rows, preset.order);
+  data.header = orderFields(data.header, preset.order.header);
+  data.detail = orderFields(data.detail, preset.order.detail);
+  data.trailer = orderFields(data.trailer, preset.order.trailer);
 
   data.name = setName(data.name, preset.schema);
 

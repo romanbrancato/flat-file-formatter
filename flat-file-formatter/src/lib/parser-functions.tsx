@@ -6,7 +6,9 @@ import { Preset } from "@/context/preset-context";
 
 export type Data = {
   name: string;
-  rows: Record<string, unknown>[];
+  header: Record<string, unknown>[];
+  detail: Record<string, unknown>[];
+  trailer: Record<string, unknown>[];
 };
 
 export type MultiFormatConfig =
@@ -32,7 +34,9 @@ export async function parseFile(params: ParserParams) {
         complete: (results) => {
           resolve({
             name: path.parse(params.file.name).name,
-            rows: results.data as Record<string, unknown>[],
+            header: [{}],
+            detail: results.data as Record<string, unknown>[],
+            trailer: [{}],
           });
         },
       };
@@ -43,7 +47,9 @@ export async function parseFile(params: ParserParams) {
         const fileContents = event.target?.result as string;
         resolve({
           name: path.parse(params.file.name).name,
-          rows: parse(fileContents, params.config as Options),
+          header: [{}],
+          detail: parse(fileContents, params.config as Options),
+          trailer: [{}],
         });
       };
       reader.readAsText(params.file);
@@ -59,11 +65,16 @@ export function unparseData(data: Data, preset: Preset) {
         header: preset.header,
         skipEmptyLines: true,
       };
-      return Papa.unparse(data.rows, config);
+      return (
+        Papa.unparse(data.header, config) +
+        Papa.unparse(data.detail, config) +
+        Papa.unparse(data.trailer, config)
+      );
     } else {
-      const config = Object.keys(data.rows[0]).map((field) => {
-        const width = preset.widths.find((widths) => field in widths)?.[field];
-        if (!width) throw new Error(`Width not found for field: ${field}`);
+      const headerConfig = Object.keys(data.header[0]).map((field) => {
+        const width = preset.widths?.header?.[field];
+        if (!width)
+          throw new Error(`Width not found for header field: ${field}`);
         return {
           property: field,
           width: width,
@@ -71,20 +82,32 @@ export function unparseData(data: Data, preset: Preset) {
         };
       });
 
-      let headerLine = "";
-      if (preset.header) {
-        const padFunction = preset.align === "right" ? "padStart" : "padEnd";
-        headerLine =
-          config
-            .map((field) =>
-              field.property[padFunction](field.width, preset.symbol),
-            )
-            .join("") + "\n";
-      }
+      const detailConfig = Object.keys(data.detail[0]).map((field) => {
+        const width = preset.widths?.detail?.[field];
+        if (!width)
+          throw new Error(`Width not found for detail field: ${field}`);
+        return {
+          property: field,
+          width: width,
+          align: preset.align,
+        };
+      });
+
+      const trailerConfig = Object.keys(data.trailer[0]).map((field) => {
+        const width = preset.widths?.trailer?.[field];
+        if (!width)
+          throw new Error(`Width not found for trailer field: ${field}`);
+        return {
+          property: field,
+          width: width,
+          align: preset.align,
+        };
+      });
 
       return (
-        headerLine +
-        stringify(data.rows, { pad: preset.symbol, fields: config })
+        stringify(data.header, { pad: preset.symbol, fields: headerConfig }) +
+        stringify(data.detail, { pad: preset.symbol, fields: detailConfig }) +
+        stringify(data.trailer, { pad: preset.symbol, fields: trailerConfig })
       );
     }
   } catch (error: any) {

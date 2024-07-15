@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,53 +16,55 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
-import { PresetContext } from "@/context/preset-context";
+import { PresetContext, Widths, WidthsSchema } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
-
-const defineWidthsSchema = z.object({
-  widths: z.record(
-    z.coerce
-      .number({
-        message: "Enter a width.",
-      })
-      .gte(1, "Width must be at least 1."),
-  ),
-});
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export function ButtonDefineWidths() {
   const { data, isReady } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
-  const form = useForm({
-    resolver: zodResolver(defineWidthsSchema),
+  const form = useForm<Widths>({
+    resolver: zodResolver(WidthsSchema),
     defaultValues: {
-      widths: Object.fromEntries(
-        Object.keys(data.rows[0]).map((field) => {
-          const presetWidth = preset.widths.find((item) => field in item);
-          return [field, presetWidth ? presetWidth[field] : ""];
-        }),
+      header: Object.fromEntries(
+        Object.keys(data.header[0]).map((key) => [
+          key,
+          preset.widths?.header?.[key] ?? "",
+        ]),
+      ),
+      detail: Object.fromEntries(
+        Object.keys(data.detail[0]).map((key) => [
+          key,
+          preset.widths?.detail?.[key] ?? "",
+        ]),
+      ),
+      trailer: Object.fromEntries(
+        Object.keys(data.trailer[0]).map((key) => [
+          key,
+          preset.widths?.trailer?.[key] ?? "",
+        ]),
       ),
     },
   });
 
-  const onSubmit: SubmitHandler<FieldValues> = (values) => {
-    const widthsArray: Record<string, number>[] = Object.entries(
-      values.widths,
-    ).map(([key, value]) => ({
-      [key]: value as number,
-    }));
-
-    setPreset({ ...preset, widths: widthsArray });
+  function onSubmit(values: Widths) {
+    console.log(values);
+    setPreset({ ...preset, widths: values });
 
     setOpen(false);
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -82,38 +84,116 @@ export function ButtonDefineWidths() {
           <DialogTitle>Define Widths</DialogTitle>
           <DialogDescription className="flex flex-row justify-between items-center">
             Define the widths of each field in characters.
-            <Button
-              onClick={() => form.handleSubmit(onSubmit)()}
-              className="w-1/3"
-            >
+            <Button onClick={form.handleSubmit(onSubmit)} className="w-1/3">
               Save
             </Button>
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea>
-          <ScrollAreaViewport className="max-h-[400px]">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                {Object.keys(data.rows[0]).map((fieldName) => (
-                  <FormField
-                    control={form.control}
-                    name={`widths.${fieldName}`}
-                    key={fieldName}
-                    render={({ field }) => (
-                      <FormItem className="pr-3 pl-1 pb-1">
-                        <Label>{fieldName}</Label>
-                        <FormControl>
-                          <Input {...field} type="number" min={0} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                ))}
-              </form>
-            </Form>
-          </ScrollAreaViewport>
-        </ScrollArea>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <Accordion type="single" collapsible>
+              <AccordionItem value="header">
+                <AccordionTrigger className="text-xs font-normal text-muted-foreground">
+                  Header Record
+                </AccordionTrigger>
+                <AccordionContent>
+                  {data.header.some((rec) => Object.keys(rec).length > 0) ? (
+                    <ScrollArea>
+                      <ScrollAreaViewport className="max-h-[400px]">
+                        {Object.keys(data.header[0]).map((fieldName) => (
+                          <FormField
+                            control={form.control}
+                            name={`header.${fieldName}`}
+                            key={`header${fieldName}`}
+                            render={({ field }) => (
+                              <FormItem className="pr-3 pl-1 pb-1">
+                                <Label>{fieldName}</Label>
+                                <FormControl>
+                                  <Input {...field} type="number" min={0} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ))}
+                      </ScrollAreaViewport>
+                    </ScrollArea>
+                  ) : (
+                    <div className="text-xs text-muted-foreground text-center">
+                      No fields found.
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="detail">
+                <AccordionTrigger className="text-xs font-normal text-muted-foreground">
+                  Detail Record
+                </AccordionTrigger>
+                <AccordionContent>
+                  {data.detail.some((rec) => Object.keys(rec).length > 0) ? (
+                    <ScrollArea>
+                      <ScrollAreaViewport className="max-h-[400px]">
+                        {Object.keys(data.detail[0]).map((fieldName) => (
+                          <FormField
+                            control={form.control}
+                            name={`detail.${fieldName}`}
+                            key={`detail${fieldName}`}
+                            render={({ field }) => (
+                              <FormItem className="pr-3 pl-1 pb-1">
+                                <Label>{fieldName}</Label>
+                                <FormControl>
+                                  <Input {...field} type="number" min={0} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ))}
+                      </ScrollAreaViewport>
+                    </ScrollArea>
+                  ) : (
+                    <div className="text-xs text-muted-foreground text-center">
+                      No fields found.
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="trailer">
+                <AccordionTrigger className="text-xs font-normal text-muted-foreground">
+                  Trailer Record
+                </AccordionTrigger>
+                <AccordionContent>
+                  {data.trailer.some((rec) => Object.keys(rec).length > 0) ? (
+                    <ScrollArea>
+                      <ScrollAreaViewport className="max-h-[400px]">
+                        {Object.keys(data.trailer[0]).map((fieldName) => (
+                          <FormField
+                            control={form.control}
+                            name={`trailer.${fieldName}`}
+                            key={`trailer${fieldName}`}
+                            render={({ field }) => (
+                              <FormItem className="pr-3 pl-1 pb-1">
+                                <Label>{fieldName}</Label>
+                                <FormControl>
+                                  <Input {...field} type="number" min={0} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ))}
+                      </ScrollAreaViewport>
+                    </ScrollArea>
+                  ) : (
+                    <div className="text-xs text-muted-foreground text-center">
+                      No fields found.
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

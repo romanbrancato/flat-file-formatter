@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { useContext, useState } from "react";
 import { MinusCircledIcon } from "@radix-ui/react-icons";
 import { SelectField } from "@/components/select-field";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -20,25 +19,21 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { PresetContext } from "@/context/preset-context";
+import { Field, FieldSchema, PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
-
-const removeFieldSchema = z.object({
-  field: z.string({ required_error: "Select a field to remove." }),
-});
 
 export function ButtonRemoveField() {
   const { isReady, removeField } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<z.infer<typeof removeFieldSchema>>({
-    resolver: zodResolver(removeFieldSchema),
+  const form = useForm<Field>({
+    resolver: zodResolver(FieldSchema),
   });
 
-  function onSubmit(values: z.infer<typeof removeFieldSchema>) {
-    removeField(values.field);
-    setPreset({ ...preset, removed: [...preset.removed, values.field] });
+  function onSubmit(values: Field) {
+    removeField(values);
+    setPreset({ ...preset, removed: [...preset.removed, values] });
     setOpen(false);
     form.reset();
   }
@@ -68,16 +63,19 @@ export function ButtonRemoveField() {
           >
             <FormField
               control={form.control}
-              name="field"
+              name="flag"
               render={() => (
                 <FormItem>
                   <FormControl>
                     <SelectField
-                      onFieldSelect={(selectedField) =>
-                        form.setValue("field", selectedField, {
+                      onFieldSelect={(field) => {
+                        form.setValue("flag", field.flag, {
                           shouldValidate: true,
-                        })
-                      }
+                        });
+                        form.setValue("name", field.name, {
+                          shouldValidate: true,
+                        });
+                      }}
                     />
                   </FormControl>
                   <FormMessage />

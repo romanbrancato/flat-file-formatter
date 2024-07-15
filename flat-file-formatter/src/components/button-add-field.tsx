@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
 import { useContext, useState } from "react";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -20,33 +19,31 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { PresetContext } from "@/context/preset-context";
+import {
+  FieldValue,
+  FieldValueSchema,
+  PresetContext,
+} from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
-
-const addFieldSchema = z.object({
-  name: z.string().min(1, "Enter a field name."),
-  value: z.string(),
-});
+import { SelectFlag } from "@/components/select-flag";
 
 export function ButtonAddField() {
   const { isReady, addField } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<z.infer<typeof addFieldSchema>>({
-    resolver: zodResolver(addFieldSchema),
+  const form = useForm<FieldValue>({
+    resolver: zodResolver(FieldValueSchema),
     defaultValues: {
+      flag: "detail",
       name: "",
       value: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof addFieldSchema>) {
-    addField({ [values.name]: values.value });
-    setPreset({
-      ...preset,
-      added: [...preset.added, { [values.name]: values.value }],
-    });
+  function onSubmit(values: FieldValue) {
+    addField(values);
+    setPreset({ ...preset, added: [...preset.added, { ...values }] });
     setOpen(false);
     form.reset();
   }
@@ -76,6 +73,26 @@ export function ButtonAddField() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-y-2"
           >
+            <FormField
+              control={form.control}
+              name="flag"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <SelectFlag
+                      label="Add To"
+                      defaultValue={form.getValues().flag}
+                      onFlagSelect={(flag: "header" | "detail" | "trailer") => {
+                        form.setValue("flag", flag, {
+                          shouldValidate: true,
+                        });
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="name"

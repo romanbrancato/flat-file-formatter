@@ -7,17 +7,19 @@ import { ButtonParserConfig } from "@/components/button-parser-config";
 import { ParserContext } from "@/context/parser-context";
 import { MultiFormatConfig } from "@/lib/parser-functions";
 import { PresetToolbar } from "@/components/preset-toolbar";
-import { FileTable } from "@/components/file-table";
-import { TableToolbar } from "@/components/table-toolbar";
+import { RecordTable } from "@/components/record-table";
 import { FormatMenu } from "@/components/format-menu";
 import { ButtonExportFile } from "@/components/button-export-file";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { BatchFileRow } from "@/components/batch-file-row";
+import { ButtonAddField } from "@/components/button-add-field";
+import { ButtonRemoveField } from "@/components/button-remove-field";
+import { ButtonEditField } from "@/components/button-edit-field";
 
 export default function App() {
   const { mode } = useContext(ModeContext);
-  const { setParams } = useContext(ParserContext);
+  const { isReady, data, setParams } = useContext(ParserContext);
   const [files, setFiles] = useState<File[]>([]);
   const [config, setConfig] = useState<MultiFormatConfig>({
     format: "delimited",
@@ -54,29 +56,30 @@ export default function App() {
       <div className="rounded-md border">
         <PresetToolbar />
         <div className="flex flex-col md:flex-row mx-5 gap-y-2 md:gap-x-3 my-3">
-          {mode === "single" ? (
+          {mode === "single" && isReady ? (
             <>
               <div className="flex flex-col gap-y-1 overflow-hidden flex-grow">
-                <FileTable />
-                <TableToolbar />
+                {data.header.some((rec) => Object.keys(rec).length > 0) && (
+                  <RecordTable flag="header" />
+                )}
+                <RecordTable flag="detail" />
+                {data.trailer.some((rec) => Object.keys(rec).length > 0) && (
+                  <RecordTable flag="trailer" />
+                )}
+                <div className="flex flex-row gap-x-1 md:w-2/3">
+                  <ButtonAddField />
+                  <ButtonRemoveField />
+                  <ButtonEditField />
+                </div>
               </div>
               <div className="flex flex-col">
                 <FormatMenu />
                 <ButtonExportFile files={files} />
               </div>
             </>
-          ) : (
+          ) : mode === "batch" && files.length ? (
             <div className="flex flex-col w-full gap-y-1">
               <div className="flex flex-col gap-y-2 mx-auto w-full border rounded-md p-2">
-                {!files.length && (
-                  <Alert className="w-1/2 mx-auto">
-                    <InfoCircledIcon />
-                    <AlertTitle>No Files Uploaded</AlertTitle>
-                    <AlertDescription>
-                      Upload files above to get started.
-                    </AlertDescription>
-                  </Alert>
-                )}
                 {files.map((file, index) => (
                   <BatchFileRow
                     key={index}
@@ -92,6 +95,16 @@ export default function App() {
                   config={config}
                 />
               </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center w-full">
+              <Alert className="md:w-1/2 m-3 min-w-fit">
+                <InfoCircledIcon />
+                <AlertTitle>No File Uploaded</AlertTitle>
+                <AlertDescription>
+                  Upload a file above to get started.
+                </AlertDescription>
+              </Alert>
             </div>
           )}
         </div>
