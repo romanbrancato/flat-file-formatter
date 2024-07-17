@@ -43,48 +43,28 @@ export function orderFields(
   });
 }
 
-export function editHeader(
-  data: Record<string, unknown>[],
-  field: Record<string, string>,
-): Record<string, unknown>[] {
-  return data.map((row) => {
-    const [oldCol, newCol] = Object.entries(field)[0];
-    if (oldCol in row) {
-      return {
-        ...Object.fromEntries(
-          Object.entries(row).map(([key, val]) =>
-            key === oldCol ? [newCol, val] : [key, val],
-          ),
-        ),
-      };
+export function runFunction(data: Data, fn: Function): Data {
+  if (fn.operation === "conditional") {
+    data[fn.flag];
+    for (const condition of fn.conditions) {
+      const { statement, field, comparison, value } = condition;
+
+      const result = eval(
+        `${data[field.flag][field.name]} ${comparison} ${value}`,
+      );
+
+      if (
+        (statement === "if" && result) ||
+        (statement === "if not" && !result)
+      ) {
+        data[fn.result.flag].push({ [fn.result.name]: fn.valueTrue });
+      } else {
+        data[fn.result.flag].push({ [fn.result.name]: fn.valueFalse });
+      }
     }
-    return row;
-  });
-}
+  }
 
-export function runFunction(
-  data: Record<string, unknown>[],
-  fn: Function,
-): Record<string, unknown>[] {
-  return data.map((record) => {
-    const { field, operation, condition, resultField, valueTrue, valueFalse } =
-      fn;
-
-    const matches =
-      condition === "*" ||
-      (operation === "if" && record[field.name] === condition) ||
-      (operation === "if not" && record[field.name] !== condition);
-
-    const value = matches
-      ? valueTrue !== "..."
-        ? valueTrue
-        : record[resultField.name]
-      : valueFalse !== "..."
-        ? valueFalse
-        : record[resultField.name];
-
-    return { ...record, [resultField.name]: value };
-  });
+  return data;
 }
 
 export function applyPreset(data: Data, preset: Preset) {
@@ -106,23 +86,7 @@ export function applyPreset(data: Data, preset: Preset) {
       data.trailer = addField(data.trailer, { [item.name]: item.value });
   });
 
-  preset.editedHeaders?.forEach((item) => {
-    if (item.flag === "header")
-      data.header = editHeader(data.header, { [item.name]: item.value });
-    if (item.flag === "detail")
-      data.detail = editHeader(data.detail, { [item.name]: item.value });
-    if (item.flag === "trailer")
-      data.trailer = editHeader(data.trailer, { [item.name]: item.value });
-  });
-
-  preset.functions?.forEach((item) => {
-    if (item.resultField.flag === "header")
-      data.header = runFunction(data.header, item);
-    if (item.resultField.flag === "detail")
-      data.detail = runFunction(data.detail, item);
-    if (item.resultField.flag === "trailer")
-      data.trailer = runFunction(data.trailer, item);
-  });
+  // ADD RUN FUNCTION HERE
 
   data.header = orderFields(data.header, preset.order.header);
   data.detail = orderFields(data.detail, preset.order.detail);

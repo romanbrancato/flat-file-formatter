@@ -8,6 +8,7 @@ import {
 } from "react";
 import { z } from "zod";
 import { ModeContext } from "@/context/mode-context";
+import { AddFieldSchema } from "@/components/button-add-field";
 
 export const FieldSchema = z.object(
   {
@@ -19,30 +20,38 @@ export const FieldSchema = z.object(
 
 export type Field = z.infer<typeof FieldSchema>;
 
-export const FieldValueSchema = z
-  .object({
-    value: z.string(),
-  })
-  .and(FieldSchema);
-
-export type FieldValue = z.infer<typeof FieldValueSchema>;
-
 export const OrderSchema = z.object({
   header: z.array(z.string()),
   detail: z.array(z.string()),
   trailer: z.array(z.string()),
 });
 
-export const FunctionSchema = z.object({
-  field: FieldSchema,
-  operation: z.enum(["if", "if not"], {
-    required_error: "Select a operation.",
+export const FunctionSchema = z.discriminatedUnion("operation", [
+  z.object({
+    operation: z.literal("conditional"),
+    conditions: z.array(
+      z.object({
+        statement: z.enum(["if", "if not"]),
+        field: FieldSchema,
+        comparison: z.enum(["<", "===", ">"]),
+        value: z.string(),
+      }),
+    ),
+    result: FieldSchema,
+    valueTrue: z.string(),
+    valueFalse: z.string(),
   }),
-  condition: z.string(),
-  resultField: FieldSchema,
-  valueTrue: z.string(),
-  valueFalse: z.string(),
-});
+  z.object({
+    operation: z.literal("equation"),
+    formulas: z.array(
+      z.object({
+        operator: z.enum(["+", "-"]),
+        field: FieldSchema,
+      }),
+    ),
+    result: FieldSchema,
+  }),
+]);
 
 export type Function = z.infer<typeof FunctionSchema>;
 
@@ -65,9 +74,8 @@ export const PresetSchema = z.object({
   format: z.enum(["delimited", "fixed"]),
   export: z.enum(["csv", "txt"]),
   removed: z.array(FieldSchema),
-  added: z.array(FieldValueSchema),
+  added: z.array(AddFieldSchema),
   functions: z.array(FunctionSchema),
-  editedHeaders: z.array(FieldValueSchema),
 });
 
 export type Preset = z.infer<typeof PresetSchema>;
@@ -108,7 +116,6 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
       removed: [],
       added: [],
       functions: [],
-      editedHeaders: [],
     });
   }
 

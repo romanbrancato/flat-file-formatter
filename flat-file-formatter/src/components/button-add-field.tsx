@@ -19,21 +19,26 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import {
-  FieldValue,
-  FieldValueSchema,
-  PresetContext,
-} from "@/context/preset-context";
+import { FieldSchema, PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { SelectFlag } from "@/components/select-flag";
+import { z } from "zod";
+
+export const AddFieldSchema = z
+  .object({
+    value: z.string(),
+  })
+  .and(FieldSchema);
+
+export type AddField = z.infer<typeof AddFieldSchema>;
 
 export function ButtonAddField() {
   const { isReady, addField } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<FieldValue>({
-    resolver: zodResolver(FieldValueSchema),
+  const form = useForm<AddField>({
+    resolver: zodResolver(AddFieldSchema),
     defaultValues: {
       flag: "detail",
       name: "",
@@ -41,7 +46,7 @@ export function ButtonAddField() {
     },
   });
 
-  function onSubmit(values: FieldValue) {
+  function onSubmit(values: AddField) {
     addField(values);
     setPreset({ ...preset, added: [...preset.added, { ...values }] });
     setOpen(false);
