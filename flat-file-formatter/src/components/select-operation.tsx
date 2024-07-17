@@ -28,11 +28,14 @@ export function SelectOperation({
         <SelectValue placeholder="Select operation..." />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem key="if" value="if">
-          IF
+        <SelectItem key="conditional" value="conditional">
+          CONDITIONAL
         </SelectItem>
-        <SelectItem key="if not" value="if not">
-          IF NOT
+        <SelectItem key="equation" value="equation">
+          EQUATION
+        </SelectItem>
+        <SelectItem key="tally" value="tally">
+          TALLY
         </SelectItem>
       </SelectContent>
     </Select>

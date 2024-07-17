@@ -2,7 +2,8 @@ import { Data, parseFile, ParserParams } from "@/lib/parser-functions";
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
 import path from "node:path";
-import { Field, FieldValue, Function, Preset } from "@/context/preset-context";
+import { Field, Function, Preset } from "@/context/preset-context";
+import { AddField } from "@/components/button-add-field";
 
 export function useParser() {
   const [isReady, setIsReady] = useState(false);
@@ -48,7 +49,7 @@ export function useParser() {
   );
 
   const addField = useCallback(
-    ({ flag, name, value }: FieldValue) => {
+    ({ flag, name, value }: AddField) => {
       setIsReady(false);
       setData({
         ...data,
@@ -68,22 +69,10 @@ export function useParser() {
     [data],
   );
 
-  const editHeader = useCallback(
-    ({ flag, name, value }: FieldValue) => {
-      setIsReady(false);
-      setData({ ...data, [flag]: fns.editHeader(data[flag], { name, value }) });
-      setIsReady(true);
-    },
-    [data],
-  );
-
   const runFunction = useCallback(
     (fn: Function) => {
       setIsReady(false);
-      setData({
-        ...data,
-        [fn.resultField.flag]: fns.runFunction(data[fn.field.flag], fn),
-      });
+      setData({ ...data, [fn.result.flag]: fns.runFunction(data, fn) });
       setIsReady(true);
     },
     [data],
@@ -107,7 +96,6 @@ export function useParser() {
     removeField,
     addField,
     orderFields,
-    editHeader,
     runFunction,
     applyPreset,
   };

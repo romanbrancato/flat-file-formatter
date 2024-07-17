@@ -43,48 +43,69 @@ export function orderFields(
   });
 }
 
-export function editHeader(
-  data: Record<string, unknown>[],
-  field: Record<string, string>,
-): Record<string, unknown>[] {
-  return data.map((row) => {
-    const [oldCol, newCol] = Object.entries(field)[0];
-    if (oldCol in row) {
-      return {
-        ...Object.fromEntries(
-          Object.entries(row).map(([key, val]) =>
-            key === oldCol ? [newCol, val] : [key, val],
-          ),
-        ),
-      };
-    }
-    return row;
-  });
-}
-
 export function runFunction(
-  data: Record<string, unknown>[],
+  data: Data,
   fn: Function,
 ): Record<string, unknown>[] {
-  return data.map((record) => {
-    const { field, operation, condition, resultField, valueTrue, valueFalse } =
-      fn;
+  if (fn.operation === "conditional") {
+    const evaluateCondition = (
+      condition: any,
+      record: Record<string, unknown>,
+    ) => {
+      const value = Number(record[condition.field.name]);
+      switch (condition.comparison) {
+        case "<":
+          return !isNaN(value) && value < Number(condition.value);
+        case ">":
+          return !isNaN(value) && value > Number(condition.value);
+        case "===":
+          return record[condition.field.name] === condition.value;
+        default:
+          return false;
+      }
+    };
 
-    const matches =
-      condition === "*" ||
-      (operation === "if" && record[field.name] === condition) ||
-      (operation === "if not" && record[field.name] !== condition);
+    return data.detail.map((record) => {
+      const { conditions, result, valueTrue, valueFalse } = fn;
 
-    const value = matches
-      ? valueTrue !== "..."
-        ? valueTrue
-        : record[resultField.name]
-      : valueFalse !== "..."
-        ? valueFalse
-        : record[resultField.name];
+      const allConditionsPass = conditions.every((condition) => {
+        const conditionPasses = evaluateCondition(condition, record);
+        return condition.statement === "if"
+          ? conditionPasses
+          : !conditionPasses;
+      });
 
-    return { ...record, [resultField.name]: value };
-  });
+      const finalValue = allConditionsPass ? valueTrue : valueFalse;
+      const newValue = finalValue === "..." ? record[result.name] : finalValue;
+
+      return { ...record, [result.name]: newValue };
+    });
+  }
+
+  if (fn.operation === "equation") {
+    return data.detail.map((record) => {
+      const { formulas, result } = fn;
+
+      let sum = 0;
+
+      formulas.forEach((formula) => {
+        const value = Number(record[formula.field.name]);
+        if (!isNaN(value)) {
+          // Check if value is a valid number
+          if (formula.operator === "+") {
+            sum += value;
+          } else if (formula.operator === "-") {
+            sum -= value;
+          }
+        }
+      });
+
+      // Assign the computed sum to the result field in the record
+      return { ...record, [result.name]: sum };
+    });
+  }
+
+  return data.detail;
 }
 
 export function applyPreset(data: Data, preset: Preset) {
@@ -97,31 +118,19 @@ export function applyPreset(data: Data, preset: Preset) {
       data.trailer = removeField(data.trailer, field.name);
   });
 
-  preset.added?.forEach((item) => {
-    if (item.flag === "header")
-      data.header = addField(data.header, { [item.name]: item.value });
-    if (item.flag === "detail")
-      data.detail = addField(data.detail, { [item.name]: item.value });
-    if (item.flag === "trailer")
-      data.trailer = addField(data.trailer, { [item.name]: item.value });
+  preset.added?.forEach((field) => {
+    if (field.flag === "header")
+      data.header = addField(data.header, { [field.name]: field.value });
+    if (field.flag === "detail")
+      data.detail = addField(data.detail, { [field.name]: field.value });
+    if (field.flag === "trailer")
+      data.trailer = addField(data.trailer, { [field.name]: field.value });
   });
 
-  preset.editedHeaders?.forEach((item) => {
-    if (item.flag === "header")
-      data.header = editHeader(data.header, { [item.name]: item.value });
-    if (item.flag === "detail")
-      data.detail = editHeader(data.detail, { [item.name]: item.value });
-    if (item.flag === "trailer")
-      data.trailer = editHeader(data.trailer, { [item.name]: item.value });
-  });
-
-  preset.functions?.forEach((item) => {
-    if (item.resultField.flag === "header")
-      data.header = runFunction(data.header, item);
-    if (item.resultField.flag === "detail")
-      data.detail = runFunction(data.detail, item);
-    if (item.resultField.flag === "trailer")
-      data.trailer = runFunction(data.trailer, item);
+  preset.functions?.forEach((fn) => {
+    if (fn.result.flag === "header") data.header = runFunction(data, fn);
+    if (fn.result.flag === "detail") data.detail = runFunction(data, fn);
+    if (fn.result.flag === "trailer") data.trailer = runFunction(data, fn);
   });
 
   data.header = orderFields(data.header, preset.order.header);
