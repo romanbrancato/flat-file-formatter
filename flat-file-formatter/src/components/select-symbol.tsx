@@ -5,9 +5,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
-import { symbols } from "@/data/symbols";
 import { ParserContext } from "@/context/parser-context";
 
 export function SelectSymbol({ label }: { label: string }) {
@@ -25,11 +24,27 @@ export function SelectSymbol({ label }: { label: string }) {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {Array.from(symbols.entries()).map(([symbol, value]) => (
-          <SelectItem key={symbol} value={value}>
-            {symbol}
-          </SelectItem>
-        ))}
+        <SelectItem key="," value=",">
+          ,
+        </SelectItem>
+        <SelectItem key=";" value=";">
+          ;
+        </SelectItem>
+        <SelectItem key=":" value=":">
+          :
+        </SelectItem>
+        <SelectItem key="|" value="|">
+          |
+        </SelectItem>
+        <SelectItem key="tab" value="\t">
+          Tab
+        </SelectItem>
+        <SelectItem key="space" value=" ">
+          Space
+        </SelectItem>
+        <SelectItem key="=" value="=">
+          =
+        </SelectItem>
       </SelectContent>
     </Select>
   );

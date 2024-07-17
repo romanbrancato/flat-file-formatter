@@ -19,16 +19,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { FieldSchema, PresetContext } from "@/context/preset-context";
+import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { SelectFlag } from "@/components/select-flag";
 import { z } from "zod";
 
-export const AddFieldSchema = z
-  .object({
-    value: z.string(),
-  })
-  .and(FieldSchema);
+export const AddFieldSchema = z.object({
+  flag: z.enum(["header", "detail", "trailer"]),
+  name: z.string().min(1, "Enter a field name."),
+  value: z.string(),
+});
 
 export type AddField = z.infer<typeof AddFieldSchema>;
 

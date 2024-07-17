@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
 import path from "node:path";
 import { Field, Function, Preset } from "@/context/preset-context";
-import {AddField} from "@/components/button-add-field";
+import { AddField } from "@/components/button-add-field";
 
 export function useParser() {
   const [isReady, setIsReady] = useState(false);
@@ -72,7 +72,7 @@ export function useParser() {
   const runFunction = useCallback(
     (fn: Function) => {
       setIsReady(false);
-      setData(fns.runFunction(data, fn));
+      setData({ ...data, [fn.result.flag]: fns.runFunction(data, fn) });
       setIsReady(true);
     },
     [data],

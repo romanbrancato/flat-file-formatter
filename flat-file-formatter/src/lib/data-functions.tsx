@@ -43,28 +43,69 @@ export function orderFields(
   });
 }
 
-export function runFunction(data: Data, fn: Function): Data {
+export function runFunction(
+  data: Data,
+  fn: Function,
+): Record<string, unknown>[] {
   if (fn.operation === "conditional") {
-    data[fn.flag];
-    for (const condition of fn.conditions) {
-      const { statement, field, comparison, value } = condition;
-
-      const result = eval(
-        `${data[field.flag][field.name]} ${comparison} ${value}`,
-      );
-
-      if (
-        (statement === "if" && result) ||
-        (statement === "if not" && !result)
-      ) {
-        data[fn.result.flag].push({ [fn.result.name]: fn.valueTrue });
-      } else {
-        data[fn.result.flag].push({ [fn.result.name]: fn.valueFalse });
+    const evaluateCondition = (
+      condition: any,
+      record: Record<string, unknown>,
+    ) => {
+      const value = Number(record[condition.field.name]);
+      switch (condition.comparison) {
+        case "<":
+          return !isNaN(value) && value < Number(condition.value);
+        case ">":
+          return !isNaN(value) && value > Number(condition.value);
+        case "===":
+          return record[condition.field.name] === condition.value;
+        default:
+          return false;
       }
-    }
+    };
+
+    return data.detail.map((record) => {
+      const { conditions, result, valueTrue, valueFalse } = fn;
+
+      const allConditionsPass = conditions.every((condition) => {
+        const conditionPasses = evaluateCondition(condition, record);
+        return condition.statement === "if"
+          ? conditionPasses
+          : !conditionPasses;
+      });
+
+      const finalValue = allConditionsPass ? valueTrue : valueFalse;
+      const newValue = finalValue === "..." ? record[result.name] : finalValue;
+
+      return { ...record, [result.name]: newValue };
+    });
   }
 
-  return data;
+  if (fn.operation === "equation") {
+    return data.detail.map((record) => {
+      const { formulas, result } = fn;
+
+      let sum = 0;
+
+      formulas.forEach((formula) => {
+        const value = Number(record[formula.field.name]);
+        if (!isNaN(value)) {
+          // Check if value is a valid number
+          if (formula.operator === "+") {
+            sum += value;
+          } else if (formula.operator === "-") {
+            sum -= value;
+          }
+        }
+      });
+
+      // Assign the computed sum to the result field in the record
+      return { ...record, [result.name]: sum };
+    });
+  }
+
+  return data.detail;
 }
 
 export function applyPreset(data: Data, preset: Preset) {
@@ -77,16 +118,20 @@ export function applyPreset(data: Data, preset: Preset) {
       data.trailer = removeField(data.trailer, field.name);
   });
 
-  preset.added?.forEach((item) => {
-    if (item.flag === "header")
-      data.header = addField(data.header, { [item.name]: item.value });
-    if (item.flag === "detail")
-      data.detail = addField(data.detail, { [item.name]: item.value });
-    if (item.flag === "trailer")
-      data.trailer = addField(data.trailer, { [item.name]: item.value });
+  preset.added?.forEach((field) => {
+    if (field.flag === "header")
+      data.header = addField(data.header, { [field.name]: field.value });
+    if (field.flag === "detail")
+      data.detail = addField(data.detail, { [field.name]: field.value });
+    if (field.flag === "trailer")
+      data.trailer = addField(data.trailer, { [field.name]: field.value });
   });
 
-  // ADD RUN FUNCTION HERE
+  preset.functions?.forEach((fn) => {
+    if (fn.result.flag === "header") data.header = runFunction(data, fn);
+    if (fn.result.flag === "detail") data.detail = runFunction(data, fn);
+    if (fn.result.flag === "trailer") data.trailer = runFunction(data, fn);
+  });
 
   data.header = orderFields(data.header, preset.order.header);
   data.detail = orderFields(data.detail, preset.order.detail);

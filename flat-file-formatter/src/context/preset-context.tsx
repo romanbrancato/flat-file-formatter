@@ -51,6 +51,11 @@ export const FunctionSchema = z.discriminatedUnion("operation", [
     ),
     result: FieldSchema,
   }),
+  z.object({
+    operation: z.literal("total"),
+    fields: z.array(FieldSchema),
+    result: FieldSchema,
+  }),
 ]);
 
 export type Function = z.infer<typeof FunctionSchema>;
