@@ -8,66 +8,80 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Pencil1Icon } from "@radix-ui/react-icons";
-import { SelectField } from "@/components/select-field";
-import { Input } from "@/components/ui/input";
+import {
+  Cross2Icon,
+  Pencil1Icon,
+  PlusCircledIcon,
+} from "@radix-ui/react-icons";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { SelectOperation } from "@/components/select-operation";
-import {
-  FieldValueSchema,
-  FunctionSchema,
-  PresetContext,
-} from "@/context/preset-context";
+import { FunctionSchema, PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
+import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
+import { SelectOperation } from "@/components/select-operation";
+import { SelectField } from "@/components/select-field";
+import { Input } from "@/components/ui/input";
+import { SelectStatement } from "@/components/select-statement";
+import { SelectComparison } from "@/components/select-comparison";
+import { SelectOperator } from "@/components/select-operator";
 
 export function ButtonEditField() {
-  const { isReady, editHeader, runFunction } = useContext(ParserContext);
+  const { isReady, runFunction } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-  const [target, setTarget] = useState<"name" | "values">("values");
 
   const form = useForm({
-    resolver: zodResolver(
-      target === "name" ? FieldValueSchema : FunctionSchema,
-    ),
+    resolver: zodResolver(FunctionSchema),
     defaultValues: {
-      field: { flag: "detail", name: "" },
-      value: "",
       operation: "",
-      condition: "",
-      resultField: { flag: "detail", name: "" },
+      conditions: [
+        {
+          statement: "if",
+          field: {},
+          comparison: "===",
+          value: "",
+        },
+      ],
+      formulas: [
+        {
+          operator: "+",
+          field: {},
+        },
+      ],
+      result: {},
       valueTrue: "",
       valueFalse: "",
     },
   });
 
+  const {
+    fields: conditions,
+    append: appendCondition,
+    remove: removeCondition,
+  } = useFieldArray({
+    name: "conditions",
+    control: form.control,
+  });
+
+  const {
+    fields: constants,
+    append: appendConstant,
+    remove: removeConstant,
+  } = useFieldArray({
+    name: "formulas",
+    control: form.control,
+  });
+
   function onSubmit(values: any) {
-    if (target === "values") {
-      runFunction(values);
-      setPreset({ ...preset, functions: [...preset.functions, { ...values }] });
-    } else {
-      editHeader(values);
-      setPreset({
-        ...preset,
-        editedHeaders: [...preset.editedHeaders, { ...values }],
-      });
-    }
+    runFunction(values);
+    setPreset({ ...preset, functions: [...preset.functions, { ...values }] });
     setOpen(false);
     form.reset();
   }
@@ -85,44 +99,24 @@ export function ButtonEditField() {
           Edit Field
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[800px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[800px]">
         <DialogHeader>
           <DialogTitle>Edit Field</DialogTitle>
           <DialogDescription className="flex flex-row justify-between items-center">
-            Select a field then change its name or values.
-            <Select
-              defaultValue={target}
-              onValueChange={(value: "name" | "values") => setTarget(value)}
-            >
-              <SelectTrigger className="h-7 w-[145px] text-xs ml-auto text-foreground">
-                <span className="text-muted-foreground">Edit: </span>
-                <SelectValue placeholder="Select target" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem key="name" value="name" className="text-xs">
-                  Name
-                </SelectItem>
-                <SelectItem key="values" value="values" className="text-xs">
-                  Values
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            Perform various operations.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-y-2"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
-              name="field"
-              render={() => (
-                <FormItem>
+              name="operation"
+              render={({ field }) => (
+                <FormItem className="mb-1">
                   <FormControl>
-                    <SelectField
-                      onFieldSelect={(field) => {
-                        form.setValue("field", field, {
+                    <SelectOperation
+                      onOperationSelect={(selectedOperation: string) => {
+                        form.setValue("operation", selectedOperation, {
                           shouldValidate: true,
                         });
                       }}
@@ -132,55 +126,122 @@ export function ButtonEditField() {
                 </FormItem>
               )}
             />
-            {target === "name" && (
-              <FormField
-                control={form.control}
-                name="value"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input placeholder="Change name to..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            {target === "values" && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="operation"
-                  render={() => (
-                    <FormItem>
-                      <FormControl>
-                        <SelectOperation
-                          onOperationSelect={(selectedOperation: string) =>
-                            form.setValue("operation", selectedOperation, {
-                              shouldValidate: true,
-                            })
-                          }
+            {form.getValues().operation === "conditional" && (
+              <div className="space-y-1">
+                <ScrollArea>
+                  <ScrollAreaViewport className="max-h-[400px]">
+                    {conditions.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="flex flex-row items-center gap-x-1 mt-1"
+                      >
+                        <FormField
+                          control={form.control}
+                          name={`conditions.${index}.statement`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <SelectStatement
+                                  defaultValue={field.value as "if" | "if not"}
+                                  onStatementSelect={(statement) =>
+                                    form.setValue(
+                                      `conditions.${index}.statement`,
+                                      statement,
+                                      {
+                                        shouldValidate: true,
+                                      },
+                                    )
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="condition"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="Condition" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Enter * to match all values.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormField
+                          control={form.control}
+                          name={`conditions.${index}.field`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <SelectField
+                                  onFieldSelect={(field) => {
+                                    form.setValue(
+                                      `conditions.${index}.field`,
+                                      field,
+                                      {
+                                        shouldValidate: true,
+                                      },
+                                    );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`conditions.${index}.comparison`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <SelectComparison
+                                  defaultValue={
+                                    field.value as "<" | "===" | ">"
+                                  }
+                                  onComparisonSelect={(comparison) => {
+                                    form.setValue(
+                                      `conditions.${index}.comparison`,
+                                      comparison,
+                                      {
+                                        shouldValidate: true,
+                                      },
+                                    );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`conditions.${index}.value`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder="Value" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Cross2Icon
+                          className="hover:text-destructive mx-auto opacity-70"
+                          onClick={() => removeCondition(index)}
+                        />
+                      </div>
+                    ))}
+                  </ScrollAreaViewport>
+                </ScrollArea>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-dashed"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    appendCondition({
+                      statement: "if",
+                      field: {},
+                      comparison: "===",
+                      value: "",
+                    });
+                  }}
+                >
+                  <PlusCircledIcon className="mr-2" />
+                  Add Condition
+                </Button>
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t" />
@@ -193,13 +254,13 @@ export function ButtonEditField() {
                 </div>
                 <FormField
                   control={form.control}
-                  name="resultField"
+                  name="result"
                   render={() => (
                     <FormItem>
                       <FormControl>
                         <SelectField
                           onFieldSelect={(field) => {
-                            form.setValue("resultField", field, {
+                            form.setValue("result", field, {
                               shouldValidate: true,
                             });
                           }}
@@ -229,18 +290,124 @@ export function ButtonEditField() {
                       <FormControl>
                         <Input placeholder="Value if false" {...field} />
                       </FormControl>
-                      <FormDescription>
-                        Enter ... to preserve values.
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </>
+              </div>
             )}
-            <Button type="submit" className="w-1/3 ml-auto">
-              Edit
-            </Button>
+            {form.getValues().operation === "equation" && (
+              <div className="space-y-1">
+                <ScrollArea>
+                  <ScrollAreaViewport className="max-h-[400px]">
+                    {constants.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="flex flex-row gap-x-1 mt-1 items-center"
+                      >
+                        <FormField
+                          control={form.control}
+                          name={`formulas.${index}.operator`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <SelectOperator
+                                  defaultValue={field.value as "+" | "-"}
+                                  onOperatorSelect={(operator) => {
+                                    form.setValue(
+                                      `formulas.${index}.operator`,
+                                      operator,
+                                      {
+                                        shouldValidate: true,
+                                      },
+                                    );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`formulas.${index}.field`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <SelectField
+                                  onFieldSelect={(field) => {
+                                    form.setValue(
+                                      `formulas.${index}.field`,
+                                      field,
+                                      {
+                                        shouldValidate: true,
+                                      },
+                                    );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Cross2Icon
+                          className="hover:text-destructive mx-auto opacity-70"
+                          onClick={() => removeConstant(index)}
+                        />
+                      </div>
+                    ))}
+                  </ScrollAreaViewport>
+                </ScrollArea>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-dashed"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    appendConstant({
+                      operator: "+",
+                      field: {},
+                    });
+                  }}
+                >
+                  <PlusCircledIcon className="mr-2" />
+                  Add Constant
+                </Button>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      EQUALS
+                    </span>
+                  </div>
+                </div>
+                <FormField
+                  control={form.control}
+                  name="result"
+                  render={() => (
+                    <FormItem>
+                      <FormControl>
+                        <SelectField
+                          onFieldSelect={(field) => {
+                            form.setValue("result", field, {
+                              shouldValidate: true,
+                            });
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+            <div className="flex">
+              <Button type="submit" className="w-1/3 ml-auto mt-1">
+                Edit
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>
