@@ -21,7 +21,7 @@ export function SelectOperation({
         onOperationSelect(value);
       }}
     >
-      <SelectTrigger className="font-medium">
+      <SelectTrigger>
         <span className="text-xs font-normal text-muted-foreground">
           Operation:
         </span>

@@ -39,9 +39,7 @@ export function SelectField({
           aria-expanded={open}
           className="w-full justify-between px-3 min-w-[100px] sm:min-w-[300px]"
         >
-          <span className="text-xs font-normal text-muted-foreground">
-            Field:
-          </span>
+          <span className="text-xs text-muted-foreground">Field:</span>
           {selectedField ? selectedField : "Select a field..."}
           <CaretSortIcon className="ml-2 opacity-50" />
         </Button>
@@ -54,7 +52,7 @@ export function SelectField({
           />
           <ScrollArea>
             <ScrollAreaViewport className="max-h-[300px]">
-              {data.header.length > 0 && (
+              {data.header.some((rec) => Object.keys(rec).length > 0) && (
                 <CommandGroup heading="Header Fields" className="flex-1">
                   {Object.keys(data.header[0]).map((field) => (
                     <CommandItem
@@ -96,7 +94,7 @@ export function SelectField({
                   </CommandItem>
                 ))}
               </CommandGroup>
-              {data.trailer.length > 0 && (
+              {data.trailer.some((rec) => Object.keys(rec).length > 0) && (
                 <CommandGroup heading="Trailer Fields" className="flex-1">
                   {Object.keys(data.trailer[0]).map((field) => (
                     <CommandItem

@@ -23,7 +23,9 @@ export function SelectFlag({
       }}
     >
       <SelectTrigger>
-        <span className="text-xs text-muted-foreground">{label}:</span>
+        <span className="font-normal text-xs text-muted-foreground">
+          {label}:
+        </span>
         <SelectValue placeholder="Select Flag" />
       </SelectTrigger>
       <SelectContent>

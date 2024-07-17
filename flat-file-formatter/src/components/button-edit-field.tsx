@@ -218,7 +218,7 @@ export function ButtonEditField() {
                           )}
                         />
                         <Cross2Icon
-                          className="hover:text-destructive mx-auto opacity-70"
+                          className="hover:text-destructive ml-auto opacity-70"
                           onClick={() => removeCondition(index)}
                         />
                       </div>
@@ -351,7 +351,7 @@ export function ButtonEditField() {
                           )}
                         />
                         <Cross2Icon
-                          className="hover:text-destructive mx-auto opacity-70"
+                          className="hover:text-destructive ml-auto opacity-70"
                           onClick={() => removeConstant(index)}
                         />
                       </div>

@@ -21,7 +21,9 @@ export function SelectAlign() {
       disabled={!isReady}
     >
       <SelectTrigger>
-        <span className="text-xs text-muted-foreground">Align: </span>
+        <span className="font-normal text-xs text-muted-foreground">
+          Align:{" "}
+        </span>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

@@ -20,7 +20,9 @@ export function SelectSymbol({ label }: { label: string }) {
       disabled={!isReady}
     >
       <SelectTrigger>
-        <span className="text-xs text-muted-foreground">{label}: </span>
+        <span className="font-normal text-xs text-muted-foreground">
+          {label}:{" "}
+        </span>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

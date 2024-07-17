@@ -16,7 +16,7 @@ export function SelectMode() {
       onValueChange={(value: "single" | "batch") => setMode(value)}
     >
       <SelectTrigger className="h-7 w-[145px] text-xs ml-auto">
-        <span className="text-muted-foreground">Mode: </span>
+        <span className="font-normal text-muted-foreground">Mode: </span>
         <SelectValue placeholder="Select mode" />
       </SelectTrigger>
       <SelectContent>

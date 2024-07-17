@@ -21,8 +21,10 @@ export function SelectExport() {
       }
       disabled={!isReady}
     >
-      <SelectTrigger className="w-full">
-        <span className="text-xs text-muted-foreground">Export As:</span>
+      <SelectTrigger>
+        <span className="font-normal text-xs text-muted-foreground">
+          Export As:
+        </span>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

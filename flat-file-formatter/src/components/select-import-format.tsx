@@ -20,7 +20,7 @@ export function SelectImportFormat({
         onFormatSelect(field);
       }}
     >
-      <SelectTrigger className="font-medium">
+      <SelectTrigger>
         <span className="text-xs font-normal text-muted-foreground">
           Import Format:
         </span>
