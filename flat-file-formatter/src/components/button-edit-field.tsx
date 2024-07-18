@@ -58,6 +58,7 @@ export function ButtonEditField() {
       result: {},
       valueTrue: "",
       valueFalse: "",
+      fields: [{}],
     },
   });
 
@@ -67,6 +68,15 @@ export function ButtonEditField() {
     remove: removeCondition,
   } = useFieldArray({
     name: "conditions",
+    control: form.control,
+  });
+
+  const {
+    fields,
+    append: appendField,
+    remove: removeField,
+  } = useFieldArray({
+    name: "fields",
     control: form.control,
   });
 
@@ -383,6 +393,75 @@ export function ButtonEditField() {
                     </span>
                   </div>
                 </div>
+                <FormField
+                  control={form.control}
+                  name="result"
+                  render={() => (
+                    <FormItem>
+                      <FormControl>
+                        <SelectField
+                          onFieldSelect={(field) => {
+                            form.setValue("result", field, {
+                              shouldValidate: true,
+                            });
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+            {form.getValues().operation === "total" && (
+              <div className="space-y-1">
+                <ScrollArea>
+                  <ScrollAreaViewport className="max-h-[400px]">
+                    {fields.map((field, index) => (
+                      <div
+                        key={field.id}
+                        className="flex flex-row gap-x-1 mt-1 items-center"
+                      >
+                        <FormField
+                          control={form.control}
+                          name={`fields.${index}`}
+                          render={(field) => (
+                            <FormItem>
+                              <FormControl>
+                                <SelectField
+                                  onFieldSelect={(field) => {
+                                    form.setValue(`fields.${index}`, field, {
+                                      shouldValidate: true,
+                                    });
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Cross2Icon
+                          className="hover:text-destructive ml-auto opacity-70"
+                          onClick={() => removeField(index)}
+                        />
+                      </div>
+                    ))}
+                  </ScrollAreaViewport>
+                </ScrollArea>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-dashed"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    appendField({
+                      field: {},
+                    });
+                  }}
+                >
+                  <PlusCircledIcon className="mr-2" />
+                  Add Field
+                </Button>
                 <FormField
                   control={form.control}
                   name="result"

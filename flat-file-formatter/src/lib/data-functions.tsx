@@ -105,6 +105,9 @@ export function runFunction(
     });
   }
 
+  if (fn.operation === "total") {
+  }
+
   return data.detail;
 }
 

@@ -34,8 +34,8 @@ export function SelectOperation({
         <SelectItem key="equation" value="equation">
           EQUATION
         </SelectItem>
-        <SelectItem key="tally" value="tally">
-          TALLY
+        <SelectItem key="total" value="total">
+          TOTAL
         </SelectItem>
       </SelectContent>
     </Select>
