@@ -2,6 +2,7 @@ import { CaretSortIcon, CheckIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -12,8 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { useContext, useEffect, useState } from "react";
-import { Dropzone } from "@/components/dropzone";
+import React, { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Preset, PresetContext, PresetSchema } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
@@ -26,13 +26,14 @@ import {
 } from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
 import { ModeContext } from "@/context/mode-context";
+import { Input } from "@/components/ui/input";
 
 export function SelectPreset() {
   const { mode } = useContext(ModeContext);
   const { isReady, applyPreset } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-  const [files, setFiles] = useState<File[]>([]);
+  const [file, setFile] = useState<File>();
   const [storedPresets, setStoredPresets] = useState<Preset[]>([]);
 
   const onSelect = (selectedPreset: Preset) => {
@@ -46,7 +47,7 @@ export function SelectPreset() {
   };
 
   useEffect(() => {
-    if (!files.length) return;
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
@@ -63,8 +64,8 @@ export function SelectPreset() {
         });
       }
     };
-    reader.readAsText(files[files.length - 1]);
-  }, [files]);
+    reader.readAsText(file);
+  }, [file]);
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -103,50 +104,52 @@ export function SelectPreset() {
       <PopoverContent align="start" className="p-0">
         <Command>
           <CommandInput placeholder="Search presets..." />
-          <CommandGroup heading="Import">
-            <Dropzone
-              onChange={setFiles}
-              className="w-full"
-              fileExtension=".json"
+          <CommandGroup>
+            <Input
+              type="file"
+              accept=".json"
+              onChange={(event) => setFile(event.target.files?.[0])}
             />
           </CommandGroup>
-          <CommandGroup heading="Presets">
-            <ScrollArea>
-              <ScrollAreaViewport className="max-h-[150px]">
-                {storedPresets.map((p) => (
-                  <ContextMenu key={p.name}>
-                    <ContextMenuTrigger>
-                      <CommandItem
-                        onSelect={() => {
-                          onSelect(p);
-                          setOpen(false);
-                        }}
-                      >
-                        {p.name}
-                        <CheckIcon
-                          className={cn(
-                            "ml-auto",
-                            preset.name === p.name
-                              ? "opacity-100"
-                              : "opacity-0",
-                          )}
-                        />
-                      </CommandItem>
-                    </ContextMenuTrigger>
-                    <ContextMenuContent>
-                      <ContextMenuItem
-                        className="text-destructive"
-                        onClick={() => onDelete(p)}
-                      >
-                        Delete
-                        <Cross2Icon className="ml-auto" />
-                      </ContextMenuItem>
-                    </ContextMenuContent>
-                  </ContextMenu>
-                ))}
-              </ScrollAreaViewport>
-            </ScrollArea>
-          </CommandGroup>
+          {storedPresets.length > 0 && (
+            <CommandGroup heading="Presets">
+              <ScrollArea>
+                <ScrollAreaViewport className="max-h-[150px]">
+                  {storedPresets.map((p) => (
+                    <ContextMenu key={p.name}>
+                      <ContextMenuTrigger>
+                        <CommandItem
+                          onSelect={() => {
+                            onSelect(p);
+                            setOpen(false);
+                          }}
+                        >
+                          {p.name}
+                          <CheckIcon
+                            className={cn(
+                              "ml-auto",
+                              preset.name === p.name
+                                ? "opacity-100"
+                                : "opacity-0",
+                            )}
+                          />
+                        </CommandItem>
+                      </ContextMenuTrigger>
+                      <ContextMenuContent>
+                        <ContextMenuItem
+                          className="text-destructive"
+                          onClick={() => onDelete(p)}
+                        >
+                          Delete
+                          <Cross2Icon className="ml-auto" />
+                        </ContextMenuItem>
+                      </ContextMenuContent>
+                    </ContextMenu>
+                  ))}
+                </ScrollAreaViewport>
+              </ScrollArea>
+            </CommandGroup>
+          )}
         </Command>
       </PopoverContent>
     </Popover>
