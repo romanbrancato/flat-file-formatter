@@ -106,7 +106,36 @@ export function runFunction(
   }
 
   if (fn.operation === "total") {
+    let total = fn.fields.reduce((acc, field) => {
+      return (
+        acc +
+        data[field.flag]
+          .flatMap((record) => Number(record[field.name]) || 0)
+          .reduce((sum, value) => sum + value, 0)
+      );
+    }, 0);
+
+    return data[fn.result.flag].map((record) => ({
+      ...record,
+      [fn.result.name]: total,
+    }));
   }
+
+  // if (fn.operation === "total") {
+  //   let total = 0;
+  //   fn.fields.forEach((field) => {
+  //     for (const record of data[field.flag]) {
+  //       const value = Number(record[field.name]);
+  //       if (!isNaN(value)) {
+  //         total += value;
+  //       }
+  //     }
+  //   });
+  //
+  //   return data[fn.result.flag].map((record) => {
+  //     return { ...record, [fn.result.name]: total };
+  //   });
+  // }
 
   return data.detail;
 }
