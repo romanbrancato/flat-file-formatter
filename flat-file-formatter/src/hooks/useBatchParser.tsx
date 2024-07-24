@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
-import { Data, MultiFormatConfig, parseFile } from "@/lib/parser-functions";
-import { Preset } from "@/context/preset-context";
+import { Data, parseFile } from "@/lib/parser-functions";
+import { PresetSchema } from "@/context/preset-context";
+import { ConfigSchema } from "@/components/button-parser-config";
+import { z } from "zod";
 
-export type BatchParserParams = {
-  files: File[];
-  config: MultiFormatConfig;
-  preset: Preset;
-};
+export const BatchParserParams = z.object({
+  files: z.array(z.instanceof(File)),
+  config: ConfigSchema,
+  preset: PresetSchema,
+});
+
+export type BatchParserParams = z.infer<typeof BatchParserParams>;
 
 export function useBatchParser() {
   const [isBatchReady, setIsBatchReady] = useState(false);
