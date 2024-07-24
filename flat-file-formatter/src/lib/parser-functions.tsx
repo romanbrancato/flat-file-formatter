@@ -3,6 +3,8 @@ import { Options, parse, stringify } from "@evologi/fixed-width";
 import path from "node:path";
 import { toast } from "sonner";
 import { Preset } from "@/context/preset-context";
+import { ConfigSchema } from "@/components/button-parser-config";
+import { z } from "zod";
 
 export type Data = {
   name: string;
@@ -11,18 +13,12 @@ export type Data = {
   trailer: Record<string, unknown>[];
 };
 
-export type MultiFormatConfig =
-  | ({
-      format: "delimited";
-    } & Omit<Papa.ParseLocalConfig<unknown, any>, "complete">)
-  | ({
-      format: "fixed";
-    } & Options);
+export const ParserParams = z.object({
+  file: z.instanceof(File),
+  config: ConfigSchema,
+});
 
-export type ParserParams = {
-  file: File;
-  config: MultiFormatConfig;
-};
+export type ParserParams = z.infer<typeof ParserParams>;
 
 export async function parseFile(params: ParserParams) {
   return new Promise<Data>((resolve, reject) => {
@@ -43,15 +39,56 @@ export async function parseFile(params: ParserParams) {
       Papa.parse(params.file, config);
     } else if (params.config.format === "fixed") {
       const reader = new FileReader();
+      const {
+        header: configHeader,
+        detail: configDetail,
+        trailer: configTrailer,
+      } = params.config;
+
       reader.onload = (event) => {
         const fileContents = event.target?.result as string;
+
+        // Split the file contents into lines
+        const lines = fileContents.split(/\r?\n/);
+
+        // Find the header record
+        let headerRecord = "";
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i] !== "") {
+            headerRecord = lines[i];
+            break;
+          }
+        }
+
+        // Find the trailer record
+        let trailerRecord = "";
+        for (let j = lines.length - 1; j >= 0; j--) {
+          if (lines[j] !== "") {
+            trailerRecord = lines[j];
+            break;
+          }
+        }
+
+        // Collect detail records as a single string with new lines
+        let detailRecords = "";
+        for (
+          let k = lines.indexOf(headerRecord) + 1;
+          k < lines.lastIndexOf(trailerRecord);
+          k++
+        ) {
+          if (lines[k] !== "") {
+            detailRecords += lines[k] + "\n";
+          }
+        }
+
         resolve({
           name: path.parse(params.file.name).name,
-          header: [{}],
-          detail: parse(fileContents, params.config as Options),
-          trailer: [{}],
+          header: parse(headerRecord, configHeader as Options),
+          detail: parse(detailRecords, configDetail as Options),
+          trailer: parse(trailerRecord, configTrailer as Options),
         });
       };
+
       reader.readAsText(params.file);
     }
   });

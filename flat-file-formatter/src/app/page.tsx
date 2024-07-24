@@ -3,9 +3,8 @@ import { useContext, useEffect, useState } from "react";
 import { Dropzone } from "@/components/dropzone";
 import { SelectMode } from "@/components/select-mode";
 import { ModeContext } from "@/context/mode-context";
-import { ButtonParserConfig } from "@/components/button-parser-config";
+import { ButtonParserConfig, Config } from "@/components/button-parser-config";
 import { ParserContext } from "@/context/parser-context";
-import { MultiFormatConfig } from "@/lib/parser-functions";
 import { PresetToolbar } from "@/components/preset-toolbar";
 import { RecordTable } from "@/components/record-table";
 import { FormatMenu } from "@/components/format-menu";
@@ -21,7 +20,7 @@ export default function App() {
   const { mode } = useContext(ModeContext);
   const { isReady, data, setParams } = useContext(ParserContext);
   const [files, setFiles] = useState<File[]>([]);
-  const [config, setConfig] = useState<MultiFormatConfig>({
+  const [config, setConfig] = useState<Config>({
     format: "delimited",
   });
 
