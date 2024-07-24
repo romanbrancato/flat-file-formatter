@@ -6,8 +6,9 @@ import { PresetContext } from "@/context/preset-context";
 import { download } from "@/lib/utils";
 import { ModeContext } from "@/context/mode-context";
 import { ParserContext } from "@/context/parser-context";
-import { Data, MultiFormatConfig, unparseData } from "@/lib/parser-functions";
+import { Data, unparseData } from "@/lib/parser-functions";
 import { BatchParserContext } from "@/context/batch-parser-context";
+import { Config } from "./button-parser-config";
 
 export function ButtonExportFile({
   files,
@@ -16,7 +17,7 @@ export function ButtonExportFile({
 }: {
   files?: File[];
   setFiles?: (files: File[]) => void;
-  config?: MultiFormatConfig;
+  config?: Config
 }) {
   const { mode } = useContext(ModeContext);
   const {
