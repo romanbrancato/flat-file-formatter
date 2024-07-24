@@ -83,9 +83,15 @@ export async function parseFile(params: ParserParams) {
 
         resolve({
           name: path.parse(params.file.name).name,
-          header: parse(headerRecord, configHeader as Options),
+          header:
+            configHeader && configHeader?.fields.length > 0
+              ? parse(headerRecord, configHeader as Options)
+              : [{}],
           detail: parse(detailRecords, configDetail as Options),
-          trailer: parse(trailerRecord, configTrailer as Options),
+          trailer:
+            configTrailer && configTrailer?.fields.length > 0
+              ? parse(trailerRecord, configTrailer as Options)
+              : [{}],
         });
       };
 
