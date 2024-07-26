@@ -1,5 +1,5 @@
 import { Function, Preset } from "@/context/preset-context";
-import { tokenize } from "@/lib/utils";
+import { extract, format, tokenize } from "@/lib/utils";
 import { Data } from "@/lib/parser-functions";
 
 export function setName(originalName: string, schema = ""): string {
@@ -52,7 +52,9 @@ export function runFunction(
       condition: any,
       record: Record<string, unknown>,
     ) => {
-      const value = Number(record[condition.field.name]);
+      const value = condition.overpunch
+        ? Number(extract(record[condition.field.name] as string))
+        : Number(record[condition.field.name]);
       switch (condition.comparison) {
         case "<":
           return !isNaN(value) && value < Number(condition.value);
@@ -66,7 +68,7 @@ export function runFunction(
     };
 
     return data.detail.map((record) => {
-      const { conditions, result, valueTrue, valueFalse } = fn;
+      const { conditions, output, valueTrue, valueFalse } = fn;
 
       const allConditionsPass = conditions.every((condition) => {
         const conditionPasses = evaluateCondition(condition, record);
@@ -76,20 +78,22 @@ export function runFunction(
       });
 
       const finalValue = allConditionsPass ? valueTrue : valueFalse;
-      const newValue = finalValue === "..." ? record[result.name] : finalValue;
+      const newValue = finalValue === "..." ? record[output.name] : finalValue;
 
-      return { ...record, [result.name]: newValue };
+      return { ...record, [output.name]: newValue };
     });
   }
 
   if (fn.operation === "equation") {
     return data.detail.map((record) => {
-      const { formulas, result } = fn;
+      const { formulas, output } = fn;
 
       let sum = 0;
 
       formulas.forEach((formula) => {
-        const value = Number(record[formula.field.name]);
+        const value = formula.overpunch
+          ? Number(extract(record[formula.field.name] as string))
+          : Number(record[formula.field.name]);
         if (!isNaN(value)) {
           // Check if value is a valid number
           if (formula.operator === "+") {
@@ -101,7 +105,7 @@ export function runFunction(
       });
 
       // Assign the computed sum to the result field in the record
-      return { ...record, [result.name]: sum };
+      return { ...record, [output.name]: fn.overpunch ? format(sum) : sum };
     });
   }
 
@@ -109,15 +113,19 @@ export function runFunction(
     let total = fn.fields.reduce((acc, field) => {
       return (
         acc +
-        data[field.flag]
-          .flatMap((record) => Number(record[field.name]) || 0)
+        data[field.field.flag]
+          .flatMap((record) =>
+            field.overpunch
+              ? Number(extract(record[field.field.name] as string))
+              : Number(record[field.field.name]) || 0,
+          )
           .reduce((sum, value) => sum + value, 0)
       );
     }, 0);
 
-    return data[fn.result.flag].map((record) => ({
+    return data[fn.output.flag].map((record) => ({
       ...record,
-      [fn.result.name]: total,
+      [fn.output.name]: fn.overpunch ? format(total) : total,
     }));
   }
 
@@ -160,9 +168,9 @@ export function applyPreset(data: Data, preset: Preset) {
   });
 
   preset.functions?.forEach((fn) => {
-    if (fn.result.flag === "header") data.header = runFunction(data, fn);
-    if (fn.result.flag === "detail") data.detail = runFunction(data, fn);
-    if (fn.result.flag === "trailer") data.trailer = runFunction(data, fn);
+    if (fn.output.flag === "header") data.header = runFunction(data, fn);
+    if (fn.output.flag === "detail") data.detail = runFunction(data, fn);
+    if (fn.output.flag === "trailer") data.trailer = runFunction(data, fn);
   });
 
   data.header = orderFields(data.header, preset.order.header);

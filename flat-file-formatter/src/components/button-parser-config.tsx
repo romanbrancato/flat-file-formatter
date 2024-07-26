@@ -118,7 +118,6 @@ export function ButtonParserConfig({
   });
 
   function onSubmit(values: z.infer<typeof ConfigSchema>) {
-    console.log(values);
     setConfig(values);
     setOpen(false);
   }
@@ -147,7 +146,7 @@ export function ButtonParserConfig({
           config.detail.fields.forEach((field) => {
             appendDetail(field);
           });
-          config.detail?.fields.forEach((field) => {
+          config.trailer?.fields.forEach((field) => {
             appendTrailer(field);
           });
         }

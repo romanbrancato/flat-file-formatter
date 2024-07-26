@@ -31,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { SelectStatement } from "@/components/select-statement";
 import { SelectComparison } from "@/components/select-comparison";
 import { SelectOperator } from "@/components/select-operator";
+import { CheckboxOverpunch } from "@/components/checkbox-overpunch";
 
 export function ButtonEditField() {
   const { isReady, runFunction } = useContext(ParserContext);
@@ -46,6 +47,7 @@ export function ButtonEditField() {
           statement: "if",
           field: {},
           comparison: "===",
+          overpunch: false,
           value: "",
         },
       ],
@@ -53,12 +55,19 @@ export function ButtonEditField() {
         {
           operator: "+",
           field: {},
+          overpunch: false,
         },
       ],
-      result: {},
+      output: {},
+      overpunch: false,
       valueTrue: "",
       valueFalse: "",
-      fields: [{}],
+      fields: [
+        {
+          field: {},
+          overpunch: false,
+        },
+      ],
     },
   });
 
@@ -90,6 +99,7 @@ export function ButtonEditField() {
   });
 
   function onSubmit(values: any) {
+    console.log(values);
     runFunction(values);
     setPreset({ ...preset, functions: [...preset.functions, { ...values }] });
     setOpen(false);
@@ -143,7 +153,7 @@ export function ButtonEditField() {
                     {conditions.map((field, index) => (
                       <div
                         key={field.id}
-                        className="flex flex-row items-center gap-x-1 mt-1"
+                        className="flex flex-row items-center gap-x-2 mt-1"
                       >
                         <FormField
                           control={form.control}
@@ -179,6 +189,29 @@ export function ButtonEditField() {
                                     form.setValue(
                                       `conditions.${index}.field`,
                                       field,
+                                      {
+                                        shouldValidate: true,
+                                      },
+                                    );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`conditions.${index}.overpunch`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <CheckboxOverpunch
+                                  defaultValue={field.value}
+                                  onCheckedChange={(checked) => {
+                                    form.setValue(
+                                      `conditions.${index}.overpunch`,
+                                      checked,
                                       {
                                         shouldValidate: true,
                                       },
@@ -228,7 +261,7 @@ export function ButtonEditField() {
                           )}
                         />
                         <Cross2Icon
-                          className="hover:text-destructive ml-auto opacity-70"
+                          className="hover:text-destructive ml-auto opacity-70 flex-shrink-0"
                           onClick={() => removeCondition(index)}
                         />
                       </div>
@@ -244,6 +277,7 @@ export function ButtonEditField() {
                     appendCondition({
                       statement: "if",
                       field: {},
+                      overpunch: false,
                       comparison: "===",
                       value: "",
                     });
@@ -264,13 +298,13 @@ export function ButtonEditField() {
                 </div>
                 <FormField
                   control={form.control}
-                  name="result"
+                  name="output"
                   render={() => (
                     <FormItem>
                       <FormControl>
                         <SelectField
                           onFieldSelect={(field) => {
-                            form.setValue("result", field, {
+                            form.setValue("output", field, {
                               shouldValidate: true,
                             });
                           }}
@@ -313,7 +347,7 @@ export function ButtonEditField() {
                     {constants.map((field, index) => (
                       <div
                         key={field.id}
-                        className="flex flex-row gap-x-1 mt-1 items-center"
+                        className="flex flex-row gap-x-2 mt-1 items-center"
                       >
                         <FormField
                           control={form.control}
@@ -342,13 +376,36 @@ export function ButtonEditField() {
                           control={form.control}
                           name={`formulas.${index}.field`}
                           render={({ field }) => (
-                            <FormItem>
+                            <FormItem className="flex-1">
                               <FormControl>
                                 <SelectField
                                   onFieldSelect={(field) => {
                                     form.setValue(
                                       `formulas.${index}.field`,
                                       field,
+                                      {
+                                        shouldValidate: true,
+                                      },
+                                    );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`formulas.${index}.overpunch`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <CheckboxOverpunch
+                                  defaultValue={field.value}
+                                  onCheckedChange={(checked) => {
+                                    form.setValue(
+                                      `formulas.${index}.overpunch`,
+                                      checked,
                                       {
                                         shouldValidate: true,
                                       },
@@ -377,6 +434,7 @@ export function ButtonEditField() {
                     appendConstant({
                       operator: "+",
                       field: {},
+                      overpunch: false,
                     });
                   }}
                 >
@@ -393,24 +451,45 @@ export function ButtonEditField() {
                     </span>
                   </div>
                 </div>
-                <FormField
-                  control={form.control}
-                  name="result"
-                  render={() => (
-                    <FormItem>
-                      <FormControl>
-                        <SelectField
-                          onFieldSelect={(field) => {
-                            form.setValue("result", field, {
-                              shouldValidate: true,
-                            });
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="flex flex-row items-center justify-between gap-x-2">
+                  <FormField
+                    control={form.control}
+                    name="output"
+                    render={() => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <SelectField
+                            onFieldSelect={(field) => {
+                              form.setValue("output", field, {
+                                shouldValidate: true,
+                              });
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="overpunch"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <CheckboxOverpunch
+                            defaultValue={field.value}
+                            onCheckedChange={(checked) => {
+                              form.setValue("overpunch", checked, {
+                                shouldValidate: true,
+                              });
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             )}
             {form.getValues().operation === "total" && (
@@ -420,19 +499,46 @@ export function ButtonEditField() {
                     {fields.map((field, index) => (
                       <div
                         key={field.id}
-                        className="flex flex-row gap-x-1 mt-1 items-center"
+                        className="flex flex-row gap-x-2 mt-1 items-center"
                       >
                         <FormField
                           control={form.control}
-                          name={`fields.${index}`}
+                          name={`fields.${index}.field`}
                           render={(field) => (
-                            <FormItem>
+                            <FormItem className="flex-1">
                               <FormControl>
                                 <SelectField
                                   onFieldSelect={(field) => {
-                                    form.setValue(`fields.${index}`, field, {
-                                      shouldValidate: true,
-                                    });
+                                    form.setValue(
+                                      `fields.${index}.field`,
+                                      field,
+                                      {
+                                        shouldValidate: true,
+                                      },
+                                    );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`fields.${index}.overpunch`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <CheckboxOverpunch
+                                  defaultValue={field.value}
+                                  onCheckedChange={(checked) => {
+                                    form.setValue(
+                                      `fields.${index}.overpunch`,
+                                      checked,
+                                      {
+                                        shouldValidate: true,
+                                      },
+                                    );
                                   }}
                                 />
                               </FormControl>
@@ -456,30 +562,62 @@ export function ButtonEditField() {
                     event.preventDefault();
                     appendField({
                       field: {},
+                      overpunch: false,
                     });
                   }}
                 >
                   <PlusCircledIcon className="mr-2" />
                   Add Field
                 </Button>
-                <FormField
-                  control={form.control}
-                  name="result"
-                  render={() => (
-                    <FormItem>
-                      <FormControl>
-                        <SelectField
-                          onFieldSelect={(field) => {
-                            form.setValue("result", field, {
-                              shouldValidate: true,
-                            });
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      EQUALS
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-row items-center justify-between gap-x-2">
+                  <FormField
+                    control={form.control}
+                    name="output"
+                    render={() => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <SelectField
+                            onFieldSelect={(field) => {
+                              form.setValue("output", field, {
+                                shouldValidate: true,
+                              });
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="overpunch"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <CheckboxOverpunch
+                            defaultValue={field.value}
+                            onCheckedChange={(checked) => {
+                              form.setValue("overpunch", checked, {
+                                shouldValidate: true,
+                              });
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             )}
             <div className="flex">

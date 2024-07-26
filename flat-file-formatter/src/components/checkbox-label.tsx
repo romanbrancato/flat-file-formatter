@@ -10,7 +10,7 @@ export function CheckboxLabel() {
   return (
     <div className="flex items-center space-x-2">
       <Checkbox
-        id="header"
+        id="label"
         onCheckedChange={(checked: boolean) =>
           setPreset({ ...preset, label: checked })
         }

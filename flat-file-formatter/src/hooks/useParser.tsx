@@ -72,7 +72,7 @@ export function useParser() {
   const runFunction = useCallback(
     (fn: Function) => {
       setIsReady(false);
-      setData({ ...data, [fn.result.flag]: fns.runFunction(data, fn) });
+      setData({ ...data, [fn.output.flag]: fns.runFunction(data, fn) });
       setIsReady(true);
     },
     [data],

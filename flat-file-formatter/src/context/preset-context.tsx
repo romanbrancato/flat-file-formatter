@@ -33,11 +33,12 @@ export const FunctionSchema = z.discriminatedUnion("operation", [
       z.object({
         statement: z.enum(["if", "if not"]),
         field: FieldSchema,
+        overpunch: z.boolean(),
         comparison: z.enum(["<", "===", ">"]),
         value: z.string(),
       }),
     ),
-    result: FieldSchema,
+    output: FieldSchema,
     valueTrue: z.string(),
     valueFalse: z.string(),
   }),
@@ -47,14 +48,22 @@ export const FunctionSchema = z.discriminatedUnion("operation", [
       z.object({
         operator: z.enum(["+", "-"]),
         field: FieldSchema,
+        overpunch: z.boolean(),
       }),
     ),
-    result: FieldSchema,
+    output: FieldSchema,
+    overpunch: z.boolean(),
   }),
   z.object({
     operation: z.literal("total"),
-    fields: z.array(FieldSchema),
-    result: FieldSchema,
+    fields: z.array(
+      z.object({
+        field: FieldSchema,
+        overpunch: z.boolean(),
+      }),
+    ),
+    output: FieldSchema,
+    overpunch: z.boolean(),
   }),
 ]);
 
