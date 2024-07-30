@@ -31,7 +31,11 @@ export function PresetToolbar() {
       <div className="flex py-2 px-5 justify-between">
         <div className="flex flex-row items-center w-full min-w-0 gap-x-1">
           <Label className="text-md font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[80%]">
-            {data.name && mode === "single" ? data.name : "File Preview"}
+            {data.name && mode === "single"
+              ? data.name
+              : mode === "batch"
+                ? "File Queue"
+                : "File Preview"}
           </Label>
           {mode === "single" && <ButtonDefineSchema />}
         </div>
