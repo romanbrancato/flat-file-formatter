@@ -135,6 +135,7 @@ export function ButtonEditField() {
                 <FormItem className="mb-1">
                   <FormControl>
                     <SelectOperation
+                      defaultValue={field.value}
                       onOperationSelect={(selectedOperation: string) => {
                         form.setValue("operation", selectedOperation, {
                           shouldValidate: true,
@@ -547,7 +548,7 @@ export function ButtonEditField() {
                           )}
                         />
                         <Cross2Icon
-                          className="hover:text-destructive ml-auto opacity-70"
+                          className="hover:text-destructive ml-auto opacity-70 flex-shrink-0"
                           onClick={() => removeField(index)}
                         />
                       </div>
