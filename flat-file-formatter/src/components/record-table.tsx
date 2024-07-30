@@ -110,7 +110,7 @@ export function RecordTable({
       columnOrder,
       pagination: {
         pageIndex: 0,
-        pageSize: 20,
+        pageSize: 5,
       },
     },
     onColumnOrderChange: setColumnOrder,
