@@ -2,7 +2,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -18,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { z } from "zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
@@ -115,6 +114,37 @@ export function ButtonParserConfig({
   } = useFieldArray({
     name: "trailer.fields",
     control: form.control,
+  });
+
+  const headerValues = useWatch({
+    control: form.control,
+    name: "header.fields",
+    defaultValue: [
+      {
+        property: "",
+        width: 0,
+      },
+    ],
+  });
+  const detailValues = useWatch({
+    control: form.control,
+    name: "detail.fields",
+    defaultValue: [
+      {
+        property: "",
+        width: 0,
+      },
+    ],
+  });
+  const trailerValues = useWatch({
+    control: form.control,
+    name: "trailer.fields",
+    defaultValue: [
+      {
+        property: "",
+        width: 0,
+      },
+    ],
   });
 
   function onSubmit(values: z.infer<typeof ConfigSchema>) {
@@ -215,8 +245,9 @@ export function ButtonParserConfig({
               <>
                 <Accordion type="single" collapsible>
                   <AccordionItem value="header">
-                    <AccordionTrigger className="text-xs font-normal text-muted-foreground">
-                      Header Record Widths
+                    <AccordionTrigger className="flex text-xs font-normal text-muted-foreground gap-x-2">
+                      Header Record
+                      <span className="ml-auto">{`${Object.values(headerValues).reduce((total, field) => total + Number(field.width), 0)}`}</span>
                     </AccordionTrigger>
                     <AccordionContent>
                       <ScrollArea>
@@ -278,8 +309,9 @@ export function ButtonParserConfig({
                     </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="detail">
-                    <AccordionTrigger className="text-xs font-normal text-muted-foreground">
-                      Detail Record Widths
+                    <AccordionTrigger className="flex text-xs font-normal text-muted-foreground gap-x-2">
+                      Detail Record
+                      <span className="ml-auto">{`${Object.values(detailValues).reduce((total, field) => total + Number(field.width), 0)}`}</span>
                     </AccordionTrigger>
                     <AccordionContent>
                       <ScrollArea>
@@ -341,8 +373,9 @@ export function ButtonParserConfig({
                     </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="trailer">
-                    <AccordionTrigger className="text-xs font-normal text-muted-foreground">
-                      Trailer Record Widths
+                    <AccordionTrigger className="flex text-xs font-normal text-muted-foreground gap-x-2">
+                      Trailer Record
+                      <span className="ml-auto">{`${Object.values(trailerValues).reduce((total, field) => total + Number(field.width), 0)}`}</span>
                     </AccordionTrigger>
                     <AccordionContent>
                       <ScrollArea>

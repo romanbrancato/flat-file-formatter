@@ -1,4 +1,3 @@
-"use client";
 import { Share2Icon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { useContext, useEffect } from "react";
@@ -17,7 +16,7 @@ export function ButtonExportFile({
 }: {
   files?: File[];
   setFiles?: (files: File[]) => void;
-  config?: Config
+  config?: Config;
 }) {
   const { mode } = useContext(ModeContext);
   const {

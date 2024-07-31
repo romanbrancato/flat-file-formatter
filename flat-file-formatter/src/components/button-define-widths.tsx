@@ -16,7 +16,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -59,8 +59,11 @@ export function ButtonDefineWidths() {
     },
   });
 
+  const headerValues = useWatch({ control: form.control, name: "header" });
+  const detailValues = useWatch({ control: form.control, name: "detail" });
+  const trailerValues = useWatch({ control: form.control, name: "trailer" });
+
   function onSubmit(values: Widths) {
-    console.log(values);
     setPreset({ ...preset, widths: values });
 
     setOpen(false);
@@ -93,8 +96,9 @@ export function ButtonDefineWidths() {
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <Accordion type="single" collapsible>
               <AccordionItem value="header">
-                <AccordionTrigger className="text-xs font-normal text-muted-foreground">
+                <AccordionTrigger className="flex text-xs font-normal text-muted-foreground gap-x-2">
                   Header Record
+                  <span className="ml-auto">{`${Object.values(headerValues).reduce((total, width) => total + Number(width || 0), 0)}`}</span>
                 </AccordionTrigger>
                 <AccordionContent>
                   {data.header.some((rec) => Object.keys(rec).length > 0) ? (
@@ -126,8 +130,9 @@ export function ButtonDefineWidths() {
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="detail">
-                <AccordionTrigger className="text-xs font-normal text-muted-foreground">
+                <AccordionTrigger className="flex text-xs font-normal text-muted-foreground gap-x-2">
                   Detail Record
+                  <span className="ml-auto">{`${Object.values(detailValues).reduce((total, width) => total + Number(width || 0), 0)}`}</span>
                 </AccordionTrigger>
                 <AccordionContent>
                   {data.detail.some((rec) => Object.keys(rec).length > 0) ? (
@@ -159,8 +164,9 @@ export function ButtonDefineWidths() {
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="trailer">
-                <AccordionTrigger className="text-xs font-normal text-muted-foreground">
+                <AccordionTrigger className="flex text-xs font-normal text-muted-foreground gap-x-2">
                   Trailer Record
+                  <span className="ml-auto">{`${Object.values(trailerValues).reduce((total, width) => total + Number(width || 0), 0)}`}</span>
                 </AccordionTrigger>
                 <AccordionContent>
                   {data.trailer.some((rec) => Object.keys(rec).length > 0) ? (

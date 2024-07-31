@@ -15,7 +15,6 @@ import { BatchFileRow } from "@/components/batch-file-row";
 import { ButtonAddField } from "@/components/button-add-field";
 import { ButtonRemoveField } from "@/components/button-remove-field";
 import { ButtonEditField } from "@/components/button-edit-field";
-import { extract, format } from "@/lib/utils";
 
 export default function App() {
   const { mode } = useContext(ModeContext);
