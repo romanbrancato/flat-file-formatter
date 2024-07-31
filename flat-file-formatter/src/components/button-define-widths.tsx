@@ -110,10 +110,19 @@ export function ButtonDefineWidths() {
                             name={`header.${fieldName}`}
                             key={`header${fieldName}`}
                             render={({ field }) => (
-                              <FormItem className="pr-3 pl-1 pb-1">
-                                <Label>{fieldName}</Label>
+                              <FormItem className="mt-2 mr-3">
                                 <FormControl>
-                                  <Input {...field} type="number" min={0} />
+                                  <div className="relative">
+                                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none font-normal text-muted-foreground">
+                                      {fieldName}
+                                    </span>
+                                    <Input
+                                      className="text-right"
+                                      {...field}
+                                      type="number"
+                                      min={0}
+                                    />
+                                  </div>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -144,10 +153,19 @@ export function ButtonDefineWidths() {
                             name={`detail.${fieldName}`}
                             key={`detail${fieldName}`}
                             render={({ field }) => (
-                              <FormItem className="pr-3 pl-1 pb-1">
-                                <Label>{fieldName}</Label>
+                              <FormItem className="mt-2 mr-3">
                                 <FormControl>
-                                  <Input {...field} type="number" min={0} />
+                                  <div className="relative">
+                                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none font-normal text-muted-foreground">
+                                      {fieldName}
+                                    </span>
+                                    <Input
+                                      className="text-right"
+                                      {...field}
+                                      type="number"
+                                      min={0}
+                                    />
+                                  </div>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -178,10 +196,19 @@ export function ButtonDefineWidths() {
                             name={`trailer.${fieldName}`}
                             key={`trailer${fieldName}`}
                             render={({ field }) => (
-                              <FormItem className="pr-3 pl-1 pb-1">
-                                <Label>{fieldName}</Label>
+                              <FormItem className="mt-2 mr-3">
                                 <FormControl>
-                                  <Input {...field} type="number" min={0} />
+                                  <div className="relative">
+                                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none font-normal text-muted-foreground">
+                                      {fieldName}
+                                    </span>
+                                    <Input
+                                      className="text-right"
+                                      {...field}
+                                      type="number"
+                                      min={0}
+                                    />
+                                  </div>
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
