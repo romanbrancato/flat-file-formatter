@@ -23,9 +23,17 @@ export function removeField(
 
 export function addField(
   data: Record<string, unknown>[],
-  field: Record<string, unknown>,
+  name: string,
+  value: string,
 ): Record<string, unknown>[] {
-  return data.map((record) => ({ ...field, ...record }));
+  if (value.startsWith("...")) {
+    // If the value starts with "..." then it is a reference to another field
+    const field = value.slice(3);
+    return data.map((record) => {
+      return { [name]: record[field], ...record };
+    });
+  }
+  return data.map((record) => ({ [name]: value, ...record }));
 }
 
 export function orderFields(
@@ -160,11 +168,11 @@ export function applyPreset(data: Data, preset: Preset) {
 
   preset.added?.forEach((field) => {
     if (field.flag === "header")
-      data.header = addField(data.header, { [field.name]: field.value });
+      data.header = addField(data.header, field.name, field.value);
     if (field.flag === "detail")
-      data.detail = addField(data.detail, { [field.name]: field.value });
+      data.detail = addField(data.detail, field.name, field.value);
     if (field.flag === "trailer")
-      data.trailer = addField(data.trailer, { [field.name]: field.value });
+      data.trailer = addField(data.trailer, field.name, field.value);
   });
 
   preset.functions?.forEach((fn) => {

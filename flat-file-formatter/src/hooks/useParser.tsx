@@ -53,7 +53,7 @@ export function useParser() {
       setIsReady(false);
       setData({
         ...data,
-        [flag]: fns.addField(data[flag], { [name]: value }),
+        [flag]: fns.addField(data[flag], name, value),
       });
       setIsReady(true);
     },
