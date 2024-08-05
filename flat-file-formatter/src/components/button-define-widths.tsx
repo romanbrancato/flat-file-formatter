@@ -20,7 +20,6 @@ import { useForm, useWatch } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Label } from "@/components/ui/label";
 import { PresetContext, Widths, WidthsSchema } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import {

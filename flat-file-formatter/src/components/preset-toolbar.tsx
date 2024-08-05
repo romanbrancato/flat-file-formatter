@@ -29,7 +29,7 @@ export function PresetToolbar() {
   return (
     <>
       <div className="flex py-2 px-5 justify-between">
-        <div className="flex flex-row items-center w-full min-w-0 gap-x-1">
+        <div className="flex flex-row items-center w-full min-w-0">
           <Label className="text-md font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[80%]">
             {data.name && mode === "single"
               ? data.name
