@@ -156,7 +156,7 @@ export function ButtonDefineWidths() {
                               <FormItem className="mt-2 mr-3">
                                 <FormControl>
                                   <div className="relative">
-                                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none font-normal text-muted-foreground">
+                                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none font-normal text-muted-foreground text-xs">
                                       {fieldName}
                                     </span>
                                     <Input
