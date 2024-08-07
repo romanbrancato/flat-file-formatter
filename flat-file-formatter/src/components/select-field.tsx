@@ -69,7 +69,7 @@ export function SelectField({
           aria-expanded={open}
           className="w-full justify-between min-w-[100px] sm:min-w-[300px]"
         >
-          <span className="text-xs text-muted-foreground">
+          <span className="font-normal text-xs text-muted-foreground">
             {label ? label : "Field"}:
           </span>
           {selectedField?.name ? selectedField.name : "Select a field..."}
