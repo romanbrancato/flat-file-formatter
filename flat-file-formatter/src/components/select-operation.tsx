@@ -5,7 +5,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
 
 export function SelectOperation({
   selectedOperation,
@@ -29,13 +28,13 @@ export function SelectOperation({
       </SelectTrigger>
       <SelectContent>
         <SelectItem key="conditional" value="conditional">
-          CONDITIONAL
+          Conditional
         </SelectItem>
         <SelectItem key="equation" value="equation">
-          EQUATION
+          Equation
         </SelectItem>
         <SelectItem key="total" value="total">
-          TOTAL
+          Total
         </SelectItem>
       </SelectContent>
     </Select>

@@ -12,7 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Preset, PresetContext, PresetSchema } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";

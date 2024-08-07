@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 

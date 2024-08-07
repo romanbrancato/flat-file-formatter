@@ -19,7 +19,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Field, FieldSchema, PresetContext } from "@/context/preset-context";
+import { FieldSchema, PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { z } from "zod";
 

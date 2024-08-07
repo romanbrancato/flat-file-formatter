@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { Children, cloneElement, ReactElement, useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
 import { download } from "@/lib/utils";
 
@@ -9,8 +9,7 @@ export function ButtonExportPreset({ trigger }: { trigger: React.ReactNode }) {
     download(presetStr, preset.name || "preset", "json");
   };
 
-  return React.cloneElement(
-    React.Children.only(trigger as React.ReactElement),
-    { onClick: exportPreset },
-  );
+  return cloneElement(Children.only(trigger as ReactElement), {
+    onClick: exportPreset,
+  });
 }
