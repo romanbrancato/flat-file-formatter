@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
-import { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -18,40 +18,50 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { PresetContext } from "@/context/preset-context";
+import { useForm, useWatch } from "react-hook-form";
+import {
+  AddFieldSchema,
+  FieldSchema,
+  PresetContext,
+} from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { SelectFlag } from "@/components/select-flag";
 import { z } from "zod";
+import { SelectField } from "@/components/select-field";
 
-export const AddFieldSchema = z.object({
-  flag: z.enum(["header", "detail", "trailer"]),
-  name: z.string().min(1, "Enter a field name."),
-  value: z.string(),
+const AddFieldWithPosSchema = AddFieldSchema.extend({
+  after: FieldSchema.nullable(),
 });
 
-export type AddField = z.infer<typeof AddFieldSchema>;
+export type AddFieldWithPos = z.infer<typeof AddFieldWithPosSchema>;
 
 export function ButtonAddField() {
   const { isReady, addField } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<AddField>({
-    resolver: zodResolver(AddFieldSchema),
+  const form = useForm<AddFieldWithPos>({
+    resolver: zodResolver(AddFieldWithPosSchema),
     defaultValues: {
       flag: "detail",
       name: "",
       value: "",
+      after: null,
     },
   });
 
-  function onSubmit(values: AddField) {
+  const flagValue = useWatch({ control: form.control, name: "flag" });
+
+  function onSubmit(values: AddFieldWithPos) {
     addField(values);
     setPreset({ ...preset, added: [...preset.added, { ...values }] });
     setOpen(false);
     form.reset();
   }
+
+  useEffect(() => {
+    form.setValue("after", null);
+  }, [flagValue]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -86,7 +96,7 @@ export function ButtonAddField() {
                   <FormControl>
                     <SelectFlag
                       label="Add To"
-                      defaultValue={form.getValues().flag}
+                      selectedFlag={field.value}
                       onFlagSelect={(flag: "header" | "detail" | "trailer") => {
                         form.setValue("flag", flag, {
                           shouldValidate: true,
@@ -117,6 +127,27 @@ export function ButtonAddField() {
                 <FormItem>
                   <FormControl>
                     <Input placeholder="Populate with..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="after"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <SelectField
+                      selectedField={field.value}
+                      label="Add After"
+                      filter={flagValue}
+                      onFieldSelect={(field) => {
+                        form.setValue(`after`, field, {
+                          shouldValidate: true,
+                        });
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

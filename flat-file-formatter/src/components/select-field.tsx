@@ -21,13 +21,44 @@ import { ParserContext } from "@/context/parser-context";
 import { Field } from "@/context/preset-context";
 
 export function SelectField({
+  selectedField,
+  label,
+  filter,
   onFieldSelect,
 }: {
+  selectedField: Field | null;
+  label?: string;
+  filter?: "header" | "detail" | "trailer";
   onFieldSelect: (field: Field) => void;
 }) {
   const { data } = useContext(ParserContext);
   const [open, setOpen] = useState(false);
-  const [selectedField, setSelectedField] = useState<string>();
+
+  const renderFields = (flag: "header" | "detail" | "trailer") => {
+    if (!data[flag].some((rec) => Object.keys(rec).length > 0)) return null;
+
+    return (
+      <CommandGroup heading={<span className="capitalize">{flag} Fields</span>}>
+        {Object.keys(data[flag][0]).map((field) => (
+          <CommandItem
+            key={`${flag}${field}`}
+            onSelect={() => {
+              setOpen(false);
+              onFieldSelect({ name: field, flag });
+            }}
+          >
+            {field}
+            <CheckIcon
+              className={cn(
+                "ml-auto",
+                selectedField?.name === field ? "opacity-100" : "opacity-0",
+              )}
+            />
+          </CommandItem>
+        ))}
+      </CommandGroup>
+    );
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -37,10 +68,12 @@ export function SelectField({
           role="combobox"
           aria-label="Select a field..."
           aria-expanded={open}
-          className="w-full justify-between px-3 min-w-[100px] sm:min-w-[300px]"
+          className="w-full justify-between min-w-[100px] sm:min-w-[300px]"
         >
-          <span className="text-xs text-muted-foreground">Field:</span>
-          {selectedField ? selectedField : "Select a field..."}
+          <span className="text-xs text-muted-foreground">
+            {label ? label : "Field"}:
+          </span>
+          {selectedField?.name ? selectedField.name : "Select a field..."}
           <CaretSortIcon className="ml-2 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -52,73 +85,17 @@ export function SelectField({
           />
           <ScrollArea>
             <ScrollAreaViewport className="max-h-[300px]">
-              {data.header.some((rec) => Object.keys(rec).length > 0) && (
-                <CommandGroup heading="Header Fields" className="flex-1">
-                  {Object.keys(data.header[0]).map((field) => (
-                    <CommandItem
-                      key={`header${field}`}
-                      onSelect={() => {
-                        setSelectedField(field);
-                        setOpen(false);
-                        onFieldSelect({ name: field, flag: "header" });
-                      }}
-                    >
-                      {field}
-                      <CheckIcon
-                        className={cn(
-                          "ml-auto",
-                          selectedField === field ? "opacity-100" : "opacity-0",
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-              <CommandGroup heading="Detail Fields" className="flex-1">
-                {Object.keys(data.detail[0]).map((field) => (
-                  <CommandItem
-                    key={`detail${field}`}
-                    onSelect={() => {
-                      setSelectedField(field);
-                      setOpen(false);
-                      onFieldSelect({ name: field, flag: "detail" });
-                    }}
-                  >
-                    {field}
-                    <CheckIcon
-                      className={cn(
-                        "ml-auto",
-                        selectedField === field ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-              {data.trailer.some((rec) => Object.keys(rec).length > 0) && (
-                <CommandGroup heading="Trailer Fields" className="flex-1">
-                  {Object.keys(data.trailer[0]).map((field) => (
-                    <CommandItem
-                      key={`trailer${field}`}
-                      onSelect={() => {
-                        setSelectedField(field);
-                        setOpen(false);
-                        onFieldSelect({ name: field, flag: "trailer" });
-                      }}
-                    >
-                      {field}
-                      <CheckIcon
-                        className={cn(
-                          "ml-auto",
-                          selectedField === field ? "opacity-100" : "opacity-0",
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+              {filter ? (
+                renderFields(filter)
+              ) : (
+                <>
+                  {renderFields("header")}
+                  {renderFields("detail")}
+                  {renderFields("trailer")}
+                </>
               )}
             </ScrollAreaViewport>
           </ScrollArea>
-          <CommandEmpty>No fields found.</CommandEmpty>
         </Command>
       </PopoverContent>
     </Popover>

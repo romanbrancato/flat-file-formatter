@@ -25,15 +25,30 @@ export function addField(
   data: Record<string, unknown>[],
   name: string,
   value: string,
+  after?: string,
 ): Record<string, unknown>[] {
-  if (value.startsWith("...")) {
-    // If the value starts with "..." then it is a reference to another field
-    const field = value.slice(3);
-    return data.map((record) => {
-      return { [name]: record[field], ...record };
+  return data.map((record) => {
+    const newRecord: Record<string, unknown> = {};
+    let inserted = false;
+
+    Object.entries(record).forEach(([key, val], index) => {
+      newRecord[key] = val;
+      if (after && key === after && !inserted) {
+        newRecord[name] = value.startsWith("...")
+          ? record[value.slice(3)]
+          : value;
+        inserted = true;
+      }
     });
-  }
-  return data.map((record) => ({ [name]: value, ...record }));
+
+    if (!inserted) {
+      newRecord[name] = value.startsWith("...")
+        ? record[value.slice(3)]
+        : value;
+    }
+
+    return newRecord;
+  });
 }
 
 export function orderFields(

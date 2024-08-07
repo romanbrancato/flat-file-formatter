@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FunctionSchema, PresetContext } from "@/context/preset-context";
+import { Field, FunctionSchema, PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { SelectOperation } from "@/components/select-operation";
@@ -45,7 +45,7 @@ export function ButtonEditField() {
       conditions: [
         {
           statement: "if",
-          field: {},
+          field: { name: "", flag: "" },
           comparison: "===",
           overpunch: false,
           value: "",
@@ -54,7 +54,7 @@ export function ButtonEditField() {
       formulas: [
         {
           operator: "+",
-          field: {},
+          field: { name: "", flag: "" },
           overpunch: false,
         },
       ],
@@ -64,7 +64,7 @@ export function ButtonEditField() {
       valueFalse: "",
       fields: [
         {
-          field: {},
+          field: { name: "", flag: "" },
           overpunch: false,
         },
       ],
@@ -99,7 +99,6 @@ export function ButtonEditField() {
   });
 
   function onSubmit(values: any) {
-    console.log(values);
     runFunction(values);
     setPreset({ ...preset, functions: [...preset.functions, { ...values }] });
     setOpen(false);
@@ -135,7 +134,7 @@ export function ButtonEditField() {
                 <FormItem className="mb-1">
                   <FormControl>
                     <SelectOperation
-                      defaultValue={field.value}
+                      selectedOperation={field.value}
                       onOperationSelect={(selectedOperation: string) => {
                         form.setValue("operation", selectedOperation, {
                           shouldValidate: true,
@@ -163,7 +162,9 @@ export function ButtonEditField() {
                             <FormItem>
                               <FormControl>
                                 <SelectStatement
-                                  defaultValue={field.value as "if" | "if not"}
+                                  selectedStatement={
+                                    field.value as "if" | "if not"
+                                  }
                                   onStatementSelect={(statement) =>
                                     form.setValue(
                                       `conditions.${index}.statement`,
@@ -186,6 +187,7 @@ export function ButtonEditField() {
                             <FormItem>
                               <FormControl>
                                 <SelectField
+                                  selectedField={field.value as Field}
                                   onFieldSelect={(field) => {
                                     form.setValue(
                                       `conditions.${index}.field`,
@@ -208,7 +210,7 @@ export function ButtonEditField() {
                             <FormItem>
                               <FormControl>
                                 <CheckboxOverpunch
-                                  defaultValue={field.value}
+                                  checked={field.value}
                                   onCheckedChange={(checked) => {
                                     form.setValue(
                                       `conditions.${index}.overpunch`,
@@ -231,7 +233,7 @@ export function ButtonEditField() {
                             <FormItem>
                               <FormControl>
                                 <SelectComparison
-                                  defaultValue={
+                                  selectedComparison={
                                     field.value as "<" | "===" | ">"
                                   }
                                   onComparisonSelect={(comparison) => {
@@ -277,7 +279,7 @@ export function ButtonEditField() {
                     event.preventDefault();
                     appendCondition({
                       statement: "if",
-                      field: {},
+                      field: { name: "", flag: "" },
                       overpunch: false,
                       comparison: "===",
                       value: "",
@@ -300,10 +302,11 @@ export function ButtonEditField() {
                 <FormField
                   control={form.control}
                   name="output"
-                  render={() => (
+                  render={({ field }) => (
                     <FormItem>
                       <FormControl>
                         <SelectField
+                          selectedField={field.value as Field}
                           onFieldSelect={(field) => {
                             form.setValue("output", field, {
                               shouldValidate: true,
@@ -357,7 +360,7 @@ export function ButtonEditField() {
                             <FormItem>
                               <FormControl>
                                 <SelectOperator
-                                  defaultValue={field.value as "+" | "-"}
+                                  selectedOperator={field.value as "+" | "-"}
                                   onOperatorSelect={(operator) => {
                                     form.setValue(
                                       `formulas.${index}.operator`,
@@ -380,6 +383,7 @@ export function ButtonEditField() {
                             <FormItem className="flex-1">
                               <FormControl>
                                 <SelectField
+                                  selectedField={field.value as Field}
                                   onFieldSelect={(field) => {
                                     form.setValue(
                                       `formulas.${index}.field`,
@@ -402,7 +406,7 @@ export function ButtonEditField() {
                             <FormItem>
                               <FormControl>
                                 <CheckboxOverpunch
-                                  defaultValue={field.value}
+                                  checked={field.value}
                                   onCheckedChange={(checked) => {
                                     form.setValue(
                                       `formulas.${index}.overpunch`,
@@ -434,7 +438,7 @@ export function ButtonEditField() {
                     event.preventDefault();
                     appendConstant({
                       operator: "+",
-                      field: {},
+                      field: { name: "", flag: "" },
                       overpunch: false,
                     });
                   }}
@@ -456,10 +460,11 @@ export function ButtonEditField() {
                   <FormField
                     control={form.control}
                     name="output"
-                    render={() => (
+                    render={({ field }) => (
                       <FormItem className="flex-1">
                         <FormControl>
                           <SelectField
+                            selectedField={field.value as Field}
                             onFieldSelect={(field) => {
                               form.setValue("output", field, {
                                 shouldValidate: true,
@@ -478,7 +483,7 @@ export function ButtonEditField() {
                       <FormItem>
                         <FormControl>
                           <CheckboxOverpunch
-                            defaultValue={field.value}
+                            checked={field.value}
                             onCheckedChange={(checked) => {
                               form.setValue("overpunch", checked, {
                                 shouldValidate: true,
@@ -505,10 +510,11 @@ export function ButtonEditField() {
                         <FormField
                           control={form.control}
                           name={`fields.${index}.field`}
-                          render={(field) => (
+                          render={({ field }) => (
                             <FormItem className="flex-1">
                               <FormControl>
                                 <SelectField
+                                  selectedField={field.value as Field}
                                   onFieldSelect={(field) => {
                                     form.setValue(
                                       `fields.${index}.field`,
@@ -531,7 +537,7 @@ export function ButtonEditField() {
                             <FormItem>
                               <FormControl>
                                 <CheckboxOverpunch
-                                  defaultValue={field.value}
+                                  checked={field.value}
                                   onCheckedChange={(checked) => {
                                     form.setValue(
                                       `fields.${index}.overpunch`,
@@ -562,7 +568,7 @@ export function ButtonEditField() {
                   onClick={(event) => {
                     event.preventDefault();
                     appendField({
-                      field: {},
+                      field: { name: "", flag: "" },
                       overpunch: false,
                     });
                   }}
@@ -584,10 +590,11 @@ export function ButtonEditField() {
                   <FormField
                     control={form.control}
                     name="output"
-                    render={() => (
+                    render={({ field }) => (
                       <FormItem className="flex-1">
                         <FormControl>
                           <SelectField
+                            selectedField={field.value as Field}
                             onFieldSelect={(field) => {
                               form.setValue("output", field, {
                                 shouldValidate: true,
@@ -606,7 +613,7 @@ export function ButtonEditField() {
                       <FormItem>
                         <FormControl>
                           <CheckboxOverpunch
-                            defaultValue={field.value}
+                            checked={field.value}
                             onCheckedChange={(checked) => {
                               form.setValue("overpunch", checked, {
                                 shouldValidate: true,

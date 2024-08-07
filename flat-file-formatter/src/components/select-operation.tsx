@@ -8,15 +8,15 @@ import {
 import { useState } from "react";
 
 export function SelectOperation({
-  defaultValue,
+  selectedOperation,
   onOperationSelect,
 }: {
-  defaultValue: string;
+  selectedOperation: string;
   onOperationSelect: (operation: string) => void;
 }) {
   return (
     <Select
-      defaultValue={defaultValue}
+      value={selectedOperation}
       onValueChange={(value) => {
         onOperationSelect(value);
       }}

@@ -8,15 +8,15 @@ import {
 import React from "react";
 
 export function SelectOperator({
-  defaultValue,
+  selectedOperator,
   onOperatorSelect,
 }: {
-  defaultValue: "+" | "-";
+  selectedOperator: "+" | "-";
   onOperatorSelect: (operator: "+" | "-") => void;
 }) {
   return (
     <Select
-      defaultValue={defaultValue}
+      value={selectedOperator}
       onValueChange={(operator: "+" | "-") => {
         onOperatorSelect(operator);
       }}

@@ -8,15 +8,15 @@ import {
 import React from "react";
 
 export function SelectStatement({
-  defaultValue,
+  selectedStatement,
   onStatementSelect,
 }: {
-  defaultValue: "if" | "if not";
+  selectedStatement: "if" | "if not";
   onStatementSelect: (statement: "if" | "if not") => void;
 }) {
   return (
     <Select
-      defaultValue={defaultValue}
+      value={selectedStatement}
       onValueChange={(statement: "if" | "if not") => {
         onStatementSelect(statement);
       }}

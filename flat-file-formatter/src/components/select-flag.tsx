@@ -8,16 +8,16 @@ import {
 
 export function SelectFlag({
   label,
-  defaultValue,
+  selectedFlag,
   onFlagSelect,
 }: {
   label: string;
-  defaultValue: "header" | "detail" | "trailer";
+  selectedFlag: "header" | "detail" | "trailer";
   onFlagSelect: (flag: "header" | "detail" | "trailer") => void;
 }) {
   return (
     <Select
-      defaultValue={defaultValue}
+      value={selectedFlag}
       onValueChange={(flag: "header" | "detail" | "trailer") => {
         onFlagSelect(flag);
       }}

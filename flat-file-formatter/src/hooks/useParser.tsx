@@ -2,8 +2,8 @@ import { Data, parseFile, ParserParams } from "@/lib/parser-functions";
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
 import path from "node:path";
-import { Field, Function, Preset } from "@/context/preset-context";
-import { AddField } from "@/components/button-add-field";
+import { AddField, Field, Function, Preset } from "@/context/preset-context";
+import { AddFieldWithPos } from "@/components/button-add-field";
 
 export function useParser() {
   const [isReady, setIsReady] = useState(false);
@@ -49,11 +49,11 @@ export function useParser() {
   );
 
   const addField = useCallback(
-    ({ flag, name, value }: AddField) => {
+    ({ flag, name, value, after }: AddFieldWithPos) => {
       setIsReady(false);
       setData({
         ...data,
-        [flag]: fns.addField(data[flag], name, value),
+        [flag]: fns.addField(data[flag], name, value, after?.name),
       });
       setIsReady(true);
     },

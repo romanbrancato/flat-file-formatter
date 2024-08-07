@@ -8,15 +8,15 @@ import {
 import React from "react";
 
 export function SelectComparison({
-  defaultValue,
+  selectedComparison,
   onComparisonSelect,
 }: {
-  defaultValue: "<" | "===" | ">";
+  selectedComparison: "<" | "===" | ">";
   onComparisonSelect: (comparison: "<" | "===" | ">") => void;
 }) {
   return (
     <Select
-      defaultValue={defaultValue}
+      value={selectedComparison}
       onValueChange={(comparison: "<" | "===" | ">") => {
         onComparisonSelect(comparison);
       }}

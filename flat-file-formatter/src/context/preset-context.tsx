@@ -8,7 +8,6 @@ import {
 } from "react";
 import { z } from "zod";
 import { ModeContext } from "@/context/mode-context";
-import { AddFieldSchema } from "@/components/button-add-field";
 
 export const FieldSchema = z.object(
   {
@@ -19,6 +18,14 @@ export const FieldSchema = z.object(
 );
 
 export type Field = z.infer<typeof FieldSchema>;
+
+export const AddFieldSchema = z.object({
+  flag: z.enum(["header", "detail", "trailer"]),
+  name: z.string().min(1, "Enter a field name."),
+  value: z.string(),
+});
+
+export type AddField = z.infer<typeof AddFieldSchema>;
 
 export const OrderSchema = z.object({
   header: z.array(z.string()),
