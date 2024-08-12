@@ -78,13 +78,23 @@ export function runFunction(
       const value = condition.overpunch
         ? Number(extract(record[condition.field.name] as string))
         : Number(record[condition.field.name]);
+
+      let comparisonValue = condition.value;
+      const referenceMatch = comparisonValue.match(/^{(.+)}$/);
+      if (referenceMatch) {
+        console.log(referenceMatch[1]);
+        comparisonValue = referenceMatch[1].endsWith("{OP}")
+          ? extract(record[referenceMatch[1].slice(0, -4)] as string)
+          : record[referenceMatch[1]];
+      }
+
       switch (condition.comparison) {
         case "<":
-          return !isNaN(value) && value < Number(condition.value);
+          return !isNaN(value) && value < Number(comparisonValue);
         case ">":
-          return !isNaN(value) && value > Number(condition.value);
+          return !isNaN(value) && value > Number(comparisonValue);
         case "===":
-          return record[condition.field.name] === condition.value;
+          return record[condition.field.name] === comparisonValue;
         default:
           return false;
       }
