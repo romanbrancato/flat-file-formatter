@@ -82,7 +82,6 @@ export function runFunction(
       let comparisonValue = condition.value;
       const referenceMatch = comparisonValue.match(/^{(.+)}$/);
       if (referenceMatch) {
-        console.log(referenceMatch[1]);
         comparisonValue = referenceMatch[1].endsWith("{OP}")
           ? extract(record[referenceMatch[1].slice(0, -4)] as string)
           : record[referenceMatch[1]];
