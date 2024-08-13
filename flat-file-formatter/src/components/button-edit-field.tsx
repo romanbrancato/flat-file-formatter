@@ -100,7 +100,14 @@ export function ButtonEditField() {
 
   function onSubmit(values: any) {
     runFunction(values);
-    setPreset({ ...preset, functions: [...preset.functions, { ...values }] });
+    setPreset({
+      ...preset,
+      transform: {
+        ...preset.transform,
+        functions: [...preset.transform.functions, values],
+      },
+    });
+
     setOpen(false);
     form.reset();
   }

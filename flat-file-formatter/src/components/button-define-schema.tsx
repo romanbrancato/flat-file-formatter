@@ -50,7 +50,13 @@ export function ButtonDefineSchema() {
 
   const onSubmit: SubmitHandler<FieldValues> = (values) => {
     setName(values.schema);
-    setPreset({ ...preset, schema: values.schema });
+    setPreset({
+      ...preset,
+      transform: {
+        ...preset.transform,
+        fileName: values.schema,
+      },
+    });
     setOpen(false);
   };
 

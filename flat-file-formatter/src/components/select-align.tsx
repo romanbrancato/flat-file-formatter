@@ -5,20 +5,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useContext } from "react";
-import { PresetContext } from "@/context/preset-context";
-import { ParserContext } from "@/context/parser-context";
 
-export function SelectAlign() {
-  const { preset, setPreset } = useContext(PresetContext);
-  const { isReady } = useContext(ParserContext);
+export function SelectAlign({
+  selectedAlign,
+  onAlignSelect,
+}: {
+  selectedAlign: "left" | "right";
+  onAlignSelect: (align: "left" | "right") => void;
+}) {
   return (
     <Select
-      value={preset.align}
-      onValueChange={(value: "left" | "right") =>
-        setPreset({ ...preset, align: value })
-      }
-      disabled={!isReady}
+      value={selectedAlign}
+      onValueChange={(value: "left" | "right") => onAlignSelect(value)}
     >
       <SelectTrigger>
         <span className="font-normal text-xs text-muted-foreground">

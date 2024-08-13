@@ -8,6 +8,7 @@ import {
 } from "react";
 import { z } from "zod";
 import { ModeContext } from "@/context/mode-context";
+import { FormatSchema } from "@/components/format-menu";
 
 export const FieldSchema = z.object(
   {
@@ -76,27 +77,18 @@ export const FunctionSchema = z.discriminatedUnion("operation", [
 
 export type Function = z.infer<typeof FunctionSchema>;
 
-export const WidthsSchema = z.object({
-  header: z.record(z.coerce.number().min(1)),
-  detail: z.record(z.coerce.number().min(1)),
-  trailer: z.record(z.coerce.number().min(1)),
+export const TransformSchema = z.object({
+  fileName: z.string(),
+  order: OrderSchema,
+  remove: z.array(FieldSchema),
+  add: z.array(AddFieldSchema),
+  functions: z.array(FunctionSchema),
 });
-
-export type Widths = z.infer<typeof WidthsSchema>;
 
 export const PresetSchema = z.object({
   name: z.string().nullable(),
-  schema: z.string(),
-  order: OrderSchema,
-  symbol: z.string(),
-  widths: WidthsSchema,
-  align: z.enum(["left", "right"]),
-  label: z.boolean(),
-  format: z.enum(["delimited", "fixed"]),
-  export: z.enum(["csv", "txt"]),
-  removed: z.array(FieldSchema),
-  added: z.array(AddFieldSchema),
-  functions: z.array(FunctionSchema),
+  format: FormatSchema,
+  transform: TransformSchema,
 });
 
 export type Preset = z.infer<typeof PresetSchema>;
@@ -116,28 +108,7 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
   const [preset, setPreset] = useState<Preset>({} as Preset);
 
   function resetPreset() {
-    setPreset({
-      name: null,
-      schema: "",
-      order: {
-        header: [],
-        detail: [],
-        trailer: [],
-      },
-      symbol: ",",
-      widths: {
-        header: {},
-        detail: {},
-        trailer: {},
-      },
-      align: "left",
-      label: false,
-      format: "delimited",
-      export: "csv",
-      removed: [],
-      added: [],
-      functions: [],
-    });
+    setPreset({} as Preset);
   }
 
   useEffect(() => {

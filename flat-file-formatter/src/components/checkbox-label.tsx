@@ -1,21 +1,19 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { useContext } from "react";
-import { PresetContext } from "@/context/preset-context";
-import { ParserContext } from "@/context/parser-context";
 
-export function CheckboxLabel() {
-  const { isReady } = useContext(ParserContext);
-  const { preset, setPreset } = useContext(PresetContext);
+export function CheckboxLabel({
+  checked,
+  onCheckedChange,
+}: {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}) {
   return (
     <div className="flex items-center space-x-2">
       <Checkbox
         id="label"
-        onCheckedChange={(checked: boolean) =>
-          setPreset({ ...preset, label: checked })
-        }
-        checked={preset.label}
-        disabled={!isReady}
+        checked={checked}
+        onCheckedChange={(checked: boolean) => onCheckedChange(checked)}
       />
       <Label className="text-sm font-medium">Include Field Labels</Label>
     </div>

@@ -5,19 +5,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useContext } from "react";
-import { PresetContext } from "@/context/preset-context";
-import { ParserContext } from "@/context/parser-context";
 
-export function SelectSymbol({ label }: { label: string }) {
-  const { preset, setPreset } = useContext(PresetContext);
-  const { isReady } = useContext(ParserContext);
-
+export function SelectSymbol({
+  label,
+  selectedSymbol,
+  onSymbolSelect,
+}: {
+  label: string;
+  selectedSymbol: string;
+  onSymbolSelect: (symbol: string) => void;
+}) {
   return (
     <Select
-      value={preset.symbol}
-      onValueChange={(value) => setPreset({ ...preset, symbol: value })}
-      disabled={!isReady}
+      value={selectedSymbol}
+      onValueChange={(symbol) => onSymbolSelect(symbol)}
     >
       <SelectTrigger>
         <span className="font-normal text-xs text-muted-foreground">

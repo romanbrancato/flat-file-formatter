@@ -54,7 +54,15 @@ export function ButtonAddField() {
 
   function onSubmit(values: AddFieldWithPos) {
     addField(values);
-    setPreset({ ...preset, added: [...preset.added, { ...values }] });
+
+    setPreset({
+      ...preset,
+      transform: {
+        ...preset.transform,
+        add: [...preset.transform.add, values],
+      },
+    });
+
     setOpen(false);
     form.reset();
   }
