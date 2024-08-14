@@ -14,7 +14,7 @@ import {
 
 import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Preset, PresetContext, PresetSchema } from "@/context/preset-context";
+import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import {
@@ -26,6 +26,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ModeContext } from "@/context/mode-context";
 import { Input } from "@/components/ui/input";
+import { Preset, PresetSchema } from "@/types/schemas";
 
 export function SelectPreset() {
   const { mode } = useContext(ModeContext);

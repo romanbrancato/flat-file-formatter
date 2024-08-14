@@ -3,11 +3,11 @@ import { useContext, useEffect, useState } from "react";
 import { Dropzone } from "@/components/dropzone";
 import { SelectMode } from "@/components/select-mode";
 import { ModeContext } from "@/context/mode-context";
-import { ButtonParserConfig, Config } from "@/components/button-parser-config";
+import { ButtonParserConfig } from "@/components/button-parser-config";
 import { ParserContext } from "@/context/parser-context";
 import { PresetToolbar } from "@/components/preset-toolbar";
 import { RecordTable } from "@/components/record-table";
-import { FormatMenu } from "@/components/format-menu";
+import { TabsFormatConfig } from "@/components/tabs-format-config";
 import { ButtonExportFile } from "@/components/button-export-file";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
@@ -15,25 +15,24 @@ import { BatchFileRow } from "@/components/batch-file-row";
 import { ButtonAddField } from "@/components/button-add-field";
 import { ButtonRemoveField } from "@/components/button-remove-field";
 import { ButtonEditField } from "@/components/button-edit-field";
+import { PresetContext } from "@/context/preset-context";
 
 export default function App() {
   const { mode } = useContext(ModeContext);
+  const { preset } = useContext(PresetContext);
   const { isReady, data, setParams } = useContext(ParserContext);
   const [files, setFiles] = useState<File[]>([]);
-  const [config, setConfig] = useState<Config>({
-    format: "delimited",
-  });
 
   const handleFileDelete = (index: number) => {
     setFiles(files.filter((_, i) => i !== index));
   };
 
   useEffect(() => {
-    if (!config || !files.length) return;
+    if (!preset.parser || !files.length) return;
     if (mode !== "batch") {
       setParams({
         file: files[files.length - 1],
-        config: config,
+        config: preset.parser,
       });
     }
   }, [files]);
@@ -45,10 +44,12 @@ export default function App() {
       </span>
       <SelectMode />
       <div className="space-y-1">
-        <ButtonParserConfig setConfig={setConfig} />
+        <ButtonParserConfig />
         <Dropzone
           onChange={setFiles}
-          fileExtension={config?.format === "delimited" ? ".csv" : ".txt"}
+          fileExtension={
+            preset.parser?.format === "delimited" ? ".csv" : ".txt"
+          }
           multiple={mode === "batch"}
         />
       </div>
@@ -72,7 +73,7 @@ export default function App() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <FormatMenu />
+                <TabsFormatConfig />
                 <ButtonExportFile files={files} />
               </div>
             </>
@@ -91,7 +92,7 @@ export default function App() {
                 <ButtonExportFile
                   files={files}
                   setFiles={setFiles}
-                  config={config}
+                  config={preset.parser}
                 />
               </div>
             </div>

@@ -19,15 +19,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useForm, useWatch } from "react-hook-form";
-import {
-  AddFieldSchema,
-  FieldSchema,
-  PresetContext,
-} from "@/context/preset-context";
+import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { SelectFlag } from "@/components/select-flag";
 import { z } from "zod";
 import { SelectField } from "@/components/select-field";
+import { AddFieldSchema, FieldSchema } from "@/types/schemas";
 
 const AddFieldWithPosSchema = AddFieldSchema.extend({
   after: FieldSchema.nullable(),
@@ -55,11 +52,13 @@ export function ButtonAddField() {
   function onSubmit(values: AddFieldWithPos) {
     addField(values);
 
+    const { after, ...noPos } = values;
+
     setPreset({
       ...preset,
-      transform: {
-        ...preset.transform,
-        add: [...preset.transform.add, values],
+      transformations: {
+        ...preset.transformations,
+        add: [...preset.transformations.add, noPos],
       },
     });
 

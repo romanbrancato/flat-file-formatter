@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
 import { Data, parseFile } from "@/lib/parser-functions";
-import { PresetSchema } from "@/context/preset-context";
-import { ConfigSchema } from "@/components/button-parser-config";
 import { z } from "zod";
+import { ParserConfigSchema, PresetSchema } from "@/types/schemas";
 
 export const BatchParserParams = z.object({
   files: z.array(z.instanceof(File)),
-  config: ConfigSchema,
+  config: ParserConfigSchema,
   preset: PresetSchema,
 });
 
@@ -28,7 +27,7 @@ export function useBatchParser() {
         .then((data) => {
           setData((prevData) => [
             ...prevData,
-            fns.applyPreset(data, batchParams.preset),
+            fns.applyPreset(data, batchParams.preset.transformations),
           ]);
           setIsBatchReady(true);
         })

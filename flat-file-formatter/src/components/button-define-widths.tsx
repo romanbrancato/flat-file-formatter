@@ -27,9 +27,10 @@ import {
 } from "@/components/ui/accordion";
 
 export function ButtonDefineWidths() {
-  const { data, isReady } = useContext(ParserContext);
-  const [open, setOpen] = useState(false);
+  const { data } = useContext(ParserContext);
   const { control } = useFormContext();
+
+  const [open, setOpen] = useState(false);
 
   const headerValues = useWatch({ control: control, name: "widths.header" });
   const detailValues = useWatch({ control: control, name: "widths.detail" });
@@ -38,12 +39,7 @@ export function ButtonDefineWidths() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full border-dashed"
-          disabled={!isReady}
-        >
+        <Button variant="outline" size="sm" className="w-full border-dashed">
           <Pencil2Icon className="mr-2" />
           Define Widths
         </Button>

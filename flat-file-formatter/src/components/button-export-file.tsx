@@ -7,7 +7,7 @@ import { ModeContext } from "@/context/mode-context";
 import { ParserContext } from "@/context/parser-context";
 import { Data, unparseData } from "@/lib/parser-functions";
 import { BatchParserContext } from "@/context/batch-parser-context";
-import { Config } from "./button-parser-config";
+import { ParserConfig } from "@/types/schemas";
 
 export function ButtonExportFile({
   files,
@@ -16,7 +16,7 @@ export function ButtonExportFile({
 }: {
   files?: File[];
   setFiles?: (files: File[]) => void;
-  config?: Config;
+  config?: ParserConfig;
 }) {
   const { mode } = useContext(ModeContext);
   const {
@@ -49,11 +49,7 @@ export function ButtonExportFile({
   const exportFile = (data: Data) => {
     const flatData = unparseData(data, preset);
     if (flatData) {
-      download(
-        flatData,
-        data.name,
-        preset.format === "fixed" ? "txt" : preset.export,
-      );
+      download(flatData, data.name, "txt");
     }
   };
 

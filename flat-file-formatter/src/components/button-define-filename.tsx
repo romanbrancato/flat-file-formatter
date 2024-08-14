@@ -29,10 +29,10 @@ import { ParserContext } from "@/context/parser-context";
 import path from "node:path";
 
 const FileNameEditSchema = z.object({
-  schema: z.string(),
+  pattern: z.string(),
 });
 
-export function ButtonDefineSchema() {
+export function ButtonDefineFilename() {
   const { params, isReady, setName } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
@@ -44,17 +44,17 @@ export function ButtonDefineSchema() {
   const form = useForm({
     resolver: zodResolver(FileNameEditSchema),
     defaultValues: {
-      schema: "",
+      pattern: "",
     },
   });
 
   const onSubmit: SubmitHandler<FieldValues> = (values) => {
-    setName(values.schema);
+    setName(values.pattern);
     setPreset({
       ...preset,
-      transform: {
-        ...preset.transform,
-        fileName: values.schema,
+      transformations: {
+        ...preset.transformations,
+        fileName: values.pattern,
       },
     });
     setOpen(false);
@@ -76,7 +76,7 @@ export function ButtonDefineSchema() {
         <DialogHeader>
           <DialogTitle>Define Naming Schema</DialogTitle>
           <DialogDescription className="whitespace-pre-line leading-tight">
-            {`Define a schema for naming exported files. 
+            {`Define a pattern for exported file names. 
             To preserve a part of the original file name, add the index of the token in curly braces.`}
           </DialogDescription>
         </DialogHeader>
@@ -94,10 +94,10 @@ export function ButtonDefineSchema() {
           >
             <FormField
               control={form.control}
-              name="schema"
+              name="pattern"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Schema</FormLabel>
+                  <FormLabel>Pattern</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>

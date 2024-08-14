@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Form,
   FormControl,
@@ -16,7 +16,6 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { z } from "zod";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -36,55 +35,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { ParserConfig, ParserConfigSchema } from "@/types/schemas";
+import { PresetContext } from "@/context/preset-context";
 
-export const FieldSchema = z.object({
-  fields: z
-    .array(
-      z.object({
-        property: z.string(),
-        width: z.coerce.number(),
-      }),
-    )
-    .superRefine((widths, ctx) => {
-      widths.forEach((field, index) => {
-        if (!field.property) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-          });
-        }
-        if (field.width <= 0) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-          });
-        }
-      });
-    }),
-});
-
-export const ConfigSchema = z.discriminatedUnion("format", [
-  z.object({
-    format: z.literal("delimited"),
-  }),
-  z.object({
-    format: z.literal("fixed"),
-    header: FieldSchema.nullable(),
-    detail: FieldSchema,
-    trailer: FieldSchema.nullable(),
-  }),
-]);
-
-export type Config = z.infer<typeof ConfigSchema>;
-
-export function ButtonParserConfig({
-  setConfig,
-}: {
-  setConfig: React.Dispatch<React.SetStateAction<Config>>;
-}) {
+export function ButtonParserConfig() {
+  const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File>();
 
-  const form = useForm<z.infer<typeof ConfigSchema>>({
-    resolver: zodResolver(ConfigSchema),
+  const form = useForm<ParserConfig>({
+    resolver: zodResolver(ParserConfigSchema),
     defaultValues: {
       format: "delimited",
     },
@@ -147,13 +107,16 @@ export function ButtonParserConfig({
     ],
   });
 
-  function onSubmit(values: z.infer<typeof ConfigSchema>) {
-    setConfig(values);
+  function onSubmit(values: ParserConfig) {
+    setPreset({
+      ...preset,
+      parser: values,
+    });
     setOpen(false);
   }
 
   const exportConfig = () => {
-    const result = ConfigSchema.safeParse(form.getValues());
+    const result = ParserConfigSchema.safeParse(form.getValues());
     if (!result.success) return;
     download(JSON.stringify(result.data, null, 2), "config", "json");
   };
@@ -164,7 +127,7 @@ export function ButtonParserConfig({
     reader.onload = (event) => {
       try {
         const obj = JSON.parse(event.target?.result as string);
-        const config = ConfigSchema.parse(obj);
+        const config = ParserConfigSchema.parse(obj);
 
         if (config.format === "delimited") {
           form.setValue("format", config.format);
@@ -229,7 +192,7 @@ export function ButtonParserConfig({
                 <FormItem>
                   <FormControl>
                     <SelectImportFormat
-                      defaultValue={form.getValues().format}
+                      value={field.value}
                       onFormatSelect={(format) =>
                         form.setValue("format", format, {
                           shouldValidate: true,

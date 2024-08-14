@@ -7,15 +7,15 @@ import {
 } from "@/components/ui/select";
 
 export function SelectImportFormat({
-  defaultValue,
+  value,
   onFormatSelect,
 }: {
-  defaultValue: "delimited" | "fixed";
+  value: "delimited" | "fixed";
   onFormatSelect: (format: "delimited" | "fixed") => void;
 }) {
   return (
     <Select
-      value={defaultValue}
+      value={value}
       onValueChange={(field: "delimited" | "fixed") => {
         onFormatSelect(field);
       }}

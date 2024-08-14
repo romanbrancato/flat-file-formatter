@@ -19,9 +19,10 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { FieldSchema, PresetContext } from "@/context/preset-context";
+import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { z } from "zod";
+import { FieldSchema } from "@/types/schemas";
 
 const RemoveFieldSchema = z.object({
   field: FieldSchema,
@@ -38,7 +39,13 @@ export function ButtonRemoveField() {
 
   function onSubmit(values: z.infer<typeof RemoveFieldSchema>) {
     removeField(values.field);
-    setPreset({ ...preset, removed: [...preset.removed, values.field] });
+    setPreset({
+      ...preset,
+      transformations: {
+        ...preset.transformations,
+        remove: [...preset.transformations.remove, values.field],
+      },
+    });
     setOpen(false);
     form.reset();
   }

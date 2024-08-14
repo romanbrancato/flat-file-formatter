@@ -2,8 +2,8 @@ import { Data, parseFile, ParserParams } from "@/lib/parser-functions";
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
 import path from "node:path";
-import { Field, Function, Preset } from "@/context/preset-context";
 import { AddFieldWithPos } from "@/components/button-add-field";
+import { Field, Preset, Function } from "@/types/schemas";
 
 export function useParser() {
   const [isReady, setIsReady] = useState(false);
@@ -81,7 +81,7 @@ export function useParser() {
   const applyPreset = useCallback(
     (preset: Preset) => {
       setIsReady(false);
-      setData({ ...fns.applyPreset(data, preset) });
+      setData({ ...fns.applyPreset(data, preset.transformations) });
       setIsReady(true);
     },
     [data],

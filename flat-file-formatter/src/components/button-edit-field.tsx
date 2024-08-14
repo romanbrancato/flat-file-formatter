@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Field, FunctionSchema, PresetContext } from "@/context/preset-context";
+import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { SelectOperation } from "@/components/select-operation";
@@ -32,6 +32,7 @@ import { SelectStatement } from "@/components/select-statement";
 import { SelectComparison } from "@/components/select-comparison";
 import { SelectOperator } from "@/components/select-operator";
 import { CheckboxOverpunch } from "@/components/checkbox-overpunch";
+import { Field, FunctionSchema } from "@/types/schemas";
 
 export function ButtonEditField() {
   const { isReady, runFunction } = useContext(ParserContext);
@@ -102,9 +103,9 @@ export function ButtonEditField() {
     runFunction(values);
     setPreset({
       ...preset,
-      transform: {
-        ...preset.transform,
-        functions: [...preset.transform.functions, values],
+      transformations: {
+        ...preset.transformations,
+        functions: [...preset.transformations.functions, values],
       },
     });
 

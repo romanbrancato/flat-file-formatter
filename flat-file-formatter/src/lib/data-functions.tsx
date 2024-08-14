@@ -1,6 +1,6 @@
-import { Function, Preset } from "@/context/preset-context";
 import { extract, format, tokenize } from "@/lib/utils";
 import { Data } from "@/lib/parser-functions";
+import { Function, Transformations } from "@/types/schemas";
 
 export function setName(originalName: string, schema = ""): string {
   if (!schema) return originalName;
@@ -161,27 +161,11 @@ export function runFunction(
     }));
   }
 
-  // if (fn.operation === "total") {
-  //   let total = 0;
-  //   fn.fields.forEach((field) => {
-  //     for (const record of data[field.flag]) {
-  //       const value = Number(record[field.name]);
-  //       if (!isNaN(value)) {
-  //         total += value;
-  //       }
-  //     }
-  //   });
-  //
-  //   return data[fn.result.flag].map((record) => {
-  //     return { ...record, [fn.result.name]: total };
-  //   });
-  // }
-
   return data.detail;
 }
 
-export function applyPreset(data: Data, preset: Preset) {
-  preset.removed?.forEach((field) => {
+export function applyPreset(data: Data, transformations: Transformations) {
+  transformations.remove?.forEach((field) => {
     if (field.flag === "header")
       data.header = removeField(data.header, field.name);
     if (field.flag === "detail")
@@ -190,7 +174,7 @@ export function applyPreset(data: Data, preset: Preset) {
       data.trailer = removeField(data.trailer, field.name);
   });
 
-  preset.added?.forEach((field) => {
+  transformations.add?.forEach((field) => {
     if (field.flag === "header")
       data.header = addField(data.header, field.name, field.value);
     if (field.flag === "detail")
@@ -199,17 +183,17 @@ export function applyPreset(data: Data, preset: Preset) {
       data.trailer = addField(data.trailer, field.name, field.value);
   });
 
-  preset.functions?.forEach((fn) => {
+  transformations.functions?.forEach((fn) => {
     if (fn.output.flag === "header") data.header = runFunction(data, fn);
     if (fn.output.flag === "detail") data.detail = runFunction(data, fn);
     if (fn.output.flag === "trailer") data.trailer = runFunction(data, fn);
   });
 
-  data.header = orderFields(data.header, preset.order.header);
-  data.detail = orderFields(data.detail, preset.order.detail);
-  data.trailer = orderFields(data.trailer, preset.order.trailer);
+  data.header = orderFields(data.header, transformations.order.header);
+  data.detail = orderFields(data.detail, transformations.order.detail);
+  data.trailer = orderFields(data.trailer, transformations.order.trailer);
 
-  data.name = setName(data.name, preset.schema);
+  data.name = setName(data.name, transformations.fileName);
 
   return data;
 }

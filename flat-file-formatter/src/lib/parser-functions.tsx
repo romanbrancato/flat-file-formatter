@@ -2,9 +2,8 @@ import Papa from "papaparse";
 import { Options, parse, stringify } from "@evologi/fixed-width";
 import path from "node:path";
 import { toast } from "sonner";
-import { Preset } from "@/context/preset-context";
-import { ConfigSchema } from "@/components/button-parser-config";
 import { z } from "zod";
+import { ParserConfigSchema, Preset } from "@/types/schemas";
 
 export type Data = {
   name: string;
@@ -15,7 +14,7 @@ export type Data = {
 
 export const ParserParams = z.object({
   file: z.instanceof(File),
-  config: ConfigSchema,
+  config: ParserConfigSchema,
 });
 
 export type ParserParams = z.infer<typeof ParserParams>;
@@ -102,10 +101,9 @@ export async function parseFile(params: ParserParams) {
 
 export function unparseData(data: Data, preset: Preset) {
   try {
-    if (preset.format === "delimited") {
+    if (preset.formatSpec.format === "delimited") {
       const config = {
-        delimiter: preset.symbol,
-        header: preset.label,
+        delimiter: preset.formatSpec.delimiter,
         skipEmptyLines: true,
       };
       return (
@@ -113,44 +111,51 @@ export function unparseData(data: Data, preset: Preset) {
         Papa.unparse(data.detail, config) +
         Papa.unparse(data.trailer, config)
       );
-    } else {
-      const headerConfig = Object.keys(data.header[0]).map((field) => {
-        const width = preset.widths?.header?.[field];
-        if (!width)
-          throw new Error(`Width not found for header field: ${field}`);
-        return {
-          property: field,
-          width: width,
-          align: preset.align,
-        };
-      });
+    }
 
-      const detailConfig = Object.keys(data.detail[0]).map((field) => {
-        const width = preset.widths?.detail?.[field];
-        if (!width)
-          throw new Error(`Width not found for detail field: ${field}`);
-        return {
-          property: field,
-          width: width,
-          align: preset.align,
-        };
-      });
-
-      const trailerConfig = Object.keys(data.trailer[0]).map((field) => {
-        const width = preset.widths?.trailer?.[field];
-        if (!width)
-          throw new Error(`Width not found for trailer field: ${field}`);
-        return {
-          property: field,
-          width: width,
-          align: preset.align,
-        };
-      });
+    if (preset.formatSpec.format === "fixed") {
+      const createConfig = (
+        flag: "header" | "detail" | "trailer",
+        widths: Record<string, number>,
+        align: "left" | "right",
+      ) => {
+        return Object.keys(data[flag][0]).map((field) => {
+          const width = widths?.[field];
+          if (!width)
+            throw new Error(`Width not found for ${flag} field: ${field}`);
+          return {
+            property: field,
+            width: width,
+            align: align,
+          };
+        });
+      };
 
       return (
-        stringify(data.header, { pad: preset.symbol, fields: headerConfig }) +
-        stringify(data.detail, { pad: preset.symbol, fields: detailConfig }) +
-        stringify(data.trailer, { pad: preset.symbol, fields: trailerConfig })
+        stringify(data.header, {
+          pad: preset.formatSpec.pad,
+          fields: createConfig(
+            "header",
+            preset.formatSpec.widths.header,
+            preset.formatSpec.align,
+          ),
+        }) +
+        stringify(data.detail, {
+          pad: preset.formatSpec.pad,
+          fields: createConfig(
+            "detail",
+            preset.formatSpec.widths.detail,
+            preset.formatSpec.align,
+          ),
+        }) +
+        stringify(data.trailer, {
+          pad: preset.formatSpec.pad,
+          fields: createConfig(
+            "trailer",
+            preset.formatSpec.widths.trailer,
+            preset.formatSpec.align,
+          ),
+        })
       );
     }
   } catch (error: any) {

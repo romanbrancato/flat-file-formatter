@@ -17,7 +17,7 @@ import { ButtonExportPreset } from "@/components/button-export-preset";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
 import { ModeContext } from "@/context/mode-context";
-import { ButtonDefineSchema } from "@/components/button-define-schema";
+import { ButtonDefineFilename } from "@/components/button-define-filename";
 import { Label } from "@/components/ui/label";
 import { ParserContext } from "@/context/parser-context";
 
@@ -37,7 +37,7 @@ export function PresetToolbar() {
                 ? "File Queue"
                 : "File Preview"}
           </Label>
-          {mode === "single" && <ButtonDefineSchema />}
+          {mode === "single" && <ButtonDefineFilename />}
         </div>
         <div className="flex flex-row space-x-3 justify-end">
           <SelectPreset />
