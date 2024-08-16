@@ -81,7 +81,7 @@ export function TabsFormatConfig() {
                         </TabsTrigger>
                       </TabsList>
                     </div>
-                    <TabsContent value="fixed" className="space-y-1 py-1">
+                    <TabsContent value="fixed" className="space-y-1 py-2">
                       <ButtonDefineWidths />
                       <FormField
                         control={form.control}
@@ -125,7 +125,7 @@ export function TabsFormatConfig() {
                         )}
                       />
                     </TabsContent>
-                    <TabsContent value="delimited" className="space-y-1 py-1">
+                    <TabsContent value="delimited" className="space-y-1 py-2">
                       <FormField
                         control={form.control}
                         name="delimiter"

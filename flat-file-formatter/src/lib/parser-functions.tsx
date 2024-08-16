@@ -23,7 +23,6 @@ export async function parseFile(params: ParserParams) {
   return new Promise<Data>((resolve, reject) => {
     if (params.config.format === "delimited") {
       const config: Papa.ParseLocalConfig<unknown, any> = {
-        ...params.config,
         header: true,
         skipEmptyLines: true,
         complete: (results) => {

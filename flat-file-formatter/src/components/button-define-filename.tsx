@@ -52,8 +52,8 @@ export function ButtonDefineFilename() {
     setName(values.pattern);
     setPreset({
       ...preset,
-      transformations: {
-        ...preset.transformations,
+      changes: {
+        ...preset.changes,
         fileName: values.pattern,
       },
     });

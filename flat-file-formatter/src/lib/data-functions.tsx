@@ -1,6 +1,6 @@
 import { extract, format, tokenize } from "@/lib/utils";
 import { Data } from "@/lib/parser-functions";
-import { Function, Transformations } from "@/types/schemas";
+import { Changes, Function } from "@/types/schemas";
 
 export function setName(originalName: string, schema = ""): string {
   if (!schema) return originalName;
@@ -164,8 +164,8 @@ export function runFunction(
   return data.detail;
 }
 
-export function applyPreset(data: Data, transformations: Transformations) {
-  transformations.remove?.forEach((field) => {
+export function applyPreset(data: Data, changes: Changes) {
+  changes.remove?.forEach((field) => {
     if (field.flag === "header")
       data.header = removeField(data.header, field.name);
     if (field.flag === "detail")
@@ -174,7 +174,7 @@ export function applyPreset(data: Data, transformations: Transformations) {
       data.trailer = removeField(data.trailer, field.name);
   });
 
-  transformations.add?.forEach((field) => {
+  changes.add?.forEach((field) => {
     if (field.flag === "header")
       data.header = addField(data.header, field.name, field.value);
     if (field.flag === "detail")
@@ -183,17 +183,17 @@ export function applyPreset(data: Data, transformations: Transformations) {
       data.trailer = addField(data.trailer, field.name, field.value);
   });
 
-  transformations.functions?.forEach((fn) => {
+  changes.functions?.forEach((fn) => {
     if (fn.output.flag === "header") data.header = runFunction(data, fn);
     if (fn.output.flag === "detail") data.detail = runFunction(data, fn);
     if (fn.output.flag === "trailer") data.trailer = runFunction(data, fn);
   });
 
-  data.header = orderFields(data.header, transformations.order.header);
-  data.detail = orderFields(data.detail, transformations.order.detail);
-  data.trailer = orderFields(data.trailer, transformations.order.trailer);
+  data.header = orderFields(data.header, changes.order.header);
+  data.detail = orderFields(data.detail, changes.order.detail);
+  data.trailer = orderFields(data.trailer, changes.order.trailer);
 
-  data.name = setName(data.name, transformations.fileName);
+  data.name = setName(data.name, changes.fileName);
 
   return data;
 }

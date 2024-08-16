@@ -12,11 +12,9 @@ import { ParserConfig } from "@/types/schemas";
 export function ButtonExportFile({
   files,
   setFiles,
-  config,
 }: {
   files?: File[];
   setFiles?: (files: File[]) => void;
-  config?: ParserConfig;
 }) {
   const { mode } = useContext(ModeContext);
   const {
@@ -28,11 +26,17 @@ export function ButtonExportFile({
   const { data, isReady } = useContext(ParserContext);
   const { preset } = useContext(PresetContext);
 
+  const exportFile = (data: Data) => {
+    const flatData = unparseData(data, preset);
+    if (flatData) {
+      download(flatData, data.name, "txt");
+    }
+  };
+
   const handleBatch = () => {
-    if (!files || !config || !preset.name) return;
+    if (!files || !preset.name) return;
     setBatchParams({
       files: files,
-      config: config,
       preset: preset,
     });
   };
@@ -46,17 +50,10 @@ export function ButtonExportFile({
     if (setFiles) setFiles([]);
   }, [isBatchReady]);
 
-  const exportFile = (data: Data) => {
-    const flatData = unparseData(data, preset);
-    if (flatData) {
-      download(flatData, data.name, "txt");
-    }
-  };
-
   return (
     <Button
       onClick={mode === "batch" ? handleBatch : () => exportFile(data)}
-      className="gap-x-2 md:mt-auto w-full"
+      className="gap-x-2 w-full"
       disabled={
         (mode !== "single" && !preset.name) ||
         files?.length === 0 ||

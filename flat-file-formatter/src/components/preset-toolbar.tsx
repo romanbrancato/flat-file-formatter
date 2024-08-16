@@ -20,6 +20,7 @@ import { ModeContext } from "@/context/mode-context";
 import { ButtonDefineFilename } from "@/components/button-define-filename";
 import { Label } from "@/components/ui/label";
 import { ParserContext } from "@/context/parser-context";
+import { ButtonApplyPreset } from "@/components/button-apply-preset";
 
 export function PresetToolbar() {
   const { isReady, data } = useContext(ParserContext);
@@ -39,19 +40,22 @@ export function PresetToolbar() {
           </Label>
           {mode === "single" && <ButtonDefineFilename />}
         </div>
-        <div className="flex flex-row space-x-3 justify-end">
+        <div className="flex flex-row space-x-2 justify-end">
+          {mode !== "batch" && <ButtonApplyPreset />}
           <SelectPreset />
-          <ButtonNewPreset
-            trigger={
-              <Button
-                variant="secondary"
-                className="hidden sm:flex"
-                disabled={!isReady || mode === "batch"}
-              >
-                New Preset
-              </Button>
-            }
-          />
+          {mode !== "batch" && (
+            <ButtonNewPreset
+              trigger={
+                <Button
+                  variant="secondary"
+                  className="hidden sm:flex"
+                  disabled={!isReady}
+                >
+                  New Preset
+                </Button>
+              }
+            />
+          )}
           <ButtonExportPreset
             trigger={
               <Button

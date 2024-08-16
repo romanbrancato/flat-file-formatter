@@ -41,9 +41,9 @@ export function ButtonRemoveField() {
     removeField(values.field);
     setPreset({
       ...preset,
-      transformations: {
-        ...preset.transformations,
-        remove: [...preset.transformations.remove, values.field],
+      changes: {
+        ...preset.changes,
+        remove: [...preset.changes.remove, values.field],
       },
     });
     setOpen(false);

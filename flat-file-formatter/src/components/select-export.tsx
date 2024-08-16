@@ -5,8 +5,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useContext } from "react";
-import { ParserContext } from "@/context/parser-context";
 
 export function SelectExport({
   selectedExport,
@@ -15,8 +13,6 @@ export function SelectExport({
   selectedExport: "csv" | "txt";
   onExportSelect: (exportType: "csv" | "txt") => void;
 }) {
-  const { isReady } = useContext(ParserContext);
-
   return (
     <Select
       value={selectedExport}

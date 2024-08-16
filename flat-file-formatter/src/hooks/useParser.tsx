@@ -81,7 +81,7 @@ export function useParser() {
   const applyPreset = useCallback(
     (preset: Preset) => {
       setIsReady(false);
-      setData({ ...fns.applyPreset(data, preset.transformations) });
+      setData({ ...fns.applyPreset(data, preset.changes) });
       setIsReady(true);
     },
     [data],

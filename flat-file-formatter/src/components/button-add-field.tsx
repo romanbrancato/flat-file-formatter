@@ -56,9 +56,9 @@ export function ButtonAddField() {
 
     setPreset({
       ...preset,
-      transformations: {
-        ...preset.transformations,
-        add: [...preset.transformations.add, noPos],
+      changes: {
+        ...preset.changes,
+        add: [...preset.changes.add, noPos],
       },
     });
 

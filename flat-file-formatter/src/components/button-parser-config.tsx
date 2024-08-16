@@ -21,6 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   Cross2Icon,
+  GearIcon,
   Pencil2Icon,
   PlusCircledIcon,
   Share2Icon,
@@ -115,48 +116,27 @@ export function ButtonParserConfig() {
     setOpen(false);
   }
 
-  const exportConfig = () => {
-    const result = ParserConfigSchema.safeParse(form.getValues());
-    if (!result.success) return;
-    download(JSON.stringify(result.data, null, 2), "config", "json");
-  };
-
   useEffect(() => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const obj = JSON.parse(event.target?.result as string);
-        const config = ParserConfigSchema.parse(obj);
-
-        if (config.format === "delimited") {
-          form.setValue("format", config.format);
-        } else if (config.format === "fixed") {
-          form.setValue("format", config.format);
-          config.header?.fields.forEach((field) => {
-            appendHeader(field);
-          });
-          config.detail.fields.forEach((field) => {
-            appendDetail(field);
-          });
-          config.trailer?.fields.forEach((field) => {
-            appendTrailer(field);
-          });
-        }
-      } catch (error) {
-        toast.error("Invalid Config", {
-          description: "The selected file is not a valid config.",
-        });
-      }
-    };
-    reader.readAsText(file);
-  }, [file]);
+    if (!preset.parser) return;
+    form.setValue("format", preset.parser.format);
+    if (preset.parser.format === "fixed") {
+      preset.parser.header?.fields.forEach((field) => {
+        appendHeader(field);
+      });
+      preset.parser.detail.fields.forEach((field) => {
+        appendDetail(field);
+      });
+      preset.parser.trailer?.fields.forEach((field) => {
+        appendTrailer(field);
+      });
+    }
+  }, [preset.parser]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="w-full border-dashed">
-          <Pencil2Icon className="mr-2" />
+          <GearIcon className="mr-2" />
           Configure Parser
         </Button>
       </DialogTrigger>
@@ -165,26 +145,8 @@ export function ButtonParserConfig() {
           <DialogTitle>Parser Configuration</DialogTitle>
           <DialogDescription>Configure the parser.</DialogDescription>
         </DialogHeader>
-        <div className="flex flex-row items-center gap-x-1">
-          <div className="flex-1">
-            <Input
-              type="file"
-              accept=".json"
-              onChange={(event) => setFile(event.target.files?.[0])}
-            />
-          </div>
-          <Button
-            className="w-1/5"
-            onClick={() => form.handleSubmit(onSubmit)()}
-          >
-            Save
-          </Button>
-          <Button size="icon" onClick={() => exportConfig()}>
-            <Share2Icon />
-          </Button>
-        </div>
         <Form {...form}>
-          <form>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             <FormField
               control={form.control}
               name={"format"}
@@ -218,13 +180,13 @@ export function ButtonParserConfig() {
                           {fieldsHeader.map((field, index) => (
                             <div
                               key={field.id}
-                              className="grid grid-cols-7 gap-x-1 mb-1 items-center"
+                              className="flex flex-row gap-x-1 mb-1 items-center"
                             >
                               <FormField
                                 control={form.control}
                                 name={`header.fields.${index}.property`}
                                 render={({ field }) => (
-                                  <FormItem className="col-span-5">
+                                  <FormItem className="flex-1">
                                     <FormControl>
                                       <Input {...field} placeholder="Field" />
                                     </FormControl>
@@ -402,6 +364,11 @@ export function ButtonParserConfig() {
                 </Accordion>
               </>
             )}
+            <div className="flex">
+              <Button type="submit" className="w-1/3 ml-auto">
+                Save
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

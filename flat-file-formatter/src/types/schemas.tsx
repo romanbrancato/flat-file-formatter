@@ -54,11 +54,21 @@ export const AddFieldSchema = z.object({
   value: z.string(),
 });
 
-export const OrderSchema = z.object({
-  header: z.array(z.string()),
-  detail: z.array(z.string()),
-  trailer: z.array(z.string()),
-});
+//have an actionTrue and actionFalse
+export const ActionSchema = z.discriminatedUnion("action", [
+  z.object({
+    action: z.literal("remove"),
+  }),
+  z.object({
+    action: z.literal("separate"),
+    tag: z.string(),
+  }),
+  z.object({
+    action: z.literal("setValue"),
+    field: FieldSchema,
+    value: z.string(),
+  }),
+]);
 
 export const FunctionSchema = z.discriminatedUnion("operation", [
   z.object({
@@ -72,6 +82,7 @@ export const FunctionSchema = z.discriminatedUnion("operation", [
         value: z.string(),
       }),
     ),
+    //replace with actionTrue, actionFalse later
     output: FieldSchema,
     valueTrue: z.string(),
     valueFalse: z.string(),
@@ -103,12 +114,6 @@ export const FunctionSchema = z.discriminatedUnion("operation", [
 
 export type Function = z.infer<typeof FunctionSchema>;
 
-export const WidthsSchema = z.object({
-  header: z.record(z.coerce.number().min(1)),
-  detail: z.record(z.coerce.number().min(1)),
-  trailer: z.record(z.coerce.number().min(1)),
-});
-
 export const FormatSchema = z.discriminatedUnion("format", [
   z.object({
     format: z.literal("delimited"),
@@ -118,28 +123,35 @@ export const FormatSchema = z.discriminatedUnion("format", [
     format: z.literal("fixed"),
     pad: z.string(),
     align: z.enum(["left", "right"]),
-    widths: WidthsSchema,
+    widths: z.object({
+      header: z.record(z.coerce.number().min(1)),
+      detail: z.record(z.coerce.number().min(1)),
+      trailer: z.record(z.coerce.number().min(1)),
+    }),
   }),
 ]);
 
 export type Format = z.infer<typeof FormatSchema>;
 
-export const TransformationsSchema = z.object({
+export const ChangesSchema = z.object({
   fileName: z.string(),
-  order: OrderSchema,
+  order: z.object({
+    header: z.array(z.string()),
+    detail: z.array(z.string()),
+    trailer: z.array(z.string()),
+  }),
   remove: z.array(FieldSchema),
   add: z.array(AddFieldSchema),
   functions: z.array(FunctionSchema),
 });
 
-export type Transformations = z.infer<typeof TransformationsSchema>;
+export type Changes = z.infer<typeof ChangesSchema>;
 
 export const PresetSchema = z.object({
   name: z.string().nullable(),
   parser: ParserConfigSchema,
   formatSpec: FormatSchema,
-  transformations: TransformationsSchema,
-  postProcessing: z.object({}),
+  changes: ChangesSchema,
 });
 
 export type Preset = z.infer<typeof PresetSchema>;

@@ -37,7 +37,7 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
         format: "delimited",
         delimiter: ",",
       },
-      transformations: {
+      changes: {
         fileName: "",
         order: {
           header: [],
@@ -48,7 +48,6 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
         add: [],
         functions: [],
       },
-      postProcessing: {},
     });
   }
 

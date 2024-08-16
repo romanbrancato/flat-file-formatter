@@ -2,11 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
 import { Data, parseFile } from "@/lib/parser-functions";
 import { z } from "zod";
-import { ParserConfigSchema, PresetSchema } from "@/types/schemas";
+import { PresetSchema } from "@/types/schemas";
 
 export const BatchParserParams = z.object({
   files: z.array(z.instanceof(File)),
-  config: ParserConfigSchema,
   preset: PresetSchema,
 });
 
@@ -23,11 +22,11 @@ export function useBatchParser() {
     if (!batchParams) return;
     setIsBatchReady(false);
     for (const file of batchParams.files) {
-      parseFile({ file: file, config: batchParams.config })
+      parseFile({ file: file, config: batchParams.preset.parser })
         .then((data) => {
           setData((prevData) => [
             ...prevData,
-            fns.applyPreset(data, batchParams.preset.transformations),
+            fns.applyPreset(data, batchParams.preset.changes),
           ]);
           setIsBatchReady(true);
         })

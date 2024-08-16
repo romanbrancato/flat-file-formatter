@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Cross2Icon,
+  GearIcon,
   Pencil1Icon,
   PlusCircledIcon,
 } from "@radix-ui/react-icons";
@@ -34,7 +35,7 @@ import { SelectOperator } from "@/components/select-operator";
 import { CheckboxOverpunch } from "@/components/checkbox-overpunch";
 import { Field, FunctionSchema } from "@/types/schemas";
 
-export function ButtonEditField() {
+export function ButtonCreateFunction() {
   const { isReady, runFunction } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
@@ -103,9 +104,9 @@ export function ButtonEditField() {
     runFunction(values);
     setPreset({
       ...preset,
-      transformations: {
-        ...preset.transformations,
-        functions: [...preset.transformations.functions, values],
+      changes: {
+        ...preset.changes,
+        functions: [...preset.changes.functions, values],
       },
     });
 
@@ -122,13 +123,13 @@ export function ButtonEditField() {
           className="w-full border-dashed"
           disabled={!isReady}
         >
-          <Pencil1Icon className="mr-2" />
-          Edit Field
+          <GearIcon className="mr-2" />
+          Create Function
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[700px] max-h-[800px]">
         <DialogHeader>
-          <DialogTitle>Edit Field</DialogTitle>
+          <DialogTitle>Create Function</DialogTitle>
           <DialogDescription className="flex flex-row justify-between items-center">
             Perform various operations.
           </DialogDescription>

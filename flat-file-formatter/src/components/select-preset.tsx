@@ -15,7 +15,6 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PresetContext } from "@/context/preset-context";
-import { ParserContext } from "@/context/parser-context";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import {
   ContextMenu,
@@ -24,20 +23,16 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
-import { ModeContext } from "@/context/mode-context";
 import { Input } from "@/components/ui/input";
 import { Preset, PresetSchema } from "@/types/schemas";
 
 export function SelectPreset() {
-  const { mode } = useContext(ModeContext);
-  const { isReady, applyPreset } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File>();
   const [storedPresets, setStoredPresets] = useState<Preset[]>([]);
 
   const onSelect = (selectedPreset: Preset) => {
-    if (mode !== "batch") applyPreset(selectedPreset);
     setPreset(selectedPreset);
   };
 
@@ -53,7 +48,7 @@ export function SelectPreset() {
       try {
         const obj = JSON.parse(event.target?.result as string);
         const importedPreset = PresetSchema.parse(obj);
-        onSelect(importedPreset);
+        setPreset(importedPreset);
         localStorage.setItem(
           `preset_${importedPreset.name}`,
           JSON.stringify({ ...importedPreset }, null, 2),
@@ -95,7 +90,6 @@ export function SelectPreset() {
           aria-label="Load a preset..."
           aria-expanded={open}
           className="flex-1 justify-between min-w-[225px] md:min-w-[300px]"
-          disabled={mode !== "batch" && !isReady}
         >
           {preset && preset.name ? preset.name : "Load a preset..."}
           <CaretSortIcon className="ml-2 opacity-50" />

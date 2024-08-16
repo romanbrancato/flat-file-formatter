@@ -14,7 +14,7 @@ import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { BatchFileRow } from "@/components/batch-file-row";
 import { ButtonAddField } from "@/components/button-add-field";
 import { ButtonRemoveField } from "@/components/button-remove-field";
-import { ButtonEditField } from "@/components/button-edit-field";
+import { ButtonCreateFunction } from "@/components/button-create-function";
 import { PresetContext } from "@/context/preset-context";
 
 export default function App() {
@@ -69,12 +69,14 @@ export default function App() {
                 <div className="flex flex-row gap-x-1 md:w-2/3">
                   <ButtonAddField />
                   <ButtonRemoveField />
-                  <ButtonEditField />
+                  <ButtonCreateFunction />
                 </div>
               </div>
               <div className="flex flex-col">
                 <TabsFormatConfig />
-                <ButtonExportFile files={files} />
+                <div className="md:mt-auto">
+                  <ButtonExportFile files={files} />
+                </div>
               </div>
             </>
           ) : mode === "batch" && files.length ? (
@@ -89,11 +91,7 @@ export default function App() {
                 ))}
               </div>
               <div className="ml-auto w-1/5">
-                <ButtonExportFile
-                  files={files}
-                  setFiles={setFiles}
-                  config={preset.parser}
-                />
+                <ButtonExportFile files={files} setFiles={setFiles} />
               </div>
             </div>
           ) : (
