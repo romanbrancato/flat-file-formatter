@@ -14,7 +14,7 @@ import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { BatchFileRow } from "@/components/batch-file-row";
 import { ButtonAddField } from "@/components/button-add-field";
 import { ButtonRemoveField } from "@/components/button-remove-field";
-import { ButtonCreateFunction } from "@/components/button-create-function";
+import { ButtonOperations } from "@/components/button-operations";
 import { PresetContext } from "@/context/preset-context";
 
 export default function App() {
@@ -59,17 +59,17 @@ export default function App() {
           {mode === "single" && isReady ? (
             <>
               <div className="flex flex-col gap-y-1 overflow-hidden flex-grow">
-                {data.header.some((rec) => Object.keys(rec).length > 0) && (
-                  <RecordTable flag="header" />
-                )}
+                {data.records.header.some(
+                  (rec) => Object.keys(rec).length > 0,
+                ) && <RecordTable flag="header" />}
                 <RecordTable flag="detail" />
-                {data.trailer.some((rec) => Object.keys(rec).length > 0) && (
-                  <RecordTable flag="trailer" />
-                )}
+                {data.records.trailer.some(
+                  (rec) => Object.keys(rec).length > 0,
+                ) && <RecordTable flag="trailer" />}
                 <div className="flex flex-row gap-x-1 md:w-2/3">
                   <ButtonAddField />
                   <ButtonRemoveField />
-                  <ButtonCreateFunction />
+                  <ButtonOperations />
                 </div>
               </div>
               <div className="flex flex-col">

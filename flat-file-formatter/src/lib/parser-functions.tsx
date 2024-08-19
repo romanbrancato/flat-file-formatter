@@ -3,14 +3,7 @@ import { Options, parse, stringify } from "@evologi/fixed-width";
 import path from "node:path";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ParserConfigSchema, Preset } from "@/types/schemas";
-
-export type Data = {
-  name: string;
-  header: Record<string, unknown>[];
-  detail: Record<string, unknown>[];
-  trailer: Record<string, unknown>[];
-};
+import { Data, ParserConfigSchema, Preset } from "@/types/schemas";
 
 export const ParserParams = z.object({
   file: z.instanceof(File),
@@ -28,9 +21,11 @@ export async function parseFile(params: ParserParams) {
         complete: (results) => {
           resolve({
             name: path.parse(params.file.name).name,
-            header: [{}],
-            detail: results.data as Record<string, unknown>[],
-            trailer: [{}],
+            records: {
+              header: [{}],
+              detail: results.data as Record<string, string>[],
+              trailer: [{}],
+            },
           });
         },
       };
@@ -81,15 +76,17 @@ export async function parseFile(params: ParserParams) {
 
         resolve({
           name: path.parse(params.file.name).name,
-          header:
-            configHeader && configHeader?.fields.length > 0
-              ? parse(headerRecord, configHeader as Options)
-              : [{}],
-          detail: parse(detailRecords, configDetail as Options),
-          trailer:
-            configTrailer && configTrailer?.fields.length > 0
-              ? parse(trailerRecord, configTrailer as Options)
-              : [{}],
+          records: {
+            header:
+              configHeader && configHeader?.fields.length > 0
+                ? parse(headerRecord, configHeader as Options)
+                : [{}],
+            detail: parse(detailRecords, configDetail as Options),
+            trailer:
+              configTrailer && configTrailer?.fields.length > 0
+                ? parse(trailerRecord, configTrailer as Options)
+                : [{}],
+          },
         });
       };
 

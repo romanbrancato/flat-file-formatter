@@ -17,7 +17,7 @@ import { ButtonExportPreset } from "@/components/button-export-preset";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
 import { ModeContext } from "@/context/mode-context";
-import { ButtonDefineFilename } from "@/components/button-define-filename";
+import { ButtonDefinePattern } from "@/components/button-define-pattern";
 import { Label } from "@/components/ui/label";
 import { ParserContext } from "@/context/parser-context";
 import { ButtonApplyPreset } from "@/components/button-apply-preset";
@@ -38,7 +38,7 @@ export function PresetToolbar() {
                 ? "File Queue"
                 : "File Preview"}
           </Label>
-          {mode === "single" && <ButtonDefineFilename />}
+          {mode === "single" && <ButtonDefinePattern />}
         </div>
         <div className="flex flex-row space-x-2 justify-end">
           {mode !== "batch" && <ButtonApplyPreset />}

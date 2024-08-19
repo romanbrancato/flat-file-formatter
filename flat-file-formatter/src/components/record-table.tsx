@@ -96,13 +96,13 @@ export function RecordTable({
   flag: "header" | "detail" | "trailer";
 }) {
   const { isReady, data, orderFields } = useContext(ParserContext);
-  const [columns, setColumns] = useState<ColumnDef<Record<string, unknown>>[]>(
+  const [columns, setColumns] = useState<ColumnDef<Record<string, string>>[]>(
     [],
   );
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
 
   const table = useReactTable({
-    data: data[flag],
+    data: data.records[flag],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -117,9 +117,11 @@ export function RecordTable({
   });
 
   useEffect(() => {
-    const newColumns = Object.keys(data[flag][0] || {}).map((field) => ({
-      accessorKey: field,
-    }));
+    const newColumns = Object.keys(data.records[flag][0] || {}).map(
+      (field) => ({
+        accessorKey: field,
+      }),
+    );
     setColumns(newColumns);
     setColumnOrder(newColumns.map((c) => c.accessorKey!));
   }, [data]);

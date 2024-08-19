@@ -58,10 +58,12 @@ export function ButtonDefineWidths() {
               <span className="ml-auto">{`${Object.values(headerValues).reduce((total: number, width) => total + Number(width || 0), 0)}`}</span>
             </AccordionTrigger>
             <AccordionContent>
-              {data.header.some((rec) => Object.keys(rec).length > 0) ? (
+              {data.records.header.some(
+                (rec) => Object.keys(rec).length > 0,
+              ) ? (
                 <ScrollArea>
                   <ScrollAreaViewport className="max-h-[400px]">
-                    {Object.keys(data.header[0]).map((fieldName) => (
+                    {Object.keys(data.records.header[0]).map((fieldName) => (
                       <FormField
                         control={control}
                         name={`widths.header.${fieldName}`}
@@ -101,10 +103,12 @@ export function ButtonDefineWidths() {
               <span className="ml-auto">{`${Object.values(detailValues).reduce((total: number, width) => total + Number(width || 0), 0)}`}</span>
             </AccordionTrigger>
             <AccordionContent>
-              {data.detail.some((rec) => Object.keys(rec).length > 0) ? (
+              {data.records.detail.some(
+                (rec) => Object.keys(rec).length > 0,
+              ) ? (
                 <ScrollArea>
                   <ScrollAreaViewport className="max-h-[400px]">
-                    {Object.keys(data.detail[0]).map((fieldName) => (
+                    {Object.keys(data.records.detail[0]).map((fieldName) => (
                       <FormField
                         control={control}
                         name={`widths.detail.${fieldName}`}
@@ -144,10 +148,12 @@ export function ButtonDefineWidths() {
               <span className="ml-auto">{`${Object.values(trailerValues).reduce((total: number, width) => total + Number(width || 0), 0)}`}</span>
             </AccordionTrigger>
             <AccordionContent>
-              {data.trailer.some((rec) => Object.keys(rec).length > 0) ? (
+              {data.records.trailer.some(
+                (rec) => Object.keys(rec).length > 0,
+              ) ? (
                 <ScrollArea>
                   <ScrollAreaViewport className="max-h-[400px]">
-                    {Object.keys(data.trailer[0]).map((fieldName) => (
+                    {Object.keys(data.records.trailer[0]).map((fieldName) => (
                       <FormField
                         control={control}
                         name={`widths.trailer.${fieldName}`}

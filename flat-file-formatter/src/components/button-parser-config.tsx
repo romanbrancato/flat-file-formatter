@@ -19,17 +19,9 @@ import {
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import {
-  Cross2Icon,
-  GearIcon,
-  Pencil2Icon,
-  PlusCircledIcon,
-  Share2Icon,
-} from "@radix-ui/react-icons";
-import { toast } from "sonner";
+import { Cross2Icon, GearIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { SelectImportFormat } from "@/components/select-import-format";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
-import { download } from "@/lib/utils";
 import {
   Accordion,
   AccordionContent,

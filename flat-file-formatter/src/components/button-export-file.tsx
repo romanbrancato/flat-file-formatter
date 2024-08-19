@@ -5,9 +5,9 @@ import { PresetContext } from "@/context/preset-context";
 import { download } from "@/lib/utils";
 import { ModeContext } from "@/context/mode-context";
 import { ParserContext } from "@/context/parser-context";
-import { Data, unparseData } from "@/lib/parser-functions";
+import { unparseData } from "@/lib/parser-functions";
 import { BatchParserContext } from "@/context/batch-parser-context";
-import { ParserConfig } from "@/types/schemas";
+import { Data } from "@/types/schemas";
 
 export function ButtonExportFile({
   files,

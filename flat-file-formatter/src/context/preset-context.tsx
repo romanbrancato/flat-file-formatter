@@ -38,15 +38,13 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
         delimiter: ",",
       },
       changes: {
-        fileName: "",
+        pattern: "",
         order: {
           header: [],
           detail: [],
           trailer: [],
         },
-        remove: [],
-        add: [],
-        functions: [],
+        history: [],
       },
     });
   }

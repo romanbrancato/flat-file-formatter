@@ -22,24 +22,18 @@ import { useForm, useWatch } from "react-hook-form";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { SelectFlag } from "@/components/select-flag";
-import { z } from "zod";
 import { SelectField } from "@/components/select-field";
-import { AddFieldSchema, FieldSchema } from "@/types/schemas";
-
-const AddFieldWithPosSchema = AddFieldSchema.extend({
-  after: FieldSchema.nullable(),
-});
-
-export type AddFieldWithPos = z.infer<typeof AddFieldWithPosSchema>;
+import { OperationSchema, Operation } from "@/types/schemas";
 
 export function ButtonAddField() {
   const { isReady, addField } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<AddFieldWithPos>({
-    resolver: zodResolver(AddFieldWithPosSchema),
+  const form = useForm<Operation>({
+    resolver: zodResolver(OperationSchema),
     defaultValues: {
+      operation: "add",
       flag: "detail",
       name: "",
       value: "",
@@ -49,16 +43,14 @@ export function ButtonAddField() {
 
   const flagValue = useWatch({ control: form.control, name: "flag" });
 
-  function onSubmit(values: AddFieldWithPos) {
-    addField(values);
-
-    const { after, ...noPos } = values;
-
+  function onSubmit(values: Operation) {
+    if (values.operation !== "add") return;
+    addField(values.flag, values.value, values.name, values.after);
     setPreset({
       ...preset,
       changes: {
         ...preset.changes,
-        add: [...preset.changes.add, noPos],
+        history: [...preset.changes.history, values],
       },
     });
 

@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+const DataSchema = z.object({
+  name: z.string(),
+  records: z.record(z.array(z.record(z.string()))),
+});
+
+export type Data = z.infer<typeof DataSchema>;
+
 export const ParserFieldSchema = z.object({
   fields: z
     .array(
@@ -48,12 +55,6 @@ export const FieldSchema = z.object(
 
 export type Field = z.infer<typeof FieldSchema>;
 
-export const AddFieldSchema = z.object({
-  flag: z.enum(["header", "detail", "trailer"]),
-  name: z.string().min(1, "Enter a field name."),
-  value: z.string(),
-});
-
 //have an actionTrue and actionFalse
 export const ActionSchema = z.discriminatedUnion("action", [
   z.object({
@@ -70,14 +71,13 @@ export const ActionSchema = z.discriminatedUnion("action", [
   }),
 ]);
 
-export const FunctionSchema = z.discriminatedUnion("operation", [
+export const OperationSchema = z.discriminatedUnion("operation", [
   z.object({
     operation: z.literal("conditional"),
     conditions: z.array(
       z.object({
         statement: z.enum(["if", "if not"]),
         field: FieldSchema,
-        overpunch: z.boolean(),
         comparison: z.enum(["<", "===", ">"]),
         value: z.string(),
       }),
@@ -89,30 +89,30 @@ export const FunctionSchema = z.discriminatedUnion("operation", [
   }),
   z.object({
     operation: z.literal("equation"),
-    formulas: z.array(
+    //direction: z.enum(["row", "column"]),
+    formula: z.array(
       z.object({
         operator: z.enum(["+", "-"]),
         field: FieldSchema,
-        overpunch: z.boolean(),
       }),
     ),
     output: FieldSchema,
-    overpunch: z.boolean(),
   }),
   z.object({
-    operation: z.literal("total"),
-    fields: z.array(
-      z.object({
-        field: FieldSchema,
-        overpunch: z.boolean(),
-      }),
-    ),
-    output: FieldSchema,
-    overpunch: z.boolean(),
+    operation: z.literal("add"),
+    flag: z.enum(["header", "detail", "trailer"]),
+    name: z.string().min(1, "Enter a field name."),
+    value: z.string(),
+    after: FieldSchema.nullable(),
   }),
+  z.object({
+    operation: z.literal("remove"),
+    field: FieldSchema,
+  }),
+  //maybe add a format operation
 ]);
 
-export type Function = z.infer<typeof FunctionSchema>;
+export type Operation = z.infer<typeof OperationSchema>;
 
 export const FormatSchema = z.discriminatedUnion("format", [
   z.object({
@@ -134,15 +134,13 @@ export const FormatSchema = z.discriminatedUnion("format", [
 export type Format = z.infer<typeof FormatSchema>;
 
 export const ChangesSchema = z.object({
-  fileName: z.string(),
+  pattern: z.string(),
   order: z.object({
     header: z.array(z.string()),
     detail: z.array(z.string()),
     trailer: z.array(z.string()),
   }),
-  remove: z.array(FieldSchema),
-  add: z.array(AddFieldSchema),
-  functions: z.array(FunctionSchema),
+  history: z.array(OperationSchema),
 });
 
 export type Changes = z.infer<typeof ChangesSchema>;

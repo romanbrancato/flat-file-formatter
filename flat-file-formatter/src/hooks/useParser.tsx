@@ -1,9 +1,8 @@
-import { Data, parseFile, ParserParams } from "@/lib/parser-functions";
+import { parseFile, ParserParams } from "@/lib/parser-functions";
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
 import path from "node:path";
-import { AddFieldWithPos } from "@/components/button-add-field";
-import { Field, Preset, Function } from "@/types/schemas";
+import { Data, Field, Operation, Preset } from "@/types/schemas";
 
 export function useParser() {
   const [isReady, setIsReady] = useState(false);
@@ -23,13 +22,13 @@ export function useParser() {
       });
   }, [params]);
 
-  const setName = useCallback(
+  const applyPattern = useCallback(
     (schema: string) => {
       if (!params) return;
       setIsReady(false);
       setData({
         ...data,
-        name: fns.setName(path.parse(params.file.name).name, schema),
+        name: fns.applyPattern(path.parse(params.file.name).name, schema),
       });
       setIsReady(true);
     },
@@ -41,7 +40,7 @@ export function useParser() {
       setIsReady(false);
       setData({
         ...data,
-        [flag]: fns.removeField(data[flag], name),
+        [flag]: fns.removeField(data.records[flag], name),
       });
       setIsReady(true);
     },
@@ -49,11 +48,16 @@ export function useParser() {
   );
 
   const addField = useCallback(
-    ({ flag, name, value, after }: AddFieldWithPos) => {
+    (
+      flag: "header" | "detail" | "trailer",
+      value: string,
+      name: string,
+      after?: Field | null,
+    ) => {
       setIsReady(false);
       setData({
         ...data,
-        [flag]: fns.addField(data[flag], name, value, after?.name),
+        [flag]: fns.addField(data.records[flag], name, value, after?.name),
       });
       setIsReady(true);
     },
@@ -63,16 +67,19 @@ export function useParser() {
   const orderFields = useCallback(
     (flag: "header" | "detail" | "trailer", order: string[]) => {
       setIsReady(false);
-      setData({ ...data, [flag]: fns.orderFields(data[flag], order) });
+      setData({ ...data, [flag]: fns.orderFields(data.records[flag], order) });
       setIsReady(true);
     },
     [data],
   );
 
-  const runFunction = useCallback(
-    (fn: Function) => {
+  const performOperation = useCallback(
+    (operation: Operation) => {
       setIsReady(false);
-      setData({ ...data, [fn.output.flag]: fns.runFunction(data, fn) });
+      setData({
+        ...data,
+        [operation.output.flag]: fns.performOperation(data, operation),
+      });
       setIsReady(true);
     },
     [data],
@@ -92,11 +99,11 @@ export function useParser() {
     params,
     setParams,
     data,
-    setName,
+    applyPattern,
     removeField,
     addField,
     orderFields,
-    runFunction,
+    performOperation,
     applyPreset,
   };
 }

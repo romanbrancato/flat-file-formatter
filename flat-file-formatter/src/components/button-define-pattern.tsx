@@ -28,12 +28,12 @@ import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import path from "node:path";
 
-const FileNameEditSchema = z.object({
+const PatternSchema = z.object({
   pattern: z.string(),
 });
 
-export function ButtonDefineFilename() {
-  const { params, isReady, setName } = useContext(ParserContext);
+export function ButtonDefinePattern() {
+  const { params, isReady, applyPattern } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
@@ -42,19 +42,19 @@ export function ButtonDefineFilename() {
   }, [params?.file]);
 
   const form = useForm({
-    resolver: zodResolver(FileNameEditSchema),
+    resolver: zodResolver(PatternSchema),
     defaultValues: {
       pattern: "",
     },
   });
 
   const onSubmit: SubmitHandler<FieldValues> = (values) => {
-    setName(values.pattern);
+    applyPattern(values.pattern);
     setPreset({
       ...preset,
       changes: {
         ...preset.changes,
-        fileName: values.pattern,
+        pattern: values.pattern,
       },
     });
     setOpen(false);

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
-import { Data, parseFile } from "@/lib/parser-functions";
+import { parseFile } from "@/lib/parser-functions";
 import { z } from "zod";
-import { PresetSchema } from "@/types/schemas";
+import { Data, PresetSchema } from "@/types/schemas";
 
 export const BatchParserParams = z.object({
   files: z.array(z.instanceof(File)),

@@ -34,11 +34,12 @@ export function SelectField({
   const [open, setOpen] = useState(false);
 
   const renderFields = (flag: "header" | "detail" | "trailer") => {
-    if (!data[flag].some((rec) => Object.keys(rec).length > 0)) return null;
+    if (!data.records[flag].some((rec) => Object.keys(rec).length > 0))
+      return null;
 
     return (
       <CommandGroup heading={<span className="capitalize">{flag} Fields</span>}>
-        {Object.keys(data[flag][0]).map((field) => (
+        {Object.keys(data.records[flag][0]).map((field) => (
           <CommandItem
             key={`${flag}${field}`}
             onSelect={() => {

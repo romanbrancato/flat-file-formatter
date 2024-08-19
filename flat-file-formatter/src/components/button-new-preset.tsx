@@ -46,9 +46,9 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
       changes: {
         ...preset.changes,
         order: {
-          header: Object.keys(data.header[0]),
-          detail: Object.keys(data.detail[0]),
-          trailer: Object.keys(data.trailer[0]),
+          header: Object.keys(data.records.header[0]),
+          detail: Object.keys(data.records.detail[0]),
+          trailer: Object.keys(data.records.trailer[0]),
         },
       },
     };

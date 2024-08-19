@@ -21,29 +21,29 @@ import {
 } from "@/components/ui/form";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
-import { z } from "zod";
-import { FieldSchema } from "@/types/schemas";
-
-const RemoveFieldSchema = z.object({
-  field: FieldSchema,
-});
+import { Operation, OperationSchema } from "@/types/schemas";
 
 export function ButtonRemoveField() {
   const { isReady, removeField } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<z.infer<typeof RemoveFieldSchema>>({
-    resolver: zodResolver(RemoveFieldSchema),
+  const form = useForm<Operation>({
+    resolver: zodResolver(OperationSchema),
+    defaultValues: {
+      operation: "remove",
+      field: undefined,
+    },
   });
 
-  function onSubmit(values: z.infer<typeof RemoveFieldSchema>) {
+  function onSubmit(values: Operation) {
+    if (values.operation !== "remove") return;
     removeField(values.field);
     setPreset({
       ...preset,
       changes: {
         ...preset.changes,
-        remove: [...preset.changes.remove, values.field],
+        history: [...preset.changes.history, values],
       },
     });
     setOpen(false);
