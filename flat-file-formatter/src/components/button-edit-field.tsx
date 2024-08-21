@@ -68,6 +68,8 @@ export function ButtonEditField() {
           overpunch: false,
         },
       ],
+      type: "date",
+      pattern: "",
     },
   });
 
@@ -626,6 +628,41 @@ export function ButtonEditField() {
                     )}
                   />
                 </div>
+              </div>
+            )}
+            {form.getValues().operation === "format" && (
+              <div className="space-y-1">
+                <FormField
+                  control={form.control}
+                  name={`output`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <SelectField
+                          selectedField={field.value as Field}
+                          onFieldSelect={(field) => {
+                            form.setValue(`output`, field, {
+                              shouldValidate: true,
+                            });
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`pattern`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Pattern" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             )}
             <div className="flex">

@@ -1,6 +1,7 @@
 import { Function, Preset } from "@/context/preset-context";
-import { extract, format, tokenize } from "@/lib/utils";
+import { extractOverpunch, formatOverpunch, tokenize } from "@/lib/utils";
 import { Data } from "@/lib/parser-functions";
+import { format } from "date-fns";
 
 export function setName(originalName: string, schema = ""): string {
   if (!schema) return originalName;
@@ -76,14 +77,14 @@ export function runFunction(
       record: Record<string, unknown>,
     ) => {
       const value = condition.overpunch
-        ? Number(extract(record[condition.field.name] as string))
+        ? Number(extractOverpunch(record[condition.field.name] as string))
         : Number(record[condition.field.name]);
 
       let comparisonValue = condition.value;
       const referenceMatch = comparisonValue.match(/^{(.+)}$/);
       if (referenceMatch) {
         comparisonValue = referenceMatch[1].endsWith("{OP}")
-          ? extract(record[referenceMatch[1].slice(0, -4)] as string)
+          ? extractOverpunch(record[referenceMatch[1].slice(0, -4)] as string)
           : record[referenceMatch[1]];
       }
 
@@ -124,7 +125,7 @@ export function runFunction(
 
       formulas.forEach((formula) => {
         const value = formula.overpunch
-          ? Number(extract(record[formula.field.name] as string))
+          ? Number(extractOverpunch(record[formula.field.name] as string))
           : Number(record[formula.field.name]);
         if (!isNaN(value)) {
           // Check if value is a valid number
@@ -137,7 +138,10 @@ export function runFunction(
       });
 
       // Assign the computed sum to the result field in the record
-      return { ...record, [output.name]: fn.overpunch ? format(sum) : sum };
+      return {
+        ...record,
+        [output.name]: fn.overpunch ? formatOverpunch(sum) : sum,
+      };
     });
   }
 
@@ -148,7 +152,7 @@ export function runFunction(
         data[field.field.flag]
           .flatMap((record) =>
             field.overpunch
-              ? Number(extract(record[field.field.name] as string))
+              ? Number(extractOverpunch(record[field.field.name] as string))
               : Number(record[field.field.name]) || 0,
           )
           .reduce((sum, value) => sum + value, 0)
@@ -157,25 +161,19 @@ export function runFunction(
 
     return data[fn.output.flag].map((record) => ({
       ...record,
-      [fn.output.name]: fn.overpunch ? format(total) : total,
+      [fn.output.name]: fn.overpunch ? formatOverpunch(total) : total,
     }));
   }
 
-  // if (fn.operation === "total") {
-  //   let total = 0;
-  //   fn.fields.forEach((field) => {
-  //     for (const record of data[field.flag]) {
-  //       const value = Number(record[field.name]);
-  //       if (!isNaN(value)) {
-  //         total += value;
-  //       }
-  //     }
-  //   });
-  //
-  //   return data[fn.result.flag].map((record) => {
-  //     return { ...record, [fn.result.name]: total };
-  //   });
-  // }
+  if (fn.operation === "format") {
+    return data[fn.output.flag].map((record) => ({
+      ...record,
+      [fn.output.name]: format(
+        new Date(record[fn.output.name] as string),
+        fn.pattern,
+      ),
+    }));
+  }
 
   return data.detail;
 }

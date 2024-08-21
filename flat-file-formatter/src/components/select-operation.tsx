@@ -36,6 +36,9 @@ export function SelectOperation({
         <SelectItem key="total" value="total">
           Total
         </SelectItem>
+        <SelectItem key="format" value="format">
+          Format
+        </SelectItem>
       </SelectContent>
     </Select>
   );

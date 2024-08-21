@@ -72,6 +72,12 @@ export const FunctionSchema = z.discriminatedUnion("operation", [
     output: FieldSchema,
     overpunch: z.boolean(),
   }),
+  z.object({
+    operation: z.literal("format"),
+    type: z.enum(["date", "number"]),
+    output: FieldSchema,
+    pattern: z.string(),
+  }),
 ]);
 
 export type Function = z.infer<typeof FunctionSchema>;

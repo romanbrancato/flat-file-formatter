@@ -58,7 +58,7 @@ const EXTRACT_REF: Record<string, [string, string]> = {
   R: ["-", "9"],
 };
 
-export function extract(raw: string, decimals: number = 2): string {
+export function extractOverpunch(raw: string, decimals: number = 2): string {
   const length = raw.length;
   const lastChar = raw[length - 1];
   const [sign, cent] = EXTRACT_REF[lastChar];
@@ -97,7 +97,7 @@ const FORMAT_REF: Record<string, string> = {
   "-9": "R",
 };
 
-export function format(
+export function formatOverpunch(
   val: number | string | Decimal,
   decimals: number = 2,
   rounding = Decimal.ROUND_HALF_UP,
