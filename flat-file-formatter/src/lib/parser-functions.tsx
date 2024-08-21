@@ -148,9 +148,9 @@ export function unparseData(data: Data, preset: Preset) {
       });
 
       return (
-        stringify(data.header, { pad: preset.symbol, fields: headerConfig }) +
-        stringify(data.detail, { pad: preset.symbol, fields: detailConfig }) +
-        stringify(data.trailer, { pad: preset.symbol, fields: trailerConfig })
+        // stringify(data.header, { pad: preset.symbol, fields: headerConfig }) +
+        stringify(data.detail, { pad: preset.symbol, fields: detailConfig })
+        // stringify(data.trailer, { pad: preset.symbol, fields: trailerConfig })
       );
     }
   } catch (error: any) {
