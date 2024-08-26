@@ -33,6 +33,16 @@ export const OrderSchema = z.object({
   trailer: z.array(z.string()),
 });
 
+export const FormatSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("date"),
+    pattern: z.string(),
+  }),
+  z.object({
+    type: z.literal("number"),
+  }),
+]);
+
 export const FunctionSchema = z.discriminatedUnion("operation", [
   z.object({
     operation: z.literal("conditional"),
@@ -62,21 +72,9 @@ export const FunctionSchema = z.discriminatedUnion("operation", [
     overpunch: z.boolean(),
   }),
   z.object({
-    operation: z.literal("total"),
-    fields: z.array(
-      z.object({
-        field: FieldSchema,
-        overpunch: z.boolean(),
-      }),
-    ),
-    output: FieldSchema,
-    overpunch: z.boolean(),
-  }),
-  z.object({
     operation: z.literal("format"),
-    type: z.enum(["date", "number"]),
+    details: FormatSchema,
     output: FieldSchema,
-    pattern: z.string(),
   }),
 ]);
 

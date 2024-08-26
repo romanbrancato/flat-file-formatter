@@ -145,34 +145,22 @@ export function runFunction(
     });
   }
 
-  if (fn.operation === "total") {
-    let total = fn.fields.reduce((acc, field) => {
-      return (
-        acc +
-        data[field.field.flag]
-          .flatMap((record) =>
-            field.overpunch
-              ? Number(extractOverpunch(record[field.field.name] as string))
-              : Number(record[field.field.name]) || 0,
-          )
-          .reduce((sum, value) => sum + value, 0)
-      );
-    }, 0);
-
-    return data[fn.output.flag].map((record) => ({
-      ...record,
-      [fn.output.name]: fn.overpunch ? formatOverpunch(total) : total,
-    }));
-  }
-
   if (fn.operation === "format") {
-    return data[fn.output.flag].map((record) => ({
-      ...record,
-      [fn.output.name]: format(
-        new Date(record[fn.output.name] as string),
-        fn.pattern,
-      ),
-    }));
+    switch (fn.details.type) {
+      case "date":
+        return data[fn.output.flag].map((record) => ({
+          ...record,
+          [fn.output.name]: format(
+            new Date(record[fn.output.name] as string),
+            fn.details.type === "date" ? fn.details.pattern : "",
+          ),
+        }));
+      case "number":
+        return data[fn.output.flag].map((record) => ({
+          ...record,
+          [fn.output.name]: Number(record[fn.output.name]),
+        }));
+    }
   }
 
   return data.detail;
