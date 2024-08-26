@@ -25,13 +25,13 @@ export function TabsFormatConfig() {
     defaultValues: {
       widths: {
         header: Object.fromEntries(
-          Object.keys(data.header[0]).map((key) => [key, 0]),
+          Object.keys(data.records.header[0]).map((key) => [key, 0]),
         ),
         detail: Object.fromEntries(
-          Object.keys(data.detail[0]).map((key) => [key, 0]),
+          Object.keys(data.records.detail[0]).map((key) => [key, 0]),
         ),
         trailer: Object.fromEntries(
-          Object.keys(data.trailer[0]).map((key) => [key, 0]),
+          Object.keys(data.records.trailer[0]).map((key) => [key, 0]),
         ),
       },
     },

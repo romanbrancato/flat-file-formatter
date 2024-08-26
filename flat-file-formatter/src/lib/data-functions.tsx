@@ -1,5 +1,5 @@
 import { extract, format, tokenize } from "@/lib/utils";
-import { Changes, Data, Operation } from "@/types/schemas";
+import { Changes, Data, Field, Operation } from "@/types/schemas";
 
 export function applyPattern(originalName: string, pattern = ""): string {
   if (!pattern) return originalName;
@@ -10,29 +10,28 @@ export function applyPattern(originalName: string, pattern = ""): string {
   });
 }
 
-export function removeField(
-  data: Record<string, string>[],
-  field: string,
-): Record<string, string>[] {
-  return data.map((record) => {
-    delete record[field];
+export function removeField(data: Data, field: Field): Data {
+  const updatedRecord = data.records[field.flag].map((record) => {
+    delete record[field.name];
     return record;
   });
+  return { ...data, records: { ...data.records, [field.flag]: updatedRecord } };
 }
 
 export function addField(
-  data: Record<string, string>[],
+  data: Data,
+  flag: "header" | "detail" | "trailer",
   name: string,
   value: string,
-  after?: string,
-): Record<string, string>[] {
-  return data.map((record) => {
+  after?: Field,
+): Data {
+  const updatedRecord = data.records[flag].map((record) => {
     const newRecord: Record<string, string> = {};
     let inserted = false;
 
     Object.entries(record).forEach(([key, val], index) => {
       newRecord[key] = val;
-      if (after && key === after && !inserted) {
+      if (after && key === after.name && !inserted) {
         newRecord[name] = value.startsWith("...")
           ? record[value.slice(3)]
           : value;
@@ -48,13 +47,16 @@ export function addField(
 
     return newRecord;
   });
+
+  return { ...data, records: { ...data.records, [flag]: updatedRecord } };
 }
 
 export function orderFields(
-  data: Record<string, string>[],
+  data: Data,
+  flag: "header" | "detail" | "trailer",
   order: string[],
-): Record<string, string>[] {
-  return data.map((record) => {
+): Data {
+  const updatedRecord = data.records[flag].map((record) => {
     const reorderedRecord: Record<string, string> = {};
     order.forEach((field: string) => {
       if (field in record) {
@@ -63,9 +65,10 @@ export function orderFields(
     });
     return reorderedRecord;
   });
+  return { ...data, records: { ...data.records, [flag]: updatedRecord } };
 }
 
-export function performOperation(data: Data, operation: Operation) {
+export function performOperation(data: Data, operation: Operation): Data {
   switch (operation.operation) {
     case "conditional":
       const evaluateCondition = (
@@ -103,56 +106,63 @@ export function performOperation(data: Data, operation: Operation) {
         }
       };
 
-      return data.records.detail.map((record: Record<string, string>) => {
-        const { conditions, output, valueTrue, valueFalse } = operation;
+      const newRecords = data.records.detail.map(
+        (record: Record<string, string>) => {
+          const { conditions, output, valueTrue, valueFalse } = operation;
 
-        const allConditionsPass = conditions.every((condition) => {
-          const conditionPasses = evaluateCondition(condition, record);
-          return condition.statement === "if"
-            ? conditionPasses
-            : !conditionPasses;
-        });
+          const allConditionsPass = conditions.every((condition) => {
+            const conditionPasses = evaluateCondition(condition, record);
+            return condition.statement === "if"
+              ? conditionPasses
+              : !conditionPasses;
+          });
 
-        const finalValue = allConditionsPass ? valueTrue : valueFalse;
-        const newValue =
-          finalValue === "..." ? record[output.name] : finalValue;
+          const finalValue = allConditionsPass ? valueTrue : valueFalse;
+          const newValue =
+            finalValue === "..." ? record[output.name] : finalValue;
 
-        return { ...record, [output.name]: newValue };
-      });
+          return { ...record, [output.name]: newValue };
+        },
+      );
+
+      return { ...data, records: { ...data.records, detail: newRecords } };
 
     case "equation":
-      return data.records.detail.map((record) => {
-        const { formula, output } = operation;
+      const { direction, formula, output } = operation;
 
-        let sum = 0;
+      if (direction === "column") {
+        let total = 0;
 
-        formula.forEach((constant) => {
-          const value = constant.overpunch
-            ? Number(extract(record[constant.field.name] as string))
-            : Number(record[constant.field.name]);
-          if (!isNaN(value)) {
-            // Check if value is a valid number
-            if (constant.operator === "+") {
-              sum += value;
-            } else if (constant.operator === "-") {
-              sum -= value;
+        data.records.detail.forEach((record) => {
+          formula.forEach((item) => {
+            const value = Number(record[item.field.name]);
+            if (!isNaN(value)) {
+              if (item.operator === "+") {
+                total += value;
+              } else if (item.operator === "-") {
+                total -= value;
+              }
             }
-          }
+          });
         });
 
-        // Assign the computed sum to the result field in the record
         return {
-          ...record,
-          [output.name]: operation.overpunch ? format(sum) : sum,
+          ...data,
+          records: {
+            ...data.records,
+            [output.flag]: {
+              ...data.records[output.flag],
+              [output.name]: total,
+            },
+          },
         };
-      });
-
+      }
     default:
       return data;
   }
 }
 
-export function applyPreset(data: Data, changes: Changes) {
+export function applyPreset(data: Data, changes: Changes): Data {
   changes.history?.forEach((change) => {
     switch (change.operation) {
       case "add":

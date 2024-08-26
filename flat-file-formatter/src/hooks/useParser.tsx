@@ -36,12 +36,9 @@ export function useParser() {
   );
 
   const removeField = useCallback(
-    ({ flag, name }: Field) => {
+    (field: Field) => {
       setIsReady(false);
-      setData({
-        ...data,
-        [flag]: fns.removeField(data.records[flag], name),
-      });
+      setData(fns.removeField(data, field));
       setIsReady(true);
     },
     [data],
@@ -52,13 +49,10 @@ export function useParser() {
       flag: "header" | "detail" | "trailer",
       value: string,
       name: string,
-      after?: Field | null,
+      after?: Field | undefined,
     ) => {
       setIsReady(false);
-      setData({
-        ...data,
-        [flag]: fns.addField(data.records[flag], name, value, after?.name),
-      });
+      setData(fns.addField(data, flag, name, value, after));
       setIsReady(true);
     },
     [data],
@@ -67,7 +61,7 @@ export function useParser() {
   const orderFields = useCallback(
     (flag: "header" | "detail" | "trailer", order: string[]) => {
       setIsReady(false);
-      setData({ ...data, [flag]: fns.orderFields(data.records[flag], order) });
+      setData(fns.orderFields(data, flag, order));
       setIsReady(true);
     },
     [data],
@@ -76,10 +70,7 @@ export function useParser() {
   const performOperation = useCallback(
     (operation: Operation) => {
       setIsReady(false);
-      setData({
-        ...data,
-        [operation.output.flag]: fns.performOperation(data, operation),
-      });
+      setData(fns.performOperation(data, operation));
       setIsReady(true);
     },
     [data],
@@ -88,7 +79,7 @@ export function useParser() {
   const applyPreset = useCallback(
     (preset: Preset) => {
       setIsReady(false);
-      setData({ ...fns.applyPreset(data, preset.changes) });
+      setData(fns.applyPreset(data, preset.changes));
       setIsReady(true);
     },
     [data],

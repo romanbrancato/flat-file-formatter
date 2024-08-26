@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -46,6 +46,7 @@ export function ButtonOperations() {
           value: "",
         },
       ],
+      direction: "column",
       formula: [
         {
           operator: "+",

@@ -89,7 +89,7 @@ export const OperationSchema = z.discriminatedUnion("operation", [
   }),
   z.object({
     operation: z.literal("equation"),
-    //direction: z.enum(["row", "column"]),
+    direction: z.enum(["row", "column"]),
     formula: z.array(
       z.object({
         operator: z.enum(["+", "-"]),
