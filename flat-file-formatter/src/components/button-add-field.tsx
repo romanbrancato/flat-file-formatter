@@ -44,8 +44,7 @@ export function ButtonAddField() {
   const flagValue = useWatch({ control: form.control, name: "flag" });
 
   function onSubmit(values: Operation) {
-    if (values.operation !== "add") return;
-    addField(values.flag, values.value, values.name, values.after);
+    addField(values);
     setPreset({
       ...preset,
       changes: {

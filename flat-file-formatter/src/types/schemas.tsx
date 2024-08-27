@@ -55,11 +55,7 @@ export const FieldSchema = z.object(
 
 export type Field = z.infer<typeof FieldSchema>;
 
-//have an actionTrue and actionFalse
 export const ActionSchema = z.discriminatedUnion("action", [
-  z.object({
-    action: z.literal("remove"),
-  }),
   z.object({
     action: z.literal("separate"),
     tag: z.string(),
@@ -73,6 +69,17 @@ export const ActionSchema = z.discriminatedUnion("action", [
 
 export const OperationSchema = z.discriminatedUnion("operation", [
   z.object({
+    operation: z.literal("add"),
+    flag: z.enum(["header", "detail", "trailer"]),
+    name: z.string().min(1, "Enter a field name."),
+    value: z.string(),
+    after: FieldSchema.nullable(),
+  }),
+  z.object({
+    operation: z.literal("remove"),
+    field: FieldSchema,
+  }),
+  z.object({
     operation: z.literal("conditional"),
     conditions: z.array(
       z.object({
@@ -82,10 +89,8 @@ export const OperationSchema = z.discriminatedUnion("operation", [
         value: z.string(),
       }),
     ),
-    //replace with actionTrue, actionFalse later
-    output: FieldSchema,
-    valueTrue: z.string(),
-    valueFalse: z.string(),
+    actionTrue: ActionSchema,
+    actionFalse: ActionSchema,
   }),
   z.object({
     operation: z.literal("equation"),
@@ -98,18 +103,6 @@ export const OperationSchema = z.discriminatedUnion("operation", [
     ),
     output: FieldSchema,
   }),
-  z.object({
-    operation: z.literal("add"),
-    flag: z.enum(["header", "detail", "trailer"]),
-    name: z.string().min(1, "Enter a field name."),
-    value: z.string(),
-    after: FieldSchema.nullable(),
-  }),
-  z.object({
-    operation: z.literal("remove"),
-    field: FieldSchema,
-  }),
-  //maybe add a format operation
 ]);
 
 export type Operation = z.infer<typeof OperationSchema>;

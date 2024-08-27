@@ -36,23 +36,18 @@ export function useParser() {
   );
 
   const removeField = useCallback(
-    (field: Field) => {
+    (operation: Operation) => {
       setIsReady(false);
-      setData(fns.removeField(data, field));
+      setData(fns.removeField(data, operation));
       setIsReady(true);
     },
     [data],
   );
 
   const addField = useCallback(
-    (
-      flag: "header" | "detail" | "trailer",
-      value: string,
-      name: string,
-      after?: Field | undefined,
-    ) => {
+    (operation: Operation) => {
       setIsReady(false);
-      setData(fns.addField(data, flag, name, value, after));
+      setData(fns.addField(data, operation));
       setIsReady(true);
     },
     [data],

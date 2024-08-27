@@ -37,8 +37,7 @@ export function ButtonRemoveField() {
   });
 
   function onSubmit(values: Operation) {
-    if (values.operation !== "remove") return;
-    removeField(values.field);
+    removeField(values);
     setPreset({
       ...preset,
       changes: {

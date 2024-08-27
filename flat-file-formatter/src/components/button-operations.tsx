@@ -28,6 +28,7 @@ import { SelectStatement } from "@/components/select-statement";
 import { SelectComparison } from "@/components/select-comparison";
 import { SelectOperator } from "@/components/select-operator";
 import { Field, OperationSchema } from "@/types/schemas";
+import { SelectDirection } from "@/components/select-direction";
 
 export function ButtonOperations() {
   const { isReady, performOperation } = useContext(ParserContext);
@@ -315,6 +316,27 @@ export function ButtonOperations() {
               <div className="space-y-1">
                 <ScrollArea>
                   <ScrollAreaViewport className="max-h-[400px]">
+                    <FormField
+                      control={form.control}
+                      name="direction"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <SelectDirection
+                              selectedDirection={
+                                field.value as "row" | "column"
+                              }
+                              onDirectionSelect={(direction) => {
+                                form.setValue(field.name, direction, {
+                                  shouldValidate: true,
+                                });
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     {constants.map((field, index) => (
                       <div
                         key={field.id}

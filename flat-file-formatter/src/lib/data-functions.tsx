@@ -10,7 +10,9 @@ export function applyPattern(originalName: string, pattern = ""): string {
   });
 }
 
-export function removeField(data: Data, field: Field): Data {
+export function removeField(data: Data, operation: Operation): Data {
+  if (operation.operation !== "remove") return data;
+  const { field } = operation;
   const updatedRecord = data.records[field.flag].map((record) => {
     delete record[field.name];
     return record;
@@ -18,13 +20,9 @@ export function removeField(data: Data, field: Field): Data {
   return { ...data, records: { ...data.records, [field.flag]: updatedRecord } };
 }
 
-export function addField(
-  data: Data,
-  flag: "header" | "detail" | "trailer",
-  name: string,
-  value: string,
-  after?: Field,
-): Data {
+export function addField(data: Data, operation: Operation): Data {
+  if (operation.operation !== "add") return data;
+  const { flag, name, value, after } = operation;
   const updatedRecord = data.records[flag].map((record) => {
     const newRecord: Record<string, string> = {};
     let inserted = false;
@@ -150,10 +148,40 @@ export function performOperation(data: Data, operation: Operation): Data {
           ...data,
           records: {
             ...data.records,
-            [output.flag]: {
-              ...data.records[output.flag],
-              [output.name]: total,
-            },
+            [output.flag]: data.records[output.flag].map((record) => ({
+              ...record,
+              [output.name]: total.toString(),
+            })),
+          },
+        };
+      }
+
+      if (direction === "row") {
+        const updatedRecord = data.records.detail.map((record) => {
+          let total = 0;
+
+          formula.forEach((item) => {
+            const value = Number(record[item.field.name]);
+            if (!isNaN(value)) {
+              if (item.operator === "+") {
+                total += value;
+              } else if (item.operator === "-") {
+                total -= value;
+              }
+            }
+          });
+
+          return {
+            ...record,
+            [output.name]: total.toString(),
+          };
+        });
+
+        return {
+          ...data,
+          records: {
+            ...data.records,
+            detail: updatedRecord,
           },
         };
       }
