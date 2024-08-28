@@ -1,5 +1,5 @@
 import { extract, format, tokenize } from "@/lib/utils";
-import { Changes, Data, Field, Operation } from "@/types/schemas";
+import { Action, Changes, Data, Field, Operation } from "@/types/schemas";
 
 export function applyPattern(originalName: string, pattern = ""): string {
   if (!pattern) return originalName;
@@ -66,128 +66,157 @@ export function orderFields(
   return { ...data, records: { ...data.records, [flag]: updatedRecord } };
 }
 
-export function performOperation(data: Data, operation: Operation): Data {
-  switch (operation.operation) {
-    case "conditional":
-      const evaluateCondition = (
-        condition: any,
-        record: Record<string, string>,
-      ) => {
-        const reference = condition.value.match(/\{[^}]*\}/)?.[0]?.slice(1, -1);
-        const overpunch = condition.value
-          .match(/\[\s*.*\|\s*.*\s*\]/)?.[0]
-          ?.slice(1, -1)
-          .split("|");
+export function evaluateConditions(data: Data, operation: Operation): Data {
+  if (operation.operation !== "conditional") return data;
 
-        const leftOP = overpunch?.[0] === "OP";
-        const rightOP = overpunch?.[1] === "OP";
+  const { conditions, actionTrue, actionFalse } = operation;
+  const passingIndexes: number[] = [];
+  const failingIndexes: number[] = [];
 
-        const leftVal = leftOP
-          ? extract(record[condition.field.name] as string)
-          : record[condition.field.name];
+  data.records.detail.forEach((record, index) => {
+    let allConditionsPass = true;
 
-        const rightVal = reference
-          ? rightOP
-            ? extract(record[reference] as string)
-            : record[reference]
-          : condition.value;
+    for (const condition of conditions) {
+      const reference = condition.value.match(/\{[^}]*\}/)?.[0]?.slice(1, -1);
+      const overpunch = condition.value
+        .match(/\[\s*.*\|\s*.*\s*\]/)?.[0]
+        ?.slice(1, -1)
+        .split("|");
 
-        switch (condition.comparison) {
-          case "<":
-            return Number(leftVal) < Number(rightVal);
-          case ">":
-            return Number(leftVal) > Number(rightVal);
-          case "===":
-            return leftVal === rightVal;
-          default:
-            return false;
+      const leftOP = overpunch?.[0] === "OP";
+      const rightOP = overpunch?.[1] === "OP";
+
+      const leftVal = leftOP
+        ? extract(record[condition.field.name] as string)
+        : record[condition.field.name];
+
+      const rightVal = reference
+        ? rightOP
+          ? extract(record[reference] as string)
+          : record[reference]
+        : condition.value;
+
+      let conditionPasses = false;
+
+      switch (condition.comparison) {
+        case "<":
+          conditionPasses = Number(leftVal) < Number(rightVal);
+          break;
+        case ">":
+          conditionPasses = Number(leftVal) > Number(rightVal);
+          break;
+        case "===":
+          conditionPasses = leftVal === rightVal;
+          break;
+        default:
+          conditionPasses = false;
+      }
+
+      // Adjust conditionPasses based on the condition.statement
+      if (condition.statement === "if not") {
+        conditionPasses = !conditionPasses;
+      }
+
+      if (!conditionPasses) {
+        allConditionsPass = false;
+        break;
+      }
+    }
+
+    if (allConditionsPass) {
+      passingIndexes.push(index);
+    } else {
+      failingIndexes.push(index);
+    }
+  });
+
+  const applyActions = (indexes: number[], action: Action) => {
+    indexes.forEach((index) => {
+      if (action.action === "setValue") {
+        data.records.detail[index] = {
+          ...data.records.detail[index],
+          [action.field.name]:
+            action.value === "..."
+              ? data.records.detail[index][action.field.name]
+              : action.value,
+        };
+      }
+      if (action.action === "separate") {
+        data.records[action.tag].push(data.records.detail[index]);
+        delete data.records.detail[index];
+      }
+    });
+  };
+
+  applyActions(passingIndexes, actionTrue);
+  applyActions(failingIndexes, actionFalse);
+
+  return data;
+}
+
+export function evaluateEquation(data: Data, operation: Operation): Data {
+  if (operation.operation !== "equation") return data;
+  const { direction, formula, output } = operation;
+
+  if (direction === "column") {
+    let total = 0;
+
+    data.records.detail.forEach((record) => {
+      formula.forEach((item) => {
+        const value = Number(record[item.field.name]);
+        if (!isNaN(value)) {
+          if (item.operator === "+") {
+            total += value;
+          } else if (item.operator === "-") {
+            total -= value;
+          }
         }
-      };
+      });
+    });
 
-      const newRecords = data.records.detail.map(
-        (record: Record<string, string>) => {
-          const { conditions, output, valueTrue, valueFalse } = operation;
-
-          const allConditionsPass = conditions.every((condition) => {
-            const conditionPasses = evaluateCondition(condition, record);
-            return condition.statement === "if"
-              ? conditionPasses
-              : !conditionPasses;
-          });
-
-          const finalValue = allConditionsPass ? valueTrue : valueFalse;
-          const newValue =
-            finalValue === "..." ? record[output.name] : finalValue;
-
-          return { ...record, [output.name]: newValue };
-        },
-      );
-
-      return { ...data, records: { ...data.records, detail: newRecords } };
-
-    case "equation":
-      const { direction, formula, output } = operation;
-
-      if (direction === "column") {
-        let total = 0;
-
-        data.records.detail.forEach((record) => {
-          formula.forEach((item) => {
-            const value = Number(record[item.field.name]);
-            if (!isNaN(value)) {
-              if (item.operator === "+") {
-                total += value;
-              } else if (item.operator === "-") {
-                total -= value;
-              }
-            }
-          });
-        });
-
-        return {
-          ...data,
-          records: {
-            ...data.records,
-            [output.flag]: data.records[output.flag].map((record) => ({
-              ...record,
-              [output.name]: total.toString(),
-            })),
-          },
-        };
-      }
-
-      if (direction === "row") {
-        const updatedRecord = data.records.detail.map((record) => {
-          let total = 0;
-
-          formula.forEach((item) => {
-            const value = Number(record[item.field.name]);
-            if (!isNaN(value)) {
-              if (item.operator === "+") {
-                total += value;
-              } else if (item.operator === "-") {
-                total -= value;
-              }
-            }
-          });
-
-          return {
-            ...record,
-            [output.name]: total.toString(),
-          };
-        });
-
-        return {
-          ...data,
-          records: {
-            ...data.records,
-            detail: updatedRecord,
-          },
-        };
-      }
-    default:
-      return data;
+    return {
+      ...data,
+      records: {
+        ...data.records,
+        [output.flag]: data.records[output.flag].map((record) => ({
+          ...record,
+          [output.name]: total.toString(),
+        })),
+      },
+    };
   }
+
+  if (direction === "row") {
+    const updatedRecord = data.records.detail.map((record) => {
+      let total = 0;
+
+      formula.forEach((item) => {
+        const value = Number(record[item.field.name]);
+        if (!isNaN(value)) {
+          if (item.operator === "+") {
+            total += value;
+          } else if (item.operator === "-") {
+            total -= value;
+          }
+        }
+      });
+
+      return {
+        ...record,
+        [output.name]: total.toString(),
+      };
+    });
+
+    return {
+      ...data,
+      records: {
+        ...data.records,
+        detail: updatedRecord,
+      },
+    };
+  }
+
+  return data;
 }
 
 export function applyPreset(data: Data, changes: Changes): Data {

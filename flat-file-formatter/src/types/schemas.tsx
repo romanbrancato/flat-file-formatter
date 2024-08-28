@@ -67,6 +67,8 @@ export const ActionSchema = z.discriminatedUnion("action", [
   }),
 ]);
 
+export type Action = z.infer<typeof ActionSchema>;
+
 export const OperationSchema = z.discriminatedUnion("operation", [
   z.object({
     operation: z.literal("add"),

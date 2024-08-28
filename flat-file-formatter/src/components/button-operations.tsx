@@ -27,14 +27,15 @@ import { Input } from "@/components/ui/input";
 import { SelectStatement } from "@/components/select-statement";
 import { SelectComparison } from "@/components/select-comparison";
 import { SelectOperator } from "@/components/select-operator";
-import { Field, OperationSchema } from "@/types/schemas";
+import { Field, Operation, OperationSchema } from "@/types/schemas";
 import { SelectDirection } from "@/components/select-direction";
 
 export function ButtonOperations() {
-  const { isReady, performOperation } = useContext(ParserContext);
+  const { isReady, evaluateConditions, evaluateEquation } =
+    useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-
+  // REVISE FOR ACTION TRUE AND FALSE
   const form = useForm({
     resolver: zodResolver(OperationSchema),
     defaultValues: {
@@ -83,8 +84,13 @@ export function ButtonOperations() {
     control: form.control,
   });
 
-  function onSubmit(values: any) {
-    performOperation(values);
+  function onSubmit(values: Operation) {
+    if (values.operation === "conditional") {
+      evaluateConditions(values);
+    }
+    if (values.operation === "equation") {
+      evaluateEquation(values);
+    }
     setPreset({
       ...preset,
       changes: {

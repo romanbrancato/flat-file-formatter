@@ -2,7 +2,7 @@ import { parseFile, ParserParams } from "@/lib/parser-functions";
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
 import path from "node:path";
-import { Data, Field, Operation, Preset } from "@/types/schemas";
+import { Data, Operation, Preset } from "@/types/schemas";
 
 export function useParser() {
   const [isReady, setIsReady] = useState(false);
@@ -62,10 +62,19 @@ export function useParser() {
     [data],
   );
 
-  const performOperation = useCallback(
+  const evaluateConditions = useCallback(
     (operation: Operation) => {
       setIsReady(false);
-      setData(fns.performOperation(data, operation));
+      setData(fns.evaluateConditions(data, operation));
+      setIsReady(true);
+    },
+    [data],
+  );
+
+  const evaluateEquation = useCallback(
+    (operation: Operation) => {
+      setIsReady(false);
+      setData(fns.evaluateEquation(data, operation));
       setIsReady(true);
     },
     [data],
@@ -89,7 +98,8 @@ export function useParser() {
     removeField,
     addField,
     orderFields,
-    performOperation,
+    evaluateConditions,
+    evaluateEquation,
     applyPreset,
   };
 }
