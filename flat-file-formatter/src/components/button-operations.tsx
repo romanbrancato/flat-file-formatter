@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
@@ -29,6 +29,8 @@ import { SelectComparison } from "@/components/select-comparison";
 import { SelectOperator } from "@/components/select-operator";
 import { Field, Operation, OperationSchema } from "@/types/schemas";
 import { SelectDirection } from "@/components/select-direction";
+import { SelectAction } from "@/components/select-action";
+import { Separator } from "@/components/ui/separator";
 
 export function ButtonOperations() {
   const { isReady, evaluateConditions, evaluateEquation } =
@@ -48,6 +50,18 @@ export function ButtonOperations() {
           value: "",
         },
       ],
+      actionTrue: {
+        action: "",
+        field: { name: "", flag: "" },
+        tag: "",
+        value: "",
+      },
+      actionFalse: {
+        action: "",
+        field: { name: "", flag: "" },
+        tag: "",
+        value: "",
+      },
       direction: "column",
       formula: [
         {
@@ -56,14 +70,21 @@ export function ButtonOperations() {
         },
       ],
       output: {},
-      valueTrue: "",
-      valueFalse: "",
       fields: [
         {
           field: { name: "", flag: "" },
         },
       ],
     },
+  });
+
+  const actionTrue = useWatch({
+    control: form.control,
+    name: "actionTrue.action",
+  });
+  const actionFalse = useWatch({
+    control: form.control,
+    name: "actionFalse.action",
   });
 
   const {
@@ -84,7 +105,7 @@ export function ButtonOperations() {
     control: form.control,
   });
 
-  function onSubmit(values: Operation) {
+  function onSubmit(values: any) {
     if (values.operation === "conditional") {
       evaluateConditions(values);
     }
@@ -263,26 +284,18 @@ export function ButtonOperations() {
                   <PlusCircledIcon className="mr-2" />
                   Add Condition
                 </Button>
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      then
-                    </span>
-                  </div>
-                </div>
+                <Separator />
                 <FormField
                   control={form.control}
-                  name="output"
+                  name="actionTrue.action"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <SelectField
-                          selectedField={field.value as Field}
-                          onFieldSelect={(field) => {
-                            form.setValue("output", field, {
+                        <SelectAction
+                          label="Action if True"
+                          selectedAction={field.value}
+                          onActionSelect={(action) => {
+                            form.setValue("actionTrue.action", action, {
                               shouldValidate: true,
                             });
                           }}
@@ -292,30 +305,125 @@ export function ButtonOperations() {
                     </FormItem>
                   )}
                 />
+                {actionTrue === "setValue" && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="actionTrue.field"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <SelectField
+                              selectedField={field.value as Field}
+                              onFieldSelect={(field) => {
+                                form.setValue("actionTrue.field", field, {
+                                  shouldValidate: true,
+                                });
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="actionTrue.value"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="Value" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+                {actionTrue === "separate" && (
+                  <FormField
+                    control={form.control}
+                    name="actionTrue.tag"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Tag" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                <Separator />
                 <FormField
                   control={form.control}
-                  name="valueTrue"
+                  name="actionFalse.action"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input placeholder="Value if true" {...field} />
+                        <SelectAction
+                          label="Action if False"
+                          selectedAction={field.value}
+                          onActionSelect={(action) => {
+                            form.setValue("actionFalse.action", action, {
+                              shouldValidate: true,
+                            });
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="valueFalse"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="Value if false" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {actionFalse === "setValue" && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="actionFalse.field"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <SelectField
+                              selectedField={field.value as Field}
+                              onFieldSelect={(field) => {
+                                form.setValue("actionFalse.field", field, {
+                                  shouldValidate: true,
+                                });
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="actionFalse.value"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="Value" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
+                {actionFalse === "separate" && (
+                  <FormField
+                    control={form.control}
+                    name="actionFalse.tag"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Tag" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             )}
             {form.getValues().operation === "equation" && (
