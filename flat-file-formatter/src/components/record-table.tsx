@@ -90,19 +90,15 @@ const DraggableCell = ({ cell }: any) => {
   );
 };
 
-export function RecordTable({
-  flag,
-}: {
-  flag: "header" | "detail" | "trailer";
-}) {
-  const { isReady, data, orderFields } = useContext(ParserContext);
+export function RecordTable({ tag }: { tag: string }) {
+  const { data, orderFields } = useContext(ParserContext);
   const [columns, setColumns] = useState<ColumnDef<Record<string, string>>[]>(
     [],
   );
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
 
   const table = useReactTable({
-    data: data.records[flag],
+    data: data.records[tag],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -110,21 +106,22 @@ export function RecordTable({
       columnOrder,
       pagination: {
         pageIndex: 0,
-        pageSize: 5,
+        pageSize: 7,
       },
     },
     onColumnOrderChange: setColumnOrder,
   });
 
   useEffect(() => {
-    const newColumns = Object.keys(data.records[flag][0] || {}).map(
-      (field) => ({
+    if (data.records[tag].length > 0) {
+      const newColumns = Object.keys(data.records[tag][0]).map((field) => ({
         accessorKey: field,
-      }),
-    );
-    setColumns(newColumns);
-    setColumnOrder(newColumns.map((c) => c.accessorKey!));
-  }, [data]);
+        header: field,
+      }));
+      setColumns(newColumns);
+      setColumnOrder(newColumns.map((c) => c.accessorKey!));
+    }
+  }, [data.records[tag]]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -133,7 +130,7 @@ export function RecordTable({
       const newIndex = columnOrder.indexOf(over.id as string);
       const order = arrayMove(columnOrder, oldIndex, newIndex);
       setColumnOrder(order);
-      orderFields(flag, order);
+      orderFields(tag, order);
     }
   }
 
@@ -143,7 +140,7 @@ export function RecordTable({
     useSensor(KeyboardSensor, {}),
   );
 
-  return (
+  return data.records[tag].some((rec) => Object.keys(rec).length > 0) ? (
     <div className="rounded-md border flex-grow overflow-hidden">
       <DndContext
         collisionDetection={closestCenter}
@@ -187,5 +184,5 @@ export function RecordTable({
         </ScrollArea>
       </DndContext>
     </div>
-  );
+  ) : null;
 }

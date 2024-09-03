@@ -59,13 +59,9 @@ export default function App() {
           {mode === "single" && isReady ? (
             <>
               <div className="flex flex-col gap-y-1 overflow-hidden flex-grow">
-                {data.records.header.some(
-                  (rec) => Object.keys(rec).length > 0,
-                ) && <RecordTable flag="header" />}
-                <RecordTable flag="detail" />
-                {data.records.trailer.some(
-                  (rec) => Object.keys(rec).length > 0,
-                ) && <RecordTable flag="trailer" />}
+                {Object.keys(data.records).map((tag, record) => (
+                  <RecordTable key={tag} tag={tag} />
+                ))}
                 <div className="flex flex-row gap-x-1 md:w-2/3">
                   <ButtonAddField />
                   <ButtonRemoveField />

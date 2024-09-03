@@ -54,9 +54,9 @@ export function useParser() {
   );
 
   const orderFields = useCallback(
-    (flag: "header" | "detail" | "trailer", order: string[]) => {
+    (tag: string, order: string[]) => {
       setIsReady(false);
-      setData(fns.orderFields(data, flag, order));
+      setData(fns.orderFields(data, tag, order));
       setIsReady(true);
     },
     [data],

@@ -49,12 +49,8 @@ export function addField(data: Data, operation: Operation): Data {
   return { ...data, records: { ...data.records, [flag]: updatedRecord } };
 }
 
-export function orderFields(
-  data: Data,
-  flag: "header" | "detail" | "trailer",
-  order: string[],
-): Data {
-  const updatedRecord = data.records[flag].map((record) => {
+export function orderFields(data: Data, tag: string, order: string[]): Data {
+  const updatedRecord = data.records[tag].map((record) => {
     const reorderedRecord: Record<string, string> = {};
     order.forEach((field: string) => {
       if (field in record) {
@@ -63,7 +59,7 @@ export function orderFields(
     });
     return reorderedRecord;
   });
-  return { ...data, records: { ...data.records, [flag]: updatedRecord } };
+  return { ...data, records: { ...data.records, [tag]: updatedRecord } };
 }
 
 export function evaluateConditions(data: Data, operation: Operation): Data {
