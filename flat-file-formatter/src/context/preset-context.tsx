@@ -23,10 +23,6 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
   const { mode } = useContext(ModeContext);
   const [preset, setPreset] = useState<Preset>({} as Preset);
 
-  useEffect(() => {
-    console.log(preset);
-  }, [preset]);
-
   function resetPreset() {
     setPreset({
       name: null,

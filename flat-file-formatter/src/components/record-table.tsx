@@ -121,7 +121,7 @@ export function RecordTable({ tag }: { tag: string }) {
       setColumns(newColumns);
       setColumnOrder(newColumns.map((c) => c.accessorKey!));
     }
-  }, [data.records[tag]]);
+  }, [data]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -141,48 +141,52 @@ export function RecordTable({ tag }: { tag: string }) {
   );
 
   return data.records[tag].some((rec) => Object.keys(rec).length > 0) ? (
-    <div className="rounded-md border flex-grow overflow-hidden">
-      <DndContext
-        collisionDetection={closestCenter}
-        modifiers={[restrictToHorizontalAxis]}
-        onDragEnd={handleDragEnd}
-        sensors={sensors}
-      >
-        <ScrollArea className="h-full">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  <SortableContext
-                    items={columnOrder}
-                    strategy={horizontalListSortingStrategy}
-                  >
-                    {headerGroup.headers.map((header) => (
-                      <DraggableTableHeader key={header.id} header={header} />
-                    ))}
-                  </SortableContext>
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
+    <>
+      <span className="text-xs text-muted-foreground">{tag}</span>
+      <div className="rounded-md border flex-grow overflow-hidden">
+        <DndContext
+          collisionDetection={closestCenter}
+          modifiers={[restrictToHorizontalAxis]}
+          onDragEnd={handleDragEnd}
+          sensors={sensors}
+        >
+          <ScrollArea className="h-full">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
                     <SortableContext
-                      key={cell.id}
+                      key={`${Date.now()}`} // EXTREMELY GHETTO FIX FOR FREEZING AFTER REMOVING A ROW
                       items={columnOrder}
                       strategy={horizontalListSortingStrategy}
                     >
-                      <DraggableCell cell={cell} />
+                      {headerGroup.headers.map((header) => (
+                        <DraggableTableHeader key={header.id} header={header} />
+                      ))}
                     </SortableContext>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-      </DndContext>
-    </div>
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <SortableContext
+                        key={cell.id}
+                        items={columnOrder}
+                        strategy={horizontalListSortingStrategy}
+                      >
+                        <DraggableCell cell={cell} />
+                      </SortableContext>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </DndContext>
+      </div>
+    </>
   ) : null;
 }

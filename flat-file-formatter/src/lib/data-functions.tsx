@@ -1,5 +1,5 @@
-import { extract, format, tokenize } from "@/lib/utils";
-import { Action, Changes, Data, Field, Operation } from "@/types/schemas";
+import { evaluateCondition, tokenize } from "@/lib/utils";
+import { Changes, Data, Operation } from "@/types/schemas";
 
 export function applyPattern(originalName: string, pattern = ""): string {
   if (!pattern) return originalName;
@@ -66,88 +66,33 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
   if (operation.operation !== "conditional") return data;
 
   const { conditions, actionTrue, actionFalse } = operation;
-  const passingIndexes: number[] = [];
-  const failingIndexes: number[] = [];
+  let updatedRecords = { ...data.records };
+  const recordsToRemove: number[] = [];
 
   data.records.detail.forEach((record, index) => {
-    let allConditionsPass = true;
+    const allConditionsPass = conditions.every((condition) =>
+      evaluateCondition(record, condition),
+    );
+    const action = allConditionsPass ? actionTrue : actionFalse;
 
-    for (const condition of conditions) {
-      const reference = condition.value.match(/\{[^}]*\}/)?.[0]?.slice(1, -1);
-      const overpunch = condition.value
-        .match(/\[\s*.*\|\s*.*\s*\]/)?.[0]
-        ?.slice(1, -1)
-        .split("|");
-
-      const leftOP = overpunch?.[0] === "OP";
-      const rightOP = overpunch?.[1] === "OP";
-
-      const leftVal = leftOP
-        ? extract(record[condition.field.name] as string)
-        : record[condition.field.name];
-
-      const rightVal = reference
-        ? rightOP
-          ? extract(record[reference] as string)
-          : record[reference]
-        : condition.value;
-
-      let conditionPasses = false;
-
-      switch (condition.comparison) {
-        case "<":
-          conditionPasses = Number(leftVal) < Number(rightVal);
-          break;
-        case ">":
-          conditionPasses = Number(leftVal) > Number(rightVal);
-          break;
-        case "===":
-          conditionPasses = leftVal === rightVal;
-          break;
-        default:
-          conditionPasses = false;
-      }
-
-      // Adjust conditionPasses based on the condition.statement
-      if (condition.statement === "if not") {
-        conditionPasses = !conditionPasses;
-      }
-
-      if (!conditionPasses) {
-        allConditionsPass = false;
-        break;
-      }
-    }
-
-    if (allConditionsPass) {
-      passingIndexes.push(index);
-    } else {
-      failingIndexes.push(index);
+    if (action.action === "setValue") {
+      updatedRecords.detail[index] = {
+        ...record,
+        [action.field.name]:
+          action.value === "..." ? record[action.field.name] : action.value,
+      };
+    } else if (action.action === "separate") {
+      if (!updatedRecords[action.tag]) updatedRecords[action.tag] = [];
+      updatedRecords[action.tag].push(record);
+      recordsToRemove.push(index);
     }
   });
 
-  const applyActions = (indexes: number[], action: Action) => {
-    indexes.forEach((index) => {
-      if (action.action === "setValue") {
-        data.records.detail[index] = {
-          ...data.records.detail[index],
-          [action.field.name]:
-            action.value === "..."
-              ? data.records.detail[index][action.field.name]
-              : action.value,
-        };
-      }
-      if (action.action === "separate") {
-        data.records[action.tag].push(data.records.detail[index]);
-        delete data.records.detail[index];
-      }
-    });
-  };
+  recordsToRemove.forEach((index) => updatedRecords.detail.splice(index, 1));
+  console.log(data);
+  console.log({ ...data, records: updatedRecords });
 
-  applyActions(passingIndexes, actionTrue);
-  applyActions(failingIndexes, actionFalse);
-
-  return data;
+  return { ...data, records: updatedRecords };
 }
 
 export function evaluateEquation(data: Data, operation: Operation): Data {
