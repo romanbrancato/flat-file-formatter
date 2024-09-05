@@ -75,15 +75,25 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
     );
     const action = allConditionsPass ? actionTrue : actionFalse;
 
-    if (action.action === "setValue") {
-      updatedRecords.detail.push({
-        ...record,
-        [action.field.name]:
-          action.value === "..." ? record[action.field.name] : action.value,
-      });
-    } else if (action.action === "separate") {
-      if (!updatedRecords[action.tag]) updatedRecords[action.tag] = [];
-      updatedRecords[action.tag].push(record);
+    switch (action.action) {
+      case "setValue":
+        updatedRecords.detail.push({
+          ...record,
+          [action.field.name]:
+            action.value === "..." ? record[action.field.name] : action.value,
+        });
+        break;
+
+      case "separate":
+        if (!updatedRecords[action.tag]) updatedRecords[action.tag] = [];
+        updatedRecords[action.tag].push(record);
+        break;
+
+      case "duplicate":
+        break;
+
+      default:
+        break;
     }
   });
 
