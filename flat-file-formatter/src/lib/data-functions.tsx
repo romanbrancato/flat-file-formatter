@@ -69,18 +69,18 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
   const { conditions, actionTrue, actionFalse } = operation;
   let updatedRecords: { [key: string]: any } = { ...data.records, detail: [] };
 
-  data.records.detail.forEach((record, index) => {
+  data.records.detail.forEach((record) => {
     const allConditionsPass = conditions.every((condition) =>
       evaluateCondition(record, condition),
     );
     const action = allConditionsPass ? actionTrue : actionFalse;
 
     if (action.action === "setValue") {
-      updatedRecords.detail[index] = {
+      updatedRecords.detail.push({
         ...record,
         [action.field.name]:
           action.value === "..." ? record[action.field.name] : action.value,
-      };
+      });
     } else if (action.action === "separate") {
       if (!updatedRecords[action.tag]) updatedRecords[action.tag] = [];
       updatedRecords[action.tag].push(record);
