@@ -65,9 +65,34 @@ export const ActionSchema = z.discriminatedUnion("action", [
     field: FieldSchema,
     value: z.string(),
   }),
+  z.object({
+    action: z.literal("duplicate"),
+    firstRow: z.array(
+      z.object({
+        field: FieldSchema,
+        value: z.string(),
+      }),
+    ),
+    secondRow: z.array(
+      z.object({
+        field: FieldSchema,
+        value: z.string(),
+      }),
+    ),
+  }),
 ]);
 
 export type Action = z.infer<typeof ActionSchema>;
+
+export const ReformatSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("date"),
+    pattern: z.string(),
+  }),
+  z.object({
+    type: z.literal("number"),
+  }),
+]);
 
 export const OperationSchema = z.discriminatedUnion("operation", [
   z.object({
@@ -87,7 +112,7 @@ export const OperationSchema = z.discriminatedUnion("operation", [
       z.object({
         statement: z.enum(["if", "if not"]),
         field: FieldSchema,
-        comparison: z.enum(["<", "===", ">"]),
+        comparison: z.enum(["<", "=", ">"]),
         value: z.string(),
       }),
     ),
@@ -104,6 +129,11 @@ export const OperationSchema = z.discriminatedUnion("operation", [
       }),
     ),
     output: FieldSchema,
+  }),
+  z.object({
+    operation: z.literal("reformat"),
+    details: ReformatSchema,
+    field: FieldSchema,
   }),
 ]);
 

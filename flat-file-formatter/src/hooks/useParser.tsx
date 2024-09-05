@@ -80,6 +80,15 @@ export function useParser() {
     [data],
   );
 
+  const reformatData = useCallback(
+    (operation: Operation) => {
+      setIsReady(false);
+      setData(fns.reformatData(data, operation));
+      setIsReady(true);
+    },
+    [data],
+  );
+
   const applyPreset = useCallback(
     (preset: Preset) => {
       setIsReady(false);
@@ -100,6 +109,7 @@ export function useParser() {
     orderFields,
     evaluateConditions,
     evaluateEquation,
+    reformatData,
     applyPreset,
   };
 }

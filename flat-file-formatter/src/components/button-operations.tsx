@@ -27,13 +27,14 @@ import { Input } from "@/components/ui/input";
 import { SelectStatement } from "@/components/select-statement";
 import { SelectComparison } from "@/components/select-comparison";
 import { SelectOperator } from "@/components/select-operator";
-import { Field, Operation, OperationSchema } from "@/types/schemas";
+import { Field, OperationSchema } from "@/types/schemas";
 import { SelectDirection } from "@/components/select-direction";
 import { SelectAction } from "@/components/select-action";
 import { Separator } from "@/components/ui/separator";
+import { SelectType } from "@/components/select-type";
 
 export function ButtonOperations() {
-  const { isReady, evaluateConditions, evaluateEquation } =
+  const { isReady, evaluateConditions, evaluateEquation, reformatData } =
     useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
@@ -46,7 +47,7 @@ export function ButtonOperations() {
         {
           statement: "if",
           field: { name: "", flag: "" },
-          comparison: "===",
+          comparison: "=",
           value: "",
         },
       ],
@@ -75,6 +76,14 @@ export function ButtonOperations() {
           field: { name: "", flag: "" },
         },
       ],
+      details: {
+        type: "",
+        pattern: "",
+      },
+      field: {
+        name: "",
+        flag: "",
+      },
     },
   });
 
@@ -85,6 +94,11 @@ export function ButtonOperations() {
   const actionFalse = useWatch({
     control: form.control,
     name: "actionFalse.action",
+  });
+
+  const typeValue = useWatch({
+    control: form.control,
+    name: "details.type",
   });
 
   const {
@@ -111,6 +125,9 @@ export function ButtonOperations() {
     }
     if (values.operation === "equation") {
       evaluateEquation(values);
+    }
+    if (values.operation === "reformat") {
+      reformatData(values);
     }
     setPreset({
       ...preset,
@@ -230,7 +247,7 @@ export function ButtonOperations() {
                               <FormControl>
                                 <SelectComparison
                                   selectedComparison={
-                                    field.value as "<" | "===" | ">"
+                                    field.value as "<" | "=" | ">"
                                   }
                                   onComparisonSelect={(comparison) => {
                                     form.setValue(
@@ -556,6 +573,62 @@ export function ButtonOperations() {
                     )}
                   />
                 </div>
+              </div>
+            )}
+            {form.getValues().operation === "reformat" && (
+              <div className="space-y-1">
+                <FormField
+                  control={form.control}
+                  name={`details.type`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <SelectType
+                          selectedType={field.value}
+                          onTypeSelect={(type) => {
+                            form.setValue(`details.type`, type, {
+                              shouldValidate: true,
+                            });
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`field`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <SelectField
+                          selectedField={field.value as Field}
+                          onFieldSelect={(field) => {
+                            form.setValue(`field`, field, {
+                              shouldValidate: true,
+                            });
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {typeValue === "date" && (
+                  <FormField
+                    control={form.control}
+                    name={`details.pattern`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Pattern" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             )}
             <div className="flex">

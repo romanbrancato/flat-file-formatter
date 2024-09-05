@@ -10,13 +10,13 @@ export function SelectComparison({
   selectedComparison,
   onComparisonSelect,
 }: {
-  selectedComparison: "<" | "===" | ">";
-  onComparisonSelect: (comparison: "<" | "===" | ">") => void;
+  selectedComparison: "<" | "=" | ">";
+  onComparisonSelect: (comparison: "<" | "=" | ">") => void;
 }) {
   return (
     <Select
       value={selectedComparison}
-      onValueChange={(comparison: "<" | "===" | ">") => {
+      onValueChange={(comparison: "<" | "=" | ">") => {
         onComparisonSelect(comparison);
       }}
     >
@@ -27,7 +27,7 @@ export function SelectComparison({
         <SelectItem key="<" value="<" className="text-xs">
           {`<`}
         </SelectItem>
-        <SelectItem key="===" value="===" className="text-xs">
+        <SelectItem key="=" value="=" className="text-xs">
           =
         </SelectItem>
         <SelectItem key=">" value=">" className="text-xs">

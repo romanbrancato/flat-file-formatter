@@ -33,6 +33,9 @@ export function SelectOperation({
         <SelectItem key="equation" value="equation">
           Equation
         </SelectItem>
+        <SelectItem key="reformat" value="reformat">
+          Reformat
+        </SelectItem>
       </SelectContent>
     </Select>
   );

@@ -52,7 +52,7 @@ export function evaluateCondition(
     case ">":
       conditionPasses = Number(leftVal) > Number(rightVal);
       break;
-    case "===":
+    case "=":
       conditionPasses = leftVal === rightVal;
       break;
     default:

@@ -1,5 +1,6 @@
 import { evaluateCondition, tokenize } from "@/lib/utils";
 import { Changes, Data, Operation } from "@/types/schemas";
+import { format } from "date-fns";
 
 export function applyPattern(originalName: string, pattern = ""): string {
   if (!pattern) return originalName;
@@ -66,8 +67,7 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
   if (operation.operation !== "conditional") return data;
 
   const { conditions, actionTrue, actionFalse } = operation;
-  let updatedRecords = { ...data.records };
-  const recordsToRemove: number[] = [];
+  let updatedRecords: { [key: string]: any } = { ...data.records, detail: [] };
 
   data.records.detail.forEach((record, index) => {
     const allConditionsPass = conditions.every((condition) =>
@@ -84,13 +84,8 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
     } else if (action.action === "separate") {
       if (!updatedRecords[action.tag]) updatedRecords[action.tag] = [];
       updatedRecords[action.tag].push(record);
-      recordsToRemove.push(index);
     }
   });
-
-  recordsToRemove.forEach((index) => updatedRecords.detail.splice(index, 1));
-  console.log(data);
-  console.log({ ...data, records: updatedRecords });
 
   return { ...data, records: updatedRecords };
 }
@@ -157,6 +152,31 @@ export function evaluateEquation(data: Data, operation: Operation): Data {
     };
   }
 
+  return data;
+}
+
+export function reformatData(data: Data, operation: Operation): Data {
+  if (operation.operation !== "reformat") return data;
+  const { details, field } = operation;
+  switch (details.type) {
+    case "date":
+      data.records[field.flag].map((record) => ({
+        ...record,
+        [field.name]: format(
+          new Date(record[field.name] as string),
+          details.type === "date" ? details.pattern : "",
+        ),
+      }));
+      break;
+    case "number":
+      data.records[field.flag].map((record) => ({
+        ...record,
+        [field.name]: Number(record[field.name]),
+      }));
+      break;
+    default:
+      break;
+  }
   return data;
 }
 
