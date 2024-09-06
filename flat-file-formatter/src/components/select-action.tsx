@@ -35,6 +35,9 @@ export function SelectAction({
         <SelectItem key="separate" value="separate">
           Separate
         </SelectItem>
+        <SelectItem key="duplicate" value="duplicate">
+          Duplicate
+        </SelectItem>
       </SelectContent>
     </Select>
   );

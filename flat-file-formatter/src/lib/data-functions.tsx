@@ -90,10 +90,15 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
         break;
 
       case "duplicate":
-        break;
-
-      default:
-        break;
+        const firstRecord = { ...record };
+        const secondRecord = { ...record };
+        action.firstRecord.forEach((field) => {
+          firstRecord[field.field.name] = field.value;
+        });
+        action.secondRecord.forEach((field) => {
+          secondRecord[field.field.name] = field.value;
+        });
+        updatedRecords.detail.push(firstRecord, secondRecord);
     }
   });
 
@@ -167,27 +172,36 @@ export function evaluateEquation(data: Data, operation: Operation): Data {
 
 export function reformatData(data: Data, operation: Operation): Data {
   if (operation.operation !== "reformat") return data;
+
   const { details, field } = operation;
-  switch (details.type) {
-    case "date":
-      data.records[field.flag].map((record) => ({
-        ...record,
-        [field.name]: format(
-          new Date(record[field.name] as string),
-          details.type === "date" ? details.pattern : "",
-        ),
-      }));
-      break;
-    case "number":
-      data.records[field.flag].map((record) => ({
-        ...record,
-        [field.name]: Number(record[field.name]),
-      }));
-      break;
-    default:
-      break;
-  }
-  return data;
+
+  const reformatRecord = (record: any) => {
+    switch (details.type) {
+      case "date":
+        return {
+          ...record,
+          [field.name]: format(
+            new Date(record[field.name] as string),
+            details.pattern,
+          ),
+        };
+      case "number":
+        return {
+          ...record,
+          [field.name]: Number(record[field.name]),
+        };
+      default:
+        return record;
+    }
+  };
+
+  return {
+    ...data,
+    records: {
+      ...data.records,
+      [field.flag]: data.records[field.flag].map(reformatRecord),
+    },
+  };
 }
 
 export function applyPreset(data: Data, changes: Changes): Data {

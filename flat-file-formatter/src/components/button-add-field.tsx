@@ -96,9 +96,7 @@ export function ButtonAddField() {
                       label="Add To"
                       selectedFlag={field.value}
                       onFlagSelect={(flag: "header" | "detail" | "trailer") => {
-                        form.setValue("flag", flag, {
-                          shouldValidate: true,
-                        });
+                        field.onChange(flag);
                       }}
                     />
                   </FormControl>
@@ -140,10 +138,8 @@ export function ButtonAddField() {
                       selectedField={field.value}
                       label="Add After"
                       filter={flagValue}
-                      onFieldSelect={(field) => {
-                        form.setValue(`after`, field, {
-                          shouldValidate: true,
-                        });
+                      onFieldSelect={(selectedField) => {
+                        field.onChange(selectedField);
                       }}
                     />
                   </FormControl>
