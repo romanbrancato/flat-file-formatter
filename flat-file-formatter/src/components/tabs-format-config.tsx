@@ -65,10 +65,8 @@ export function TabsFormatConfig() {
                 <FormControl>
                   <Tabs
                     value={field.value}
-                    onValueChange={(format: string) => {
-                      form.setValue("format", format as "delimited" | "fixed", {
-                        shouldValidate: true,
-                      });
+                    onValueChange={(format) => {
+                      field.onChange(format);
                     }}
                   >
                     <div className="text-sm font-medium leading-none min-w-[200px]">
@@ -94,9 +92,7 @@ export function TabsFormatConfig() {
                                 label="Pad With"
                                 selectedSymbol={field.value}
                                 onSymbolSelect={(symbol) =>
-                                  form.setValue("pad", symbol, {
-                                    shouldValidate: true,
-                                  })
+                                  field.onChange(symbol)
                                 }
                               />
                             </FormControl>
@@ -113,11 +109,7 @@ export function TabsFormatConfig() {
                             <FormControl>
                               <SelectAlign
                                 selectedAlign={field.value}
-                                onAlignSelect={(align) =>
-                                  form.setValue("align", align, {
-                                    shouldValidate: true,
-                                  })
-                                }
+                                onAlignSelect={(align) => field.onChange(align)}
                               />
                             </FormControl>
                             <FormMessage />
@@ -137,9 +129,7 @@ export function TabsFormatConfig() {
                                 label="Delimiter"
                                 selectedSymbol={field.value}
                                 onSymbolSelect={(symbol) =>
-                                  form.setValue("delimiter", symbol, {
-                                    shouldValidate: true,
-                                  })
+                                  field.onChange(symbol)
                                 }
                               />
                             </FormControl>

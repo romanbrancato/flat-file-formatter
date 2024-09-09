@@ -34,7 +34,6 @@ import { PresetContext } from "@/context/preset-context";
 export function ButtonParserConfig() {
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-  const [file, setFile] = useState<File>();
 
   const form = useForm<ParserConfig>({
     resolver: zodResolver(ParserConfigSchema),
@@ -60,6 +59,7 @@ export function ButtonParserConfig() {
     name: "detail.fields",
     control: form.control,
   });
+
   const {
     fields: fieldsTrailer,
     append: appendTrailer,
@@ -72,32 +72,19 @@ export function ButtonParserConfig() {
   const headerValues = useWatch({
     control: form.control,
     name: "header.fields",
-    defaultValue: [
-      {
-        property: "",
-        width: 0,
-      },
-    ],
+    defaultValue: [{ property: "", width: 0 }],
   });
+
   const detailValues = useWatch({
     control: form.control,
     name: "detail.fields",
-    defaultValue: [
-      {
-        property: "",
-        width: 0,
-      },
-    ],
+    defaultValue: [{ property: "", width: 0 }],
   });
+
   const trailerValues = useWatch({
     control: form.control,
     name: "trailer.fields",
-    defaultValue: [
-      {
-        property: "",
-        width: 0,
-      },
-    ],
+    defaultValue: [{ property: "", width: 0 }],
   });
 
   function onSubmit(values: ParserConfig) {
@@ -112,17 +99,38 @@ export function ButtonParserConfig() {
     if (!preset.parser) return;
     form.setValue("format", preset.parser.format);
     if (preset.parser.format === "fixed") {
-      preset.parser.header?.fields.forEach((field) => {
-        appendHeader(field);
-      });
-      preset.parser.detail.fields.forEach((field) => {
-        appendDetail(field);
-      });
-      preset.parser.trailer?.fields.forEach((field) => {
-        appendTrailer(field);
-      });
+      preset.parser.header?.fields.forEach((field) => appendHeader(field));
+      preset.parser.detail.fields.forEach((field) => appendDetail(field));
+      preset.parser.trailer?.fields.forEach((field) => appendTrailer(field));
     }
   }, [preset.parser]);
+
+  const accordionItems = [
+    {
+      name: "header",
+      label: "Header Record",
+      fields: fieldsHeader,
+      values: headerValues,
+      append: appendHeader,
+      remove: removeHeader,
+    },
+    {
+      name: "detail",
+      label: "Detail Record",
+      fields: fieldsDetail,
+      values: detailValues,
+      append: appendDetail,
+      remove: removeDetail,
+    },
+    {
+      name: "trailer",
+      label: "Trailer Record",
+      fields: fieldsTrailer,
+      values: trailerValues,
+      append: appendTrailer,
+      remove: removeTrailer,
+    },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -138,7 +146,7 @@ export function ButtonParserConfig() {
           <DialogDescription>Configure the parser.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className={"space-y-1"}>
             <FormField
               control={form.control}
               name={"format"}
@@ -147,11 +155,7 @@ export function ButtonParserConfig() {
                   <FormControl>
                     <SelectImportFormat
                       value={field.value}
-                      onFormatSelect={(format) =>
-                        form.setValue("format", format, {
-                          shouldValidate: true,
-                        })
-                      }
+                      onFormatSelect={(format) => field.onChange(format)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -159,26 +163,28 @@ export function ButtonParserConfig() {
               )}
             />
             {form.getValues().format === "fixed" && (
-              <>
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="header">
+              <Accordion type="single" collapsible>
+                {accordionItems.map((item) => (
+                  <AccordionItem key={item.name} value={item.name}>
                     <AccordionTrigger className="flex text-xs font-normal text-muted-foreground gap-x-2">
-                      Header Record
-                      <span className="ml-auto">{`${Object.values(headerValues).reduce((total, field) => total + Number(field.width), 0)}`}</span>
+                      {item.label}
+                      <span className="ml-auto">
+                        {`${Object.values(item.values).reduce((total, field) => total + Number(field.width), 0)}`}
+                      </span>
                     </AccordionTrigger>
                     <AccordionContent>
                       <ScrollArea>
                         <ScrollAreaViewport className="max-h-[400px]">
-                          {fieldsHeader.map((field, index) => (
+                          {item.fields.map((field, index) => (
                             <div
                               key={field.id}
-                              className="flex flex-row gap-x-1 mb-1 items-center"
+                              className={`flex flex-row gap-x-1 mb-1 items-center`}
                             >
                               <FormField
                                 control={form.control}
-                                name={`header.fields.${index}.property`}
+                                name={`${item.name as "header" | "detail" | "trailer"}.fields.${index}.property`}
                                 render={({ field }) => (
-                                  <FormItem className="flex-1">
+                                  <FormItem className={"flex-1"}>
                                     <FormControl>
                                       <Input {...field} placeholder="Field" />
                                     </FormControl>
@@ -188,9 +194,9 @@ export function ButtonParserConfig() {
                               />
                               <FormField
                                 control={form.control}
-                                name={`header.fields.${index}.width`}
+                                name={`${item.name as "header" | "detail" | "trailer"}.fields.${index}.width`}
                                 render={({ field }) => (
-                                  <FormItem>
+                                  <FormItem className={"flex-1"}>
                                     <FormControl>
                                       <Input
                                         {...field}
@@ -204,8 +210,8 @@ export function ButtonParserConfig() {
                                 )}
                               />
                               <Cross2Icon
-                                className="hover:text-destructive mx-auto opacity-70"
-                                onClick={() => removeHeader(index)}
+                                className="hover:text-destructive ml-auto opacity-70 flex-shrink-0"
+                                onClick={() => item.remove(index)}
                               />
                             </div>
                           ))}
@@ -217,7 +223,7 @@ export function ButtonParserConfig() {
                         className="w-full border-dashed"
                         onClick={(event) => {
                           event.preventDefault();
-                          appendHeader({ property: "", width: 0 });
+                          item.append({ property: "", width: 0 });
                         }}
                       >
                         <PlusCircledIcon className="mr-2" />
@@ -225,136 +231,8 @@ export function ButtonParserConfig() {
                       </Button>
                     </AccordionContent>
                   </AccordionItem>
-                  <AccordionItem value="detail">
-                    <AccordionTrigger className="flex text-xs font-normal text-muted-foreground gap-x-2">
-                      Detail Record
-                      <span className="ml-auto">{`${Object.values(detailValues).reduce((total, field) => total + Number(field.width), 0)}`}</span>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <ScrollArea>
-                        <ScrollAreaViewport className="max-h-[400px]">
-                          {fieldsDetail.map((field, index) => (
-                            <div
-                              key={field.id}
-                              className="grid grid-cols-7 gap-x-1 mb-1 items-center"
-                            >
-                              <FormField
-                                control={form.control}
-                                name={`detail.fields.${index}.property`}
-                                render={({ field }) => (
-                                  <FormItem className="col-span-5">
-                                    <FormControl>
-                                      <Input {...field} placeholder="Field" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name={`detail.fields.${index}.width`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        placeholder="Width"
-                                        type="number"
-                                        min={0}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <Cross2Icon
-                                className="hover:text-destructive mx-auto opacity-70"
-                                onClick={() => removeDetail(index)}
-                              />
-                            </div>
-                          ))}
-                        </ScrollAreaViewport>
-                      </ScrollArea>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full border-dashed"
-                        onClick={(event) => {
-                          event.preventDefault();
-                          appendDetail({ property: "", width: 0 });
-                        }}
-                      >
-                        <PlusCircledIcon className="mr-2" />
-                        Add Field
-                      </Button>
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="trailer">
-                    <AccordionTrigger className="flex text-xs font-normal text-muted-foreground gap-x-2">
-                      Trailer Record
-                      <span className="ml-auto">{`${Object.values(trailerValues).reduce((total, field) => total + Number(field.width), 0)}`}</span>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <ScrollArea>
-                        <ScrollAreaViewport className="max-h-[400px]">
-                          {fieldsTrailer.map((field, index) => (
-                            <div
-                              key={field.id}
-                              className="grid grid-cols-7 gap-x-1 mb-1 items-center"
-                            >
-                              <FormField
-                                control={form.control}
-                                name={`trailer.fields.${index}.property`}
-                                render={({ field }) => (
-                                  <FormItem className="col-span-5">
-                                    <FormControl>
-                                      <Input {...field} placeholder="Field" />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={form.control}
-                                name={`trailer.fields.${index}.width`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        placeholder="Width"
-                                        type="number"
-                                        min={0}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <Cross2Icon
-                                className="hover:text-destructive mx-auto opacity-70"
-                                onClick={() => removeTrailer(index)}
-                              />
-                            </div>
-                          ))}
-                        </ScrollAreaViewport>
-                      </ScrollArea>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full border-dashed"
-                        onClick={(event) => {
-                          event.preventDefault();
-                          appendTrailer({ property: "", width: 0 });
-                        }}
-                      >
-                        <PlusCircledIcon className="mr-2" />
-                        Add Field
-                      </Button>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </>
+                ))}
+              </Accordion>
             )}
             <div className="flex">
               <Button type="submit" className="w-1/3 ml-auto">

@@ -79,8 +79,14 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
       case "setValue":
         updatedRecords.detail.push({
           ...record,
-          [action.field.name]:
-            action.value === "..." ? record[action.field.name] : action.value,
+          [action.field.name]: (() => {
+            if (action.value.startsWith("{") && action.value.endsWith("}")) {
+              const key = action.value.slice(1, -1).trim();
+              return record[key];
+            } else {
+              return action.value;
+            }
+          })(),
         });
         break;
 
@@ -99,6 +105,10 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
           secondRecord[field.field.name] = field.value;
         });
         updatedRecords.detail.push(firstRecord, secondRecord);
+        break;
+      case "nothing":
+        updatedRecords.detail.push(record);
+        break;
     }
   });
 
@@ -208,17 +218,27 @@ export function applyPreset(data: Data, changes: Changes): Data {
   changes.history?.forEach((change) => {
     switch (change.operation) {
       case "add":
+        data = addField(data, change);
+        break;
       case "remove":
+        data = removeField(data, change);
+        break;
       case "conditional":
+        data = evaluateConditions(data, change);
+        break;
       case "equation":
+        data = evaluateEquation(data, change);
+        break;
+      case "reformat":
+        data = reformatData(data, change);
+        break;
       default:
         break;
     }
   });
-
-  data.header = orderFields(data.header, changes.order.header);
-  data.detail = orderFields(data.detail, changes.order.detail);
-  data.trailer = orderFields(data.trailer, changes.order.trailer);
+  data = orderFields(data, "header", changes.order.header);
+  data = orderFields(data, "detail", changes.order.detail);
+  data = orderFields(data, "trailer", changes.order.trailer);
 
   data.name = applyPattern(data.name, changes.pattern);
 

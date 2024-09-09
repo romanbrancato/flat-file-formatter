@@ -81,10 +81,8 @@ export function ButtonRemoveField() {
                     <SelectField
                       selectedField={field.value}
                       label="Remove"
-                      onFieldSelect={(field) => {
-                        form.setValue("field", field, {
-                          shouldValidate: true,
-                        });
+                      onFieldSelect={(selectedField) => {
+                        field.onChange(selectedField);
                       }}
                     />
                   </FormControl>

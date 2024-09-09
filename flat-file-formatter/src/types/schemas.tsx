@@ -80,6 +80,9 @@ export const ActionSchema = z.discriminatedUnion("action", [
       }),
     ),
   }),
+  z.object({
+    action: z.literal("nothing"),
+  }),
 ]);
 
 export type Action = z.infer<typeof ActionSchema>;

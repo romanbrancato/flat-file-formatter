@@ -38,6 +38,9 @@ export function SelectAction({
         <SelectItem key="duplicate" value="duplicate">
           Duplicate
         </SelectItem>
+        <SelectItem key="nothing" value="nothing">
+          Do Nothing
+        </SelectItem>
       </SelectContent>
     </Select>
   );
