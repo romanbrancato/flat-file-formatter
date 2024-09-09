@@ -25,7 +25,6 @@ import { OperationSchema } from "@/types/schemas";
 import { FormConditional } from "@/components/forms/form-conditional";
 import { FormEquation } from "@/components/forms/form-equation";
 import { FormReformat } from "@/components/forms/form-reformat";
-import { Separator } from "@/components/ui/separator";
 
 export function ButtonOperations() {
   const { isReady, evaluateConditions, evaluateEquation, reformatData } =
@@ -34,38 +33,6 @@ export function ButtonOperations() {
   const [open, setOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(OperationSchema),
-    defaultValues: {
-      operation: "",
-      conditions: [
-        {
-          statement: "if",
-          field: { name: "", flag: "" },
-          comparison: "=",
-          value: "",
-        },
-      ],
-      direction: "column",
-      formula: [
-        {
-          operator: "+",
-          field: { name: "", flag: "" },
-        },
-      ],
-      output: {},
-      fields: [
-        {
-          field: { name: "", flag: "" },
-        },
-      ],
-      details: {
-        type: "",
-        pattern: "",
-      },
-      field: {
-        name: "",
-        flag: "",
-      },
-    },
   });
 
   const operation = useWatch({

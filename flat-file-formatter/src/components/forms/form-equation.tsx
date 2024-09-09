@@ -26,6 +26,7 @@ export function FormEquation() {
           <FormField
             control={control}
             name="direction"
+            defaultValue={"row"}
             render={({ field }) => (
               <FormItem>
                 <FormControl>
