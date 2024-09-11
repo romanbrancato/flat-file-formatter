@@ -18,21 +18,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { z } from "zod";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { tokenize } from "@/lib/utils";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import path from "node:path";
+import { Pattern, PatternSchema } from "@/types/schemas";
+import { Input } from "@/components/ui/input";
 
-const PatternSchema = z.object({
-  pattern: z.string(),
-});
-
-export function ButtonDefinePattern() {
+export function ButtonEditName() {
   const { params, isReady, applyPattern } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
@@ -48,7 +44,7 @@ export function ButtonDefinePattern() {
     },
   });
 
-  const onSubmit: SubmitHandler<FieldValues> = (values) => {
+  function onSubmit(values: Pattern) {
     applyPattern(values.pattern);
     setPreset({
       ...preset,
@@ -58,7 +54,7 @@ export function ButtonDefinePattern() {
       },
     });
     setOpen(false);
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

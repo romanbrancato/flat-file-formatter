@@ -25,15 +25,22 @@ import {
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Preset, PresetSchema } from "@/types/schemas";
+import { ModeContext } from "@/context/mode-context";
+import { ParserContext } from "@/context/parser-context";
 
 export function SelectPreset() {
   const { preset, setPreset } = useContext(PresetContext);
+  const { mode } = useContext(ModeContext);
+  const { applyPreset } = useContext(ParserContext);
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File>();
   const [storedPresets, setStoredPresets] = useState<Preset[]>([]);
 
   const onSelect = (selectedPreset: Preset) => {
     setPreset(selectedPreset);
+    if (mode === "single") {
+      applyPreset(selectedPreset);
+    }
   };
 
   const onDelete = (selectedPreset: Preset) => {

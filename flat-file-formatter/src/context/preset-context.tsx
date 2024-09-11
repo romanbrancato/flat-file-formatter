@@ -1,60 +1,47 @@
 "use client";
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { ModeContext } from "@/context/mode-context";
+import { createContext, ReactNode, useContext, useState } from "react";
 import { Preset } from "@/types/schemas";
 
 export const PresetContext = createContext<{
   preset: Preset;
   setPreset: React.Dispatch<React.SetStateAction<Preset>>;
-  resetPreset: () => void;
 }>({
   preset: {} as Preset,
   setPreset: () => {},
-  resetPreset: () => {},
 });
 
 export const PresetProvider = ({ children }: { children: ReactNode }) => {
-  const { mode } = useContext(ModeContext);
-  const [preset, setPreset] = useState<Preset>({} as Preset);
-
-  function resetPreset() {
-    setPreset({
-      name: null,
-      parser: {
-        format: "delimited",
+  const [preset, setPreset] = useState<Preset>({
+    name: null,
+    parser: {
+      format: "delimited",
+    },
+    formatSpec: {
+      format: "fixed",
+      pad: " ",
+      align: "left",
+      widths: {
+        header: {},
+        detail: {},
+        trailer: {},
       },
-      formatSpec: {
-        format: "delimited",
-        delimiter: ",",
+    },
+    changes: {
+      pattern: "",
+      order: {
+        header: [],
+        detail: [],
+        trailer: [],
       },
-      changes: {
-        pattern: "",
-        order: {
-          header: [],
-          detail: [],
-          trailer: [],
-        },
-        history: [],
-      },
-    });
-  }
-
-  useEffect(() => {
-    resetPreset();
-  }, [mode]);
+      history: [],
+    },
+  });
 
   return (
     <PresetContext.Provider
       value={{
         preset,
         setPreset,
-        resetPreset,
       }}
     >
       {children}

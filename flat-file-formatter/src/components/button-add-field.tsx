@@ -23,7 +23,7 @@ import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { SelectFlag } from "@/components/select-flag";
 import { SelectField } from "@/components/select-field";
-import { OperationSchema, Operation } from "@/types/schemas";
+import { Operation, OperationSchema } from "@/types/schemas";
 
 export function ButtonAddField() {
   const { isReady, addField } = useContext(ParserContext);

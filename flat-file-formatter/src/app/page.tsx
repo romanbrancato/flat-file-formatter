@@ -7,7 +7,7 @@ import { ButtonParserConfig } from "@/components/button-parser-config";
 import { ParserContext } from "@/context/parser-context";
 import { PresetToolbar } from "@/components/preset-toolbar";
 import { RecordTable } from "@/components/record-table";
-import { TabsFormatConfig } from "@/components/tabs-format-config";
+import { FormExportConfig } from "@/components/forms/form-export-config";
 import { ButtonExportFile } from "@/components/button-export-file";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
@@ -16,7 +16,6 @@ import { ButtonAddField } from "@/components/button-add-field";
 import { ButtonRemoveField } from "@/components/button-remove-field";
 import { ButtonOperations } from "@/components/button-operations";
 import { PresetContext } from "@/context/preset-context";
-
 export default function App() {
   const { mode } = useContext(ModeContext);
   const { preset } = useContext(PresetContext);
@@ -69,7 +68,7 @@ export default function App() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <TabsFormatConfig />
+                <FormExportConfig />
                 <div className="md:mt-auto">
                   <ButtonExportFile files={files} />
                 </div>

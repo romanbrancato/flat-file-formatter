@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { ParserContext } from "@/context/parser-context";
 import { useContext } from "react";
 
-export function FormWidths() {
+export function FormDefineWidths() {
   const { data } = useContext(ParserContext);
   const { control } = useFormContext();
   const headerValues = useWatch({ control: control, name: "widths.header" });
@@ -59,6 +59,7 @@ export function FormWidths() {
                     <FormField
                       control={control}
                       name={`widths.${key}.${fieldName}`}
+                      defaultValue={0}
                       key={`${key}${fieldName}`}
                       render={({ field }) => (
                         <FormItem className="mt-2 mr-3">

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Pencil2Icon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
-import { FormWidths } from "@/components/forms/form-widths";
+import { FormDefineWidths } from "@/components/forms/form-define-widths";
 
 export function ButtonDefineWidths() {
   const [open, setOpen] = useState(false);
@@ -29,7 +29,7 @@ export function ButtonDefineWidths() {
             Define the widths of each field in characters.
           </DialogDescription>
         </DialogHeader>
-        <FormWidths />
+        <FormDefineWidths />
       </DialogContent>
     </Dialog>
   );
