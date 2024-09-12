@@ -59,7 +59,7 @@ export function FormDefineWidths() {
                     <FormField
                       control={control}
                       name={`widths.${key}.${fieldName}`}
-                      defaultValue={0}
+                      defaultValue={20}
                       key={`${key}${fieldName}`}
                       render={({ field }) => (
                         <FormItem className="mt-2 mr-3">

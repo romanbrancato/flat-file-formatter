@@ -232,8 +232,6 @@ export function applyPreset(data: Data, changes: Changes): Data {
       case "reformat":
         data = reformatData(data, change);
         break;
-      default:
-        break;
     }
   });
   data = orderFields(data, "header", changes.order.header);

@@ -29,7 +29,19 @@ export function ButtonExportFile({
   const exportFile = (data: Data) => {
     const flatData = unparseData(data, preset);
     if (flatData) {
-      download(flatData, data.name, "txt");
+      download(flatData.slice(0, 3).join("\n"), data.name, "txt");
+
+      Object.keys(data.records)
+        .slice(3)
+        .forEach((key, idx) => {
+          if (flatData[idx + 3]) {
+            download(
+              flatData[idx + 3],
+              `${key.toUpperCase()}_${data.name}`,
+              "txt",
+            );
+          }
+        });
     }
   };
 

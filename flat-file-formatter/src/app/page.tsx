@@ -67,7 +67,7 @@ export default function App() {
                   <ButtonOperations />
                 </div>
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col min-w-[200px] gap-y-3">
                 <FormExportConfig />
                 <div className="md:mt-auto">
                   <ButtonExportFile files={files} />
@@ -75,7 +75,7 @@ export default function App() {
               </div>
             </>
           ) : mode === "batch" && files.length ? (
-            <div className="flex flex-col w-full gap-y-1">
+            <div className="flex flex-col w-full gap-y-3">
               <div className="flex flex-col gap-y-2 mx-auto w-full border rounded-md p-2">
                 {files.map((file, index) => (
                   <BatchFileRow

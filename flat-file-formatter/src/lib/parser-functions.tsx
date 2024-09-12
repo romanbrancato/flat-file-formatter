@@ -95,67 +95,51 @@ export async function parseFile(params: ParserParams) {
   });
 }
 
-export function unparseData(data: Data, preset: Preset) {
+export function unparseData(data: Data, preset: Preset): string[] | undefined {
   try {
+    const arr: string[] = [];
+
     if (preset.formatSpec.format === "delimited") {
       const config = {
         delimiter: preset.formatSpec.delimiter,
         skipEmptyLines: true,
       };
-      return (
-        Papa.unparse(data.header, config) +
-        Papa.unparse(data.detail, config) +
-        Papa.unparse(data.trailer, config)
+      Object.keys(data.records).map((tag, record) =>
+        arr.push(Papa.unparse(data.records[tag], config)),
       );
+      return arr;
     }
 
     if (preset.formatSpec.format === "fixed") {
-      const createConfig = (
-        flag: "header" | "detail" | "trailer",
-        widths: Record<string, number>,
-        align: "left" | "right",
-      ) => {
-        return Object.keys(data[flag][0]).map((field) => {
-          const width = widths?.[field];
-          if (!width)
-            throw new Error(`Width not found for ${flag} field: ${field}`);
-          return {
-            property: field,
-            width: width,
-            align: align,
-          };
-        });
-      };
+      Object.keys(data.records).forEach((tag) => {
+        if (Object.keys(data.records[tag][0]).length === 0) {
+          arr.push("");
+        } else {
+          const fields = Object.keys(data.records[tag][0]).map((key) => {
+            let width = preset.formatSpec.widths[tag]?.[key];
+            console.log(tag, key, width);
+            if (!width) {
+              throw new Error(`No width found for key ${key}`);
+            }
+            return {
+              property: key,
+              width: width,
+              align: preset.formatSpec.align, // assuming alignment is left, adjust as needed
+            };
+          });
 
-      return (
-        stringify(data.header, {
-          pad: preset.formatSpec.pad,
-          fields: createConfig(
-            "header",
-            preset.formatSpec.widths.header,
-            preset.formatSpec.align,
-          ),
-        }) +
-        stringify(data.detail, {
-          pad: preset.formatSpec.pad,
-          fields: createConfig(
-            "detail",
-            preset.formatSpec.widths.detail,
-            preset.formatSpec.align,
-          ),
-        }) +
-        stringify(data.trailer, {
-          pad: preset.formatSpec.pad,
-          fields: createConfig(
-            "trailer",
-            preset.formatSpec.widths.trailer,
-            preset.formatSpec.align,
-          ),
-        })
-      );
+          arr.push(
+            stringify(data.records[tag], {
+              pad: " ",
+              fields: fields,
+            }),
+          );
+        }
+      });
+      return arr;
     }
   } catch (error: any) {
     toast.error("Failed to Export File", { description: error.message });
-    return;
+    return undefined;
   }
 }

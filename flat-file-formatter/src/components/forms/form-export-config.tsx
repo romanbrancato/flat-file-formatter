@@ -44,7 +44,7 @@ export function FormExportConfig() {
   return (
     <FormProvider {...form}>
       <Form {...form}>
-        <form className="flex flex-col gap-y-1 min-w-[200px]">
+        <form className="flex flex-col gap-y-1">
           <FormField
             control={form.control}
             name="format"
