@@ -22,9 +22,7 @@ export async function parseFile(params: ParserParams) {
           resolve({
             name: path.parse(params.file.name).name,
             records: {
-              header: [{}],
               detail: results.data as Record<string, string>[],
-              trailer: [{}],
             },
           });
         },

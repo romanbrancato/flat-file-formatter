@@ -9,7 +9,7 @@ import { SelectAction } from "@/components/select-action";
 import { SelectField } from "@/components/select-field";
 import { Field } from "@/types/schemas";
 import { Input } from "@/components/ui/input";
-import { FormDuplicateAction } from "@/components/forms/form-duplicate-action";
+import { FormDuplicate } from "@/components/forms/form-duplicate";
 
 const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
   const { control } = useFormContext();
@@ -88,9 +88,7 @@ const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
           )}
         />
       )}
-      {action === "duplicate" && (
-        <FormDuplicateAction actionType={actionType} />
-      )}
+      {action === "duplicate" && <FormDuplicate actionType={actionType} />}
     </>
   );
 };

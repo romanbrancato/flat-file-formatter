@@ -26,25 +26,17 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
       format: "fixed",
       pad: " ",
       align: "left",
-      widths: {
-        header: {},
-        detail: {},
-        trailer: {},
-      },
+      widths: {},
     },
     changes: {
       pattern: "",
-      order: {
-        header: [],
-        detail: [],
-        trailer: [],
-      },
+      order: {},
       history: [],
     },
   });
 
   useEffect(() => {
-    console.log(preset);
+    console.log(preset.changes.order);
   }, [preset]);
 
   return (

@@ -45,14 +45,15 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
       name: values.name,
       changes: {
         ...preset.changes,
-        order: {
-          header: Object.keys(data.records.header[0]),
-          detail: Object.keys(data.records.detail[0]),
-          trailer: Object.keys(data.records.trailer[0]),
-        },
+        order: Object.keys(data.records).reduce(
+          (acc: Record<string, string[]>, key) => {
+            acc[key] = Object.keys(data.records[key][0]);
+            return acc;
+          },
+          {},
+        ),
       },
     };
-
     localStorage.setItem(
       `preset_${tempPreset.name}`,
       JSON.stringify({ ...tempPreset }, null, 2),

@@ -90,8 +90,6 @@ export const ActionSchema = z.discriminatedUnion("action", [
   }),
 ]);
 
-export type Action = z.infer<typeof ActionSchema>;
-
 export const ReformatSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("date"),
@@ -156,11 +154,7 @@ export const FormatSchema = z.discriminatedUnion("format", [
     format: z.literal("fixed"),
     pad: z.string(),
     align: z.enum(["left", "right"]),
-    widths: z.object({
-      header: z.record(z.coerce.number().min(1)),
-      detail: z.record(z.coerce.number().min(1)),
-      trailer: z.record(z.coerce.number().min(1)),
-    }),
+    widths: z.record(z.record(z.coerce.number().min(1))),
   }),
 ]);
 
@@ -168,11 +162,7 @@ export type Format = z.infer<typeof FormatSchema>;
 
 export const ChangesSchema = z.object({
   pattern: z.string(),
-  order: z.object({
-    header: z.array(z.string()),
-    detail: z.array(z.string()),
-    trailer: z.array(z.string()),
-  }),
+  order: z.record(z.array(z.string())),
   history: z.array(OperationSchema),
 });
 

@@ -103,7 +103,7 @@ function AccordionItemComponent({
   );
 }
 
-export function FormDuplicateAction({
+export function FormDuplicate({
   actionType,
 }: {
   actionType: "True" | "False";
