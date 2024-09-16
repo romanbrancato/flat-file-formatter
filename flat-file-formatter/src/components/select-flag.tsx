@@ -12,13 +12,13 @@ export function SelectFlag({
   onFlagSelect,
 }: {
   label: string;
-  selectedFlag: "header" | "detail" | "trailer";
-  onFlagSelect: (flag: "header" | "detail" | "trailer") => void;
+  selectedFlag: string;
+  onFlagSelect: (flag: string) => void;
 }) {
   return (
     <Select
       value={selectedFlag}
-      onValueChange={(flag: "header" | "detail" | "trailer") => {
+      onValueChange={(flag: string) => {
         onFlagSelect(flag);
       }}
     >

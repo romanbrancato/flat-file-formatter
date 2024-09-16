@@ -22,7 +22,9 @@ export async function parseFile(params: ParserParams) {
           resolve({
             name: path.parse(params.file.name).name,
             records: {
+              header: [{}],
               detail: results.data as Record<string, string>[],
+              trailer: [{}],
             },
           });
         },
@@ -93,51 +95,51 @@ export async function parseFile(params: ParserParams) {
   });
 }
 
-export function unparseData(data: Data, preset: Preset): string[] | undefined {
+export function unparseData(
+  data: Data,
+  preset: Preset,
+): Record<string, string> | undefined {
   try {
-    const arr: string[] = [];
+    const flatData: Record<string, string> = {};
 
-    if (preset.formatSpec.format === "delimited") {
-      const config = {
-        delimiter: preset.formatSpec.delimiter,
-        skipEmptyLines: true,
-      };
-      Object.keys(data.records).map((tag, record) =>
-        arr.push(Papa.unparse(data.records[tag], config)),
-      );
-      return arr;
-    }
+    Object.entries(data.records)
+      .filter(([tag, records]) => Object.keys(records[0]).length > 0)
+      .forEach(([tag, records]) => {
+        flatData[tag] =
+          preset.formatSpec.format === "delimited"
+            ? Papa.unparse(records, {
+                delimiter: preset.formatSpec.delimiter,
+                skipEmptyLines: true,
+              })
+            : preset.formatSpec.format === "fixed"
+              ? stringify(records, {
+                  pad: preset.formatSpec.pad,
+                  fields: Object.keys(data.records[tag][0]).map((key) => {
+                    console.log("Key:", key);
+                    const width =
+                      preset.formatSpec.format === "fixed"
+                        ? preset.formatSpec.widths[tag]?.[key]
+                        : undefined;
 
-    if (preset.formatSpec.format === "fixed") {
-      Object.keys(data.records).forEach((tag) => {
-        if (Object.keys(data.records[tag][0]).length === 0) {
-          arr.push("");
-        } else {
-          const fields = Object.keys(data.records[tag][0]).map((key) => {
-            let width = preset.formatSpec.widths[tag]?.[key];
-            console.log(tag, key, width);
-            if (!width) {
-              throw new Error(`No width found for key ${key}`);
-            }
-            return {
-              property: key,
-              width: width,
-              align: preset.formatSpec.align, // assuming alignment is left, adjust as needed
-            };
-          });
+                    if (!width) {
+                      throw new Error(`No width found for key ${key}`);
+                    }
 
-          arr.push(
-            stringify(data.records[tag], {
-              pad: " ",
-              fields: fields,
-            }),
-          );
-        }
+                    return {
+                      property: key,
+                      width: width,
+                      align:
+                        preset.formatSpec.format === "fixed"
+                          ? preset.formatSpec.align
+                          : "left",
+                    };
+                  }),
+                })
+              : "";
       });
-      return arr;
-    }
+
+    return flatData;
   } catch (error: any) {
     toast.error("Failed to Export File", { description: error.message });
-    return undefined;
   }
 }

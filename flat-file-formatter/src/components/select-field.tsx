@@ -27,19 +27,22 @@ export function SelectField({
 }: {
   selectedField: Field | null;
   label?: string;
-  filter?: "header" | "detail" | "trailer";
+  filter?: string[];
   onFieldSelect: (field: Field) => void;
 }) {
   const { data } = useContext(ParserContext);
   const [open, setOpen] = useState(false);
 
-  const renderFields = (flag: "header" | "detail" | "trailer") => {
-    if (!data.records[flag].some((rec) => Object.keys(rec).length > 0))
-      return null;
-
+  function CommandGroupComponent({
+    flag,
+    fields,
+  }: {
+    flag: string;
+    fields: string[];
+  }) {
     return (
       <CommandGroup heading={<span className="capitalize">{flag} Fields</span>}>
-        {Object.keys(data.records[flag][0]).map((field) => (
+        {fields.map((field) => (
           <CommandItem
             key={`${flag}${field}`}
             onSelect={() => {
@@ -58,7 +61,7 @@ export function SelectField({
         ))}
       </CommandGroup>
     );
-  };
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -85,15 +88,19 @@ export function SelectField({
           />
           <ScrollArea>
             <ScrollAreaViewport className="max-h-[300px]">
-              {filter ? (
-                renderFields(filter)
-              ) : (
-                <>
-                  {renderFields("header")}
-                  {renderFields("detail")}
-                  {renderFields("trailer")}
-                </>
-              )}
+              {Object.entries(data.records)
+                .filter(([tag, records]) =>
+                  records && records.length > 0 && filter
+                    ? filter.includes(tag)
+                    : true,
+                )
+                .map(([tag, records]) => (
+                  <CommandGroupComponent
+                    flag={tag}
+                    fields={Object.keys(records[0])}
+                    key={tag}
+                  />
+                ))}
             </ScrollAreaViewport>
           </ScrollArea>
         </Command>

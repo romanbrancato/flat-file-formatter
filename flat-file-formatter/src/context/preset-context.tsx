@@ -1,11 +1,5 @@
 "use client";
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, ReactNode, useState } from "react";
 import { Preset } from "@/types/schemas";
 
 export const PresetContext = createContext<{
@@ -34,10 +28,6 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
       history: [],
     },
   });
-
-  useEffect(() => {
-    console.log(preset.changes.order);
-  }, [preset]);
 
   return (
     <PresetContext.Provider

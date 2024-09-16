@@ -95,7 +95,7 @@ export function ButtonAddField() {
                     <SelectFlag
                       label="Add To"
                       selectedFlag={field.value}
-                      onFlagSelect={(flag: "header" | "detail" | "trailer") => {
+                      onFlagSelect={(flag: string) => {
                         field.onChange(flag);
                       }}
                     />
@@ -137,7 +137,7 @@ export function ButtonAddField() {
                     <SelectField
                       selectedField={field.value}
                       label="Add After"
-                      filter={flagValue}
+                      filter={[flagValue]}
                       onFieldSelect={(selectedField) => {
                         field.onChange(selectedField);
                       }}

@@ -24,6 +24,7 @@ export function removeField(data: Data, operation: Operation): Data {
 export function addField(data: Data, operation: Operation): Data {
   if (operation.operation !== "add") return data;
   const { flag, name, value, after } = operation;
+
   const updatedRecord = data.records[flag].map((record) => {
     const newRecord: Record<string, string> = {};
     let inserted = false;

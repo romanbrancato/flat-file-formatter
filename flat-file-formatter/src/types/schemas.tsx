@@ -52,7 +52,7 @@ export const PatternSchema = z.object({
 export type Pattern = z.infer<typeof PatternSchema>;
 export const FieldSchema = z.object(
   {
-    flag: z.enum(["header", "detail", "trailer"]),
+    flag: z.string(),
     name: z.string(),
   },
   { required_error: "Select a field." },
@@ -103,7 +103,7 @@ export const ReformatSchema = z.discriminatedUnion("type", [
 export const OperationSchema = z.discriminatedUnion("operation", [
   z.object({
     operation: z.literal("add"),
-    flag: z.enum(["header", "detail", "trailer"]),
+    flag: z.string(),
     name: z.string().min(1, "Enter a field name."),
     value: z.string(),
     after: FieldSchema.nullable(),

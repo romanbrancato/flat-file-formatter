@@ -29,19 +29,20 @@ export function ButtonExportFile({
   const exportFile = (data: Data) => {
     const flatData = unparseData(data, preset);
     if (flatData) {
-      download(flatData.slice(0, 3).join("\n"), data.name, "txt");
+      const combinedData = ["header", "detail", "trailer"]
+        .map((key) => flatData[key])
+        .filter((data) => data !== "")
+        .join("\n");
 
-      Object.keys(data.records)
-        .slice(3)
-        .forEach((key, idx) => {
-          if (flatData[idx + 3]) {
-            download(
-              flatData[idx + 3],
-              `${key.toUpperCase()}_${data.name}`,
-              "txt",
-            );
-          }
-        });
+      if (combinedData) {
+        download(combinedData, data.name, "txt");
+      }
+
+      Object.keys(flatData).forEach((key) => {
+        if (!["header", "detail", "trailer"].includes(key)) {
+          download(flatData[key], `${key.toUpperCase()}_${data.name}`, "txt");
+        }
+      });
     }
   };
 
