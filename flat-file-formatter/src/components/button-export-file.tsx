@@ -7,7 +7,7 @@ import { ModeContext } from "@/context/mode-context";
 import { ParserContext } from "@/context/parser-context";
 import { unparseData } from "@/lib/parser-functions";
 import { BatchParserContext } from "@/context/batch-parser-context";
-import { Data } from "@/types/schemas";
+import { Data, Preset } from "@/types/schemas";
 
 export function ButtonExportFile({
   files,
@@ -26,24 +26,25 @@ export function ButtonExportFile({
   const { data, isReady } = useContext(ParserContext);
   const { preset } = useContext(PresetContext);
 
-  const exportFile = (data: Data) => {
+  const exportFile = (data: Data, preset: Preset) => {
     const flatData = unparseData(data, preset);
-    if (flatData) {
-      const combinedData = ["header", "detail", "trailer"]
-        .map((key) => flatData[key])
-        .filter((data) => data !== "")
-        .join("\n");
 
-      if (combinedData) {
-        download(combinedData, data.name, "txt");
-      }
+    if (!flatData) return;
 
-      Object.keys(flatData).forEach((key) => {
-        if (!["header", "detail", "trailer"].includes(key)) {
-          download(flatData[key], `${key.toUpperCase()}_${data.name}`, "txt");
-        }
-      });
+    const combinedData = ["header", "detail", "trailer"]
+      .map((key) => flatData[key])
+      .filter(Boolean)
+      .join("\n");
+
+    if (combinedData) {
+      download(combinedData, data.name, "txt");
     }
+
+    Object.entries(flatData)
+      .filter(([key]) => !["header", "detail", "trailer"].includes(key))
+      .forEach(([key, value]) => {
+        download(value, `${key.toUpperCase()}_${data.name}`, "txt");
+      });
   };
 
   const handleBatch = () => {
@@ -57,7 +58,7 @@ export function ButtonExportFile({
   useEffect(() => {
     if (!isBatchReady) return;
     batchData.forEach((data) => {
-      exportFile(data);
+      exportFile(data, preset);
     });
     resetBatchParser();
     if (setFiles) setFiles([]);
@@ -65,7 +66,7 @@ export function ButtonExportFile({
 
   return (
     <Button
-      onClick={mode === "batch" ? handleBatch : () => exportFile(data)}
+      onClick={mode === "batch" ? handleBatch : () => exportFile(data, preset)}
       className="gap-x-2 w-full"
       disabled={
         (mode !== "single" && !preset.name) ||
