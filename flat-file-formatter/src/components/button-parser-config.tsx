@@ -147,12 +147,7 @@ export function ButtonParserConfig() {
 
   useEffect(() => {
     if (!preset.parser) return;
-    form.setValue("format", preset.parser.format);
-    if (preset.parser.format === "fixed") {
-      form.setValue("header", preset.parser.header);
-      form.setValue("detail", preset.parser.detail);
-      form.setValue("trailer", preset.parser.trailer);
-    }
+    form.reset(preset.parser);
   }, [preset.parser]);
 
   return (
