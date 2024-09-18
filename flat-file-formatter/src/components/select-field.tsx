@@ -89,11 +89,7 @@ export function SelectField({
           <ScrollArea>
             <ScrollAreaViewport className="max-h-[300px]">
               {Object.entries(data.records)
-                .filter(([tag, records]) =>
-                  records && records.length > 0 && filter
-                    ? filter.includes(tag)
-                    : true,
-                )
+                .filter(([tag, records]) => Object.keys(records[0]).length > 0)
                 .map(([tag, records]) => (
                   <CommandGroupComponent
                     flag={tag}

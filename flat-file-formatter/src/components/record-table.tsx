@@ -140,9 +140,11 @@ export function RecordTable({ tag }: { tag: string }) {
     useSensor(KeyboardSensor, {}),
   );
 
-  return data.records[tag].some((rec) => Object.keys(rec).length > 0) ? (
+  return (
     <>
-      <span className="text-xs text-muted-foreground">{tag}</span>
+      <span className="text-xs text-muted-foreground">
+        {tag}: {table.getCoreRowModel().rows.length} Row(s)
+      </span>
       <div className="rounded-md border flex-grow overflow-hidden">
         <DndContext
           collisionDetection={closestCenter}
@@ -188,5 +190,5 @@ export function RecordTable({ tag }: { tag: string }) {
         </DndContext>
       </div>
     </>
-  ) : null;
+  );
 }

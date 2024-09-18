@@ -22,10 +22,6 @@ export function useParser() {
       });
   }, [params]);
 
-  useEffect(() => {
-    console.log(data.records);
-  }, [data]);
-
   const applyPattern = useCallback(
     (schema: string) => {
       if (!params) return;

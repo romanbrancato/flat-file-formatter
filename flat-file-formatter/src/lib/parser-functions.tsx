@@ -19,11 +19,21 @@ export async function parseFile(params: ParserParams) {
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
+          // Replaces any pure string values with empty strings
+          const cleanedData: Record<string, string>[] = (
+            results.data as Record<string, string>[]
+          ).map((row) => {
+            Object.keys(row).forEach((key) => {
+              row[key] = row[key].trim() === "" ? "" : row[key];
+            });
+            return row;
+          });
+
           resolve({
             name: path.parse(params.file.name).name,
             records: {
               header: [{}],
-              detail: results.data as Record<string, string>[],
+              detail: cleanedData,
               trailer: [{}],
             },
           });
@@ -115,7 +125,6 @@ export function unparseData(
               ? stringify(records, {
                   pad: preset.formatSpec.pad,
                   fields: Object.keys(data.records[tag][0]).map((key) => {
-                    console.log("Key:", key);
                     const width =
                       preset.formatSpec.format === "fixed"
                         ? preset.formatSpec.widths[tag]?.[key]
