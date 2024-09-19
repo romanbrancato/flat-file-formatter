@@ -11,7 +11,7 @@ export function SelectType({
   onTypeSelect,
 }: {
   selectedType: string;
-  onTypeSelect: (operation: string) => void;
+  onTypeSelect: (type: string) => void;
 }) {
   return (
     <Select

@@ -27,22 +27,9 @@ export function evaluateCondition(
   condition: any,
 ): boolean {
   const reference = condition.value.match(/\{[^}]*\}/)?.[0]?.slice(1, -1);
-  const overpunch = condition.value
-    .match(/\[\s*.*\|\s*.*\s*\]/)?.[0]
-    ?.slice(1, -1)
-    .split("|");
 
-  const leftOP = overpunch?.[0] === "OP";
-  const rightOP = overpunch?.[1] === "OP";
-
-  const leftVal = leftOP
-    ? extract(record[condition.field.name] as string)
-    : record[condition.field.name];
-  const rightVal = reference
-    ? rightOP
-      ? extract(record[reference] as string)
-      : record[reference]
-    : condition.value;
+  const leftVal = record[condition.field.name];
+  const rightVal = reference ? record[reference] : condition.value;
 
   let conditionPasses = false;
   switch (condition.comparison) {
@@ -55,8 +42,6 @@ export function evaluateCondition(
     case "=":
       conditionPasses = leftVal === rightVal;
       break;
-    default:
-      conditionPasses = false;
   }
 
   return condition.statement === "if not" ? !conditionPasses : conditionPasses;
@@ -66,26 +51,26 @@ export function evaluateCondition(
 // Original source: https://github.com/truveris/overpunch/tree/master
 
 const EXTRACT_REF: Record<string, [string, string]> = {
-  "0": ["+", "0"],
-  "1": ["+", "1"],
-  "2": ["+", "2"],
-  "3": ["+", "3"],
-  "4": ["+", "4"],
-  "5": ["+", "5"],
-  "6": ["+", "6"],
-  "7": ["+", "7"],
-  "8": ["+", "8"],
-  "9": ["+", "9"],
-  "{": ["+", "0"],
-  A: ["+", "1"],
-  B: ["+", "2"],
-  C: ["+", "3"],
-  D: ["+", "4"],
-  E: ["+", "5"],
-  F: ["+", "6"],
-  G: ["+", "7"],
-  H: ["+", "8"],
-  I: ["+", "9"],
+  "0": ["", "0"],
+  "1": ["", "1"],
+  "2": ["", "2"],
+  "3": ["", "3"],
+  "4": ["", "4"],
+  "5": ["", "5"],
+  "6": ["", "6"],
+  "7": ["", "7"],
+  "8": ["", "8"],
+  "9": ["", "9"],
+  "{": ["", "0"],
+  A: ["", "1"],
+  B: ["", "2"],
+  C: ["", "3"],
+  D: ["", "4"],
+  E: ["", "5"],
+  F: ["", "6"],
+  G: ["", "7"],
+  H: ["", "8"],
+  I: ["", "9"],
   "}": ["-", "0"],
   J: ["-", "1"],
   K: ["-", "2"],

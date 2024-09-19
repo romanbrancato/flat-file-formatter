@@ -1,4 +1,4 @@
-import { evaluateCondition, tokenize } from "@/lib/utils";
+import { evaluateCondition, extract, tokenize } from "@/lib/utils";
 import { Changes, Data, Operation } from "@/types/schemas";
 import { format } from "date-fns";
 
@@ -184,33 +184,42 @@ export function evaluateEquation(data: Data, operation: Operation): Data {
 export function reformatData(data: Data, operation: Operation): Data {
   if (operation.operation !== "reformat") return data;
 
-  const { details, field } = operation;
+  const { fields, reformat } = operation;
 
-  const reformatRecord = (record: any) => {
-    switch (details.type) {
-      case "date":
-        return {
-          ...record,
-          [field.name]: format(
+  const updatedRecord = data.records.detail.map((record) => {
+    let updatedFields = { ...record };
+
+    fields.forEach((field) => {
+      switch (reformat.type) {
+        case "date":
+          updatedFields[field.name] = format(
             new Date(record[field.name] as string),
-            details.pattern,
-          ),
-        };
-      case "number":
-        return {
-          ...record,
-          [field.name]: Number(record[field.name]),
-        };
-      default:
-        return record;
-    }
-  };
+            reformat.pattern,
+          );
+          break;
+        case "number":
+          switch (reformat.from) {
+            case "scientific":
+              updatedFields[field.name] = Number(record[field.name]).toString();
+              break;
+            case "overpunch":
+              updatedFields[field.name] = Number(
+                extract(record[field.name]),
+              ).toString();
+              break;
+          }
+          break;
+      }
+    });
+
+    return updatedFields;
+  });
 
   return {
     ...data,
     records: {
       ...data.records,
-      [field.flag]: data.records[field.flag].map(reformatRecord),
+      detail: updatedRecord,
     },
   };
 }

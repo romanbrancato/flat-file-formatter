@@ -97,6 +97,7 @@ export const ReformatSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("number"),
+    from: z.enum(["scientific", "overpunch"]),
   }),
 ]);
 
@@ -138,8 +139,8 @@ export const OperationSchema = z.discriminatedUnion("operation", [
   }),
   z.object({
     operation: z.literal("reformat"),
-    details: ReformatSchema,
-    field: FieldSchema,
+    fields: z.array(FieldSchema),
+    reformat: ReformatSchema,
   }),
 ]);
 

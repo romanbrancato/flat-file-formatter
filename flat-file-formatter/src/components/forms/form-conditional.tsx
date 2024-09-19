@@ -29,7 +29,7 @@ export function FormConditional() {
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex flex-row items-center gap-x-2 mt-1"
+              className="flex flex-row items-center gap-x-2 mt-1  mr-4"
             >
               <FormField
                 control={control}
