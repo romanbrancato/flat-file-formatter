@@ -33,7 +33,7 @@ export function FormReformat() {
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex flex-row gap-x-2 mt-1 items-center"
+              className="flex flex-row gap-x-2 mt-1 items-center mr-4"
             >
               <FormField
                 control={control}

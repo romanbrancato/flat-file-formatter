@@ -105,14 +105,17 @@ export const OperationSchema = z.discriminatedUnion("operation", [
   z.object({
     operation: z.literal("add"),
     flag: z.string(),
-    name: z.string().min(1, "Enter a field name."),
-    value: z.string(),
+    fields: z.array(
+      z.object({
+        name: z.string().min(1, "Enter a field name."),
+        value: z.string(),
+      }),
+    ),
     after: FieldSchema.nullable(),
   }),
   z.object({
     operation: z.literal("remove"),
-    field: FieldSchema,
-    batch: z.boolean(),
+    fields: z.array(FieldSchema),
   }),
   z.object({
     operation: z.literal("conditional"),
