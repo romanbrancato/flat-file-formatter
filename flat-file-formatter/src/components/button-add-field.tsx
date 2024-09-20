@@ -23,7 +23,7 @@ import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { SelectFlag } from "@/components/select-flag";
 import { SelectField } from "@/components/select-field";
-import { Operation, OperationSchema } from "@/types/schemas";
+import { Field, Operation, OperationSchema } from "@/types/schemas";
 
 export function ButtonAddField() {
   const { isReady, addField } = useContext(ParserContext);
@@ -41,9 +41,8 @@ export function ButtonAddField() {
     },
   });
 
-  const flagValue = useWatch({ control: form.control, name: "flag" });
-
   function onSubmit(values: Operation) {
+    if (values.operation != "add") return;
     addField(values);
     setPreset({
       ...preset,
@@ -54,12 +53,11 @@ export function ButtonAddField() {
     });
 
     setOpen(false);
-    form.reset();
+    form.reset({
+      operation: "add",
+      after: { flag: values.flag, name: values.name },
+    });
   }
-
-  useEffect(() => {
-    form.setValue("after", null);
-  }, [flagValue]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -137,7 +135,6 @@ export function ButtonAddField() {
                     <SelectField
                       selectedField={field.value}
                       label="Add After"
-                      filter={[flagValue]}
                       onFieldSelect={(selectedField) => {
                         field.onChange(selectedField);
                       }}

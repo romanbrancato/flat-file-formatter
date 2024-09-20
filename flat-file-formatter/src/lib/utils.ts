@@ -26,10 +26,11 @@ export function evaluateCondition(
   record: Record<string, string>,
   condition: any,
 ): boolean {
-  const reference = condition.value.match(/\{[^}]*\}/)?.[0]?.slice(1, -1);
-
   const leftVal = record[condition.field.name];
-  const rightVal = reference ? record[reference] : condition.value;
+  const rightVal =
+    condition.value.startsWith("{") && condition.value.endsWith("}")
+      ? record[condition.value.slice(1, -1).trim()]
+      : condition.value;
 
   let conditionPasses = false;
   switch (condition.comparison) {

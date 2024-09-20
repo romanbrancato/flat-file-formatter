@@ -59,7 +59,7 @@ export function ButtonOperations() {
     });
 
     setOpen(false);
-    form.reset();
+    form.reset({ operation: undefined });
   }
 
   return (

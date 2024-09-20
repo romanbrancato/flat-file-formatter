@@ -22,6 +22,7 @@ import {
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { Operation, OperationSchema } from "@/types/schemas";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export function ButtonRemoveField() {
   const { isReady, removeField } = useContext(ParserContext);
@@ -32,7 +33,6 @@ export function ButtonRemoveField() {
     resolver: zodResolver(OperationSchema),
     defaultValues: {
       operation: "remove",
-      field: undefined,
     },
   });
 
@@ -85,6 +85,32 @@ export function ButtonRemoveField() {
                         field.onChange(selectedField);
                       }}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="batch"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="batch"
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked);
+                        }}
+                      />
+                      <label
+                        htmlFor="batch"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Remove this field and all fields following it.
+                      </label>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

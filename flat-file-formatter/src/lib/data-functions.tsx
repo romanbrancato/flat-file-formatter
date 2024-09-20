@@ -13,9 +13,19 @@ export function applyPattern(originalName: string, pattern = ""): string {
 
 export function removeField(data: Data, operation: Operation): Data {
   if (operation.operation !== "remove") return data;
-  const { field } = operation;
+  const { field, batch } = operation;
   const updatedRecord = data.records[field.flag].map((record) => {
-    delete record[field.name];
+    if (batch) {
+      const keys = Object.keys(record);
+      const startIndex = keys.indexOf(field.name);
+      if (startIndex !== -1) {
+        keys.slice(startIndex).forEach((key) => {
+          delete record[key];
+        });
+      }
+    } else {
+      delete record[field.name];
+    }
     return record;
   });
   return { ...data, records: { ...data.records, [field.flag]: updatedRecord } };
@@ -32,17 +42,19 @@ export function addField(data: Data, operation: Operation): Data {
     Object.entries(record).forEach(([key, val], index) => {
       newRecord[key] = val;
       if (after && key === after.name && !inserted) {
-        newRecord[name] = value.startsWith("...")
-          ? record[value.slice(3)]
-          : value;
+        newRecord[name] =
+          value.startsWith("{") && value.endsWith("}")
+            ? record[value.slice(1, -1).trim()]
+            : value;
         inserted = true;
       }
     });
 
     if (!inserted) {
-      newRecord[name] = value.startsWith("...")
-        ? record[value.slice(3)]
-        : value;
+      newRecord[name] =
+        value.startsWith("{") && value.endsWith("}")
+          ? record[value.slice(1, -1).trim()]
+          : value;
     }
 
     return newRecord;

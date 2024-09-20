@@ -112,6 +112,7 @@ export const OperationSchema = z.discriminatedUnion("operation", [
   z.object({
     operation: z.literal("remove"),
     field: FieldSchema,
+    batch: z.boolean(),
   }),
   z.object({
     operation: z.literal("conditional"),
