@@ -108,7 +108,7 @@ export function ButtonRemoveField() {
                         htmlFor="batch"
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                       >
-                        Remove this field and all fields following it.
+                        Additionally remove all fields following it
                       </label>
                     </div>
                   </FormControl>
