@@ -256,6 +256,7 @@ export function applyPreset(data: Data, changes: Changes): Data {
         break;
     }
   });
+
   data = orderFields(data, "header", changes.order.header);
   data = orderFields(data, "detail", changes.order.detail);
   data = orderFields(data, "trailer", changes.order.trailer);

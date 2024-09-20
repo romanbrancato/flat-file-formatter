@@ -20,6 +20,7 @@ import { ModeContext } from "@/context/mode-context";
 import { ButtonEditName } from "@/components/button-edit-name";
 import { Label } from "@/components/ui/label";
 import { ParserContext } from "@/context/parser-context";
+import { ButtonApplyPreset } from "@/components/button-apply-preset";
 
 export function PresetToolbar() {
   const { isReady, data } = useContext(ParserContext);
@@ -40,6 +41,7 @@ export function PresetToolbar() {
           {mode === "single" && <ButtonEditName />}
         </div>
         <div className="flex flex-row space-x-2 justify-end">
+          {mode !== "batch" && <ButtonApplyPreset />}
           <SelectPreset />
           {mode !== "batch" && (
             <ButtonNewPreset
