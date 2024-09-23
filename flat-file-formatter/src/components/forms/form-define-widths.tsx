@@ -27,7 +27,7 @@ function AccordionItemComponent({
 
   return (
     <AccordionItem value={tag}>
-      <AccordionTrigger className="flex text-xs font-normal text-muted-foreground gap-x-2">
+      <AccordionTrigger className="flex gap-x-2 text-xs font-normal text-muted-foreground">
         {tag}
         <span className="ml-auto">
           {Object.values(
@@ -45,10 +45,10 @@ function AccordionItemComponent({
                 key={`${tag}${fieldName}`}
                 defaultValue={0}
                 render={({ field }) => (
-                  <FormItem className="mt-2 mr-3">
+                  <FormItem className="mr-3 mt-2">
                     <FormControl>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none font-normal text-muted-foreground text-xs">
+                        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-xs font-normal text-muted-foreground">
                           {fieldName}
                         </span>
                         <Input
@@ -76,7 +76,11 @@ export function FormDefineWidths() {
   return (
     <Accordion type="single" collapsible>
       {Object.entries(data.records)
-        .filter(([tag]) => Object.keys(data.records[tag][0]).length > 0)
+        .filter(
+          ([tag]) =>
+            Object.keys(data.records[tag][0]).length > 0 &&
+            ["header", "detail", "trailer"].includes(tag),
+        )
         .map(([tag, records]) => (
           <AccordionItemComponent
             tag={tag}

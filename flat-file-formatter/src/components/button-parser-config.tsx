@@ -46,7 +46,7 @@ function AccordionItemComponent({ record }: { record: string }) {
 
   return (
     <AccordionItem value={record}>
-      <AccordionTrigger className="flex text-xs font-normal capitalize text-muted-foreground gap-x-2">
+      <AccordionTrigger className="flex gap-x-2 text-xs font-normal capitalize text-muted-foreground">
         {record}
         <span className="ml-auto">{`${Object.values(
           useWatch({
@@ -70,7 +70,7 @@ function AccordionItemComponent({ record }: { record: string }) {
             {fields.map((field, index) => (
               <div
                 key={field.id}
-                className="flex flex-row items-center gap-x-2 mt-1 mr-4"
+                className="mr-4 flex flex-row items-center gap-x-2"
               >
                 <FormField
                   control={control}
@@ -102,7 +102,7 @@ function AccordionItemComponent({ record }: { record: string }) {
                   )}
                 />
                 <Cross2Icon
-                  className="hover:text-destructive ml-auto opacity-70"
+                  className="ml-auto opacity-70 hover:text-destructive"
                   onClick={() => remove(index)}
                 />
               </div>
@@ -158,7 +158,7 @@ export function ButtonParserConfig() {
           Configure Parser
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[800px]">
+      <DialogContent className="max-h-[800px] sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Parser Configuration</DialogTitle>
           <DialogDescription>Configure the parser.</DialogDescription>
@@ -192,7 +192,7 @@ export function ButtonParserConfig() {
                 </Accordion>
               )}
               <div className="flex">
-                <Button type="submit" className="w-1/3 ml-auto">
+                <Button type="submit" className="ml-auto w-1/3">
                   Save
                 </Button>
               </div>

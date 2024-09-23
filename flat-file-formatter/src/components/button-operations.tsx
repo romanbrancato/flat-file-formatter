@@ -25,6 +25,7 @@ import { OperationSchema } from "@/types/schemas";
 import { FormConditional } from "@/components/forms/form-conditional";
 import { FormEquation } from "@/components/forms/form-equation";
 import { FormReformat } from "@/components/forms/form-reformat";
+import { Separator } from "@/components/ui/separator";
 
 export function ButtonOperations() {
   const { isReady, evaluateConditions, evaluateEquation, reformatData } =
@@ -33,6 +34,14 @@ export function ButtonOperations() {
   const [open, setOpen] = useState(false);
   const form = useForm({
     resolver: zodResolver(OperationSchema),
+    defaultValues: {
+      operation: "",
+      conditions: [
+        { statement: "if", field: null, comparison: "=", value: "" },
+      ],
+      equation: [{ operator: "+", field: null }],
+      fields: [{ flag: "", name: "" }],
+    },
   });
 
   const operation = useWatch({
@@ -59,7 +68,7 @@ export function ButtonOperations() {
     });
 
     setOpen(false);
-    form.reset({ operation: undefined });
+    form.reset();
   }
 
   return (
@@ -75,21 +84,24 @@ export function ButtonOperations() {
           Operations
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] max-h-[800px]">
+      <DialogContent className="max-h-[800px] sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Define Operation</DialogTitle>
-          <DialogDescription className="flex flex-row justify-between items-center">
+          <DialogDescription className="flex flex-row items-center justify-between">
             Perform various operations.
           </DialogDescription>
         </DialogHeader>
         <FormProvider {...form}>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col gap-y-1"
+            >
               <FormField
                 control={form.control}
                 name="operation"
                 render={({ field }) => (
-                  <FormItem className="mb-1">
+                  <FormItem>
                     <FormControl>
                       <SelectOperation
                         selectedOperation={field.value}
@@ -102,14 +114,13 @@ export function ButtonOperations() {
                   </FormItem>
                 )}
               />
+              {operation != "" && <Separator />}
               {operation === "conditional" && <FormConditional />}
               {operation === "equation" && <FormEquation />}
               {operation === "reformat" && <FormReformat />}
-              <div className="flex">
-                <Button type="submit" className="w-1/3 ml-auto mt-1">
-                  Apply
-                </Button>
-              </div>
+              <Button type="submit" className="ml-auto w-1/3">
+                Apply
+              </Button>
             </form>
           </Form>
         </FormProvider>

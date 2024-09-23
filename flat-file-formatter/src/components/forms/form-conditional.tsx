@@ -29,7 +29,7 @@ export function FormConditional() {
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex flex-row items-center gap-x-2 mt-1  mr-4"
+              className="mr-4 flex flex-row items-center gap-x-2"
             >
               <FormField
                 control={control}
@@ -95,7 +95,7 @@ export function FormConditional() {
                 )}
               />
               <Cross2Icon
-                className="hover:text-destructive ml-auto opacity-70 flex-shrink-0"
+                className="ml-auto flex-shrink-0 opacity-70 hover:text-destructive"
                 onClick={() => remove(index)}
               />
             </div>

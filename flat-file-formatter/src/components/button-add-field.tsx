@@ -58,7 +58,7 @@ export function ButtonAddField() {
     });
 
     setOpen(false);
-    form.reset({ operation: "add" });
+    form.reset();
   }
 
   return (
@@ -109,7 +109,7 @@ export function ButtonAddField() {
                 {fields.map((field, index) => (
                   <div
                     key={field.id}
-                    className="mr-4 flex flex-row items-center gap-x-1"
+                    className="mr-4 flex flex-row items-center gap-x-2"
                   >
                     <FormField
                       control={form.control}

@@ -52,8 +52,8 @@ export const PatternSchema = z.object({
 export type Pattern = z.infer<typeof PatternSchema>;
 export const FieldSchema = z.object(
   {
-    flag: z.string(),
-    name: z.string(),
+    flag: z.string().min(1),
+    name: z.string().min(1),
   },
   { required_error: "Select a field." },
 );
@@ -133,7 +133,7 @@ export const OperationSchema = z.discriminatedUnion("operation", [
   z.object({
     operation: z.literal("equation"),
     direction: z.enum(["row", "column"]),
-    formula: z.array(
+    equation: z.array(
       z.object({
         operator: z.enum(["+", "-"]),
         field: FieldSchema,

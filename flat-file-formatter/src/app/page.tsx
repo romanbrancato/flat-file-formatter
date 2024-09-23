@@ -39,7 +39,7 @@ export default function App() {
 
   return (
     <main className="flex flex-col gap-y-3">
-      <span className="text-md font-bold absolute left-1/2 -translate-x-1/2">
+      <span className="text-md absolute left-1/2 -translate-x-1/2 font-bold">
         Format a Flat File
       </span>
       <SelectMode />
@@ -55,24 +55,20 @@ export default function App() {
       </div>
       <div className="rounded-md border">
         <PresetToolbar />
-        <div className="flex flex-col md:flex-row mx-5 gap-y-2 md:gap-x-3 my-3">
+        <div className="mx-5 my-3 flex flex-col gap-y-2 md:flex-row md:gap-x-3">
           {mode === "single" && isReady ? (
             <>
-              <div className="flex flex-col gap-y-1 overflow-hidden flex-grow">
-                {Object.entries(data.records)
-                  .filter(
-                    ([tag, records]) => Object.keys(records[0]).length > 0,
-                  )
-                  .map(([tag, records]) => (
-                    <RecordTable key={tag} tag={tag} />
-                  ))}
+              <div className="flex flex-grow flex-col gap-y-1 overflow-hidden">
+                {Object.entries(data.records).map(([tag, records]) => (
+                  <RecordTable key={tag} tag={tag} />
+                ))}
                 <div className="flex flex-row gap-x-1 md:w-2/3">
                   <ButtonAddField />
                   <ButtonRemoveField />
                   <ButtonOperations />
                 </div>
               </div>
-              <div className="flex flex-col min-w-[200px] gap-y-3">
+              <div className="flex min-w-[200px] flex-col gap-y-3">
                 <FormExportConfig />
                 <div className="md:mt-auto">
                   <ButtonExportFile files={files} />
@@ -80,8 +76,8 @@ export default function App() {
               </div>
             </>
           ) : mode === "batch" && files.length ? (
-            <div className="flex flex-col w-full gap-y-3">
-              <div className="flex flex-col gap-y-2 mx-auto w-full border rounded-md p-2">
+            <div className="flex w-full flex-col gap-y-3">
+              <div className="mx-auto flex w-full flex-col gap-y-2 rounded-md border p-2">
                 {files.map((file, index) => (
                   <BatchFileRow
                     key={index}
@@ -95,8 +91,8 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center w-full">
-              <Alert className="md:w-1/2 m-3 min-w-fit">
+            <div className="flex w-full items-center justify-center">
+              <Alert className="m-3 min-w-fit md:w-1/2">
                 <InfoCircledIcon />
                 <AlertTitle>No File Uploaded</AlertTitle>
                 <AlertDescription>
