@@ -60,7 +60,11 @@ export default function App() {
             <>
               <div className="flex flex-grow flex-col gap-y-1 overflow-hidden">
                 {Object.entries(data.records).map(([tag, records]) => (
-                  <RecordTable key={tag} tag={tag} />
+                  <RecordTable
+                    key={tag + Date.now()}
+                    tag={tag}
+                    records={records}
+                  />
                 ))}
                 <div className="flex flex-row gap-x-1 md:w-2/3">
                   <ButtonAddField />

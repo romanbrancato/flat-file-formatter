@@ -29,9 +29,9 @@ export function removeField(data: Data, operation: Operation): Data {
 export function addField(data: Data, operation: Operation): Data {
   if (operation.operation !== "add") return data;
 
-  const { flag, fields, after } = operation;
+  const { tag, fields, after } = operation;
 
-  const updatedRecords = data.records[flag].map((record) => {
+  const updatedRecords = data.records[tag].map((record) => {
     const newRecord = { ...record };
 
     fields.forEach(({ name, value }) => {
@@ -59,7 +59,7 @@ export function addField(data: Data, operation: Operation): Data {
     return newRecord;
   });
 
-  return { ...data, records: { ...data.records, [flag]: updatedRecords } };
+  return { ...data, records: { ...data.records, [tag]: updatedRecords } };
 }
 
 export function orderFields(data: Data, tag: string, order: string[]): Data {
@@ -78,10 +78,10 @@ export function orderFields(data: Data, tag: string, order: string[]): Data {
 export function evaluateConditions(data: Data, operation: Operation): Data {
   if (operation.operation !== "conditional") return data;
 
-  const { conditions, actionTrue, actionFalse } = operation;
-  let updatedRecords: { [key: string]: any } = { ...data.records, detail: [] };
+  const { tag, conditions, actionTrue, actionFalse } = operation;
+  let updatedRecords: { [key: string]: any } = { ...data.records, [tag]: [] };
 
-  data.records.detail.forEach((record) => {
+  data.records[tag].forEach((record) => {
     const allConditionsPass = conditions.every((condition) =>
       evaluateCondition(record, condition),
     );
@@ -89,7 +89,7 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
 
     switch (action.action) {
       case "setValue":
-        updatedRecords.detail.push({
+        updatedRecords[tag].push({
           ...record,
           [action.field.name]: (() => {
             if (action.value.startsWith("{") && action.value.endsWith("}")) {
@@ -116,11 +116,11 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
         action.secondRecord.forEach((field) => {
           secondRecord[field.field.name] = field.value;
         });
-        updatedRecords.detail.push(firstRecord, secondRecord);
+        updatedRecords[tag].push(firstRecord, secondRecord);
         break;
 
       case "nothing":
-        updatedRecords.detail.push(record);
+        updatedRecords[tag].push(record);
         break;
     }
   });
@@ -130,12 +130,12 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
 
 export function evaluateEquation(data: Data, operation: Operation): Data {
   if (operation.operation !== "equation") return data;
-  const { direction, equation, output } = operation;
+  const { tag, direction, equation, output } = operation;
 
   if (direction === "column") {
     let total = 0;
 
-    data.records.detail.forEach((record) => {
+    data.records[tag].forEach((record) => {
       equation.forEach((item) => {
         const value = Number(record[item.field.name]);
         if (!isNaN(value)) {
@@ -161,7 +161,7 @@ export function evaluateEquation(data: Data, operation: Operation): Data {
   }
 
   if (direction === "row") {
-    const updatedRecord = data.records.detail.map((record) => {
+    const updatedRecord = data.records[tag].map((record) => {
       let total = 0;
 
       equation.forEach((item) => {
@@ -185,7 +185,7 @@ export function evaluateEquation(data: Data, operation: Operation): Data {
       ...data,
       records: {
         ...data.records,
-        detail: updatedRecord,
+        [tag]: updatedRecord,
       },
     };
   }
@@ -196,9 +196,9 @@ export function evaluateEquation(data: Data, operation: Operation): Data {
 export function reformatData(data: Data, operation: Operation): Data {
   if (operation.operation !== "reformat") return data;
 
-  const { fields, reformat } = operation;
+  const { tag, fields, reformat } = operation;
 
-  const updatedRecord = data.records.detail.map((record) => {
+  const updatedRecord = data.records[tag].map((record) => {
     let updatedFields = { ...record };
 
     fields.forEach((field) => {
@@ -231,7 +231,7 @@ export function reformatData(data: Data, operation: Operation): Data {
     ...data,
     records: {
       ...data.records,
-      detail: updatedRecord,
+      [tag]: updatedRecord,
     },
   };
 }

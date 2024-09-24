@@ -18,10 +18,10 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
-import { SelectFlag } from "@/components/select-flag";
+import { SelectTag } from "@/components/select-tag";
 import { SelectField } from "@/components/select-field";
 import { Operation, OperationSchema } from "@/types/schemas";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
@@ -35,7 +35,7 @@ export function ButtonAddField() {
     resolver: zodResolver(OperationSchema),
     defaultValues: {
       operation: "add",
-      flag: "detail",
+      tag: "detail",
       fields: [{ name: "", value: "" }],
       after: null,
     },
@@ -44,6 +44,11 @@ export function ButtonAddField() {
   const { fields, append, remove } = useFieldArray({
     name: `fields`,
     control: form.control,
+  });
+
+  const tag = useWatch({
+    control: form.control,
+    name: "tag",
   });
 
   function onSubmit(values: Operation) {
@@ -88,15 +93,15 @@ export function ButtonAddField() {
           >
             <FormField
               control={form.control}
-              name="flag"
+              name="tag"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <SelectFlag
+                    <SelectTag
                       label="Add To"
-                      selectedFlag={field.value}
-                      onFlagSelect={(flag: string) => {
-                        field.onChange(flag);
+                      selectedTag={field.value}
+                      onTagSelect={(tag: string) => {
+                        field.onChange(tag);
                       }}
                     />
                   </FormControl>
@@ -167,6 +172,7 @@ export function ButtonAddField() {
                     <SelectField
                       selectedField={field.value}
                       label="Add After"
+                      filter={[tag]}
                       onFieldSelect={(selectedField) => {
                         field.onChange(selectedField);
                       }}

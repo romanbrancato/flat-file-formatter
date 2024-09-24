@@ -1,4 +1,4 @@
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import {
   FormControl,
@@ -19,6 +19,12 @@ export function FormEquation() {
     name: `equation`,
     control: control,
   });
+
+  const tag = useWatch({
+    control: control,
+    name: "tag",
+  });
+
   return (
     <div className="space-y-1">
       <FormField
@@ -71,6 +77,7 @@ export function FormEquation() {
                     <FormControl>
                       <SelectField
                         selectedField={field.value as Field}
+                        filter={[tag]}
                         onFieldSelect={(selectedField) => {
                           field.onChange(selectedField);
                         }}

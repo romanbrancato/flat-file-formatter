@@ -26,6 +26,12 @@ export function FormReformat() {
     control: control,
     name: "reformat.type",
   });
+
+  const tag = useWatch({
+    control: control,
+    name: "tag",
+  });
+
   return (
     <div className="space-y-1">
       <ScrollArea>
@@ -43,6 +49,7 @@ export function FormReformat() {
                     <FormControl>
                       <SelectField
                         selectedField={field.value as Field}
+                        filter={tag}
                         onFieldSelect={(selectedField) => {
                           field.onChange(selectedField);
                         }}

@@ -56,7 +56,7 @@ export function ButtonRemoveField() {
       },
     });
     setOpen(false);
-    form.reset({ fields: [] });
+    form.reset();
   }
 
   return (

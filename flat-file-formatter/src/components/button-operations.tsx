@@ -26,6 +26,7 @@ import { FormConditional } from "@/components/forms/form-conditional";
 import { FormEquation } from "@/components/forms/form-equation";
 import { FormReformat } from "@/components/forms/form-reformat";
 import { Separator } from "@/components/ui/separator";
+import { SelectTag } from "@/components/select-tag";
 
 export function ButtonOperations() {
   const { isReady, evaluateConditions, evaluateEquation, reformatData } =
@@ -36,6 +37,7 @@ export function ButtonOperations() {
     resolver: zodResolver(OperationSchema),
     defaultValues: {
       operation: "",
+      tag: "detail",
       conditions: [
         { statement: "if", field: null, comparison: "=", value: "" },
       ],
@@ -114,7 +116,29 @@ export function ButtonOperations() {
                   </FormItem>
                 )}
               />
-              {operation != "" && <Separator />}
+              {operation != "" && (
+                <>
+                  <Separator />
+                  <FormField
+                    control={form.control}
+                    name="tag"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <SelectTag
+                            label="Tag"
+                            selectedTag={field.value}
+                            onTagSelect={(tag: string) => {
+                              field.onChange(tag);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
               {operation === "conditional" && <FormConditional />}
               {operation === "equation" && <FormEquation />}
               {operation === "reformat" && <FormReformat />}

@@ -104,7 +104,7 @@ export const ReformatSchema = z.discriminatedUnion("type", [
 export const OperationSchema = z.discriminatedUnion("operation", [
   z.object({
     operation: z.literal("add"),
-    flag: z.string(),
+    tag: z.string(),
     fields: z.array(
       z.object({
         name: z.string().min(1, "Enter a field name."),
@@ -119,6 +119,7 @@ export const OperationSchema = z.discriminatedUnion("operation", [
   }),
   z.object({
     operation: z.literal("conditional"),
+    tag: z.string(),
     conditions: z.array(
       z.object({
         statement: z.enum(["if", "if not"]),
@@ -132,6 +133,7 @@ export const OperationSchema = z.discriminatedUnion("operation", [
   }),
   z.object({
     operation: z.literal("equation"),
+    tag: z.string(),
     direction: z.enum(["row", "column"]),
     equation: z.array(
       z.object({
@@ -143,6 +145,7 @@ export const OperationSchema = z.discriminatedUnion("operation", [
   }),
   z.object({
     operation: z.literal("reformat"),
+    tag: z.string(),
     fields: z.array(FieldSchema),
     reformat: ReformatSchema,
   }),

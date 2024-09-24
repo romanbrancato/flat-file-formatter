@@ -18,6 +18,11 @@ const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
     name: `action${actionType}.action`,
   });
 
+  const tag = useWatch({
+    control: control,
+    name: "tag",
+  });
+
   return (
     <>
       <FormField
@@ -50,6 +55,7 @@ const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
                 <FormControl>
                   <SelectField
                     selectedField={field.value as Field}
+                    filter={tag}
                     onFieldSelect={(selectedField) => {
                       field.onChange(selectedField);
                     }}

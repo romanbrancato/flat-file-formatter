@@ -1,4 +1,4 @@
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import {
   Accordion,
   AccordionContent,
@@ -31,6 +31,11 @@ function AccordionItemComponent({
     control: control,
   });
 
+  const tag = useWatch({
+    control: control,
+    name: "tag",
+  });
+
   return (
     <AccordionItem value={record}>
       <AccordionTrigger className="flex text-xs font-normal text-muted-foreground">
@@ -53,6 +58,7 @@ function AccordionItemComponent({
                       <FormControl>
                         <SelectField
                           selectedField={field.value as Field}
+                          filter={tag}
                           onFieldSelect={(selectedField) => {
                             field.onChange(selectedField);
                           }}

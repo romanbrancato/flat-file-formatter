@@ -13,13 +13,18 @@ import { Input } from "@/components/ui/input";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { FormActions } from "@/components/forms/form-actions";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
 export function FormConditional() {
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     name: `conditions`,
     control: control,
+  });
+
+  const tag = useWatch({
+    control: control,
+    name: "tag",
   });
 
   return (
@@ -56,6 +61,7 @@ export function FormConditional() {
                     <FormControl>
                       <SelectField
                         selectedField={field.value as Field}
+                        filter={[tag]}
                         onFieldSelect={(selectedField) => {
                           field.onChange(selectedField);
                         }}
