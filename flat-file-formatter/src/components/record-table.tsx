@@ -59,9 +59,7 @@ const DraggableTableHeader = ({ header }: any) => {
     >
       {header.isPlaceholder ? null : (
         <div className="flex flex-row items-center">
-          <span>
-            {flexRender(header.column.columnDef.header, header.getContext())}{" "}
-          </span>
+          {flexRender(header.column.columnDef.header, header.getContext())}
           <DragHandleDots2Icon className="ml-auto" />
         </div>
       )}

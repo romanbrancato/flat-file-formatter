@@ -76,15 +76,9 @@ export function FormDefineWidths() {
   return (
     <Accordion type="single" collapsible>
       {Object.entries(data.records)
-        .filter(
-          ([, records]) => records.length && Object.keys(records[0]).length,
-        )
+        .filter(([, records]) => records.fields.length)
         .map(([tag, records]) => (
-          <AccordionItemComponent
-            tag={tag}
-            fields={Object.keys(records[0])}
-            key={tag}
-          />
+          <AccordionItemComponent tag={tag} fields={records.fields} key={tag} />
         ))}
     </Accordion>
   );

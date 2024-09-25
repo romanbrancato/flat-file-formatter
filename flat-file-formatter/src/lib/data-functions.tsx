@@ -37,7 +37,7 @@ export function addField(data: Data, operation: Operation): Data {
   const records = data.records[tag];
   if (!records) return data;
 
-  const insertIndex = after
+  let insertIndex = after
     ? records.fields.findIndex((field) => field === after.name) + 1
     : 0;
 
@@ -54,6 +54,7 @@ export function addField(data: Data, operation: Operation): Data {
     records.rows.forEach((row, rowIndex) => {
       row.splice(insertIndex, 0, resolvedValue[rowIndex]);
     });
+    insertIndex++;
   });
 
   return { ...data, records: { ...data.records } };
@@ -75,7 +76,7 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
   const { tag, conditions, actionTrue, actionFalse } = operation;
   const records = data.records[tag];
 
-  records.rows.flatMap((row) => {
+  records.rows = records.rows.flatMap((row) => {
     const allConditionsPass = conditions.every((condition) =>
       evaluateCondition(records.fields, row, condition),
     );

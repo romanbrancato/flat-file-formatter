@@ -14,90 +14,93 @@ export type ParserParams = z.infer<typeof ParserParams>;
 
 export async function parseFile(params: ParserParams) {
   return new Promise<Data>((resolve, reject) => {
-    if (params.config.format === "delimited") {
-      const config: Papa.ParseLocalConfig<unknown, any> = {
-        skipEmptyLines: true,
-        complete: (results) => {
-          const [fields, ...rows] = results.data as string[][];
+    switch (params.config.format) {
+      case "delimited":
+        const config: Papa.ParseLocalConfig<unknown, any> = {
+          skipEmptyLines: true,
+          complete: (results) => {
+            const [fields, ...rows] = results.data as string[][];
 
-          // Replace sole spaces with empty strings to avoid quoting issues in output
-          const cleanedRows = rows.map((row: string[]) =>
-            row.map((cell) => (cell.trim() === "" ? "" : cell.trim())),
-          );
+            // Replace sole spaces with empty strings to avoid quoting issues in output
+            const cleanedRows = rows.map((row: string[]) =>
+              row.map((cell) => (cell.trim() === "" ? "" : cell.trim())),
+            );
+
+            resolve({
+              name: path.parse(params.file.name).name,
+              records: {
+                detail: {
+                  fields: fields,
+                  rows: cleanedRows,
+                },
+              },
+            });
+          },
+        };
+        Papa.parse(params.file, config);
+        break;
+
+      case "fixed":
+        const reader = new FileReader();
+        const {
+          header: configHeader,
+          detail: configDetail,
+          trailer: configTrailer,
+        } = params.config;
+
+        reader.onload = (event) => {
+          const fileContents = event.target?.result as string;
+
+          // Split the file contents into lines
+          const lines = fileContents.split(/\r?\n/);
+
+          // Find the header record
+          let headerRecord = "";
+          for (let i = 0; i < lines.length; i++) {
+            if (lines[i] !== "") {
+              headerRecord = lines[i];
+              break;
+            }
+          }
+
+          // Find the trailer record
+          let trailerRecord = "";
+          for (let j = lines.length - 1; j >= 0; j--) {
+            if (lines[j] !== "") {
+              trailerRecord = lines[j];
+              break;
+            }
+          }
+
+          // Collect detail records as a single string with new lines
+          let detailRecords = "";
+          for (
+            let k = lines.indexOf(headerRecord) + 1;
+            k < lines.lastIndexOf(trailerRecord);
+            k++
+          ) {
+            if (lines[k] !== "") {
+              detailRecords += lines[k] + "\n";
+            }
+          }
 
           resolve({
             name: path.parse(params.file.name).name,
             records: {
-              detail: {
-                fields: fields,
-                rows: cleanedRows,
-              },
+              header:
+                configHeader && configHeader?.fields.length > 0
+                  ? parse(headerRecord, configHeader as Options)
+                  : [{}],
+              detail: parse(detailRecords, configDetail as Options),
+              trailer:
+                configTrailer && configTrailer?.fields.length > 0
+                  ? parse(trailerRecord, configTrailer as Options)
+                  : [{}],
             },
           });
-        },
-      };
-      Papa.parse(params.file, config);
-    } else if (params.config.format === "fixed") {
-      const reader = new FileReader();
-      const {
-        header: configHeader,
-        detail: configDetail,
-        trailer: configTrailer,
-      } = params.config;
+        };
 
-      reader.onload = (event) => {
-        const fileContents = event.target?.result as string;
-
-        // Split the file contents into lines
-        const lines = fileContents.split(/\r?\n/);
-
-        // Find the header record
-        let headerRecord = "";
-        for (let i = 0; i < lines.length; i++) {
-          if (lines[i] !== "") {
-            headerRecord = lines[i];
-            break;
-          }
-        }
-
-        // Find the trailer record
-        let trailerRecord = "";
-        for (let j = lines.length - 1; j >= 0; j--) {
-          if (lines[j] !== "") {
-            trailerRecord = lines[j];
-            break;
-          }
-        }
-
-        // Collect detail records as a single string with new lines
-        let detailRecords = "";
-        for (
-          let k = lines.indexOf(headerRecord) + 1;
-          k < lines.lastIndexOf(trailerRecord);
-          k++
-        ) {
-          if (lines[k] !== "") {
-            detailRecords += lines[k] + "\n";
-          }
-        }
-
-        resolve({
-          name: path.parse(params.file.name).name,
-          records: {
-            header:
-              configHeader && configHeader?.fields.length > 0
-                ? parse(headerRecord, configHeader as Options)
-                : [{}],
-            detail: parse(detailRecords, configDetail as Options),
-            trailer:
-              configTrailer && configTrailer?.fields.length > 0
-                ? parse(trailerRecord, configTrailer as Options)
-                : [{}],
-          },
-        });
-      };
-
-      reader.readAsText(params.file);
+        reader.readAsText(params.file);
     }
   });
 }
@@ -110,38 +113,47 @@ export function unparseData(
     const flatData: Record<string, string> = {};
 
     Object.entries(data.records)
-      .filter(([tag, records]) => Object.keys(records[0]).length > 0)
+      .filter(([tag, records]) => records.fields.length > 0)
       .forEach(([tag, records]) => {
         flatData[tag] =
           preset.formatSpec.format === "delimited"
-            ? Papa.unparse(records, {
-                delimiter: preset.formatSpec.delimiter,
-                skipEmptyLines: true,
-              })
+            ? Papa.unparse(
+                { fields: records.fields, data: records.rows },
+                {
+                  delimiter: preset.formatSpec.delimiter,
+                  skipEmptyLines: true,
+                },
+              )
             : preset.formatSpec.format === "fixed"
-              ? stringify(records, {
-                  pad: preset.formatSpec.pad,
-                  fields: Object.keys(data.records[tag][0]).map((key) => {
-                    const width =
-                      preset.formatSpec.format === "fixed"
-                        ? (preset.formatSpec.widths[tag]?.[key] ??
-                          preset.formatSpec.widths?.detail[key])
-                        : undefined;
-
-                    if (!width) {
-                      throw new Error(`No width found for key ${key}`);
-                    }
-
-                    return {
-                      property: key,
-                      width: width,
-                      align:
+              ? stringify(
+                  records.rows.map((row) =>
+                    Object.fromEntries(
+                      records.fields.map((field, index) => [field, row[index]]),
+                    ),
+                  ),
+                  {
+                    pad: preset.formatSpec.pad,
+                    fields: records.fields.map((field) => {
+                      const width =
                         preset.formatSpec.format === "fixed"
-                          ? preset.formatSpec.align
-                          : "left",
-                    };
-                  }),
-                })
+                          ? preset.formatSpec.widths[tag]?.[field]
+                          : undefined;
+
+                      if (!width) {
+                        throw new Error(`No width found for ${field}`);
+                      }
+
+                      return {
+                        property: field,
+                        width: width,
+                        align:
+                          preset.formatSpec.format === "fixed"
+                            ? preset.formatSpec.align
+                            : "left",
+                      };
+                    }),
+                  },
+                )
               : "";
       });
 
