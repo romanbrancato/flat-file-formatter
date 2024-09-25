@@ -125,6 +125,31 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
     }
   });
 
+  // BELOW CODE IS GHETTO FOR ENSURING FIELDS ARE INHERITED FOR WIDTH DEFINITIONS AND ORDER PURPOSES
+  if (operation.operation === "conditional" && actionTrue.action === "separate" && !updatedRecords[actionTrue.tag]) {
+    const blankRecord = Object.keys(data.records[tag][0] || {}).reduce((acc, key) => {
+      acc[key] = "";
+      return acc;
+    }, {} as Record<string, string>);
+    updatedRecords[actionTrue.tag] = [blankRecord];
+  }
+
+  if (operation.operation === "conditional" && actionFalse.action === "separate" && !updatedRecords[actionFalse.tag]) {
+    const blankRecord = Object.keys(data.records[tag][0] || {}).reduce((acc, key) => {
+      acc[key] = "";
+      return acc;
+    }, {} as Record<string, string>);
+    updatedRecords[actionFalse.tag] = [blankRecord];
+  }
+
+  if(updatedRecords[tag].length === 0) {
+    const blankRecord = Object.keys(data.records[tag][0] || {}).reduce((acc, key) => {
+      acc[key] = "";
+      return acc;
+    }, {} as Record<string, string>);
+    updatedRecords[tag] = [blankRecord];
+  }
+
   return { ...data, records: updatedRecords };
 }
 
