@@ -59,14 +59,12 @@ export function addField(data: Data, operation: Operation): Data {
   return { ...data, records: { ...data.records } };
 }
 
-export function orderFields(data: Data, tag: string, order: string[]): Data {
+export function orderFields(data: Data, tag: string, order: number[]): Data {
   const record = data.records[tag];
   if (!record) return data;
 
-  record.fields = order.map((index) => record.fields[Number(index)]);
-  record.rows = record.rows.map((row) =>
-    order.map((index) => row[Number(index)]),
-  );
+  record.fields = order.map((index) => record.fields[index]);
+  record.rows = record.rows.map((row) => order.map((index) => row[index]));
 
   return { ...data, records: { ...data.records } };
 }
@@ -159,43 +157,35 @@ export function reformatData(data: Data, operation: Operation): Data {
   if (operation.operation !== "reformat") return data;
 
   const { tag, fields, reformat } = operation;
+  const records = data.records[tag];
+  if (!records) return data;
 
-  const updatedRecord = data.records[tag].map((record) => {
-    let updatedFields = { ...record };
-
+  records.rows = records.rows.map((row) => {
     fields.forEach((field) => {
+      const fieldIndex = records.fields.indexOf(field.name);
+      if (fieldIndex === -1) return;
+
       switch (reformat.type) {
         case "date":
-          updatedFields[field.name] = format(
-            new Date(record[field.name] as string),
-            reformat.pattern,
-          );
+          row[fieldIndex] = format(new Date(row[fieldIndex]), reformat.pattern);
           break;
         case "number":
           switch (reformat.from) {
             case "scientific":
-              updatedFields[field.name] = Number(record[field.name]).toString();
+              row[fieldIndex] = Number(row[fieldIndex]).toString();
               break;
             case "overpunch":
-              updatedFields[field.name] = Number(
-                extract(record[field.name]),
-              ).toString();
+              row[fieldIndex] = Number(extract(row[fieldIndex])).toString();
               break;
           }
           break;
       }
     });
 
-    return updatedFields;
+    return row;
   });
 
-  return {
-    ...data,
-    records: {
-      ...data.records,
-      [tag]: updatedRecord,
-    },
-  };
+  return { ...data, records: { ...data.records } };
 }
 
 export function applyPreset(data: Data, changes: Changes): Data {
@@ -219,11 +209,16 @@ export function applyPreset(data: Data, changes: Changes): Data {
     }
   });
 
-  Object.entries(changes.order).forEach(([tag, order]) => {
-    data = orderFields(data, tag, order);
+  Object.keys(data.records).forEach((tag) => {
+    const orderIndices = changes.order?.[tag]?.map((field) =>
+      data.records[tag].fields.indexOf(field),
+    );
+    if (orderIndices) {
+      data = orderFields(data, tag, orderIndices);
+    }
   });
 
   data.name = applyPattern(data.name, changes.pattern);
 
-  return data;
+  return { ...data };
 }

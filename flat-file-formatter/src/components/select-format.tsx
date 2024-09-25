@@ -12,13 +12,13 @@ export function SelectFormat({
     <RadioGroup
       value={selectedFormat}
       onValueChange={(format: "fixed" | "delimited") => onFormatSelect(format)}
-      className="flex flex-row items-center w-full"
+      className="flex w-full flex-row items-center"
     >
       <div className="flex-1">
         <RadioGroupItem value="fixed" id="fixed" className="peer sr-only" />
         <Label
           htmlFor="fixed"
-          className="flex flex-col items-center justify-between rounded-md border border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+          className="flex flex-col items-center justify-between rounded-md border border-muted bg-popover p-2 peer-data-[state=checked]:border-primary hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
         >
           Fixed
         </Label>
@@ -31,7 +31,7 @@ export function SelectFormat({
         />
         <Label
           htmlFor="delimited"
-          className="flex flex-col items-center justify-between rounded-md border border-muted bg-popover p-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+          className="flex flex-col items-center justify-between rounded-md border border-muted bg-popover p-2 peer-data-[state=checked]:border-primary hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
         >
           Delimited
         </Label>

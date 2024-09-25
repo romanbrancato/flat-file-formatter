@@ -45,12 +45,11 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
       name: values.name,
       changes: {
         ...preset.changes,
-        order: Object.entries(data.records).reduce(
-          (acc: Record<string, string[]>, key) => {
-            acc[key] = Object.keys(data.records[key][0]);
-            return acc;
-          },
-          {},
+        order: Object.fromEntries(
+          Object.entries(data.records).map(([key, record]) => [
+            key,
+            record.fields,
+          ]),
         ),
       },
     };
