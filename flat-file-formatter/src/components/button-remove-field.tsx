@@ -37,7 +37,7 @@ export function ButtonRemoveField() {
     resolver: zodResolver(OperationSchema),
     defaultValues: {
       operation: "remove",
-      fields: [{ flag: "", name: "" }],
+      fields: [{ tag: "", name: "" }],
     },
   });
 
@@ -120,7 +120,7 @@ export function ButtonRemoveField() {
               className="w-full border-dashed"
               onClick={(event) => {
                 event.preventDefault();
-                append({ flag: "", name: "" });
+                append({ tag: "", name: "" });
               }}
             >
               <PlusCircledIcon className="mr-2" />

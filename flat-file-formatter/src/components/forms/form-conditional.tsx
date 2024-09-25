@@ -116,7 +116,7 @@ export function FormConditional() {
           event.preventDefault();
           append({
             statement: "if",
-            field: { name: "", flag: "" },
+            field: { name: "", tag: "" },
             comparison: "=",
             value: "",
           });

@@ -25,12 +25,16 @@ export function FormEquation() {
     name: "tag",
   });
 
+  const direction = useWatch({
+    control: control,
+    name: "direction",
+  });
+
   return (
     <div className="space-y-1">
       <FormField
         control={control}
         name="direction"
-        defaultValue={"row"}
         render={({ field }) => (
           <FormItem>
             <FormControl>
@@ -103,7 +107,7 @@ export function FormEquation() {
           event.preventDefault();
           append({
             operator: "+",
-            field: { name: "", flag: "" },
+            field: { name: "", tag: "" },
           });
         }}
       >
@@ -119,6 +123,7 @@ export function FormEquation() {
               <FormControl>
                 <SelectField
                   selectedField={field.value as Field}
+                  filter={direction === "row" ? [tag] : undefined}
                   onFieldSelect={(selectedField) => {
                     field.onChange(selectedField);
                   }}

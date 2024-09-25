@@ -92,19 +92,19 @@ const DraggableCell = ({ cell }: any) => {
 
 export function RecordTable({
   tag,
-  records,
+  fields,
+  rows,
 }: {
   tag: string;
-  records: Record<string, string>[];
+  fields: string[];
+  rows: string[][];
 }) {
   const { orderFields } = useContext(ParserContext);
-  const [columns, setColumns] = useState<ColumnDef<Record<string, string>>[]>(
-    [],
-  );
+  const [columns, setColumns] = useState<ColumnDef<string[], string>[]>([]);
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
 
   const table = useReactTable({
-    data: records,
+    data: rows,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -119,25 +119,28 @@ export function RecordTable({
   });
 
   useEffect(() => {
-    if (records.length > 0) {
-      const newColumns = Object.keys(records[0]).map((field) => ({
-        accessorKey: field,
+    if (fields.length > 0) {
+      const newColumns = fields.map((field, index) => ({
+        accessorKey: index.toString(),
         header: field,
       }));
       setColumns(newColumns);
       setColumnOrder(newColumns.map((c) => c.accessorKey!));
     }
-  }, [records]);
+  }, [fields]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      const oldIndex = columnOrder.indexOf(active.id as string);
-      const newIndex = columnOrder.indexOf(over.id as string);
-      const order = arrayMove(columnOrder, oldIndex, newIndex);
-      setColumnOrder(order);
-      orderFields(tag, order);
-    }
+    if (!active || !over || active.id === over.id) return;
+
+    const order = arrayMove(
+      columnOrder,
+      columnOrder.indexOf(active.id as string),
+      columnOrder.indexOf(over.id as string),
+    );
+
+    setColumnOrder(order);
+    orderFields(tag, order);
   }
 
   const sensors = useSensors(

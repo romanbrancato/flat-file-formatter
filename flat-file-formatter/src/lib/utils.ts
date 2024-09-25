@@ -23,13 +23,14 @@ export function tokenize(fileName: string): string[] {
 }
 
 export function evaluateCondition(
-  record: Record<string, string>,
+  fields: string[],
+  row: string[],
   condition: any,
 ): boolean {
-  const leftVal = record[condition.field.name];
+  const leftVal = row[fields.indexOf(condition.field.name)];
   const rightVal =
     condition.value.startsWith("{") && condition.value.endsWith("}")
-      ? record[condition.value.slice(1, -1).trim()]
+      ? row[fields.indexOf(condition.value.slice(1, -1).trim())]
       : condition.value;
 
   let conditionPasses = false;

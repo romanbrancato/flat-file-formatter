@@ -38,11 +38,12 @@ export function ButtonOperations() {
     defaultValues: {
       operation: "",
       tag: "detail",
+      direction: "row",
       conditions: [
         { statement: "if", field: null, comparison: "=", value: "" },
       ],
       equation: [{ operator: "+", field: null }],
-      fields: [{ flag: "", name: "" }],
+      fields: [{ tag: "", name: "" }],
     },
   });
 

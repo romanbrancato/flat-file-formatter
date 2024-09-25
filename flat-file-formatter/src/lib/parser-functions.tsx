@@ -16,25 +16,22 @@ export async function parseFile(params: ParserParams) {
   return new Promise<Data>((resolve, reject) => {
     if (params.config.format === "delimited") {
       const config: Papa.ParseLocalConfig<unknown, any> = {
-        header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          // Replaces any pure string values with empty strings
-          const cleanedData: Record<string, string>[] = (
-            results.data as Record<string, string>[]
-          ).map((row) => {
-            Object.keys(row).forEach((key) => {
-              row[key] = row[key].trim() === "" ? "" : row[key];
-            });
-            return row;
-          });
+          const [fields, ...rows] = results.data as string[][];
+
+          // Replace sole spaces with empty strings to avoid quoting issues in output
+          const cleanedRows = rows.map((row: string[]) =>
+            row.map((cell) => (cell.trim() === "" ? "" : cell.trim())),
+          );
 
           resolve({
             name: path.parse(params.file.name).name,
             records: {
-              header: [{}],
-              detail: cleanedData,
-              trailer: [{}],
+              detail: {
+                fields: fields,
+                rows: cleanedRows,
+              },
             },
           });
         },

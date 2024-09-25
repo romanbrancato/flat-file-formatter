@@ -52,7 +52,7 @@ function AccordionItemComponent({
                 <FormField
                   control={control}
                   name={`action${actionType}.${record}Record.${index}.field`}
-                  defaultValue={{ name: "", flag: "" }}
+                  defaultValue={{ name: "", tag: "" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -96,7 +96,7 @@ function AccordionItemComponent({
           onClick={(event) => {
             event.preventDefault();
             append({
-              field: { name: "", flag: "" },
+              field: { name: "", tag: "" },
               value: "",
             });
           }}
