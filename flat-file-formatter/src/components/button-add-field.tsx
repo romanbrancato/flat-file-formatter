@@ -7,9 +7,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { PlusCircledIcon } from "@radix-ui/react-icons";
+import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Input } from "@/components/ui/input";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -18,12 +18,13 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
-import { SelectFlag } from "@/components/select-flag";
+import { SelectTag } from "@/components/select-tag";
 import { SelectField } from "@/components/select-field";
-import { Field, Operation, OperationSchema } from "@/types/schemas";
+import { Operation, OperationSchema } from "@/types/schemas";
+import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
 export function ButtonAddField() {
   const { isReady, addField } = useContext(ParserContext);
@@ -34,11 +35,20 @@ export function ButtonAddField() {
     resolver: zodResolver(OperationSchema),
     defaultValues: {
       operation: "add",
-      flag: "detail",
-      name: "",
-      value: "",
+      tag: "detail",
+      fields: [{ name: "", value: "" }],
       after: null,
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    name: `fields`,
+    control: form.control,
+  });
+
+  const tag = useWatch({
+    control: form.control,
+    name: "tag",
   });
 
   function onSubmit(values: Operation) {
@@ -53,10 +63,7 @@ export function ButtonAddField() {
     });
 
     setOpen(false);
-    form.reset({
-      operation: "add",
-      after: { flag: values.flag, name: values.name },
-    });
+    form.reset();
   }
 
   return (
@@ -72,7 +79,7 @@ export function ButtonAddField() {
           Add Field
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[800px]">
+      <DialogContent className="max-h-[800px] sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Add Field</DialogTitle>
           <DialogDescription>
@@ -82,19 +89,19 @@ export function ButtonAddField() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-y-2"
+            className="flex flex-col gap-y-1"
           >
             <FormField
               control={form.control}
-              name="flag"
+              name="tag"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <SelectFlag
+                    <SelectTag
                       label="Add To"
-                      selectedFlag={field.value}
-                      onFlagSelect={(flag: string) => {
-                        field.onChange(flag);
+                      selectedTag={field.value}
+                      onTagSelect={(tag: string) => {
+                        field.onChange(tag);
                       }}
                     />
                   </FormControl>
@@ -102,30 +109,60 @@ export function ButtonAddField() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input placeholder="Name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="value"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input placeholder="Populate with..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <ScrollArea>
+              <ScrollAreaViewport className="max-h-[400px]">
+                {fields.map((field, index) => (
+                  <div
+                    key={field.id}
+                    className="mr-4 flex flex-row items-center gap-x-2"
+                  >
+                    <FormField
+                      control={form.control}
+                      name={`fields.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <Input placeholder="Name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`fields.${index}.value`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <Input placeholder="Populate with..." {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Cross2Icon
+                      className="ml-auto opacity-70 hover:text-destructive"
+                      onClick={() => remove(index)}
+                    />
+                  </div>
+                ))}
+              </ScrollAreaViewport>
+            </ScrollArea>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full border-dashed"
+              onClick={(event) => {
+                event.preventDefault();
+                append({
+                  name: "",
+                  value: "",
+                });
+              }}
+            >
+              <PlusCircledIcon className="mr-2" />
+              Add Field
+            </Button>
             <FormField
               control={form.control}
               name="after"
@@ -135,6 +172,7 @@ export function ButtonAddField() {
                     <SelectField
                       selectedField={field.value}
                       label="Add After"
+                      filter={[tag]}
                       onFieldSelect={(selectedField) => {
                         field.onChange(selectedField);
                       }}
@@ -144,7 +182,7 @@ export function ButtonAddField() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-1/3 ml-auto">
+            <Button type="submit" className="ml-auto w-1/3">
               Add
             </Button>
           </form>

@@ -90,15 +90,21 @@ const DraggableCell = ({ cell }: any) => {
   );
 };
 
-export function RecordTable({ tag }: { tag: string }) {
-  const { data, orderFields } = useContext(ParserContext);
+export function RecordTable({
+  tag,
+  records,
+}: {
+  tag: string;
+  records: Record<string, string>[];
+}) {
+  const { orderFields } = useContext(ParserContext);
   const [columns, setColumns] = useState<ColumnDef<Record<string, string>>[]>(
     [],
   );
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
 
   const table = useReactTable({
-    data: data.records[tag],
+    data: records,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -113,15 +119,15 @@ export function RecordTable({ tag }: { tag: string }) {
   });
 
   useEffect(() => {
-    if (data.records[tag].length > 0) {
-      const newColumns = Object.keys(data.records[tag][0]).map((field) => ({
+    if (records.length > 0) {
+      const newColumns = Object.keys(records[0]).map((field) => ({
         accessorKey: field,
         header: field,
       }));
       setColumns(newColumns);
       setColumnOrder(newColumns.map((c) => c.accessorKey!));
     }
-  }, [data]);
+  }, [records]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -145,7 +151,7 @@ export function RecordTable({ tag }: { tag: string }) {
       <span className="text-xs text-muted-foreground">
         {tag}: {table.getCoreRowModel().rows.length} Row(s)
       </span>
-      <div className="rounded-md border flex-grow overflow-hidden">
+      <div className="flex-grow overflow-hidden rounded-md border">
         <DndContext
           collisionDetection={closestCenter}
           modifiers={[restrictToHorizontalAxis]}
@@ -158,7 +164,6 @@ export function RecordTable({ tag }: { tag: string }) {
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     <SortableContext
-                      key={`${Date.now()}`} // EXTREMELY GHETTO FIX FOR FREEZING AFTER REMOVING A ROW
                       items={columnOrder}
                       strategy={horizontalListSortingStrategy}
                     >

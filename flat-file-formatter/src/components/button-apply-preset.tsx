@@ -6,14 +6,14 @@ import { useContext } from "react";
 
 export function ButtonApplyPreset() {
   const { preset } = useContext(PresetContext);
-  const { applyPreset } = useContext(ParserContext);
+  const { isReady, applyPreset } = useContext(ParserContext);
 
   return (
     <Button
       variant="ghost"
       size="icon"
       onClick={() => applyPreset(preset)}
-      disabled={!preset.name}
+      disabled={!preset.name || !isReady}
     >
       <MagicWandIcon />
     </Button>

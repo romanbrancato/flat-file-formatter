@@ -13,13 +13,18 @@ import { Input } from "@/components/ui/input";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { FormActions } from "@/components/forms/form-actions";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
 export function FormConditional() {
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     name: `conditions`,
     control: control,
+  });
+
+  const tag = useWatch({
+    control: control,
+    name: "tag",
   });
 
   return (
@@ -29,7 +34,7 @@ export function FormConditional() {
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex flex-row items-center gap-x-2 mt-1  mr-4"
+              className="mr-4 flex flex-row items-center gap-x-2"
             >
               <FormField
                 control={control}
@@ -56,6 +61,7 @@ export function FormConditional() {
                     <FormControl>
                       <SelectField
                         selectedField={field.value as Field}
+                        filter={[tag]}
                         onFieldSelect={(selectedField) => {
                           field.onChange(selectedField);
                         }}
@@ -95,7 +101,7 @@ export function FormConditional() {
                 )}
               />
               <Cross2Icon
-                className="hover:text-destructive ml-auto opacity-70 flex-shrink-0"
+                className="ml-auto flex-shrink-0 opacity-70 hover:text-destructive"
                 onClick={() => remove(index)}
               />
             </div>

@@ -1,4 +1,4 @@
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import {
   FormControl,
@@ -16,39 +16,45 @@ import { Button } from "@/components/ui/button";
 export function FormEquation() {
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
-    name: `formula`,
+    name: `equation`,
     control: control,
   });
+
+  const tag = useWatch({
+    control: control,
+    name: "tag",
+  });
+
   return (
     <div className="space-y-1">
+      <FormField
+        control={control}
+        name="direction"
+        defaultValue={"row"}
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <SelectDirection
+                selectedDirection={field.value as "row" | "column"}
+                onDirectionSelect={(direction) => {
+                  field.onChange(direction);
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       <ScrollArea>
         <ScrollAreaViewport className="max-h-[400px]">
-          <FormField
-            control={control}
-            name="direction"
-            defaultValue={"row"}
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <SelectDirection
-                    selectedDirection={field.value as "row" | "column"}
-                    onDirectionSelect={(direction) => {
-                      field.onChange(direction);
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex flex-row gap-x-2 mt-1 items-center"
+              className="mr-4 flex flex-row items-center gap-x-2"
             >
               <FormField
                 control={control}
-                name={`formula.${index}.operator`}
+                name={`equation.${index}.operator`}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -65,12 +71,13 @@ export function FormEquation() {
               />
               <FormField
                 control={control}
-                name={`formula.${index}.field`}
+                name={`equation.${index}.field`}
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormControl>
                       <SelectField
                         selectedField={field.value as Field}
+                        filter={[tag]}
                         onFieldSelect={(selectedField) => {
                           field.onChange(selectedField);
                         }}
@@ -81,7 +88,7 @@ export function FormEquation() {
                 )}
               />
               <Cross2Icon
-                className="hover:text-destructive ml-auto opacity-70"
+                className="ml-auto opacity-70 hover:text-destructive"
                 onClick={() => remove(index)}
               />
             </div>

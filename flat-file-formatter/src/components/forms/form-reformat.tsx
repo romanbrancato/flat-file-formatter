@@ -26,6 +26,12 @@ export function FormReformat() {
     control: control,
     name: "reformat.type",
   });
+
+  const tag = useWatch({
+    control: control,
+    name: "tag",
+  });
+
   return (
     <div className="space-y-1">
       <ScrollArea>
@@ -33,7 +39,7 @@ export function FormReformat() {
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex flex-row gap-x-2 mt-1 items-center"
+              className="mr-4 flex flex-row items-center gap-x-2"
             >
               <FormField
                 control={control}
@@ -43,6 +49,7 @@ export function FormReformat() {
                     <FormControl>
                       <SelectField
                         selectedField={field.value as Field}
+                        filter={tag}
                         onFieldSelect={(selectedField) => {
                           field.onChange(selectedField);
                         }}
@@ -53,7 +60,7 @@ export function FormReformat() {
                 )}
               />
               <Cross2Icon
-                className="hover:text-destructive ml-auto opacity-70"
+                className="ml-auto opacity-70 hover:text-destructive"
                 onClick={() => remove(index)}
               />
             </div>

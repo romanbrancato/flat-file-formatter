@@ -127,7 +127,8 @@ export function unparseData(
                   fields: Object.keys(data.records[tag][0]).map((key) => {
                     const width =
                       preset.formatSpec.format === "fixed"
-                        ? preset.formatSpec.widths[tag]?.[key]
+                        ? (preset.formatSpec.widths[tag]?.[key] ??
+                          preset.formatSpec.widths?.detail[key])
                         : undefined;
 
                     if (!width) {

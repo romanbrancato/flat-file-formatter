@@ -71,9 +71,9 @@ export function SelectField({
           role="combobox"
           aria-label="Select a field..."
           aria-expanded={open}
-          className="w-full justify-between min-w-[100px] sm:min-w-[300px]"
+          className="w-full min-w-[100px] justify-between sm:min-w-[300px]"
         >
-          <span className="font-normal text-xs text-muted-foreground">
+          <span className="text-xs font-normal text-muted-foreground">
             {label ? label : "Field"}:
           </span>
           {selectedField?.name ? selectedField.name : "Select a field..."}
@@ -89,7 +89,11 @@ export function SelectField({
           <ScrollArea>
             <ScrollAreaViewport className="max-h-[300px]">
               {Object.entries(data.records)
-                .filter(([tag, records]) => Object.keys(records[0]).length > 0)
+                .filter(
+                  ([tag, records]) =>
+                    Object.keys(records[0]).length > 0 &&
+                    (!filter || filter.includes(tag)),
+                )
                 .map(([tag, records]) => (
                   <CommandGroupComponent
                     flag={tag}

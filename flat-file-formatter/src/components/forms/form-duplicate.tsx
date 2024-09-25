@@ -1,4 +1,4 @@
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import {
   Accordion,
   AccordionContent,
@@ -31,6 +31,11 @@ function AccordionItemComponent({
     control: control,
   });
 
+  const tag = useWatch({
+    control: control,
+    name: "tag",
+  });
+
   return (
     <AccordionItem value={record}>
       <AccordionTrigger className="flex text-xs font-normal text-muted-foreground">
@@ -42,7 +47,7 @@ function AccordionItemComponent({
             {fields.map((field, index) => (
               <div
                 key={field.id}
-                className="flex flex-row items-center gap-x-2 mt-1 mr-4"
+                className="mr-4 flex flex-row items-center gap-x-2"
               >
                 <FormField
                   control={control}
@@ -53,6 +58,7 @@ function AccordionItemComponent({
                       <FormControl>
                         <SelectField
                           selectedField={field.value as Field}
+                          filter={tag}
                           onFieldSelect={(selectedField) => {
                             field.onChange(selectedField);
                           }}
@@ -76,7 +82,7 @@ function AccordionItemComponent({
                   )}
                 />
                 <Cross2Icon
-                  className="hover:text-destructive ml-auto opacity-70"
+                  className="ml-auto opacity-70 hover:text-destructive"
                   onClick={() => remove(index)}
                 />
               </div>
