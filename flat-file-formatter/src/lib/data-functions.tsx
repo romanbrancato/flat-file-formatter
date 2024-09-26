@@ -11,282 +11,216 @@ export function applyPattern(originalName: string, pattern = ""): string {
   });
 }
 
-export function removeField(data: Data, operation: Operation): Data {
+export function removeFields(data: Data, operation: Operation): Data {
   if (operation.operation !== "remove") return data;
 
   const { fields } = operation;
 
-  fields.forEach((field) => {
-    data.records[field.flag] = data.records[field.flag].map((record) => {
-      delete record[field.name];
-      return record;
-    });
+  fields.forEach(({ name, tag }) => {
+    const records = data.records[tag];
+    if (!records) return;
+
+    const fieldIndex = records.fields.indexOf(name);
+    if (fieldIndex === -1) return;
+
+    records.fields.splice(fieldIndex, 1);
+    records.rows.forEach((row) => row.splice(fieldIndex, 1));
   });
 
   return { ...data, records: { ...data.records } };
 }
 
-export function addField(data: Data, operation: Operation): Data {
+export function addFields(data: Data, operation: Operation): Data {
   if (operation.operation !== "add") return data;
 
   const { tag, fields, after } = operation;
+  const records = data.records[tag];
+  if (!records) return data;
 
-  const updatedRecords = data.records[tag].map((record) => {
-    const newRecord = { ...record };
+  let insertIndex = after
+    ? records.fields.findIndex((field) => field === after.name) + 1
+    : 0;
 
-    fields.forEach(({ name, value }) => {
-      newRecord[name] =
-        value.startsWith("{") && value.endsWith("}")
-          ? record[value.slice(1, -1).trim()]
-          : value;
+  fields.forEach(({ name, value }) => {
+    const resolvedValue =
+      value.startsWith("{") && value.endsWith("}")
+        ? records.rows.map((row) => {
+            const refIndex = records.fields.indexOf(value.slice(1, -1).trim());
+            return refIndex !== -1 ? row[refIndex] : value;
+          })
+        : Array(records.rows.length).fill(value);
+
+    records.fields.splice(insertIndex, 0, name);
+    records.rows.forEach((row, rowIndex) => {
+      row.splice(insertIndex, 0, resolvedValue[rowIndex]);
     });
-
-    if (after) {
-      const keys = Object.keys(newRecord);
-      const afterIndex = keys.indexOf(after.name);
-      return Object.assign(
-        {},
-        ...keys.map((key, index) => {
-          const result = { [key]: newRecord[key] };
-          if (index === afterIndex) {
-            fields.forEach(({ name }) => (result[name] = newRecord[name]));
-          }
-          return result;
-        }),
-      );
-    }
-
-    return newRecord;
+    insertIndex++;
   });
 
-  return { ...data, records: { ...data.records, [tag]: updatedRecords } };
+  return { ...data, records: { ...data.records } };
 }
 
-export function orderFields(data: Data, tag: string, order: string[]): Data {
-  const updatedRecord = data.records[tag].map((record) => {
-    const reorderedRecord: Record<string, string> = {};
-    order.forEach((field: string) => {
-      if (field in record) {
-        reorderedRecord[field] = record[field];
-      }
-    });
-    return reorderedRecord;
-  });
-  return { ...data, records: { ...data.records, [tag]: updatedRecord } };
+export function orderFields(data: Data, tag: string, order: number[]): Data {
+  const record = data.records[tag];
+  if (!record) return data;
+
+  record.fields = order.map((index) => record.fields[index]);
+  record.rows = record.rows.map((row) => order.map((index) => row[index]));
+
+  return { ...data, records: { ...data.records } };
 }
 
 export function evaluateConditions(data: Data, operation: Operation): Data {
   if (operation.operation !== "conditional") return data;
 
   const { tag, conditions, actionTrue, actionFalse } = operation;
-  let updatedRecords: { [key: string]: any } = { ...data.records, [tag]: [] };
+  const records = data.records[tag];
 
-  data.records[tag].forEach((record) => {
-    const allConditionsPass = conditions.every((condition) =>
-      evaluateCondition(record, condition),
-    );
-    const action = allConditionsPass ? actionTrue : actionFalse;
+  records.rows = records.rows.flatMap((row) => {
+    const action = conditions.every((condition) =>
+      evaluateCondition(records.fields, row, condition),
+    )
+      ? actionTrue
+      : actionFalse;
 
     switch (action.action) {
       case "setValue":
-        updatedRecords[tag].push({
-          ...record,
-          [action.field.name]: (() => {
-            if (action.value.startsWith("{") && action.value.endsWith("}")) {
-              const key = action.value.slice(1, -1).trim();
-              return record[key];
-            } else {
-              return action.value;
-            }
-          })(),
+        action.values.forEach(({ field, value }) => {
+          const refIndex = records.fields.indexOf(
+            value.startsWith("{") && value.endsWith("}")
+              ? value.slice(1, -1).trim()
+              : value,
+          );
+          row[records.fields.indexOf(field.name)] =
+            refIndex !== -1 ? row[refIndex] : value;
         });
-        break;
+        return [row];
 
       case "separate":
-        if (!updatedRecords[action.tag]) updatedRecords[action.tag] = [];
-        updatedRecords[action.tag].push(record);
-        break;
+        if (!data.records[action.tag])
+          data.records[action.tag] = { fields: records.fields, rows: [] };
+        data.records[action.tag].rows.push(row);
+        return [];
 
       case "duplicate":
-        const firstRecord = { ...record };
-        const secondRecord = { ...record };
-        action.firstRecord.forEach((field) => {
-          firstRecord[field.field.name] = field.value;
+        const duplicate = [...row];
+        action.rowOriginal.forEach((field) => {
+          row[records.fields.indexOf(field.field.name)] = field.value;
         });
-        action.secondRecord.forEach((field) => {
-          secondRecord[field.field.name] = field.value;
+        action.rowDuplicate.forEach((field) => {
+          duplicate[records.fields.indexOf(field.field.name)] = field.value;
         });
-        updatedRecords[tag].push(firstRecord, secondRecord);
-        break;
+        return [row, duplicate];
 
       case "nothing":
-        updatedRecords[tag].push(record);
-        break;
+        return [row];
     }
   });
 
-  // BELOW CODE IS GHETTO FOR ENSURING FIELDS ARE INHERITED FOR WIDTH DEFINITIONS AND ORDER PURPOSES
-  if (operation.operation === "conditional" && actionTrue.action === "separate" && !updatedRecords[actionTrue.tag]) {
-    const blankRecord = Object.keys(data.records[tag][0] || {}).reduce((acc, key) => {
-      acc[key] = "";
-      return acc;
-    }, {} as Record<string, string>);
-    updatedRecords[actionTrue.tag] = [blankRecord];
-  }
-
-  if (operation.operation === "conditional" && actionFalse.action === "separate" && !updatedRecords[actionFalse.tag]) {
-    const blankRecord = Object.keys(data.records[tag][0] || {}).reduce((acc, key) => {
-      acc[key] = "";
-      return acc;
-    }, {} as Record<string, string>);
-    updatedRecords[actionFalse.tag] = [blankRecord];
-  }
-
-  if(updatedRecords[tag].length === 0) {
-    const blankRecord = Object.keys(data.records[tag][0] || {}).reduce((acc, key) => {
-      acc[key] = "";
-      return acc;
-    }, {} as Record<string, string>);
-    updatedRecords[tag] = [blankRecord];
-  }
-
-  return { ...data, records: updatedRecords };
+  return { ...data, records: { ...data.records } };
 }
 
 export function evaluateEquation(data: Data, operation: Operation): Data {
   if (operation.operation !== "equation") return data;
+
   const { tag, direction, equation, output } = operation;
+  const records = data.records[tag];
+
+  if (!records) return data;
+
+  const computeTotal = (row: string[]): number => {
+    return equation.reduce((total, item) => {
+      const value = Number(row[records.fields.indexOf(item.field.name)]);
+      return !isNaN(value)
+        ? item.operator === "+"
+          ? total + value
+          : total - value
+        : total;
+    }, 0);
+  };
 
   if (direction === "column") {
-    let total = 0;
-
-    data.records[tag].forEach((record) => {
-      equation.forEach((item) => {
-        const value = Number(record[item.field.name]);
-        if (!isNaN(value)) {
-          if (item.operator === "+") {
-            total += value;
-          } else if (item.operator === "-") {
-            total -= value;
-          }
-        }
-      });
+    const total = records.rows.reduce((acc, row) => acc + computeTotal(row), 0);
+    records.rows.forEach((row) => {
+      row[records.fields.indexOf(output.name)] = total.toString();
     });
-
-    return {
-      ...data,
-      records: {
-        ...data.records,
-        [output.flag]: data.records[output.flag].map((record) => ({
-          ...record,
-          [output.name]: total.toString(),
-        })),
-      },
-    };
+  } else if (direction === "row") {
+    records.rows = records.rows.map((row) => {
+      const total = computeTotal(row);
+      row[records.fields.indexOf(output.name)] = total.toString();
+      return row;
+    });
   }
 
-  if (direction === "row") {
-    const updatedRecord = data.records[tag].map((record) => {
-      let total = 0;
-
-      equation.forEach((item) => {
-        const value = Number(record[item.field.name]);
-        if (!isNaN(value)) {
-          if (item.operator === "+") {
-            total += value;
-          } else if (item.operator === "-") {
-            total -= value;
-          }
-        }
-      });
-
-      return {
-        ...record,
-        [output.name]: total.toString(),
-      };
-    });
-
-    return {
-      ...data,
-      records: {
-        ...data.records,
-        [tag]: updatedRecord,
-      },
-    };
-  }
-
-  return data;
+  return { ...data, records: { ...data.records } };
 }
 
 export function reformatData(data: Data, operation: Operation): Data {
   if (operation.operation !== "reformat") return data;
 
   const { tag, fields, reformat } = operation;
+  const records = data.records[tag];
+  if (!records) return data;
 
-  const updatedRecord = data.records[tag].map((record) => {
-    let updatedFields = { ...record };
-
+  records.rows = records.rows.map((row) => {
     fields.forEach((field) => {
+      const fieldIndex = records.fields.indexOf(field.name);
+      if (fieldIndex === -1) return;
+
       switch (reformat.type) {
         case "date":
-          updatedFields[field.name] = format(
-            new Date(record[field.name] as string),
-            reformat.pattern,
-          );
+          row[fieldIndex] = format(new Date(row[fieldIndex]), reformat.pattern);
           break;
         case "number":
           switch (reformat.from) {
             case "scientific":
-              updatedFields[field.name] = Number(record[field.name]).toString();
+              row[fieldIndex] = Number(row[fieldIndex]).toString();
               break;
             case "overpunch":
-              updatedFields[field.name] = Number(
-                extract(record[field.name]),
-              ).toString();
+              row[fieldIndex] = Number(extract(row[fieldIndex])).toString();
               break;
           }
           break;
       }
     });
 
-    return updatedFields;
+    return row;
   });
 
-  return {
-    ...data,
-    records: {
-      ...data.records,
-      [tag]: updatedRecord,
-    },
-  };
+  return { ...data, records: { ...data.records } };
 }
 
 export function applyPreset(data: Data, changes: Changes): Data {
   changes.history?.forEach((change) => {
     switch (change.operation) {
       case "add":
-        data = addField(data, change);
+        addFields(data, change);
         break;
       case "remove":
-        data = removeField(data, change);
+        removeFields(data, change);
         break;
       case "conditional":
-        data = evaluateConditions(data, change);
+        evaluateConditions(data, change);
         break;
       case "equation":
-        data = evaluateEquation(data, change);
+        evaluateEquation(data, change);
         break;
       case "reformat":
-        data = reformatData(data, change);
+        reformatData(data, change);
         break;
     }
   });
 
-  Object.entries(changes.order).forEach(([tag, order]) => {
-    data = orderFields(data, tag, order);
+  Object.keys(data.records).forEach((tag) => {
+    const orderIndices = changes.order?.[tag]?.map((field) =>
+      data.records[tag].fields.indexOf(field),
+    );
+    if (orderIndices) {
+      orderFields(data, tag, orderIndices);
+    }
   });
 
   data.name = applyPattern(data.name, changes.pattern);
 
-  return data;
+  return { ...data };
 }

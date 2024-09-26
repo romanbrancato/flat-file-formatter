@@ -2,7 +2,12 @@ import { z } from "zod";
 
 const DataSchema = z.object({
   name: z.string(),
-  records: z.record(z.array(z.record(z.string()))),
+  records: z.record(
+    z.object({
+      fields: z.array(z.string()),
+      rows: z.array(z.array(z.string())),
+    }),
+  ),
 });
 
 export type Data = z.infer<typeof DataSchema>;
@@ -52,7 +57,7 @@ export const PatternSchema = z.object({
 export type Pattern = z.infer<typeof PatternSchema>;
 export const FieldSchema = z.object(
   {
-    flag: z.string().min(1),
+    tag: z.string().min(1),
     name: z.string().min(1),
   },
   { required_error: "Select a field." },
@@ -67,18 +72,22 @@ export const ActionSchema = z.discriminatedUnion("action", [
   }),
   z.object({
     action: z.literal("setValue"),
-    field: FieldSchema,
-    value: z.string(),
-  }),
-  z.object({
-    action: z.literal("duplicate"),
-    firstRecord: z.array(
+    values: z.array(
       z.object({
         field: FieldSchema,
         value: z.string(),
       }),
     ),
-    secondRecord: z.array(
+  }),
+  z.object({
+    action: z.literal("duplicate"),
+    rowOriginal: z.array(
+      z.object({
+        field: FieldSchema,
+        value: z.string(),
+      }),
+    ),
+    rowDuplicate: z.array(
       z.object({
         field: FieldSchema,
         value: z.string(),

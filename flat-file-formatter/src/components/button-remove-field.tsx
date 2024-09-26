@@ -29,7 +29,7 @@ import { Field, Operation, OperationSchema } from "@/types/schemas";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
 export function ButtonRemoveField() {
-  const { isReady, removeField } = useContext(ParserContext);
+  const { isReady, removeFields } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
@@ -37,7 +37,7 @@ export function ButtonRemoveField() {
     resolver: zodResolver(OperationSchema),
     defaultValues: {
       operation: "remove",
-      fields: [{ flag: "", name: "" }],
+      fields: [{ tag: "", name: "" }],
     },
   });
 
@@ -47,7 +47,7 @@ export function ButtonRemoveField() {
   });
 
   function onSubmit(values: Operation) {
-    removeField(values);
+    removeFields(values);
     setPreset({
       ...preset,
       changes: {
@@ -120,11 +120,11 @@ export function ButtonRemoveField() {
               className="w-full border-dashed"
               onClick={(event) => {
                 event.preventDefault();
-                append({ flag: "", name: "" });
+                append({ tag: "", name: "" });
               }}
             >
               <PlusCircledIcon className="mr-2" />
-              Add Field
+              Additional Field
             </Button>
             <Button type="submit" className="ml-auto w-1/3">
               Remove

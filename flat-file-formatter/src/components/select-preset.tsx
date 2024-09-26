@@ -85,7 +85,7 @@ export function SelectPreset() {
           role="combobox"
           aria-label="Load a preset..."
           aria-expanded={open}
-          className="flex-1 justify-between min-w-[225px] md:min-w-[300px]"
+          className="min-w-[225px] flex-1 justify-between md:min-w-[300px]"
         >
           {preset && preset.name ? preset.name : "Load a preset..."}
           <CaretSortIcon className="ml-2 opacity-50" />

@@ -27,7 +27,7 @@ import { Operation, OperationSchema } from "@/types/schemas";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
 export function ButtonAddField() {
-  const { isReady, addField } = useContext(ParserContext);
+  const { isReady, addFields } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
@@ -53,7 +53,7 @@ export function ButtonAddField() {
 
   function onSubmit(values: Operation) {
     if (values.operation != "add") return;
-    addField(values);
+    addFields(values);
     setPreset({
       ...preset,
       changes: {
@@ -76,7 +76,7 @@ export function ButtonAddField() {
           disabled={!isReady}
         >
           <PlusCircledIcon className="mr-2" />
-          Add Field
+          Add Fields
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[800px] sm:max-w-[600px]">
@@ -161,7 +161,7 @@ export function ButtonAddField() {
               }}
             >
               <PlusCircledIcon className="mr-2" />
-              Add Field
+              Additional Field
             </Button>
             <FormField
               control={form.control}

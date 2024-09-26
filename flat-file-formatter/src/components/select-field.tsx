@@ -34,20 +34,20 @@ export function SelectField({
   const [open, setOpen] = useState(false);
 
   function CommandGroupComponent({
-    flag,
+    tag,
     fields,
   }: {
-    flag: string;
+    tag: string;
     fields: string[];
   }) {
     return (
-      <CommandGroup heading={<span className="capitalize">{flag} Fields</span>}>
+      <CommandGroup heading={<span className="capitalize">{tag} Fields</span>}>
         {fields.map((field) => (
           <CommandItem
-            key={`${flag}${field}`}
+            key={`${tag}${field}`}
             onSelect={() => {
               setOpen(false);
-              onFieldSelect({ name: field, flag });
+              onFieldSelect({ name: field, tag });
             }}
           >
             {field}
@@ -91,13 +91,13 @@ export function SelectField({
               {Object.entries(data.records)
                 .filter(
                   ([tag, records]) =>
-                    Object.keys(records[0]).length > 0 &&
+                    records.fields.length > 0 &&
                     (!filter || filter.includes(tag)),
                 )
                 .map(([tag, records]) => (
                   <CommandGroupComponent
-                    flag={tag}
-                    fields={Object.keys(records[0])}
+                    tag={tag}
+                    fields={records.fields}
                     key={tag}
                   />
                 ))}

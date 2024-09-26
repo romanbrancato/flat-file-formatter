@@ -45,12 +45,11 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
       name: values.name,
       changes: {
         ...preset.changes,
-        order: Object.keys(data.records).reduce(
-          (acc: Record<string, string[]>, key) => {
-            acc[key] = Object.keys(data.records[key][0]);
-            return acc;
-          },
-          {},
+        order: Object.fromEntries(
+          Object.entries(data.records).map(([key, record]) => [
+            key,
+            record.fields,
+          ]),
         ),
       },
     };
@@ -67,7 +66,7 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[800px]">
+      <DialogContent className="max-h-[800px] sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>New Preset</DialogTitle>
           <DialogDescription>
@@ -94,7 +93,7 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-1/3 ml-auto">
+            <Button type="submit" className="ml-auto w-1/3">
               Save
             </Button>
           </form>

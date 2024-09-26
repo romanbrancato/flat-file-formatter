@@ -67,7 +67,7 @@ export function ButtonExportFile({
   return (
     <Button
       onClick={mode === "batch" ? handleBatch : () => exportFile(data, preset)}
-      className="gap-x-2 w-full"
+      className="w-full gap-x-2"
       disabled={
         (mode !== "single" && !preset.name) ||
         files?.length === 0 ||

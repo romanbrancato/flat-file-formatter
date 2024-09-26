@@ -63,7 +63,8 @@ export default function App() {
                   <RecordTable
                     key={tag + Date.now()}
                     tag={tag}
-                    records={records}
+                    fields={records.fields}
+                    rows={records.rows}
                   />
                 ))}
                 <div className="flex flex-row gap-x-1 md:w-2/3">

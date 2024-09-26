@@ -19,7 +19,7 @@ export function SelectAlign({
       onValueChange={(value: "left" | "right") => onAlignSelect(value)}
     >
       <SelectTrigger>
-        <span className="font-normal text-xs text-muted-foreground">
+        <span className="text-xs font-normal text-muted-foreground">
           Align:{" "}
         </span>
         <SelectValue />

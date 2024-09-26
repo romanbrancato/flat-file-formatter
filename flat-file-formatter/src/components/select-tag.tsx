@@ -15,14 +15,14 @@ export function SelectTag({
 }: {
   label: string;
   selectedTag: string;
-  onTagSelect: (flag: string) => void;
+  onTagSelect: (tag: string) => void;
 }) {
   const { data } = useContext(ParserContext);
   return (
     <Select
       value={selectedTag}
-      onValueChange={(flag: string) => {
-        onTagSelect(flag);
+      onValueChange={(tag: string) => {
+        onTagSelect(tag);
       }}
     >
       <SelectTrigger>

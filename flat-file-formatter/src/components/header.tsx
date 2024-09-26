@@ -12,7 +12,7 @@ export function Header() {
   };
 
   return (
-    <header className="py-3 mb-3 z-10">
+    <header className="z-10 mb-3 py-3">
       <Container>
         <div className="flex flex-row items-center justify-between">
           <span className="text-md font-medium peer-disabled:cursor-not-allowed">

@@ -116,14 +116,14 @@ export function FormConditional() {
           event.preventDefault();
           append({
             statement: "if",
-            field: { name: "", flag: "" },
+            field: { name: "", tag: "" },
             comparison: "=",
             value: "",
           });
         }}
       >
         <PlusCircledIcon className="mr-2" />
-        Add Condition
+        Additional Condition
       </Button>
       <FormActions />
     </div>

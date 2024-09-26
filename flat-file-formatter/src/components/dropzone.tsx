@@ -70,7 +70,7 @@ export function Dropzone({
       {...props}
     >
       <CardContent
-        className="flex flex-col items-center justify-center space-y-2 px-2 py-4 text-xs text-muted-foreground font-mono"
+        className="flex flex-col items-center justify-center space-y-2 px-2 py-4 font-mono text-xs text-muted-foreground"
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onClick={handleButtonClick}

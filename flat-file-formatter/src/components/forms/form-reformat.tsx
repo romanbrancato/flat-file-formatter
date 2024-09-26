@@ -74,12 +74,12 @@ export function FormReformat() {
         onClick={(event) => {
           event.preventDefault();
           append({
-            field: { name: "", flag: "" },
+            field: { name: "", tag: "" },
           });
         }}
       >
         <PlusCircledIcon className="mr-2" />
-        Add Field
+        Additional Field
       </Button>
       <FormField
         control={control}

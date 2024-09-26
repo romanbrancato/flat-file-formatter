@@ -8,7 +8,7 @@ export function BatchFileRow({
   onFileDelete: () => void;
 }) {
   return (
-    <div className="flex flex-row justify-between items-center rounded-md px-5 py-3 bg-muted text-xs font-bold">
+    <div className="flex flex-row items-center justify-between rounded-md bg-muted px-5 py-3 text-xs font-bold">
       <div className="flex flex-row items-center gap-x-2">
         <FileTextIcon /> {file.name}
       </div>

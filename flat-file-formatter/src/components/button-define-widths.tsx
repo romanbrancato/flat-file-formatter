@@ -22,10 +22,10 @@ export function ButtonDefineWidths() {
           Define Widths
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[800px]">
+      <DialogContent className="max-h-[800px] sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Define Widths</DialogTitle>
-          <DialogDescription className="flex flex-row justify-between items-center">
+          <DialogDescription className="flex flex-row items-center justify-between">
             Define the widths of each field in characters.
           </DialogDescription>
         </DialogHeader>

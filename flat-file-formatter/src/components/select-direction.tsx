@@ -21,7 +21,7 @@ export function SelectDirection({
       }}
     >
       <SelectTrigger className="text-xs">
-        <span className="font-normal text-xs text-muted-foreground">
+        <span className="text-xs font-normal text-muted-foreground">
           Direction:
         </span>
         <SelectValue />
