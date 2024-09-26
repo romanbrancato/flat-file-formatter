@@ -29,7 +29,7 @@ import { Field, Operation, OperationSchema } from "@/types/schemas";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
 export function ButtonRemoveField() {
-  const { isReady, removeField } = useContext(ParserContext);
+  const { isReady, removeFields } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
@@ -47,7 +47,7 @@ export function ButtonRemoveField() {
   });
 
   function onSubmit(values: Operation) {
-    removeField(values);
+    removeFields(values);
     setPreset({
       ...preset,
       changes: {

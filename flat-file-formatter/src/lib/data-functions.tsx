@@ -11,7 +11,7 @@ export function applyPattern(originalName: string, pattern = ""): string {
   });
 }
 
-export function removeField(data: Data, operation: Operation): Data {
+export function removeFields(data: Data, operation: Operation): Data {
   if (operation.operation !== "remove") return data;
 
   const { fields } = operation;
@@ -30,7 +30,7 @@ export function removeField(data: Data, operation: Operation): Data {
   return { ...data, records: { ...data.records } };
 }
 
-export function addField(data: Data, operation: Operation): Data {
+export function addFields(data: Data, operation: Operation): Data {
   if (operation.operation !== "add") return data;
 
   const { tag, fields, after } = operation;
@@ -194,10 +194,10 @@ export function applyPreset(data: Data, changes: Changes): Data {
   changes.history?.forEach((change) => {
     switch (change.operation) {
       case "add":
-        addField(data, change);
+        addFields(data, change);
         break;
       case "remove":
-        removeField(data, change);
+        removeFields(data, change);
         break;
       case "conditional":
         evaluateConditions(data, change);

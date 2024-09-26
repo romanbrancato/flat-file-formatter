@@ -39,19 +39,19 @@ export function useParser() {
     [params, data],
   );
 
-  const removeField = useCallback(
+  const removeFields = useCallback(
     (operation: Operation) => {
       setIsReady(false);
-      setData(fns.removeField(data, operation));
+      setData(fns.removeFields(data, operation));
       setIsReady(true);
     },
     [data],
   );
 
-  const addField = useCallback(
+  const addFields = useCallback(
     (operation: Operation) => {
       setIsReady(false);
-      setData(fns.addField(data, operation));
+      setData(fns.addFields(data, operation));
       setIsReady(true);
     },
     [data],
@@ -108,8 +108,8 @@ export function useParser() {
     setParams,
     data,
     applyPattern,
-    removeField,
-    addField,
+    removeFields,
+    addFields,
     orderFields,
     evaluateConditions,
     evaluateEquation,

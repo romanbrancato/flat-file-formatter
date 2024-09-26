@@ -161,15 +161,14 @@ export function RecordTable({
               <TableBody>
                 {table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <SortableContext
-                        key={cell.id}
-                        items={columnOrder}
-                        strategy={horizontalListSortingStrategy}
-                      >
-                        <DraggableCell cell={cell} />
-                      </SortableContext>
-                    ))}
+                    <SortableContext
+                      items={columnOrder}
+                      strategy={horizontalListSortingStrategy}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <DraggableCell key={cell.id} cell={cell} />
+                      ))}
+                    </SortableContext>
                   </TableRow>
                 ))}
               </TableBody>
