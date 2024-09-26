@@ -35,12 +35,9 @@ import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ParserContext } from "@/context/parser-context";
 
-const DraggableTableHeader = ({ header }: any) => {
+const DraggableHeaderCell = ({ header }: any) => {
   const { attributes, isDragging, listeners, setNodeRef, transform } =
-    useSortable({
-      id: header.column.id,
-    });
-
+    useSortable({ id: header.column.id });
   const style: CSSProperties = {
     opacity: isDragging ? 0.8 : 1,
     cursor: isDragging ? "grabbing" : "grab",
@@ -51,14 +48,14 @@ const DraggableTableHeader = ({ header }: any) => {
 
   return (
     <TableHead
-      colSpan={header.colSpan}
       ref={setNodeRef}
+      colSpan={header.colSpan}
       style={style}
       {...attributes}
       {...listeners}
     >
-      {header.isPlaceholder ? null : (
-        <div className="flex flex-row items-center">
+      {!header.isPlaceholder && (
+        <div className="flex items-center">
           {flexRender(header.column.columnDef.header, header.getContext())}
           <DragHandleDots2Icon className="ml-auto" />
         </div>
@@ -69,10 +66,7 @@ const DraggableTableHeader = ({ header }: any) => {
 
 const DraggableCell = ({ cell }: any) => {
   const { attributes, isDragging, listeners, setNodeRef, transform } =
-    useSortable({
-      id: cell.column.id,
-    });
-
+    useSortable({ id: cell.column.id });
   const style: CSSProperties = {
     opacity: isDragging ? 0.8 : 1,
     cursor: isDragging ? "grabbing" : "grab",
@@ -82,7 +76,7 @@ const DraggableCell = ({ cell }: any) => {
   };
 
   return (
-    <TableCell style={style} ref={setNodeRef} {...attributes} {...listeners}>
+    <TableCell ref={setNodeRef} style={style} {...attributes} {...listeners}>
       {flexRender(cell.column.columnDef.cell, cell.getContext())}
     </TableCell>
   );
@@ -106,18 +100,12 @@ export function RecordTable({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    state: {
-      columnOrder,
-      pagination: {
-        pageIndex: 0,
-        pageSize: 7,
-      },
-    },
+    state: { columnOrder, pagination: { pageIndex: 0, pageSize: 7 } },
     onColumnOrderChange: setColumnOrder,
   });
 
   useEffect(() => {
-    if (fields.length > 0) {
+    if (fields.length) {
       const newColumns = fields.map((field, index) => ({
         accessorKey: index.toString(),
         header: field,
@@ -127,25 +115,16 @@ export function RecordTable({
     }
   }, [fields]);
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (!active || !over || active.id === over.id) return;
-
     const order = arrayMove(
       columnOrder,
       columnOrder.indexOf(active.id as string),
       columnOrder.indexOf(over.id as string),
     );
-
     setColumnOrder(order);
-    orderFields(tag, order);
-  }
-
-  const sensors = useSensors(
-    useSensor(MouseSensor, {}),
-    useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {}),
-  );
+    orderFields(tag, order.map(Number));
+  };
 
   return (
     <>
@@ -157,7 +136,11 @@ export function RecordTable({
           collisionDetection={closestCenter}
           modifiers={[restrictToHorizontalAxis]}
           onDragEnd={handleDragEnd}
-          sensors={sensors}
+          sensors={useSensors(
+            useSensor(MouseSensor),
+            useSensor(TouchSensor),
+            useSensor(KeyboardSensor),
+          )}
         >
           <ScrollArea className="h-full">
             <Table>
@@ -169,7 +152,7 @@ export function RecordTable({
                       strategy={horizontalListSortingStrategy}
                     >
                       {headerGroup.headers.map((header) => (
-                        <DraggableTableHeader key={header.id} header={header} />
+                        <DraggableHeaderCell key={header.id} header={header} />
                       ))}
                     </SortableContext>
                   </TableRow>

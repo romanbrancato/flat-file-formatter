@@ -15,7 +15,7 @@ export type ParserParams = z.infer<typeof ParserParams>;
 export async function parseFile(params: ParserParams) {
   return new Promise<Data>((resolve, reject) => {
     switch (params.config.format) {
-      case "delimited":
+      case "delimited": {
         const config: Papa.ParseLocalConfig<unknown, any> = {
           skipEmptyLines: true,
           complete: (results) => {
@@ -39,68 +39,67 @@ export async function parseFile(params: ParserParams) {
         };
         Papa.parse(params.file, config);
         break;
+      }
 
-      case "fixed":
+      case "fixed": {
         const reader = new FileReader();
-        const {
-          header: configHeader,
-          detail: configDetail,
-          trailer: configTrailer,
-        } = params.config;
 
         reader.onload = (event) => {
           const fileContents = event.target?.result as string;
+          const lines = fileContents.split(/\r?\n/).filter(Boolean); // Filter out empty lines
 
-          // Split the file contents into lines
-          const lines = fileContents.split(/\r?\n/);
+          const records: Record<
+            string,
+            { fields: string[]; rows: string[][] }
+          > = {
+            header: { fields: [], rows: [] },
+            detail: { fields: [], rows: [] },
+            trailer: { fields: [], rows: [] },
+          };
 
-          // Find the header record
-          let headerRecord = "";
-          for (let i = 0; i < lines.length; i++) {
-            if (lines[i] !== "") {
-              headerRecord = lines[i];
-              break;
-            }
+          const unzip = (parsedData: { [key: string]: any }[]) => {
+            if (!parsedData || parsedData.length === 0)
+              return { fields: [], rows: [] };
+            const fields = Object.keys(parsedData[0]);
+            const rows = parsedData.map((row) =>
+              fields.map((field) => row[field]),
+            );
+            return { fields, rows };
+          };
+
+          if (params.config.format !== "fixed") return;
+
+          if (params.config.header?.fields.length) {
+            records.header = unzip(
+              parse(lines[0], params.config.header as Options),
+            );
+            lines.splice(0, 1);
           }
 
-          // Find the trailer record
-          let trailerRecord = "";
-          for (let j = lines.length - 1; j >= 0; j--) {
-            if (lines[j] !== "") {
-              trailerRecord = lines[j];
-              break;
-            }
+          if (params.config.trailer?.fields.length) {
+            records.trailer = unzip(
+              parse(lines.pop() as string, params.config.trailer as Options),
+            );
           }
 
-          // Collect detail records as a single string with new lines
-          let detailRecords = "";
-          for (
-            let k = lines.indexOf(headerRecord) + 1;
-            k < lines.lastIndexOf(trailerRecord);
-            k++
-          ) {
-            if (lines[k] !== "") {
-              detailRecords += lines[k] + "\n";
-            }
+          if (params.config.detail?.fields.length) {
+            records.detail = unzip(
+              parse(lines.join("\n"), params.config.detail as Options),
+            );
           }
 
           resolve({
             name: path.parse(params.file.name).name,
-            records: {
-              header:
-                configHeader && configHeader?.fields.length > 0
-                  ? parse(headerRecord, configHeader as Options)
-                  : [{}],
-              detail: parse(detailRecords, configDetail as Options),
-              trailer:
-                configTrailer && configTrailer?.fields.length > 0
-                  ? parse(trailerRecord, configTrailer as Options)
-                  : [{}],
-            },
+            records,
           });
         };
 
         reader.readAsText(params.file);
+        break;
+      }
+
+      default:
+        reject(new Error("Unsupported format"));
     }
   });
 }

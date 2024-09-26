@@ -123,7 +123,7 @@ export function FormConditional() {
         }}
       >
         <PlusCircledIcon className="mr-2" />
-        Add Condition
+        Additional Condition
       </Button>
       <FormActions />
     </div>

@@ -72,18 +72,22 @@ export const ActionSchema = z.discriminatedUnion("action", [
   }),
   z.object({
     action: z.literal("setValue"),
-    field: FieldSchema,
-    value: z.string(),
-  }),
-  z.object({
-    action: z.literal("duplicate"),
-    firstRecord: z.array(
+    values: z.array(
       z.object({
         field: FieldSchema,
         value: z.string(),
       }),
     ),
-    secondRecord: z.array(
+  }),
+  z.object({
+    action: z.literal("duplicate"),
+    rowOriginal: z.array(
+      z.object({
+        field: FieldSchema,
+        value: z.string(),
+      }),
+    ),
+    rowDuplicate: z.array(
       z.object({
         field: FieldSchema,
         value: z.string(),

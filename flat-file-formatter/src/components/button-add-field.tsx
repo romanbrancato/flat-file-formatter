@@ -76,7 +76,7 @@ export function ButtonAddField() {
           disabled={!isReady}
         >
           <PlusCircledIcon className="mr-2" />
-          Add Field
+          Additional Field
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[800px] sm:max-w-[600px]">
@@ -161,7 +161,7 @@ export function ButtonAddField() {
               }}
             >
               <PlusCircledIcon className="mr-2" />
-              Add Field
+              Additional Field
             </Button>
             <FormField
               control={form.control}

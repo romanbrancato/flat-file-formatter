@@ -124,7 +124,7 @@ export function ButtonRemoveField() {
               }}
             >
               <PlusCircledIcon className="mr-2" />
-              Add Field
+              Additional Field
             </Button>
             <Button type="submit" className="ml-auto w-1/3">
               Remove

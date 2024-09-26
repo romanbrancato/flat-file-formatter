@@ -44,6 +44,8 @@ export function ButtonOperations() {
       ],
       equation: [{ operator: "+", field: null }],
       fields: [{ tag: "", name: "" }],
+      actionTrue: { values: [{ field: null, value: "" }] },
+      actionFalse: { values: [{ field: null, value: "" }] },
     },
   });
 

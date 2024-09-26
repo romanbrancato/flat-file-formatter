@@ -77,22 +77,23 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
   const records = data.records[tag];
 
   records.rows = records.rows.flatMap((row) => {
-    const allConditionsPass = conditions.every((condition) =>
+    const action = conditions.every((condition) =>
       evaluateCondition(records.fields, row, condition),
-    );
-    const action = allConditionsPass ? actionTrue : actionFalse;
+    )
+      ? actionTrue
+      : actionFalse;
 
     switch (action.action) {
       case "setValue":
-        row[records.fields.indexOf(action.field.name)] =
-          action.value.startsWith("{") && action.value.endsWith("}")
-            ? (() => {
-                const refIndex = records.fields.indexOf(
-                  action.value.slice(1, -1).trim(),
-                );
-                return refIndex !== -1 ? row[refIndex] : action.value;
-              })()
-            : action.value;
+        action.values.forEach(({ field, value }) => {
+          const refIndex = records.fields.indexOf(
+            value.startsWith("{") && value.endsWith("}")
+              ? value.slice(1, -1).trim()
+              : value,
+          );
+          row[records.fields.indexOf(field.name)] =
+            refIndex !== -1 ? row[refIndex] : value;
+        });
         return [row];
 
       case "separate":
@@ -102,14 +103,14 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
         return [];
 
       case "duplicate":
-        const duplicateRow = [...row];
-        action.firstRecord.forEach((field) => {
+        const duplicate = [...row];
+        action.rowOriginal.forEach((field) => {
           row[records.fields.indexOf(field.field.name)] = field.value;
         });
-        action.secondRecord.forEach((field) => {
-          duplicateRow[records.fields.indexOf(field.field.name)] = field.value;
+        action.rowDuplicate.forEach((field) => {
+          duplicate[records.fields.indexOf(field.field.name)] = field.value;
         });
-        return [row, duplicateRow];
+        return [row, duplicate];
 
       case "nothing":
         return [row];
@@ -193,19 +194,19 @@ export function applyPreset(data: Data, changes: Changes): Data {
   changes.history?.forEach((change) => {
     switch (change.operation) {
       case "add":
-        data = addField(data, change);
+        addField(data, change);
         break;
       case "remove":
-        data = removeField(data, change);
+        removeField(data, change);
         break;
       case "conditional":
-        data = evaluateConditions(data, change);
+        evaluateConditions(data, change);
         break;
       case "equation":
-        data = evaluateEquation(data, change);
+        evaluateEquation(data, change);
         break;
       case "reformat":
-        data = reformatData(data, change);
+        reformatData(data, change);
         break;
     }
   });
@@ -215,7 +216,7 @@ export function applyPreset(data: Data, changes: Changes): Data {
       data.records[tag].fields.indexOf(field),
     );
     if (orderIndices) {
-      data = orderFields(data, tag, orderIndices);
+      orderFields(data, tag, orderIndices);
     }
   });
 

@@ -16,7 +16,6 @@ import { ButtonAddField } from "@/components/button-add-field";
 import { ButtonRemoveField } from "@/components/button-remove-field";
 import { ButtonOperations } from "@/components/button-operations";
 import { PresetContext } from "@/context/preset-context";
-import Papa from "papaparse";
 
 export default function App() {
   const { mode } = useContext(ModeContext);

@@ -29,9 +29,9 @@ export function PresetToolbar() {
 
   return (
     <>
-      <div className="flex py-2 px-5 justify-between">
-        <div className="flex flex-row items-center w-full min-w-0">
-          <Label className="text-md font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis max-w-[80%]">
+      <div className="flex justify-between px-5 py-2">
+        <div className="flex w-full min-w-0 flex-row items-center">
+          <Label className="text-md max-w-[80%] overflow-hidden overflow-ellipsis whitespace-nowrap font-semibold">
             {data.name && mode === "single"
               ? data.name
               : mode === "batch"
@@ -40,7 +40,7 @@ export function PresetToolbar() {
           </Label>
           {mode === "single" && <ButtonEditName />}
         </div>
-        <div className="flex flex-row space-x-2 justify-end">
+        <div className="flex flex-row justify-end space-x-2">
           {mode !== "batch" && <ButtonApplyPreset />}
           <SelectPreset />
           {mode !== "batch" && (

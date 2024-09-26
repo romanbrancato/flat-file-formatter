@@ -119,7 +119,7 @@ function AccordionItemComponent({ record }: { record: string }) {
           }}
         >
           <PlusCircledIcon className="mr-2" />
-          Add Field
+          Additional Field
         </Button>
       </AccordionContent>
     </AccordionItem>

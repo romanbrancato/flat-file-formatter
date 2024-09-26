@@ -112,7 +112,7 @@ export function FormEquation() {
         }}
       >
         <PlusCircledIcon className="mr-2" />
-        Add Constant
+        Additional Value
       </Button>
       <div className="flex flex-row items-center justify-between gap-x-2">
         <FormField

@@ -79,7 +79,7 @@ export function FormReformat() {
         }}
       >
         <PlusCircledIcon className="mr-2" />
-        Add Field
+        Additional Field
       </Button>
       <FormField
         control={control}

@@ -62,13 +62,13 @@ export function ButtonEditName() {
         <Button
           variant="ghost"
           size="icon"
-          className="flex-shrink-0 mx-1"
+          className="mx-1 flex-shrink-0"
           disabled={!isReady}
         >
           <Pencil2Icon />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[800px]">
+      <DialogContent className="max-h-[800px] sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Define Naming Schema</DialogTitle>
           <DialogDescription className="whitespace-pre-line leading-tight">

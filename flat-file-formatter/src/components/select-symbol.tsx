@@ -21,7 +21,7 @@ export function SelectSymbol({
       onValueChange={(symbol) => onSymbolSelect(symbol)}
     >
       <SelectTrigger>
-        <span className="font-normal text-xs text-muted-foreground">
+        <span className="text-xs font-normal text-muted-foreground">
           {label}:{" "}
         </span>
         <SelectValue />

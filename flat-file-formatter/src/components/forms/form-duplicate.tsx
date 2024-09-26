@@ -19,15 +19,15 @@ import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 
 function AccordionItemComponent({
-  record,
+  row,
   actionType,
 }: {
-  record: "first" | "second";
+  row: "Original" | "Duplicate";
   actionType: string;
 }) {
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
-    name: `action${actionType}.${record}Record`,
+    name: `action${actionType}.row${row}`,
     control: control,
   });
 
@@ -37,9 +37,9 @@ function AccordionItemComponent({
   });
 
   return (
-    <AccordionItem value={record}>
+    <AccordionItem value={row}>
       <AccordionTrigger className="flex text-xs font-normal text-muted-foreground">
-        {record === "first" ? "First Record" : "Second Record"}
+        {row === "Original" ? "Original Row" : "Duplicate Row"}
       </AccordionTrigger>
       <AccordionContent className="space-y-1">
         <ScrollArea>
@@ -51,8 +51,7 @@ function AccordionItemComponent({
               >
                 <FormField
                   control={control}
-                  name={`action${actionType}.${record}Record.${index}.field`}
-                  defaultValue={{ name: "", tag: "" }}
+                  name={`action${actionType}.row${row}.${index}.field`}
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -70,8 +69,7 @@ function AccordionItemComponent({
                 />
                 <FormField
                   control={control}
-                  name={`action${actionType}.${record}Record.${index}.value`}
-                  defaultValue={""}
+                  name={`action${actionType}.row${row}.${index}.value`}
                   render={({ field }) => (
                     <FormItem className="flex-1">
                       <FormControl>
@@ -102,7 +100,7 @@ function AccordionItemComponent({
           }}
         >
           <PlusCircledIcon className="mr-2" />
-          Add Value Change
+          Additional Value
         </Button>
       </AccordionContent>
     </AccordionItem>
@@ -116,8 +114,8 @@ export function FormDuplicate({
 }) {
   return (
     <Accordion type="single" collapsible>
-      <AccordionItemComponent record="first" actionType={actionType} />
-      <AccordionItemComponent record="second" actionType={actionType} />
+      <AccordionItemComponent row="Original" actionType={actionType} />
+      <AccordionItemComponent row="Duplicate" actionType={actionType} />
     </Accordion>
   );
 }
