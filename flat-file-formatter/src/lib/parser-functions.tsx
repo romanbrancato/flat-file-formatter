@@ -1,9 +1,9 @@
 import Papa from "papaparse";
 import { Options, parse, stringify } from "@evologi/fixed-width";
-import path from "node:path";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Data, ParserConfigSchema, Preset } from "@/types/schemas";
+import { download } from "@/lib/utils";
 
 export const ParserParams = z.object({
   file: z.instanceof(File),
@@ -27,7 +27,6 @@ export async function parseFile(params: ParserParams) {
             );
 
             resolve({
-              name: path.parse(params.file.name).name,
               records: {
                 detail: {
                   fields: fields,
@@ -89,7 +88,6 @@ export async function parseFile(params: ParserParams) {
           }
 
           resolve({
-            name: path.parse(params.file.name).name,
             records,
           });
         };
@@ -138,8 +136,8 @@ export function unparseData(
                           ? preset.formatSpec.widths[tag]?.[field]
                           : undefined;
 
-                      if (!width) {
-                        throw new Error(`No width found for ${field}`);
+                      if (!width || width <= 0) {
+                        throw new Error(`Invalid width for ${field}`);
                       }
 
                       return {
@@ -160,4 +158,21 @@ export function unparseData(
   } catch (error: any) {
     toast.error("Failed to Export File", { description: error.message });
   }
+}
+
+export function exportFile(data: Data, preset: Preset) {
+  const flatData = unparseData(data, preset);
+
+  if (!flatData) return;
+
+  preset.output.groups.forEach((group) => {
+    download(
+      group.tags
+        .map((tag) => flatData[tag])
+        .filter(Boolean)
+        .join("\n"),
+      group.name,
+      "txt",
+    );
+  });
 }

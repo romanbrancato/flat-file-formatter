@@ -7,7 +7,7 @@ import { ButtonParserConfig } from "@/components/button-parser-config";
 import { ParserContext } from "@/context/parser-context";
 import { PresetToolbar } from "@/components/preset-toolbar";
 import { RecordTable } from "@/components/record-table";
-import { FormExportConfig } from "@/components/forms/form-export-config";
+import { FormOutput } from "@/components/forms/form-output";
 import { ButtonExportFile } from "@/components/button-export-file";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
@@ -16,6 +16,7 @@ import { ButtonAddField } from "@/components/button-add-field";
 import { ButtonRemoveField } from "@/components/button-remove-field";
 import { ButtonOperations } from "@/components/button-operations";
 import { PresetContext } from "@/context/preset-context";
+import { ButtonExportFileBatch } from "@/components/button-export-file-batch";
 
 export default function App() {
   const { mode } = useContext(ModeContext);
@@ -74,7 +75,7 @@ export default function App() {
                 </div>
               </div>
               <div className="flex min-w-[200px] flex-col gap-y-3">
-                <FormExportConfig />
+                <FormOutput />
                 <div className="md:mt-auto">
                   <ButtonExportFile files={files} />
                 </div>
@@ -92,7 +93,7 @@ export default function App() {
                 ))}
               </div>
               <div className="ml-auto w-1/5">
-                <ButtonExportFile files={files} setFiles={setFiles} />
+                <ButtonExportFileBatch files={files} setFiles={setFiles} />
               </div>
             </div>
           ) : (

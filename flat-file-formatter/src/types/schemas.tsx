@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 const DataSchema = z.object({
-  name: z.string(),
   records: z.record(
     z.object({
       fields: z.array(z.string()),
@@ -55,6 +54,7 @@ export const PatternSchema = z.object({
 });
 
 export type Pattern = z.infer<typeof PatternSchema>;
+
 export const FieldSchema = z.object(
   {
     tag: z.string().min(1),
@@ -98,6 +98,8 @@ export const ActionSchema = z.discriminatedUnion("action", [
     action: z.literal("nothing"),
   }),
 ]);
+
+export type Action = z.infer<typeof ActionSchema>;
 
 export const ReformatSchema = z.discriminatedUnion("type", [
   z.object({
@@ -171,25 +173,36 @@ export const FormatSchema = z.discriminatedUnion("format", [
     format: z.literal("fixed"),
     pad: z.string(),
     align: z.enum(["left", "right"]),
-    widths: z.record(z.record(z.coerce.number().min(1))),
+    widths: z.record(z.record(z.coerce.number())),
   }),
 ]);
 
 export type Format = z.infer<typeof FormatSchema>;
 
 export const ChangesSchema = z.object({
-  pattern: z.string(),
   order: z.record(z.array(z.string())),
   history: z.array(OperationSchema),
 });
 
 export type Changes = z.infer<typeof ChangesSchema>;
 
+export const OutputSchema = z.object({
+  details: FormatSchema,
+  groups: z.array(
+    z.object({
+      name: z.string(),
+      tags: z.array(z.object({ tag: z.string() })),
+    }),
+  ),
+});
+
+export type Output = z.infer<typeof OutputSchema>;
+
 export const PresetSchema = z.object({
   name: z.string().nullable(),
   parser: ParserConfigSchema,
-  formatSpec: FormatSchema,
   changes: ChangesSchema,
+  output: OutputSchema,
 });
 
 export type Preset = z.infer<typeof PresetSchema>;

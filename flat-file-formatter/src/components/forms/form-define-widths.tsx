@@ -14,7 +14,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ParserContext } from "@/context/parser-context";
-import { useContext } from "react";
+import { useContext, useState } from "react";
+import { SelectTag } from "@/components/select-tag";
+import { Separator } from "@/components/ui/separator";
 
 function AccordionItemComponent({
   tag,
@@ -23,7 +25,22 @@ function AccordionItemComponent({
   tag: string;
   fields: string[];
 }) {
-  const { control } = useFormContext();
+  const { setValue, control } = useFormContext();
+
+  const [selectedTag, setSelectedTag] = useState<string | undefined>(undefined);
+
+  const widths = useWatch({
+    control,
+    name: "widths",
+    defaultValue: {},
+  });
+
+  const copyWidths = (selectedTag: string) => {
+    fields.forEach((field) => {
+      setValue(`widths.${tag}.${field}`, widths[selectedTag][field] || 0);
+    });
+    setSelectedTag(undefined);
+  };
 
   return (
     <AccordionItem value={tag}>
@@ -66,6 +83,14 @@ function AccordionItemComponent({
             ))}
           </ScrollAreaViewport>
         </ScrollArea>
+        <Separator />
+        <div className="mt-2">
+          <SelectTag
+            label={"Copy"}
+            selectedTag={selectedTag}
+            onTagSelect={(tag) => copyWidths(tag)}
+          />
+        </div>
       </AccordionContent>
     </AccordionItem>
   );

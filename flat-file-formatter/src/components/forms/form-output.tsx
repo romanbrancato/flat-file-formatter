@@ -11,34 +11,44 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { PresetContext } from "@/context/preset-context";
-import { Format, FormatSchema } from "@/types/schemas";
+import { Output, OutputSchema } from "@/types/schemas";
 import { SelectFormat } from "@/components/select-format";
 import { ButtonDefineWidths } from "@/components/button-define-widths";
+import { ButtonOutputGroups } from "@/components/button-output-groups";
 
-export function FormExportConfig() {
+export function FormOutput() {
   const { preset, setPreset } = useContext(PresetContext);
 
-  const form = useForm<Format>({
-    resolver: zodResolver(FormatSchema),
-    defaultValues: { ...preset.formatSpec },
+  const form = useForm<Output>({
+    resolver: zodResolver(OutputSchema),
+    defaultValues: { ...preset.output },
   });
 
   const format = useWatch({
     control: form.control,
+    name: "details.format",
+  });
+
+  const output = useWatch({
+    control: form.control,
   });
 
   useEffect(() => {
-    const values = FormatSchema.safeParse(form.getValues());
+    console.log("FORM VALUES:", output.groups);
+  }, [output.groups]);
+
+  useEffect(() => {
+    const values = OutputSchema.safeParse(output);
     if (values.success) {
       setPreset({
         ...preset,
-        formatSpec: values.data,
+        output: values.data,
       });
     }
-  }, [format]);
+  }, [output]);
 
   useEffect(() => {
-    form.reset(preset.formatSpec);
+    form.reset(preset.output);
   }, [preset.name]);
 
   return (
@@ -47,7 +57,7 @@ export function FormExportConfig() {
         <form className="flex flex-col gap-y-1">
           <FormField
             control={form.control}
-            name="format"
+            name="details.format"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
@@ -60,12 +70,12 @@ export function FormExportConfig() {
               </FormItem>
             )}
           />
-          {format.format === "fixed" && (
+          {format === "fixed" && (
             <>
               <ButtonDefineWidths />
               <FormField
                 control={form.control}
-                name="pad"
+                name="details.pad"
                 defaultValue=" "
                 render={({ field }) => (
                   <FormItem>
@@ -82,7 +92,7 @@ export function FormExportConfig() {
               />
               <FormField
                 control={form.control}
-                name="align"
+                name="details.align"
                 defaultValue="left"
                 render={({ field }) => (
                   <FormItem>
@@ -98,27 +108,26 @@ export function FormExportConfig() {
               />
             </>
           )}
-          {format.format === "delimited" && (
-            <>
-              <FormField
-                control={form.control}
-                name="delimiter"
-                defaultValue=","
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <SelectSymbol
-                        label="Delimiter"
-                        selectedSymbol={field.value}
-                        onSymbolSelect={(symbol) => field.onChange(symbol)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
+          {format === "delimited" && (
+            <FormField
+              control={form.control}
+              name="details.delimiter"
+              defaultValue=","
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <SelectSymbol
+                      label="Delimiter"
+                      selectedSymbol={field.value}
+                      onSymbolSelect={(symbol) => field.onChange(symbol)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
+          <ButtonOutputGroups />
         </form>
       </Form>
     </FormProvider>
