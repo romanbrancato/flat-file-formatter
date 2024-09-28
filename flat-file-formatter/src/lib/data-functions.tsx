@@ -2,15 +2,6 @@ import { evaluateCondition, extract, tokenize } from "@/lib/utils";
 import { Action, Changes, Data, Operation } from "@/types/schemas";
 import { format } from "date-fns";
 
-export function applyPattern(originalName: string, pattern = ""): string {
-  if (!pattern) return originalName;
-  const tokenized = tokenize(originalName);
-  return pattern.replace(/{(\d+)}/g, (match: string, index: string) => {
-    const tokenIndex = parseInt(index, 10);
-    return tokenized[tokenIndex] ?? "";
-  });
-}
-
 export function removeFields(data: Data, operation: Operation): Data {
   if (operation.operation !== "remove") return data;
 

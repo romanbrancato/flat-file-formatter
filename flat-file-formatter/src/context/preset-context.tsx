@@ -32,7 +32,7 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    console.log("PRESET:", preset);
+    console.log("Preset:", preset);
   }, [preset]);
 
   return (

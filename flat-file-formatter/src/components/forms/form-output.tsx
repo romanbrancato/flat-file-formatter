@@ -34,7 +34,7 @@ export function FormOutput() {
   });
 
   useEffect(() => {
-    console.log("FORM VALUES:", output.groups);
+    console.log("FORM VALUES:", JSON.stringify(output.groups, null, 2));
   }, [output.groups]);
 
   useEffect(() => {
