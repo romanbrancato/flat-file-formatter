@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
-import { parseFile } from "@/lib/parser-functions";
+import { exportFile, parseFile } from "@/lib/parser-functions";
 import { z } from "zod";
 import { Data, PresetSchema } from "@/types/schemas";
+import path from "node:path";
 
 export const BatchParserParams = z.object({
   files: z.array(z.instanceof(File)),
@@ -36,16 +37,23 @@ export function useBatchParser() {
     }
   }, [batchParams]);
 
-  const resetBatchParser = useCallback(() => {
-    setIsBatchReady(false);
+  useEffect(() => {
+    if (!isBatchReady || !batchParams) return;
+    data.forEach((data, index) => {
+      exportFile(
+        data,
+        batchParams.preset,
+        path.parse(batchParams.files[index].name).name,
+      );
+    });
     setData([]);
     setBatchParams(null);
-  }, []);
+    setIsBatchReady(false);
+  }, [isBatchReady]);
 
   return {
     isBatchReady,
     setBatchParams,
     data,
-    resetBatchParser,
   };
 }

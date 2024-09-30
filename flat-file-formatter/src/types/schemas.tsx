@@ -177,8 +177,6 @@ export const FormatSchema = z.discriminatedUnion("format", [
   }),
 ]);
 
-export type Format = z.infer<typeof FormatSchema>;
-
 export const ChangesSchema = z.object({
   order: z.record(z.array(z.string())),
   history: z.array(OperationSchema),
@@ -190,8 +188,8 @@ export const OutputSchema = z.object({
   details: FormatSchema,
   groups: z.array(
     z.object({
-      name: z.string(),
-      tags: z.array(z.object({ tag: z.string() })),
+      name: z.string().min(1),
+      tags: z.array(z.string()),
     }),
   ),
 });

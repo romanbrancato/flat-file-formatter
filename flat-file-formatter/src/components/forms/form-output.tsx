@@ -34,10 +34,6 @@ export function FormOutput() {
   });
 
   useEffect(() => {
-    console.log("FORM VALUES:", JSON.stringify(output.groups, null, 2));
-  }, [output.groups]);
-
-  useEffect(() => {
     const values = OutputSchema.safeParse(output);
     if (values.success) {
       setPreset({

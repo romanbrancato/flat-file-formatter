@@ -17,6 +17,7 @@ import { ButtonRemoveField } from "@/components/button-remove-field";
 import { ButtonOperations } from "@/components/button-operations";
 import { PresetContext } from "@/context/preset-context";
 import { ButtonExportFileBatch } from "@/components/button-export-file-batch";
+import { SelectFields } from "@/components/select-fields";
 
 export default function App() {
   const { mode } = useContext(ModeContext);
@@ -93,7 +94,7 @@ export default function App() {
                 ))}
               </div>
               <div className="ml-auto w-1/5">
-                <ButtonExportFileBatch files={files} setFiles={setFiles} />
+                <ButtonExportFileBatch files={files} />
               </div>
             </div>
           ) : (
@@ -108,6 +109,16 @@ export default function App() {
             </div>
           )}
         </div>
+        <SelectFields
+          label={"Fields"}
+          options={[
+            { tag: "HI", name: "yoo" },
+            { tag: "Ho", name: "yoo" },
+            { tag: "Hr", name: "yoo" },
+            { tag: "Hp", name: "yoo" },
+          ]}
+          onValueChange={(fields) => console.log(fields)}
+        />
       </div>
     </main>
   );

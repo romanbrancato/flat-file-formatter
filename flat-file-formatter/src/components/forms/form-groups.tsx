@@ -1,6 +1,6 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
-import { CaretSortIcon, PlusCircledIcon } from "@radix-ui/react-icons";
+import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -9,90 +9,56 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { SelectTag } from "@/components/select-tag";
-import { useState } from "react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { useContext } from "react";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { ParserContext } from "@/context/parser-context";
 
 function GroupCollapsible({ fieldIndex }: { fieldIndex: number }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const { data } = useContext(ParserContext);
   const { control } = useFormContext();
-  const { fields, append } = useFieldArray({
-    name: `groups.tags.${fieldIndex}`,
-    control: control,
-  });
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-1">
-      <div className="flex w-full items-center justify-between gap-x-1">
-        <FormField
-          control={control}
-          name={`groups.${fieldIndex}.name`}
-          render={({ field }) => (
-            <FormItem className="flex-1">
-              <FormControl>
-                <Input placeholder="Group Name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <CaretSortIcon />
-            <span className="sr-only">Toggle</span>
-          </Button>
-        </CollapsibleTrigger>
-      </div>
-      <CollapsibleContent className="space-y-1">
-        <ScrollArea>
-          <ScrollAreaViewport className="max-h-[200px]">
-            {fields.map((field, index) => (
-              <FormField
-                key={field.id}
-                control={control}
-                name={`groups.${fieldIndex}.tags.${index}.tag`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <SelectTag
-                        label="Tag"
-                        selectedTag={field.value}
-                        onTagSelect={(tag: string) => {
-                          field.onChange(tag);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+    <div className="flex-1 space-y-1">
+      <FormField
+        control={control}
+        name={`groups.${fieldIndex}.name`}
+        render={({ field }) => (
+          <FormItem className="flex-1">
+            <FormControl>
+              <Input
+                defaultValue={field.value}
+                placeholder="Group Name"
+                onBlur={(e) => field.onChange(e)}
               />
-            ))}
-          </ScrollAreaViewport>
-        </ScrollArea>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full border-dashed"
-          onClick={(event) => {
-            event.preventDefault();
-            append({ tag: "" });
-          }}
-        >
-          <PlusCircledIcon className="mr-2" />
-          Add Tag
-        </Button>
-      </CollapsibleContent>
-    </Collapsible>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name={`groups.${fieldIndex}.tags`}
+        render={({ field }) => (
+          <FormItem className="flex-1">
+            <FormControl>
+              <MultiSelect
+                options={Object.keys(data.records)}
+                defaultValue={field.value}
+                placeholder="Select Tags"
+                onValueChange={(tags) => field.onChange(tags)}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
   );
 }
 
 export function FormGroups() {
   const { control } = useFormContext();
-  const { fields, append } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     name: `groups`,
     control: control,
   });
@@ -102,7 +68,16 @@ export function FormGroups() {
       <ScrollArea>
         <ScrollAreaViewport className="max-h-[400px]">
           {fields.map((field, index) => (
-            <GroupCollapsible key={field.id} fieldIndex={index} />
+            <div
+              className="mr-4 flex flex-row items-center space-x-2"
+              key={field.id}
+            >
+              <GroupCollapsible fieldIndex={index} />
+              <Cross2Icon
+                className="ml-auto opacity-70 hover:text-destructive"
+                onClick={() => remove(index)}
+              />
+            </div>
           ))}
         </ScrollAreaViewport>
       </ScrollArea>
@@ -116,7 +91,7 @@ export function FormGroups() {
         }}
       >
         <PlusCircledIcon className="mr-2" />
-        Additional Group
+        Add Group
       </Button>
     </div>
   );

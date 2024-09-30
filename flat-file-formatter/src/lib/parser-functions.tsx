@@ -3,7 +3,7 @@ import { Options, parse, stringify } from "@evologi/fixed-width";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Data, ParserConfigSchema, Preset } from "@/types/schemas";
-import { download } from "@/lib/utils";
+import { download, tokenize } from "@/lib/utils";
 
 export const ParserParams = z.object({
   file: z.instanceof(File),
@@ -160,18 +160,22 @@ export function unparseData(
   }
 }
 
-export function exportFile(data: Data, preset: Preset) {
+export function exportFile(data: Data, preset: Preset, name: string) {
   const flatData = unparseData(data, preset);
 
   if (!flatData) return;
+  const tokenizedName = tokenize(name);
 
   preset.output.groups.forEach((group) => {
     download(
       group.tags
-        .map((tag) => flatData[tag.tag])
+        .map((tag) => flatData[tag])
         .filter(Boolean)
         .join("\n"),
-      group.name,
+      group.name.replace(
+        /{(\d+)}/g,
+        (match, index) => tokenizedName[index] || "",
+      ),
       "txt",
     );
   });
