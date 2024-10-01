@@ -1,15 +1,6 @@
-import { evaluateCondition, extract, tokenize } from "@/lib/utils";
-import { Changes, Data, Operation } from "@/types/schemas";
+import { evaluateCondition, extract } from "@/lib/utils";
+import { Action, Changes, Data, Operation } from "@/types/schemas";
 import { format } from "date-fns";
-
-export function applyPattern(originalName: string, pattern = ""): string {
-  if (!pattern) return originalName;
-  const tokenized = tokenize(originalName);
-  return pattern.replace(/{(\d+)}/g, (match: string, index: string) => {
-    const tokenIndex = parseInt(index, 10);
-    return tokenized[tokenIndex] ?? "";
-  });
-}
 
 export function removeFields(data: Data, operation: Operation): Data {
   if (operation.operation !== "remove") return data;
@@ -27,7 +18,7 @@ export function removeFields(data: Data, operation: Operation): Data {
     records.rows.forEach((row) => row.splice(fieldIndex, 1));
   });
 
-  return { ...data, records: { ...data.records } };
+  return { ...data };
 }
 
 export function addFields(data: Data, operation: Operation): Data {
@@ -57,7 +48,7 @@ export function addFields(data: Data, operation: Operation): Data {
     insertIndex++;
   });
 
-  return { ...data, records: { ...data.records } };
+  return { ...data };
 }
 
 export function orderFields(data: Data, tag: string, order: number[]): Data {
@@ -67,7 +58,7 @@ export function orderFields(data: Data, tag: string, order: number[]): Data {
   record.fields = order.map((index) => record.fields[index]);
   record.rows = record.rows.map((row) => order.map((index) => row[index]));
 
-  return { ...data, records: { ...data.records } };
+  return { ...data };
 }
 
 export function evaluateConditions(data: Data, operation: Operation): Data {
@@ -75,6 +66,16 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
 
   const { tag, conditions, actionTrue, actionFalse } = operation;
   const records = data.records[tag];
+
+  // Ensures that any additional tags are created even if no rows end up being pushed to them.
+  const ensureSeparateTag = (action: Action) => {
+    if (action.action === "separate" && !data.records[action.tag]) {
+      data.records[action.tag] = { fields: [...records.fields], rows: [] };
+    }
+  };
+
+  ensureSeparateTag(actionTrue);
+  ensureSeparateTag(actionFalse);
 
   records.rows = records.rows.flatMap((row) => {
     const action = conditions.every((condition) =>
@@ -97,8 +98,6 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
         return [row];
 
       case "separate":
-        if (!data.records[action.tag])
-          data.records[action.tag] = { fields: records.fields, rows: [] };
         data.records[action.tag].rows.push(row);
         return [];
 
@@ -117,7 +116,7 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
     }
   });
 
-  return { ...data, records: { ...data.records } };
+  return { ...data };
 }
 
 export function evaluateEquation(data: Data, operation: Operation): Data {
@@ -152,7 +151,7 @@ export function evaluateEquation(data: Data, operation: Operation): Data {
     });
   }
 
-  return { ...data, records: { ...data.records } };
+  return { ...data };
 }
 
 export function reformatData(data: Data, operation: Operation): Data {
@@ -187,7 +186,7 @@ export function reformatData(data: Data, operation: Operation): Data {
     return row;
   });
 
-  return { ...data, records: { ...data.records } };
+  return { ...data };
 }
 
 export function applyPreset(data: Data, changes: Changes): Data {
@@ -219,8 +218,6 @@ export function applyPreset(data: Data, changes: Changes): Data {
       orderFields(data, tag, orderIndices);
     }
   });
-
-  data.name = applyPattern(data.name, changes.pattern);
 
   return { ...data };
 }

@@ -1,5 +1,5 @@
 "use client";
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 import { Preset } from "@/types/schemas";
 
 export const PresetContext = createContext<{
@@ -16,18 +16,24 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
     parser: {
       format: "delimited",
     },
-    formatSpec: {
-      format: "fixed",
-      pad: " ",
-      align: "left",
-      widths: {},
-    },
     changes: {
-      pattern: "",
       order: {},
       history: [],
     },
+    output: {
+      details: {
+        format: "fixed",
+        pad: " ",
+        align: "left",
+        widths: {},
+      },
+      groups: [],
+    },
   });
+
+  useEffect(() => {
+    console.log("Preset", preset);
+  }, [preset]);
 
   return (
     <PresetContext.Provider

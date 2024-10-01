@@ -14,7 +14,7 @@ export function SelectTag({
   onTagSelect,
 }: {
   label: string;
-  selectedTag: string;
+  selectedTag: string | undefined;
   onTagSelect: (tag: string) => void;
 }) {
   const { data } = useContext(ParserContext);

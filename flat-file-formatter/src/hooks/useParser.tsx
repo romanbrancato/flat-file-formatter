@@ -22,23 +22,6 @@ export function useParser() {
       });
   }, [params]);
 
-  useEffect(() => {
-    console.log(data.records);
-  }, [data]);
-
-  const applyPattern = useCallback(
-    (schema: string) => {
-      if (!params) return;
-      setIsReady(false);
-      setData({
-        ...data,
-        name: fns.applyPattern(path.parse(params.file.name).name, schema),
-      });
-      setIsReady(true);
-    },
-    [params, data],
-  );
-
   const removeFields = useCallback(
     (operation: Operation) => {
       setIsReady(false);
@@ -107,7 +90,6 @@ export function useParser() {
     params,
     setParams,
     data,
-    applyPattern,
     removeFields,
     addFields,
     orderFields,

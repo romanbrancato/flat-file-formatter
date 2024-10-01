@@ -1,9 +1,9 @@
 import Papa from "papaparse";
 import { Options, parse, stringify } from "@evologi/fixed-width";
-import path from "node:path";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Data, ParserConfigSchema, Preset } from "@/types/schemas";
+import { download, tokenize } from "@/lib/utils";
 
 export const ParserParams = z.object({
   file: z.instanceof(File),
@@ -27,7 +27,6 @@ export async function parseFile(params: ParserParams) {
             );
 
             resolve({
-              name: path.parse(params.file.name).name,
               records: {
                 detail: {
                   fields: fields,
@@ -45,6 +44,8 @@ export async function parseFile(params: ParserParams) {
         const reader = new FileReader();
 
         reader.onload = (event) => {
+          if (params.config.format !== "fixed") return;
+
           const fileContents = event.target?.result as string;
           const lines = fileContents.split(/\r?\n/).filter(Boolean); // Filter out empty lines
 
@@ -67,8 +68,6 @@ export async function parseFile(params: ParserParams) {
             return { fields, rows };
           };
 
-          if (params.config.format !== "fixed") return;
-
           if (params.config.header?.fields.length) {
             records.header = unzip(
               parse(lines[0], params.config.header as Options),
@@ -89,7 +88,6 @@ export async function parseFile(params: ParserParams) {
           }
 
           resolve({
-            name: path.parse(params.file.name).name,
             records,
           });
         };
@@ -115,15 +113,15 @@ export function unparseData(
       .filter(([tag, records]) => records.fields.length > 0)
       .forEach(([tag, records]) => {
         flatData[tag] =
-          preset.formatSpec.format === "delimited"
+          preset.output.details.format === "delimited"
             ? Papa.unparse(
                 { fields: records.fields, data: records.rows },
                 {
-                  delimiter: preset.formatSpec.delimiter,
+                  delimiter: preset.output.details.delimiter,
                   skipEmptyLines: true,
                 },
               )
-            : preset.formatSpec.format === "fixed"
+            : preset.output.details.format === "fixed"
               ? stringify(
                   records.rows.map((row) =>
                     Object.fromEntries(
@@ -131,23 +129,23 @@ export function unparseData(
                     ),
                   ),
                   {
-                    pad: preset.formatSpec.pad,
+                    pad: preset.output.details.pad,
                     fields: records.fields.map((field) => {
                       const width =
-                        preset.formatSpec.format === "fixed"
-                          ? preset.formatSpec.widths[tag]?.[field]
+                        preset.output.details.format === "fixed"
+                          ? preset.output.details.widths[tag]?.[field]
                           : undefined;
 
-                      if (!width) {
-                        throw new Error(`No width found for ${field}`);
+                      if (!width || width <= 0) {
+                        throw new Error(`Invalid width for ${field}`);
                       }
 
                       return {
                         property: field,
                         width: width,
                         align:
-                          preset.formatSpec.format === "fixed"
-                            ? preset.formatSpec.align
+                          preset.output.details.format === "fixed"
+                            ? preset.output.details.align
                             : "left",
                       };
                     }),
@@ -160,4 +158,25 @@ export function unparseData(
   } catch (error: any) {
     toast.error("Failed to Export File", { description: error.message });
   }
+}
+
+export function exportFile(data: Data, preset: Preset, name: string) {
+  const flatData = unparseData(data, preset);
+
+  if (!flatData) return;
+  const tokenizedName = tokenize(name);
+
+  preset.output.groups.forEach((group) => {
+    download(
+      group.tags
+        .map((tag) => flatData[tag])
+        .filter(Boolean)
+        .join("\n"),
+      group.name.replace(
+        /{(\d+)}/g,
+        (match, index) => tokenizedName[index] || "",
+      ),
+      "txt",
+    );
+  });
 }
