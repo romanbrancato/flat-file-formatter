@@ -109,16 +109,16 @@ export default function App() {
             </div>
           )}
         </div>
-        <SelectFields
-          label={"Fields"}
-          options={[
-            { tag: "HI", name: "yoo" },
-            { tag: "Ho", name: "yoo" },
-            { tag: "Hr", name: "yoo" },
-            { tag: "Hp", name: "yoo" },
-          ]}
-          onValueChange={(fields) => console.log(fields)}
-        />
+        {/*<SelectFields*/}
+        {/*  label={"Fields"}*/}
+        {/*  options={[*/}
+        {/*    { tag: "HI", name: "yoo" },*/}
+        {/*    { tag: "Ho", name: "yoo" },*/}
+        {/*    { tag: "Hr", name: "yoo" },*/}
+        {/*    { tag: "Hp", name: "yoo" },*/}
+        {/*  ]}*/}
+        {/*  onValueChange={(fields) => console.log(fields)}*/}
+        {/*/>*/}
       </div>
     </main>
   );

@@ -13,8 +13,8 @@ import {
 import { PresetContext } from "@/context/preset-context";
 import { Output, OutputSchema } from "@/types/schemas";
 import { SelectFormat } from "@/components/select-format";
-import { ButtonDefineWidths } from "@/components/button-define-widths";
-import { ButtonOutputGroups } from "@/components/button-output-groups";
+import { FormGroups } from "@/components/forms/form-groups";
+import { FormDefineWidths } from "@/components/forms/form-define-widths";
 
 export function FormOutput() {
   const { preset, setPreset } = useContext(PresetContext);
@@ -68,7 +68,7 @@ export function FormOutput() {
           />
           {format === "fixed" && (
             <>
-              <ButtonDefineWidths />
+              <FormDefineWidths />
               <FormField
                 control={form.control}
                 name="details.pad"
@@ -123,7 +123,7 @@ export function FormOutput() {
               )}
             />
           )}
-          <ButtonOutputGroups />
+          <FormGroups />
         </form>
       </Form>
     </FormProvider>

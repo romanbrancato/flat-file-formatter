@@ -17,6 +17,16 @@ import { ParserContext } from "@/context/parser-context";
 import { useContext, useState } from "react";
 import { SelectTag } from "@/components/select-tag";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Pencil2Icon } from "@radix-ui/react-icons";
 
 function AccordionItemComponent({
   tag,
@@ -31,13 +41,15 @@ function AccordionItemComponent({
 
   const widths = useWatch({
     control,
-    name: "widths",
-    defaultValue: {},
+    name: "details.widths",
   });
 
   const copyWidths = (selectedTag: string) => {
     fields.forEach((field) => {
-      setValue(`widths.${tag}.${field}`, widths[selectedTag][field] || 0);
+      setValue(
+        `details.widths.${tag}.${field}`,
+        widths[selectedTag][field] || 0,
+      );
     });
     setSelectedTag(undefined);
   };
@@ -48,7 +60,11 @@ function AccordionItemComponent({
         {tag}
         <span className="ml-auto">
           {Object.values(
-            useWatch({ control, name: `widths.${tag}`, defaultValue: 0 }),
+            useWatch({
+              control,
+              name: `details.widths.${tag}`,
+              defaultValue: 0,
+            }),
           ).reduce((total: number, width) => total + Number(width || 0), 0)}
         </span>
       </AccordionTrigger>
@@ -58,7 +74,7 @@ function AccordionItemComponent({
             {fields.map((fieldName) => (
               <FormField
                 control={control}
-                name={`widths.${tag}.${fieldName}`}
+                name={`details.widths.${tag}.${fieldName}`}
                 key={`${tag}${fieldName}`}
                 defaultValue={0}
                 render={({ field }) => (
@@ -70,7 +86,8 @@ function AccordionItemComponent({
                         </span>
                         <Input
                           className="text-right"
-                          {...field}
+                          defaultValue={field.value}
+                          onBlur={(e) => field.onChange(e)}
                           type="number"
                           min={0}
                         />
@@ -98,13 +115,35 @@ function AccordionItemComponent({
 
 export function FormDefineWidths() {
   const { data } = useContext(ParserContext);
+  const [open, setOpen] = useState(false);
+
   return (
-    <Accordion type="single" collapsible>
-      {Object.entries(data.records)
-        .filter(([, records]) => records.fields.length)
-        .map(([tag, records]) => (
-          <AccordionItemComponent tag={tag} fields={records.fields} key={tag} />
-        ))}
-    </Accordion>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="w-full border-dashed">
+          <Pencil2Icon className="mr-2" />
+          Define Widths
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[800px] sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>Define Widths</DialogTitle>
+          <DialogDescription className="flex flex-row items-center justify-between">
+            Define the widths of each field in characters.
+          </DialogDescription>
+        </DialogHeader>
+        <Accordion type="single" collapsible>
+          {Object.entries(data.records)
+            .filter(([, records]) => records.fields.length)
+            .map(([tag, records]) => (
+              <AccordionItemComponent
+                tag={tag}
+                fields={records.fields}
+                key={tag}
+              />
+            ))}
+        </Accordion>
+      </DialogContent>
+    </Dialog>
   );
 }
