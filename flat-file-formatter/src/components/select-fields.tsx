@@ -1,9 +1,6 @@
 import * as React from "react";
+import { useEffect, useState } from "react";
 import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons";
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -18,56 +15,67 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Field } from "@/types/schemas";
 
 export function SelectFields({
   label,
   options,
+  defaultValues,
   onValueChange,
 }: {
   label?: string;
-  options: { tag: string; name: string }[];
-  onValueChange: (value: string[]) => void;
+  options: Field[];
+  defaultValues: Field[];
+  onValueChange: (fields: Field[]) => void;
 }) {
-  const [selectedValues, setSelectedValues] = useState<
-    { tag: string; name: string }[]
-  >([]);
-  const sortedOptions = options.sort((a, b) => a.tag.localeCompare(b.tag));
+  const [selectedValues, setSelectedValues] = useState<Field[]>(defaultValues);
 
-  const toggleSelect = (option: { tag: string; name: string }) => {
+  const groupedOptions = options.reduce(
+    (acc, option) => {
+      acc[option.tag] = [...(acc[option.tag] || []), option];
+      return acc;
+    },
+    {} as Record<string, Field[]>,
+  );
+
+  const toggleSelect = (option: Field) => {
     setSelectedValues((prev) => {
-      const isSelected = prev.find(
-        (selected) =>
-          selected.tag === option.tag && selected.name === option.name,
-      );
-      return isSelected
-        ? prev.filter((selected) => selected !== isSelected)
+      const isSelected = prev.some((selected) => selected === option);
+      const newSelectedValues = isSelected
+        ? prev.filter((selected) => selected !== option)
         : [...prev, option];
+
+      onValueChange(newSelectedValues);
+      return newSelectedValues;
     });
   };
 
-  // Effect to call onValueChange when selectedValues changes
-  useEffect(() => {
-    onValueChange(selectedValues.map((val) => val.name));
-  }, [selectedValues, onValueChange]);
+  const selectAllInTag = (tag: string) => {
+    setSelectedValues((prev) => {
+      const groupOptions = groupedOptions[tag];
+      const newSelectedValues = [
+        ...prev.filter((field) => field.tag !== tag),
+        ...groupOptions,
+      ];
+      onValueChange(newSelectedValues);
+      return newSelectedValues;
+    });
+  };
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 border-dashed">
+        <Button variant="outline" size="sm" className="w-full border-dashed">
           <PlusCircledIcon className="mr-2" />
-          {label}
+          <span className="align">{label}</span>
           {selectedValues.length > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
-              <Badge
-                variant="secondary"
-                className="rounded-sm px-1 font-normal lg:hidden"
-              >
-                {selectedValues.length}
-              </Badge>
-              <div className="hidden space-x-1 lg:flex">
-                {selectedValues.length > 2 ? (
+              <div className="space-x-1 overflow-hidden">
+                {selectedValues.length > 4 ? (
                   <Badge
                     variant="secondary"
                     className="rounded-sm px-1 font-normal"
@@ -75,13 +83,13 @@ export function SelectFields({
                     {selectedValues.length} selected
                   </Badge>
                 ) : (
-                  selectedValues.map((option) => (
+                  selectedValues.map(({ tag, name }) => (
                     <Badge
-                      key={option.tag + option.name}
+                      key={`${tag}-${name}`}
                       variant="secondary"
                       className="rounded-sm px-1 font-normal"
                     >
-                      {option.name}
+                      {name}
                     </Badge>
                   ))
                 )}
@@ -90,46 +98,47 @@ export function SelectFields({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" align="start">
+      <PopoverContent className="p-0" align="start">
         <Command>
           <CommandInput placeholder={label} />
           <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
-              {sortedOptions.map((option) => {
-                const isSelected = selectedValues.some(
-                  (selected) =>
-                    selected.tag === option.tag &&
-                    selected.name === option.name,
-                );
-                return (
-                  <CommandItem
-                    key={option.tag + option.name}
-                    onSelect={() => toggleSelect(option)}
-                  >
-                    <div
-                      className={cn(
-                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                        isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : "opacity-50 [&_svg]:invisible",
-                      )}
+            <CommandEmpty>No fields found.</CommandEmpty>
+            {Object.entries(groupedOptions).map(([tag, options]) => (
+              <CommandGroup key={tag} heading={tag}>
+                <CommandItem
+                  onSelect={() => selectAllInTag(tag)}
+                  className="justify-center text-center"
+                >
+                  Select All
+                </CommandItem>
+                {options.map((option) => {
+                  const isSelected = selectedValues.some(
+                    (selected) =>
+                      selected.tag === option.tag &&
+                      selected.name === option.name,
+                  );
+                  return (
+                    <CommandItem
+                      key={`${option.tag}-${option.name}`}
+                      onSelect={() => toggleSelect(option)}
                     >
-                      <CheckIcon />
-                    </div>
-                    <span>{option.name}</span>
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
+                      <div
+                        className={`mr-2 flex items-center justify-center rounded-sm border border-primary ${isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
+                      >
+                        <CheckIcon />
+                      </div>
+                      <span>{option.name}</span>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            ))}
             {selectedValues.length > 0 && (
               <>
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
-                    onSelect={() => {
-                      setSelectedValues([]);
-                    }}
+                    onSelect={() => setSelectedValues([])}
                     className="justify-center text-center"
                   >
                     Clear fields

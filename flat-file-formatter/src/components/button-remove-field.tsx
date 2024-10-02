@@ -8,13 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useContext, useState } from "react";
-import {
-  Cross2Icon,
-  MinusCircledIcon,
-  PlusCircledIcon,
-} from "@radix-ui/react-icons";
-import { SelectField } from "@/components/select-field";
-import { useFieldArray, useForm } from "react-hook-form";
+import { MinusCircledIcon } from "@radix-ui/react-icons";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -26,24 +21,24 @@ import {
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { Field, Operation, OperationSchema } from "@/types/schemas";
-import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
+import { SelectFields } from "@/components/select-fields";
 
 export function ButtonRemoveField() {
   const { isReady, removeFields } = useContext(ParserContext);
+  const { data } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
+
+  const options = Object.entries(data.records).flatMap(([tag, records]) =>
+    records.fields.map((name) => ({ tag, name })),
+  );
 
   const form = useForm<Operation>({
     resolver: zodResolver(OperationSchema),
     defaultValues: {
       operation: "remove",
-      fields: [{ tag: "", name: "" }],
+      fields: [],
     },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    name: `fields`,
-    control: form.control,
   });
 
   function onSubmit(values: Operation) {
@@ -82,50 +77,23 @@ export function ButtonRemoveField() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-y-1"
           >
-            <ScrollArea>
-              <ScrollAreaViewport className="max-h-[400px]">
-                {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="mr-4 flex flex-row items-center gap-x-2"
-                  >
-                    <FormField
-                      control={form.control}
-                      name={`fields.${index}`}
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormControl>
-                            <SelectField
-                              selectedField={field.value as Field}
-                              onFieldSelect={(selectedField) => {
-                                field.onChange(selectedField);
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+            <FormField
+              control={form.control}
+              name={`fields`}
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormControl>
+                    <SelectFields
+                      label="Select Fields"
+                      options={options}
+                      defaultValues={field.value as Field[]}
+                      onValueChange={(fields) => field.onChange(fields)}
                     />
-                    <Cross2Icon
-                      className="ml-auto opacity-70 hover:text-destructive"
-                      onClick={() => remove(index)}
-                    />
-                  </div>
-                ))}
-              </ScrollAreaViewport>
-            </ScrollArea>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full border-dashed"
-              onClick={(event) => {
-                event.preventDefault();
-                append({ tag: "", name: "" });
-              }}
-            >
-              <PlusCircledIcon className="mr-2" />
-              Additional Field
-            </Button>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <Button type="submit" className="ml-auto w-1/3">
               Remove
             </Button>

@@ -17,7 +17,6 @@ import { ButtonRemoveField } from "@/components/button-remove-field";
 import { ButtonOperations } from "@/components/button-operations";
 import { PresetContext } from "@/context/preset-context";
 import { ButtonExportFileBatch } from "@/components/button-export-file-batch";
-import { SelectFields } from "@/components/select-fields";
 
 export default function App() {
   const { mode } = useContext(ModeContext);
@@ -61,14 +60,16 @@ export default function App() {
           {mode === "single" && isReady ? (
             <>
               <div className="flex flex-grow flex-col gap-y-1 overflow-hidden">
-                {Object.entries(data.records).map(([tag, records]) => (
-                  <RecordTable
-                    key={tag + Date.now()}
-                    tag={tag}
-                    fields={records.fields}
-                    rows={records.rows}
-                  />
-                ))}
+                {Object.entries(data.records)
+                  .filter(([_, records]) => records.fields.length > 0)
+                  .map(([tag, records]) => (
+                    <RecordTable
+                      key={tag + Date.now()}
+                      tag={tag}
+                      fields={records.fields}
+                      rows={records.rows}
+                    />
+                  ))}
                 <div className="flex flex-row gap-x-1 md:w-2/3">
                   <ButtonAddField />
                   <ButtonRemoveField />

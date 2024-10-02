@@ -109,8 +109,14 @@ export function unparseData(
   try {
     const flatData: Record<string, string> = {};
 
+    const groupTags = new Set(
+      preset.output.groups.flatMap((group) => group.tags),
+    );
+
     Object.entries(data.records)
-      .filter(([tag, records]) => records.fields.length > 0)
+      .filter(
+        ([tag, records]) => records.fields.length > 0 && groupTags.has(tag),
+      )
       .forEach(([tag, records]) => {
         flatData[tag] =
           preset.output.details.format === "delimited"
