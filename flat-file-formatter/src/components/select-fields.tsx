@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CheckIcon, PlusCircledIcon } from "@radix-ui/react-icons";
 import {
   Command,
@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/types/schemas";
+import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
 export function SelectFields({
   label,
@@ -102,50 +103,54 @@ export function SelectFields({
         <Command>
           <CommandInput placeholder={label} />
           <CommandList>
-            <CommandEmpty>No fields found.</CommandEmpty>
-            {Object.entries(groupedOptions).map(([tag, options]) => (
-              <CommandGroup key={tag} heading={tag}>
-                <CommandItem
-                  onSelect={() => selectAllInTag(tag)}
-                  className="justify-center text-center"
-                >
-                  Select All
-                </CommandItem>
-                {options.map((option) => {
-                  const isSelected = selectedValues.some(
-                    (selected) =>
-                      selected.tag === option.tag &&
-                      selected.name === option.name,
-                  );
-                  return (
+            <ScrollArea>
+              <ScrollAreaViewport className="max-h-[300px]">
+                <CommandEmpty>No fields found.</CommandEmpty>
+                {Object.entries(groupedOptions).map(([tag, options]) => (
+                  <CommandGroup key={tag} heading={tag}>
                     <CommandItem
-                      key={`${option.tag}-${option.name}`}
-                      onSelect={() => toggleSelect(option)}
+                      onSelect={() => selectAllInTag(tag)}
+                      className="justify-center text-center"
                     >
-                      <div
-                        className={`mr-2 flex items-center justify-center rounded-sm border border-primary ${isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
-                      >
-                        <CheckIcon />
-                      </div>
-                      <span>{option.name}</span>
+                      Select All
                     </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            ))}
-            {selectedValues.length > 0 && (
-              <>
-                <CommandSeparator />
-                <CommandGroup>
-                  <CommandItem
-                    onSelect={() => setSelectedValues([])}
-                    className="justify-center text-center"
-                  >
-                    Clear fields
-                  </CommandItem>
-                </CommandGroup>
-              </>
-            )}
+                    {options.map((option) => {
+                      const isSelected = selectedValues.some(
+                        (selected) =>
+                          selected.tag === option.tag &&
+                          selected.name === option.name,
+                      );
+                      return (
+                        <CommandItem
+                          key={`${option.tag}-${option.name}`}
+                          onSelect={() => toggleSelect(option)}
+                        >
+                          <div
+                            className={`mr-2 flex items-center justify-center rounded-sm border border-primary ${isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
+                          >
+                            <CheckIcon />
+                          </div>
+                          <span>{option.name}</span>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                ))}
+                {selectedValues.length > 0 && (
+                  <>
+                    <CommandSeparator />
+                    <CommandGroup>
+                      <CommandItem
+                        onSelect={() => setSelectedValues([])}
+                        className="justify-center text-center"
+                      >
+                        Clear fields
+                      </CommandItem>
+                    </CommandGroup>
+                  </>
+                )}
+              </ScrollAreaViewport>
+            </ScrollArea>
           </CommandList>
         </Command>
       </PopoverContent>
