@@ -42,7 +42,7 @@ export function SelectFields({
     {} as Record<string, Field[]>,
   );
 
-  const toggleSelect = (option: Field) => {
+  const toggleOption = (option: Field) => {
     const isSelected = selectedValues.some(
       (selected) =>
         selected.tag === option.tag && selected.name === option.name,
@@ -53,6 +53,32 @@ export function SelectFields({
           (value) => !(value.tag === option.tag && value.name === option.name),
         )
       : [...selectedValues, option];
+
+    setSelectedValues(newSelectedValues);
+    onValueChange(newSelectedValues);
+  };
+
+  const toggleGroup = (tag: string) => {
+    const groupOptions = groupedOptions[tag] || [];
+    const isAllSelected = groupOptions.every((option) =>
+      selectedValues.some(
+        (selected) =>
+          selected.tag === option.tag && selected.name === option.name,
+      ),
+    );
+
+    const newSelectedValues = isAllSelected
+      ? selectedValues.filter((value) => value.tag !== tag)
+      : [
+          ...selectedValues,
+          ...groupOptions.filter(
+            (option) =>
+              !selectedValues.some(
+                (selected) =>
+                  selected.tag === option.tag && selected.name === option.name,
+              ),
+          ),
+        ];
 
     setSelectedValues(newSelectedValues);
     onValueChange(newSelectedValues);
@@ -99,7 +125,21 @@ export function SelectFields({
               <ScrollAreaViewport className="max-h-[300px]">
                 <CommandEmpty>No fields found.</CommandEmpty>
                 {Object.entries(groupedOptions).map(([tag, options]) => (
-                  <CommandGroup key={tag} heading={tag}>
+                  <CommandGroup
+                    key={tag}
+                    heading={
+                      <div
+                        className="group flex flex-row items-center justify-between hover:cursor-pointer"
+                        onClick={() => toggleGroup(tag)}
+                      >
+                        {tag}
+                        <span className="invisible select-none group-hover:visible">
+                          {" "}
+                          (Toggle All){" "}
+                        </span>
+                      </div>
+                    }
+                  >
                     {options.map((option) => {
                       const isSelected = selectedValues.some(
                         (selected) =>
@@ -109,7 +149,7 @@ export function SelectFields({
                       return (
                         <CommandItem
                           key={`${option.tag}-${option.name}`}
-                          onSelect={() => toggleSelect(option)}
+                          onSelect={() => toggleOption(option)}
                         >
                           <div
                             className={`mr-2 flex items-center justify-center rounded-sm border border-primary ${isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
