@@ -31,10 +31,6 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
     },
   });
 
-  useEffect(() => {
-    console.log("Preset", preset);
-  }, [preset]);
-
   return (
     <PresetContext.Provider
       value={{

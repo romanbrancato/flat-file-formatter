@@ -43,27 +43,19 @@ export function SelectFields({
   );
 
   const toggleSelect = (option: Field) => {
-    setSelectedValues((prev) => {
-      const isSelected = prev.some((selected) => selected === option);
-      const newSelectedValues = isSelected
-        ? prev.filter((selected) => selected !== option)
-        : [...prev, option];
+    const isSelected = selectedValues.some(
+      (selected) =>
+        selected.tag === option.tag && selected.name === option.name,
+    );
 
-      onValueChange(newSelectedValues);
-      return newSelectedValues;
-    });
-  };
+    const newSelectedValues = isSelected
+      ? selectedValues.filter(
+          (value) => !(value.tag === option.tag && value.name === option.name),
+        )
+      : [...selectedValues, option];
 
-  const selectAllInTag = (tag: string) => {
-    setSelectedValues((prev) => {
-      const groupOptions = groupedOptions[tag];
-      const newSelectedValues = [
-        ...prev.filter((field) => field.tag !== tag),
-        ...groupOptions,
-      ];
-      onValueChange(newSelectedValues);
-      return newSelectedValues;
-    });
+    setSelectedValues(newSelectedValues);
+    onValueChange(newSelectedValues);
   };
 
   return (
@@ -75,8 +67,8 @@ export function SelectFields({
           {selectedValues.length > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
-              <div className="space-x-1 overflow-hidden">
-                {selectedValues.length > 4 ? (
+              <div className="space-x-1">
+                {selectedValues.length > 3 ? (
                   <Badge
                     variant="secondary"
                     className="rounded-sm px-1 font-normal"
@@ -108,12 +100,6 @@ export function SelectFields({
                 <CommandEmpty>No fields found.</CommandEmpty>
                 {Object.entries(groupedOptions).map(([tag, options]) => (
                   <CommandGroup key={tag} heading={tag}>
-                    <CommandItem
-                      onSelect={() => selectAllInTag(tag)}
-                      className="justify-center text-center"
-                    >
-                      Select All
-                    </CommandItem>
                     {options.map((option) => {
                       const isSelected = selectedValues.some(
                         (selected) =>

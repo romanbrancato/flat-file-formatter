@@ -98,6 +98,7 @@ export function SelectPreset() {
             <Input
               type="file"
               accept=".json"
+              className="rounded-md border hover:bg-secondary"
               onChange={(event) => setFile(event.target.files?.[0])}
             />
           </CommandGroup>

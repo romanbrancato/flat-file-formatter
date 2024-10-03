@@ -70,7 +70,7 @@ function AccordionItemComponent({
       </AccordionTrigger>
       <AccordionContent className="space-y-1">
         <ScrollArea>
-          <ScrollAreaViewport className="max-h-[400px]">
+          <ScrollAreaViewport className="max-h-[300px]">
             {fields.map((fieldName) => (
               <FormField
                 control={control}

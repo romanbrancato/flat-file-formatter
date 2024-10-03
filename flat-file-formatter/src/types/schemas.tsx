@@ -184,6 +184,7 @@ export const OutputSchema = z.object({
     z.object({
       name: z.string().min(1),
       tags: z.array(z.string()),
+      // algorithm: z.enum(["in order", "round robin"]),
     }),
   ),
 });
