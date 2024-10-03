@@ -40,13 +40,13 @@ export default function App() {
 
   return (
     <main className="flex flex-col gap-y-3">
-      <span className="text-md absolute left-1/2 -translate-x-1/2 font-bold">
-        Format a Flat File
-      </span>
-      <SelectMode />
-      <div className="space-y-1">
-        <ButtonParserConfig />
+      <div className="relative flex">
+        <div className="absolute left-[80%] top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 transform flex-col items-center rounded-md border border-primary-foreground bg-primary-foreground md:flex-row">
+          <ButtonParserConfig />
+          <SelectMode />
+        </div>
         <Dropzone
+          className="z-0 flex-grow"
           onChange={setFiles}
           fileExtension={
             preset.parser?.format === "delimited" ? ".csv" : ".txt"

@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/accordion";
 import { ParserConfig, ParserConfigSchema } from "@/types/schemas";
 import { PresetContext } from "@/context/preset-context";
+import { Label } from "@/components/ui/label";
 
 function AccordionItemComponent({ record }: { record: string }) {
   const { control } = useFormContext();
@@ -153,7 +154,10 @@ export function ButtonParserConfig() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full border-dashed">
+        <Button
+          className="flex h-7 w-[145px] flex-row items-center text-xs"
+          variant="ghost"
+        >
           <GearIcon className="mr-2" />
           Configure Parser
         </Button>
