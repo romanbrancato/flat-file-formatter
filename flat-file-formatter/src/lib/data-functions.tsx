@@ -1,6 +1,7 @@
-import { evaluateCondition, extract } from "@/lib/utils";
+import { evaluateCondition, fromOverpunch } from "@/lib/utils";
 import { Action, Changes, Data, Operation } from "@/types/schemas";
 import { format } from "date-fns";
+import numeral from "numeral";
 
 export function removeFields(data: Data, operation: Operation): Data {
   if (operation.operation !== "remove") return data;
@@ -171,14 +172,13 @@ export function reformatData(data: Data, operation: Operation): Data {
           row[fieldIndex] = format(new Date(row[fieldIndex]), reformat.pattern);
           break;
         case "number":
-          switch (reformat.from) {
-            case "scientific":
-              row[fieldIndex] = Number(row[fieldIndex]).toString();
-              break;
-            case "overpunch":
-              row[fieldIndex] = Number(extract(row[fieldIndex])).toString();
-              break;
+          let numStr = reformat.overpunch
+            ? Number(fromOverpunch(row[fieldIndex])).toString()
+            : Number(row[fieldIndex]).toString();
+          if (reformat.pattern) {
+            numStr = numeral(numStr).format(reformat.pattern);
           }
+          row[fieldIndex] = numStr;
           break;
       }
     });

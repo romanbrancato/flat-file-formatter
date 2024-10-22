@@ -52,7 +52,7 @@ export function evaluateCondition(
 // Following functions adapted from the Python library "overpunch" by truveris
 // Original source: https://github.com/truveris/overpunch/tree/master
 
-const EXTRACT_REF: Record<string, [string, string]> = {
+const FromStandardMap: Record<string, [string, string]> = {
   "0": ["", "0"],
   "1": ["", "1"],
   "2": ["", "2"],
@@ -85,23 +85,17 @@ const EXTRACT_REF: Record<string, [string, string]> = {
   R: ["-", "9"],
 };
 
-export function extract(raw: string, decimals: number = 2): string {
+export function fromOverpunch(raw: string, decimals: number = 2): string {
   const length = raw.length;
-  const lastChar = raw[length - 1];
-  const [sign, cent] = EXTRACT_REF[lastChar];
-
-  let core: string;
-  if (!decimals) {
-    core = raw.slice(0, length - 1);
-  } else {
-    core =
-      raw.slice(0, length - decimals) + "." + raw.slice(length - decimals, -1);
-  }
+  const [sign, cent] = FromStandardMap[raw[length - 1]];
+  const core = decimals
+    ? raw.slice(0, length - decimals) + "." + raw.slice(length - decimals, -1)
+    : raw.slice(0, length - 1);
 
   return sign + core + cent;
 }
 
-const FORMAT_REF: Record<string, string> = {
+const ToOverpunchMap: Record<string, string> = {
   "+0": "{",
   "+1": "A",
   "+2": "B",
@@ -124,37 +118,17 @@ const FORMAT_REF: Record<string, string> = {
   "-9": "R",
 };
 
-export function format(
+export function toOverpunch(
   val: number | string | Decimal,
   decimals: number = 2,
   rounding = Decimal.ROUND_HALF_UP,
 ): string {
-  // Convert val to Decimal if it's not already
-  if (!(val instanceof Decimal)) {
-    val = new Decimal(val);
-  }
+  const decimalVal = val instanceof Decimal ? val : new Decimal(val);
+  if (decimalVal.isNaN()) throw new Error(`${val.toString()} is NaN`);
 
-  // Check for NaN
-  if (val.isNaN()) {
-    throw new Error(`${val.toString()} is NaN`);
-  }
+  const quantizedVal = decimalVal.toFixed(decimals, rounding).replace(/^-/, "");
+  const sign = decimalVal.isNegative() ? "-" : "+";
+  const formattedLastDigit = ToOverpunchMap[sign + quantizedVal.slice(-1)];
 
-  // Quantize the value to the specified number of decimals
-  let quantizedVal = val.toFixed(decimals, rounding);
-
-  // Determine the sign and remove it for formatting
-  let sign = quantizedVal[0] === "-" ? "-" : "+";
-  quantizedVal = quantizedVal.replace(/^-/, ""); // Remove the sign for formatting
-
-  // Remove the decimal point
-  quantizedVal = quantizedVal.replace(".", "");
-
-  // Get the last digit and replace it with the corresponding format character
-  let lastDigit = quantizedVal.slice(-1);
-  let formattedLastDigit = FORMAT_REF[sign + lastDigit];
-
-  // Replace the last digit with the formatted one
-  quantizedVal = quantizedVal.slice(0, -1) + formattedLastDigit;
-
-  return quantizedVal;
+  return quantizedVal.slice(0, -1).replace(".", "") + formattedLastDigit;
 }

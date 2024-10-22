@@ -21,7 +21,9 @@ export function SelectType({
       }}
     >
       <SelectTrigger>
-        <span className="text-xs font-normal text-muted-foreground">Type:</span>
+        <span className="text-xs font-normal text-muted-foreground">
+          Data Type:
+        </span>
         <SelectValue placeholder="Select type..." />
       </SelectTrigger>
       <SelectContent>

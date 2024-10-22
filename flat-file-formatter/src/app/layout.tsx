@@ -6,9 +6,7 @@ import { ThemeProvider } from "@/context/theme-context";
 import { ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { PresetProvider } from "@/context/preset-context";
-import { ModeProvider } from "@/context/mode-context";
 import { ParserProvider } from "@/context/parser-context";
-import { BatchParserProvider } from "@/context/batch-parser-context";
 
 export const metadata: Metadata = {
   title: "Flat File Formatter",
@@ -25,13 +23,9 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="system" enableSystem>
           <Header />
           <Container>
-            <ModeProvider>
-              <PresetProvider>
-                <ParserProvider>
-                  <BatchParserProvider>{children}</BatchParserProvider>
-                </ParserProvider>
-              </PresetProvider>
-            </ModeProvider>
+            <PresetProvider>
+              <ParserProvider>{children}</ParserProvider>
+            </PresetProvider>
           </Container>
           <Toaster position="bottom-right" richColors />
         </ThemeProvider>

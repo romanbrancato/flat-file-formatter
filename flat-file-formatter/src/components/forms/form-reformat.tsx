@@ -12,7 +12,7 @@ import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
-import { SelectFrom } from "@/components/select-from";
+import { CheckboxOverpunch } from "@/components/checkbox-overpunch";
 
 export function FormReformat() {
   const { control } = useFormContext();
@@ -98,30 +98,30 @@ export function FormReformat() {
           </FormItem>
         )}
       />
-      {type === "date" && (
-        <FormField
-          control={control}
-          name={`reformat.pattern`}
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input placeholder="Pattern" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      )}
+      <FormField
+        control={control}
+        name={`reformat.pattern`}
+        defaultValue={""}
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Input placeholder="Pattern" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       {type === "number" && (
         <FormField
           control={control}
-          name={`reformat.from`}
+          name={`reformat.overpunch`}
+          defaultValue={false}
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <SelectFrom
-                  selectedFrom={field.value}
-                  onFromSelect={(from) => field.onChange(from)}
+                <CheckboxOverpunch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
                 />
               </FormControl>
               <FormMessage />

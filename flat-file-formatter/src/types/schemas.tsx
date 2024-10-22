@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { boolean, z } from "zod";
 
 const DataSchema = z.object({
   records: z.record(
@@ -102,7 +102,8 @@ export const ReformatSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("number"),
-    from: z.enum(["scientific", "overpunch"]),
+    overpunch: boolean(),
+    pattern: z.string(),
   }),
 ]);
 
