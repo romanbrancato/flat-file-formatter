@@ -34,7 +34,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ParserConfig, ParserConfigSchema } from "@/types/schemas";
+import { ParserConfig, ParserConfigSchema } from "@/schemas";
 import { PresetContext } from "@/context/preset-context";
 import { Label } from "@/components/ui/label";
 

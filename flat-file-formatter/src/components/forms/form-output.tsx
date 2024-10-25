@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { PresetContext } from "@/context/preset-context";
-import { Output, OutputSchema } from "@/types/schemas";
+import { Output, OutputSchema } from "@/schemas";
 import { SelectFormat } from "@/components/select-format";
 import { FormGroups } from "@/components/forms/form-groups";
 import { FormDefineWidths } from "@/components/forms/form-define-widths";

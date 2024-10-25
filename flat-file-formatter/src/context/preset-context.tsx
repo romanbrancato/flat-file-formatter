@@ -1,6 +1,6 @@
 "use client";
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { Preset } from "@/types/schemas";
+import { Preset } from "@/schemas";
 
 export const PresetContext = createContext<{
   preset: Preset;

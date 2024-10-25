@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/form";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
-import { Field, Operation, OperationSchema } from "@/types/schemas";
+import { Field, Operation, OperationSchema } from "@/schemas";
 import { SelectFields } from "@/components/select-fields";
 
 export function ButtonRemoveField() {

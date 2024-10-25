@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "../styles/globals.css";
+import "../../globals.css";
 import { Container } from "@/components/ui/container";
 import { Header } from "@/components/header";
 import { ThemeProvider } from "@/context/theme-context";

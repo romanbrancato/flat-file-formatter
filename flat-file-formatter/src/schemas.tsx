@@ -2,11 +2,24 @@ import { boolean, z } from "zod";
 
 const DataSchema = z.object({
   records: z.record(
-    z.object({
-      fields: z.array(z.string()),
-      rows: z.array(z.array(z.string())),
-    }),
+      z.object({
+        fields: z.array(z.string()),
+        rows: z.array(z.object({
+          uuid: z.string().uuid(),
+          values: z.array(z.string()),
+        })),
+      }),
   ),
+  relationships: z.record( // tree to keep track of relationships between rows
+      z.object({
+        uuid: z.number(), // the uuid of the row in records[key]
+        key: z.string(), // the key to which the row belongs to in records
+        children: z.array(z.object({
+          uuid: z.number(),
+          key: z.string(),
+        })),
+      }),
+  ).optional(),
 });
 
 export type Data = z.infer<typeof DataSchema>;
@@ -185,7 +198,7 @@ export const OutputSchema = z.object({
     z.object({
       name: z.string().min(1),
       tags: z.array(z.string()),
-      // algorithm: z.enum(["in order", "round robin"]),
+      algorithm: z.enum(["in order", "round robin"]),
     }),
   ),
 });

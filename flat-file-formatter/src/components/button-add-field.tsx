@@ -23,7 +23,7 @@ import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { SelectTag } from "@/components/select-tag";
 import { SelectField } from "@/components/select-field";
-import { Operation, OperationSchema } from "@/types/schemas";
+import { Operation, OperationSchema } from "@/schemas";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
 export function ButtonAddField() {

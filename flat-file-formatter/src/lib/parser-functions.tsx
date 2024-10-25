@@ -2,7 +2,7 @@ import Papa from "papaparse";
 import { Options, parse, stringify } from "@evologi/fixed-width";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Data, ParserConfigSchema, Preset } from "@/types/schemas";
+import { Data, ParserConfigSchema, Preset } from "@/schemas";
 import { download, tokenize } from "@/lib/utils";
 
 export const ParserParams = z.object({
@@ -30,7 +30,10 @@ export async function parseFile(params: ParserParams) {
               records: {
                 detail: {
                   fields: fields,
-                  rows: cleanedRows,
+                  rows: cleanedRows.map((row) => ({
+                    values: row,
+                    uuid: crypto.randomUUID(),
+                  })),
                 },
               },
             });
@@ -51,7 +54,7 @@ export async function parseFile(params: ParserParams) {
 
           const records: Record<
             string,
-            { fields: string[]; rows: string[][] }
+            { fields: string[]; rows: { values: string[]; uuid: string }[] }
           > = {
             header: { fields: [], rows: [] },
             detail: { fields: [], rows: [] },
@@ -65,7 +68,13 @@ export async function parseFile(params: ParserParams) {
             const rows = parsedData.map((row) =>
               fields.map((field) => row[field]),
             );
-            return { fields, rows };
+            return {
+              fields,
+              rows: rows.map((row) => ({
+                values: row,
+                uuid: crypto.randomUUID(),
+              })),
+            };
           };
 
           if (params.config.header?.fields.length) {
@@ -175,7 +184,7 @@ export function exportFile(data: Data, preset: Preset, name: string) {
   preset.output.groups.forEach((group) => {
     download(
       group.tags
-        .map((tag) => flatData[tag])
+        .map((tag) => flatData[tag].trim())
         .filter(Boolean)
         .join("\n"),
       group.name.replace(

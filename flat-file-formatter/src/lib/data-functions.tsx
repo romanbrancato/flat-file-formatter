@@ -1,5 +1,5 @@
 import { evaluateCondition, fromOverpunch } from "@/lib/utils";
-import { Action, Changes, Data, Operation } from "@/types/schemas";
+import { Action, Changes, Data, Operation } from "@/schemas";
 import { format } from "date-fns";
 import numeral from "numeral";
 
@@ -16,7 +16,7 @@ export function removeFields(data: Data, operation: Operation): Data {
     if (fieldIndex === -1) return;
 
     records.fields.splice(fieldIndex, 1);
-    records.rows.forEach((row) => row.splice(fieldIndex, 1));
+    records.rows.forEach((row) => row.values.splice(fieldIndex, 1));
   });
 
   return { ...data };
@@ -38,13 +38,13 @@ export function addFields(data: Data, operation: Operation): Data {
       value.startsWith("{") && value.endsWith("}")
         ? records.rows.map((row) => {
             const refIndex = records.fields.indexOf(value.slice(1, -1).trim());
-            return refIndex !== -1 ? row[refIndex] : value;
+            return refIndex !== -1 ? row.values[refIndex] : value;
           })
         : Array(records.rows.length).fill(value);
 
     records.fields.splice(insertIndex, 0, name);
     records.rows.forEach((row, rowIndex) => {
-      row.splice(insertIndex, 0, resolvedValue[rowIndex]);
+      row.values.splice(insertIndex, 0, resolvedValue[rowIndex]);
     });
     insertIndex++;
   });
@@ -57,7 +57,10 @@ export function orderFields(data: Data, tag: string, order: number[]): Data {
   if (!record) return data;
 
   record.fields = order.map((index) => record.fields[index]);
-  record.rows = record.rows.map((row) => order.map((index) => row[index]));
+  record.rows = record.rows.map((row) => ({
+    ...row,
+    values: order.map((index) => row.values[index]),
+  }));
 
   return { ...data };
 }
@@ -80,7 +83,7 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
 
   records.rows = records.rows.flatMap((row) => {
     const action = conditions.every((condition) =>
-      evaluateCondition(records.fields, row, condition),
+      evaluateCondition(records.fields, row.values, condition),
     )
       ? actionTrue
       : actionFalse;
@@ -93,8 +96,8 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
               ? value.slice(1, -1).trim()
               : value,
           );
-          row[records.fields.indexOf(field.name)] =
-            refIndex !== -1 ? row[refIndex] : value;
+          row.values[records.fields.indexOf(field.name)] =
+            refIndex !== -1 ? row.values[refIndex] : value;
         });
         return [row];
 
@@ -103,12 +106,12 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
         return [];
 
       case "duplicate":
-        const duplicate = [...row];
+        const duplicate = { ...row, values: [...row.values] };
         action.rowOriginal.forEach((field) => {
-          row[records.fields.indexOf(field.field.name)] = field.value;
+          row.values[records.fields.indexOf(field.field.name)] = field.value;
         });
         action.rowDuplicate.forEach((field) => {
-          duplicate[records.fields.indexOf(field.field.name)] = field.value;
+          duplicate.values[records.fields.indexOf(field.field.name)] = field.value;
         });
         return [row, duplicate];
 
@@ -140,14 +143,14 @@ export function evaluateEquation(data: Data, operation: Operation): Data {
   };
 
   if (direction === "column") {
-    const total = records.rows.reduce((acc, row) => acc + computeTotal(row), 0);
+    const total = records.rows.reduce((acc, row) => acc + computeTotal(row.values), 0);
     records.rows.forEach((row) => {
-      row[records.fields.indexOf(output.name)] = total.toString();
+      row.values[records.fields.indexOf(output.name)] = total.toString();
     });
   } else if (direction === "row") {
     records.rows = records.rows.map((row) => {
-      const total = computeTotal(row);
-      row[records.fields.indexOf(output.name)] = total.toString();
+      const total = computeTotal(row.values);
+      row.values[records.fields.indexOf(output.name)] = total.toString();
       return row;
     });
   }
@@ -169,16 +172,16 @@ export function reformatData(data: Data, operation: Operation): Data {
 
       switch (reformat.type) {
         case "date":
-          row[fieldIndex] = format(new Date(row[fieldIndex]), reformat.pattern);
+          row.values[fieldIndex] = format(new Date(row.values[fieldIndex]), reformat.pattern);
           break;
         case "number":
           let numStr = reformat.overpunch
-            ? Number(fromOverpunch(row[fieldIndex])).toString()
-            : Number(row[fieldIndex]).toString();
+            ? Number(fromOverpunch(row.values[fieldIndex])).toString()
+            : Number(row.values[fieldIndex]).toString();
           if (reformat.pattern) {
             numStr = numeral(numStr).format(reformat.pattern);
           }
-          row[fieldIndex] = numStr;
+          row.values[fieldIndex] = numStr;
           break;
       }
     });

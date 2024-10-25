@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { Preset, PresetSchema } from "@/types/schemas";
+import { Preset, PresetSchema } from "@/schemas";
 
 export function SelectPreset() {
   const { preset, setPreset } = useContext(PresetContext);

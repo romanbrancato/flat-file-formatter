@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/form";
 import { SelectAction } from "@/components/select-action";
 import { SelectField } from "@/components/select-field";
-import { Field } from "@/types/schemas";
+import { Field } from "@/schemas";
 import { Input } from "@/components/ui/input";
 import { FormDuplicate } from "@/components/forms/form-duplicate";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";

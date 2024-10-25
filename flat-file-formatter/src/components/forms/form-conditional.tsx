@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/form";
 import { SelectStatement } from "@/components/select-statement";
 import { SelectField } from "@/components/select-field";
-import { Field } from "@/types/schemas";
+import { Field } from "@/schemas";
 import { SelectComparison } from "@/components/select-comparison";
 import { Input } from "@/components/ui/input";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";

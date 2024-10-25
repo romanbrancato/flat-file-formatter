@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/form";
 import { SelectType } from "@/components/select-type";
 import { SelectField } from "@/components/select-field";
-import { Field } from "@/types/schemas";
+import { Field } from "@/schemas";
 import { Input } from "@/components/ui/input";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";

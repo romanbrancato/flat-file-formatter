@@ -9,7 +9,7 @@ import {
 import { SelectDirection } from "@/components/select-direction";
 import { SelectOperator } from "@/components/select-operator";
 import { SelectField } from "@/components/select-field";
-import { Field } from "@/types/schemas";
+import { Field } from "@/schemas";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 

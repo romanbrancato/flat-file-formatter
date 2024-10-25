@@ -21,7 +21,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
 import { SelectOperation } from "@/components/select-operation";
-import { OperationSchema } from "@/types/schemas";
+import { OperationSchema } from "@/schemas";
 import { FormConditional } from "@/components/forms/form-conditional";
 import { FormEquation } from "@/components/forms/form-equation";
 import { FormReformat } from "@/components/forms/form-reformat";
