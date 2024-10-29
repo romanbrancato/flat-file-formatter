@@ -159,7 +159,7 @@ export function unparseData(
                 )
               : "";
       });
-
+    console.log(JSON.stringify(flatData, null, 2));
     return flatData;
   } catch (error: any) {
     toast.error("Failed to Export File", { description: error.message });
@@ -168,16 +168,42 @@ export function unparseData(
 
 export function exportFile(data: Data, preset: Preset, name: string) {
   const flatData = unparseData(data, preset);
-
   if (!flatData) return;
+
   const tokenizedName = tokenize(name);
 
   preset.output.groups.forEach((group) => {
+    let content = "";
+
+    switch (group.ordering) {
+      case "in order":
+        content = group.tags
+          .map((tag) => flatData[tag]?.trim())
+          .filter(Boolean)
+          .join("\n");
+        break;
+
+      case "round robin": {
+        const tagData = group.tags.map(
+          (tag) => flatData[tag]?.split("\n") || [],
+        );
+        const maxLength = Math.max(...tagData.map((rows) => rows.length));
+
+        content = Array.from({ length: maxLength }, (_, i) =>
+          group.tags
+            .map((tag, index) => tagData[index][i])
+            .filter(Boolean)
+            .join("\n"),
+        ).join("\n");
+        break;
+      }
+
+      default:
+        break;
+    }
+
     download(
-      group.tags
-        .map((tag) => flatData[tag])
-        .filter(Boolean)
-        .join("\n"),
+      content.trim(),
       group.name.replace(
         /{(\d+)}/g,
         (match, index) => tokenizedName[index] || "",

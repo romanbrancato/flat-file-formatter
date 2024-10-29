@@ -27,7 +27,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { tokenize } from "@/lib/utils";
 import path from "node:path";
-import { SelectAlgorithm } from "@/components/select-algorithm";
+import { SelectOrdering } from "@/components/select-ordering";
 
 function GroupCollapsible({ fieldIndex }: { fieldIndex: number }) {
   const { data } = useContext(ParserContext);
@@ -68,21 +68,21 @@ function GroupCollapsible({ fieldIndex }: { fieldIndex: number }) {
           </FormItem>
         )}
       />
-      {/*<FormField*/}
-      {/*  control={control}*/}
-      {/*  name={`groups.${fieldIndex}.algorithm`}*/}
-      {/*  render={({ field }) => (*/}
-      {/*    <FormItem className="flex-1">*/}
-      {/*      <FormControl>*/}
-      {/*        <SelectAlgorithm*/}
-      {/*          selectedAlgorithm={field.value}*/}
-      {/*          onAlgorithmSelect={(algorithm) => field.onChange(algorithm)}*/}
-      {/*        />*/}
-      {/*      </FormControl>*/}
-      {/*      <FormMessage />*/}
-      {/*    </FormItem>*/}
-      {/*  )}*/}
-      {/*/>*/}
+      <FormField
+        control={control}
+        name={`groups.${fieldIndex}.ordering`}
+        render={({ field }) => (
+          <FormItem className="flex-1">
+            <FormControl>
+              <SelectOrdering
+                selectedOrdering={field.value}
+                onOrderingSelect={(ordering) => field.onChange(ordering)}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 }

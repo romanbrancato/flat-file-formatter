@@ -6,23 +6,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function SelectAlgorithm({
-  selectedAlgorithm,
-  onAlgorithmSelect,
+export function SelectOrdering({
+  selectedOrdering,
+  onOrderingSelect,
 }: {
-  selectedAlgorithm: "in order" | "round robin";
-  onAlgorithmSelect: (algorithm: "in order" | "round robin") => void;
+  selectedOrdering: "in order" | "round robin";
+  onOrderingSelect: (ordering: "in order" | "round robin") => void;
 }) {
   return (
     <Select
-      value={selectedAlgorithm}
+      value={selectedOrdering}
       onValueChange={(algorithm: "in order" | "round robin") =>
-        onAlgorithmSelect(algorithm)
+        onOrderingSelect(algorithm)
       }
     >
       <SelectTrigger>
         <span className="text-xs font-normal text-muted-foreground">
-          Algorithm:{" "}
+          Ordering:{" "}
         </span>
         <SelectValue />
       </SelectTrigger>
