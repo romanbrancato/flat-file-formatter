@@ -1,4 +1,4 @@
-import { evaluateCondition, fromOverpunch } from "@/lib/utils";
+import { fromOverpunch } from "@/lib/utils";
 import { Action, Changes, Data, Operation } from "@/types/schemas";
 import { format } from "date-fns";
 import numeral from "numeral";
@@ -68,15 +68,47 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
   const { tag, conditions, actionTrue, actionFalse } = operation;
   const records = data.records[tag];
 
+  function evaluateCondition(
+    fields: string[],
+    row: string[],
+    condition: any,
+  ): boolean {
+    const leftVal = row[fields.indexOf(condition.field.name)];
+    const rightVal =
+      condition.value.startsWith("{") && condition.value.endsWith("}")
+        ? row[fields.indexOf(condition.value.slice(1, -1).trim())]
+        : condition.value;
+
+    const conditionPasses =
+      (() => {
+        switch (condition.comparison) {
+          case "<":
+            return Number(leftVal) < Number(rightVal);
+          case ">":
+            return Number(leftVal) > Number(rightVal);
+          case "=":
+            return leftVal === rightVal;
+          case "<=":
+            return Number(leftVal) <= Number(rightVal);
+          case ">=":
+            return Number(leftVal) >= Number(rightVal);
+        }
+      })() || false;
+
+    return condition.statement === "if not"
+      ? !conditionPasses
+      : conditionPasses;
+  }
+
   // Ensures that any additional tags are created even if no rows end up being pushed to them.
-  const ensureSeparateTag = (action: Action) => {
+  const createTag = (action: Action) => {
     if (action.action === "separate" && !data.records[action.tag]) {
       data.records[action.tag] = { fields: [...records.fields], rows: [] };
     }
   };
 
-  ensureSeparateTag(actionTrue);
-  ensureSeparateTag(actionFalse);
+  createTag(actionTrue);
+  createTag(actionFalse);
 
   records.rows = records.rows.flatMap((row) => {
     const action = conditions.every((condition) =>

@@ -1,7 +1,6 @@
 import { parseFile, ParserParams } from "@/lib/parser-functions";
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
-import path from "node:path";
 import { Data, Operation, Preset } from "@/types/schemas";
 
 export function useParser() {

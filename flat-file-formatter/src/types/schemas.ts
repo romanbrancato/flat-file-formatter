@@ -130,7 +130,7 @@ export const OperationSchema = z.discriminatedUnion("operation", [
       z.object({
         statement: z.enum(["if", "if not"]),
         field: FieldSchema,
-        comparison: z.enum(["<", "=", ">"]),
+        comparison: z.enum(["<", "<=", "=", ">=", ">"]),
         value: z.string(),
       }),
     ),

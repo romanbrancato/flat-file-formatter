@@ -22,33 +22,6 @@ export function tokenize(fileName: string): string[] {
   return tokens.filter((token) => token.length > 0);
 }
 
-export function evaluateCondition(
-  fields: string[],
-  row: string[],
-  condition: any,
-): boolean {
-  const leftVal = row[fields.indexOf(condition.field.name)];
-  const rightVal =
-    condition.value.startsWith("{") && condition.value.endsWith("}")
-      ? row[fields.indexOf(condition.value.slice(1, -1).trim())]
-      : condition.value;
-
-  let conditionPasses = false;
-  switch (condition.comparison) {
-    case "<":
-      conditionPasses = Number(leftVal) < Number(rightVal);
-      break;
-    case ">":
-      conditionPasses = Number(leftVal) > Number(rightVal);
-      break;
-    case "=":
-      conditionPasses = leftVal === rightVal;
-      break;
-  }
-
-  return condition.statement === "if not" ? !conditionPasses : conditionPasses;
-}
-
 // Following functions adapted from the Python library "overpunch" by truveris
 // Original source: https://github.com/truveris/overpunch/tree/master
 
