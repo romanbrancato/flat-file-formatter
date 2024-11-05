@@ -1,7 +1,7 @@
 import { fromOverpunch } from "@/lib/utils";
 import { Action, Changes, Data, Operation } from "@/types/schemas";
-import { format } from "date-fns";
 import numeral from "numeral";
+import dayjs from "dayjs";
 
 export function removeFields(data: Data, operation: Operation): Data {
   if (operation.operation !== "remove") return data;
@@ -201,7 +201,7 @@ export function reformatData(data: Data, operation: Operation): Data {
 
       switch (reformat.type) {
         case "date":
-          row[fieldIndex] = format(new Date(row[fieldIndex]), reformat.pattern);
+          row[fieldIndex] = dayjs(row[fieldIndex]).format(reformat.pattern);
           break;
         case "number":
           let numStr = reformat.overpunch
