@@ -34,7 +34,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^0.2.1",
-    "date-fns": "^3.6.0",
+    "dayjs": "^1.11.13",
     "decimal.js": "^10.4.3",
     "next": "^14.2.15",
     "next-themes": "^0.3.0",
