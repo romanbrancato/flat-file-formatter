@@ -71,6 +71,7 @@ function GroupCollapsible({ fieldIndex }: { fieldIndex: number }) {
       <FormField
         control={control}
         name={`groups.${fieldIndex}.ordering`}
+        defaultValue={"in order"}
         render={({ field }) => (
           <FormItem className="flex-1">
             <FormControl>

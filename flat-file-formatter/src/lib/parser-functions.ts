@@ -1,16 +1,9 @@
 import Papa from "papaparse";
 import { Options, parse, stringify } from "@evologi/fixed-width";
 import { toast } from "sonner";
-import { z } from "zod";
-import { Data, ParserConfigSchema, Preset } from "@/types/schemas";
+import { Data, Preset } from "@/types/schemas";
 import { download, tokenize } from "@/lib/utils";
-
-export const ParserParams = z.object({
-  file: z.instanceof(File),
-  config: ParserConfigSchema,
-});
-
-export type ParserParams = z.infer<typeof ParserParams>;
+import { ParserParams } from "@/hooks/useParser";
 
 export async function parseFile(params: ParserParams) {
   return new Promise<Data>((resolve, reject) => {
@@ -18,19 +11,21 @@ export async function parseFile(params: ParserParams) {
       case "delimited": {
         const config: Papa.ParseLocalConfig<unknown, any> = {
           skipEmptyLines: true,
+          delimitersToGuess: ["~"],
           complete: (results) => {
             const [fields, ...rows] = results.data as string[][];
 
-            // Replace sole spaces with empty strings to avoid quoting issues in output
-            const cleanedRows = rows.map((row: string[]) =>
-              row.map((cell) => (cell.trim() === "" ? "" : cell.trim())),
+            const trimmedFields = fields.map((field) => field.trim());
+
+            const trimmedRows = rows.map((row) =>
+              row.map((cell) => cell.trim()),
             );
 
             resolve({
               records: {
                 detail: {
-                  fields: fields,
-                  rows: cleanedRows,
+                  fields: trimmedFields,
+                  rows: trimmedRows,
                 },
               },
             });
@@ -47,7 +42,7 @@ export async function parseFile(params: ParserParams) {
           if (params.config.format !== "fixed") return;
 
           const fileContents = event.target?.result as string;
-          const lines = fileContents.split(/\r?\n/).filter(Boolean); // Filter out empty lines
+          const lines = fileContents.split(/\r?\n/).filter(Boolean);
 
           const records: Record<
             string,

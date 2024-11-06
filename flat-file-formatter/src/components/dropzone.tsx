@@ -5,13 +5,13 @@ import { UploadIcon } from "@radix-ui/react-icons";
 export function Dropzone({
   onChange,
   className,
-  fileExtension,
+  accept,
   multiple = false,
   ...props
 }: {
   onChange: React.Dispatch<React.SetStateAction<File[]>>;
   className?: string;
-  fileExtension?: string;
+  accept?: string[];
   multiple?: boolean;
 }) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -41,12 +41,15 @@ export function Dropzone({
   const handleFiles = (files: FileList) => {
     const uploadedFiles = Array.from(files);
 
-    if (fileExtension) {
+    if (accept && accept.length > 0) {
       const invalidFiles = uploadedFiles.filter(
-        (file) => !file.name.endsWith(fileExtension),
+        (file) =>
+          !accept.some((ext) =>
+            file.name.toLowerCase().endsWith(ext.toLowerCase()),
+          ),
       );
       if (invalidFiles.length) {
-        setError(`Invalid file type. Expected: ${fileExtension}`);
+        setError(`Invalid file type. Expected: ${accept.join(", ")}`);
         return;
       }
     }
@@ -81,7 +84,7 @@ export function Dropzone({
           <input
             ref={fileInputRef}
             type="file"
-            accept={fileExtension}
+            accept={accept?.join(",")}
             onChange={handleFileInputChange}
             className="hidden"
             multiple={multiple}

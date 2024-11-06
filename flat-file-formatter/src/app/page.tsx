@@ -161,9 +161,7 @@ export default function App() {
         <Dropzone
           className="z-0 flex-grow"
           onChange={setFiles}
-          fileExtension={
-            preset.parser?.format === "delimited" ? ".csv" : ".txt"
-          }
+          accept={[".txt", ".csv"]}
         />
       </div>
       <div className="rounded-md border">

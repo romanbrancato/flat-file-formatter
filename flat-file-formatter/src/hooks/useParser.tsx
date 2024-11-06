@@ -1,7 +1,14 @@
-import { parseFile, ParserParams } from "@/lib/parser-functions";
+import { parseFile } from "@/lib/parser-functions";
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
-import { Data, Operation, Preset } from "@/types/schemas";
+import { Data, Operation, ParserConfigSchema, Preset } from "@/types/schemas";
+import { z } from "zod";
+
+export const ParserParams = z.object({
+  file: z.instanceof(File),
+  config: ParserConfigSchema,
+});
+export type ParserParams = z.infer<typeof ParserParams>;
 
 export function useParser() {
   const [isReady, setIsReady] = useState(false);
