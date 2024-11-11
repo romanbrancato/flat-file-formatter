@@ -1,4 +1,4 @@
-import { fromOverpunch } from "@/lib/utils";
+import { fromOverpunch, interpretValue } from "@/lib/utils";
 import { Action, Changes, Data, Operation } from "@/types/schemas";
 import numeral from "numeral";
 import dayjs from "dayjs";
@@ -34,37 +34,9 @@ export function addFields(data: Data, operation: Operation): Data {
     : 0;
 
   fields.forEach(({ name, value }) => {
-    const slicingRegex = /^{([^[\]]+)(?:\[([^]+)\])?}$/;
-    const match = value.match(slicingRegex);
-    if (match) {
-      const fieldName = match[1];
-      const slicingExpression = match[2];
-      const fieldIndex = records.fields.indexOf(fieldName);
-      if (fieldIndex !== -1) {
-        const [start, end] =
-          slicingExpression
-            ?.split(":")
-            .map((part) => (part ? parseInt(part, 10) : undefined)) ?? [];
-        records.rows.forEach((row, rowIndex) => {
-          row.splice(
-            insertIndex,
-            0,
-            slicingExpression
-              ? row[fieldIndex].slice(start ?? 0, end)
-              : row[fieldIndex],
-          );
-        });
-      } else {
-        records.rows.forEach((row, rowIndex) => {
-          row.splice(insertIndex, 0, value);
-        });
-      }
-    } else {
-      records.rows.forEach((row, rowIndex) => {
-        row.splice(insertIndex, 0, value);
-      });
-    }
-
+    records.rows.forEach((row) => {
+      row.splice(insertIndex, 0, interpretValue(row, records.fields, value));
+    });
     records.fields.splice(insertIndex, 0, name);
     insertIndex++;
   });
@@ -94,10 +66,7 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
     condition: any,
   ): boolean {
     const leftVal = row[fields.indexOf(condition.field.name)];
-    const rightVal =
-      condition.value.startsWith("{") && condition.value.endsWith("}")
-        ? row[fields.indexOf(condition.value.slice(1, -1).trim())]
-        : condition.value;
+    const rightVal = interpretValue(row, fields, condition.value);
 
     const conditionPasses =
       (() => {
@@ -140,13 +109,11 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
     switch (action.action) {
       case "setValue":
         action.values.forEach(({ field, value }) => {
-          const refIndex = records.fields.indexOf(
-            value.startsWith("{") && value.endsWith("}")
-              ? value.slice(1, -1).trim()
-              : value,
+          row[records.fields.indexOf(field.name)] = interpretValue(
+            row,
+            records.fields,
+            value,
           );
-          row[records.fields.indexOf(field.name)] =
-            refIndex !== -1 ? row[refIndex] : value;
         });
         return [row];
 

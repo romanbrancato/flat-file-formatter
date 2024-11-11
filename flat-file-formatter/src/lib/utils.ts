@@ -22,6 +22,38 @@ export function tokenize(fileName: string): string[] {
   return tokens.filter((token) => token.length > 0);
 }
 
+export function interpretValue(
+  row: string[],
+  fields: string[],
+  value: string,
+): string {
+  const slicingRegex = /^{([^[\]]+)(?:\[([^]+)\])?}$/;
+  const match = value.match(slicingRegex);
+
+  if (!match) {
+    return value;
+  }
+
+  const fieldName = match[1];
+  const slicingExpression = match[2];
+  const fieldIndex = fields.indexOf(fieldName);
+
+  if (fieldIndex === -1) {
+    return value;
+  }
+
+  if (!slicingExpression) {
+    return row[fieldIndex];
+  }
+
+  const [start, end] =
+    slicingExpression
+      .split(":")
+      .map((part) => (part ? parseInt(part, 10) : undefined)) ?? [];
+
+  return row[fieldIndex].slice(start ?? 0, end);
+}
+
 // Following functions adapted from the Python library "overpunch" by truveris
 // Original source: https://github.com/truveris/overpunch/tree/master
 
