@@ -34,18 +34,38 @@ export function addFields(data: Data, operation: Operation): Data {
     : 0;
 
   fields.forEach(({ name, value }) => {
-    const resolvedValue =
-      value.startsWith("{") && value.endsWith("}")
-        ? records.rows.map((row) => {
-            const refIndex = records.fields.indexOf(value.slice(1, -1).trim());
-            return refIndex !== -1 ? row[refIndex] : value;
-          })
-        : Array(records.rows.length).fill(value);
+    const slicingRegex = /^{([^[\]]+)(?:\[([^]+)\])?}$/;
+    const match = value.match(slicingRegex);
+    if (match) {
+      const fieldName = match[1];
+      const slicingExpression = match[2];
+      const fieldIndex = records.fields.indexOf(fieldName);
+      if (fieldIndex !== -1) {
+        const [start, end] =
+          slicingExpression
+            ?.split(":")
+            .map((part) => (part ? parseInt(part, 10) : undefined)) ?? [];
+        records.rows.forEach((row, rowIndex) => {
+          row.splice(
+            insertIndex,
+            0,
+            slicingExpression
+              ? row[fieldIndex].slice(start ?? 0, end)
+              : row[fieldIndex],
+          );
+        });
+      } else {
+        records.rows.forEach((row, rowIndex) => {
+          row.splice(insertIndex, 0, value);
+        });
+      }
+    } else {
+      records.rows.forEach((row, rowIndex) => {
+        row.splice(insertIndex, 0, value);
+      });
+    }
 
     records.fields.splice(insertIndex, 0, name);
-    records.rows.forEach((row, rowIndex) => {
-      row.splice(insertIndex, 0, resolvedValue[rowIndex]);
-    });
     insertIndex++;
   });
 
