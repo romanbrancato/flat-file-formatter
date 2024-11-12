@@ -76,7 +76,6 @@ function AccordionItemComponent({
                 control={control}
                 name={`details.widths.${tag}.${fieldName}`}
                 key={`${tag}${fieldName}`}
-                defaultValue={0}
                 render={({ field }) => (
                   <FormItem className="mr-3 mt-2">
                     <FormControl>

@@ -154,7 +154,6 @@ export function unparseData(
                 )
               : "";
       });
-    console.log(JSON.stringify(flatData, null, 2));
     return flatData;
   } catch (error: any) {
     toast.error("Failed to Export File", { description: error.message });
@@ -198,7 +197,7 @@ export function exportFile(data: Data, preset: Preset, name: string) {
     }
 
     download(
-      content.trim(),
+      content.replace(/\n/g, "\r\n"),
       group.name.replace(
         /{(\d+)}/g,
         (match, index) => tokenizedName[index] || "",
