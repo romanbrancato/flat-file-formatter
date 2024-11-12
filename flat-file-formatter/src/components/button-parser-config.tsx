@@ -37,6 +37,7 @@ import {
 import { ParserConfig, ParserConfigSchema } from "@/types/schemas";
 import { PresetContext } from "@/context/preset-context";
 import { Label } from "@/components/ui/label";
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 
 function AccordionItemComponent({ record }: { record: string }) {
   const { control } = useFormContext();
@@ -79,7 +80,7 @@ function AccordionItemComponent({ record }: { record: string }) {
                   render={({ field }) => (
                     <FormItem className={"flex-1"}>
                       <FormControl>
-                        <Input {...field} placeholder="Field" />
+                        <FloatingLabelInput label="Field" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -91,9 +92,9 @@ function AccordionItemComponent({ record }: { record: string }) {
                   render={({ field }) => (
                     <FormItem className={"flex-1"}>
                       <FormControl>
-                        <Input
+                        <FloatingLabelInput
                           {...field}
-                          placeholder="Width"
+                          label="Width"
                           type="number"
                           min={0}
                         />

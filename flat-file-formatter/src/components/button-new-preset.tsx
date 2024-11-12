@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PresetContext } from "@/context/preset-context";
 import { ParserContext } from "@/context/parser-context";
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 
 const NewPresetSchema = z.object({
   name: z.string().min(1, "Enter a preset name."),
@@ -84,7 +85,7 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
               render={({ field }) => (
                 <FormItem className="flex-1">
                   <FormControl>
-                    <Input placeholder="Name" {...field} />
+                    <FloatingLabelInput label="Name" {...field} />
                   </FormControl>
                   <FormDescription>
                     Give a name to the new preset.

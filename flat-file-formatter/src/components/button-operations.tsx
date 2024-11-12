@@ -120,27 +120,24 @@ export function ButtonOperations() {
                 )}
               />
               {operation != "" && (
-                <>
-                  <Separator />
-                  <FormField
-                    control={form.control}
-                    name="tag"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <SelectTag
-                            label="Tag"
-                            selectedTag={field.value}
-                            onTagSelect={(tag: string) => {
-                              field.onChange(tag);
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
+                <FormField
+                  control={form.control}
+                  name="tag"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <SelectTag
+                          label="Tag"
+                          selectedTag={field.value}
+                          onTagSelect={(tag: string) => {
+                            field.onChange(tag);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
               {operation === "conditional" && <FormConditional />}
               {operation === "equation" && <FormEquation />}

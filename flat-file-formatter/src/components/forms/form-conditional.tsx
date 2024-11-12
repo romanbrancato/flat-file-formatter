@@ -9,11 +9,11 @@ import { SelectStatement } from "@/components/select-statement";
 import { SelectField } from "@/components/select-field";
 import { Field } from "@/types/schemas";
 import { SelectComparison } from "@/components/select-comparison";
-import { Input } from "@/components/ui/input";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { FormActions } from "@/components/forms/form-actions";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 
 export function FormConditional() {
   const { control } = useFormContext();
@@ -34,7 +34,7 @@ export function FormConditional() {
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="mr-4 flex flex-row items-center gap-x-2"
+              className="mr-4 flex flex-row items-center gap-x-1"
             >
               <FormField
                 control={control}
@@ -94,7 +94,7 @@ export function FormConditional() {
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormControl>
-                      <Input placeholder="Value" {...field} />
+                      <FloatingLabelInput label="Value" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

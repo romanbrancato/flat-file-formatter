@@ -13,6 +13,7 @@ import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { CheckboxOverpunch } from "@/components/checkbox-overpunch";
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 
 export function FormReformat() {
   const { control } = useFormContext();
@@ -105,7 +106,7 @@ export function FormReformat() {
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <Input placeholder="Pattern" {...field} />
+              <FloatingLabelInput label="Pattern" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

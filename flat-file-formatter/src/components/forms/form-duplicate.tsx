@@ -12,11 +12,11 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { SelectField } from "@/components/select-field";
 import { Field } from "@/types/schemas";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 
 function AccordionItemComponent({
   row,
@@ -73,7 +73,7 @@ function AccordionItemComponent({
                   render={({ field }) => (
                     <FormItem className="flex-1">
                       <FormControl>
-                        <Input placeholder="Value" {...field} />
+                        <FloatingLabelInput label="Value" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

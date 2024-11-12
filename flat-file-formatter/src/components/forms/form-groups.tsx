@@ -12,7 +12,6 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useContext, useMemo, useState } from "react";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { ParserContext } from "@/context/parser-context";
@@ -28,67 +27,10 @@ import { Badge } from "@/components/ui/badge";
 import { tokenize } from "@/lib/utils";
 import path from "node:path";
 import { SelectOrdering } from "@/components/select-ordering";
-
-function GroupCollapsible({ fieldIndex }: { fieldIndex: number }) {
-  const { data } = useContext(ParserContext);
-  const { control } = useFormContext();
-
-  return (
-    <div className="flex-1 space-y-1">
-      <FormField
-        control={control}
-        name={`groups.${fieldIndex}.name`}
-        render={({ field }) => (
-          <FormItem className="flex-1">
-            <FormControl>
-              <Input
-                defaultValue={field.value}
-                placeholder="Group Name"
-                onBlur={(e) => field.onChange(e)}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name={`groups.${fieldIndex}.tags`}
-        render={({ field }) => (
-          <FormItem className="flex-1">
-            <FormControl>
-              <MultiSelect
-                options={Object.keys(data.records)}
-                defaultValue={field.value}
-                placeholder="Select Tags"
-                onValueChange={(tags) => field.onChange(tags)}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={control}
-        name={`groups.${fieldIndex}.ordering`}
-        defaultValue={"in order"}
-        render={({ field }) => (
-          <FormItem className="flex-1">
-            <FormControl>
-              <SelectOrdering
-                selectedOrdering={field.value}
-                onOrderingSelect={(ordering) => field.onChange(ordering)}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </div>
-  );
-}
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 
 export function FormGroups() {
+  const { data } = useContext(ParserContext);
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     name: `groups`,
@@ -127,14 +69,63 @@ export function FormGroups() {
           <ScrollArea>
             <ScrollAreaViewport className="max-h-[400px]">
               {fields.map((field, index) => (
-                <div
-                  className="mr-4 flex flex-row items-center space-x-2"
-                  key={field.id}
-                >
-                  <GroupCollapsible fieldIndex={index} />
-                  <Cross2Icon
-                    className="ml-auto opacity-70 hover:text-destructive"
-                    onClick={() => remove(index)}
+                <div className="mr-4 space-y-1" key={field.id}>
+                  <div className="flex flex-row items-center">
+                    <FormField
+                      control={control}
+                      name={`groups.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormControl>
+                            <FloatingLabelInput
+                              defaultValue={field.value}
+                              label="Group Name"
+                              onBlur={(e) => field.onChange(e)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Cross2Icon
+                      className="ml-auto opacity-70 hover:text-destructive"
+                      onClick={() => remove(index)}
+                    />
+                  </div>
+                  <FormField
+                    control={control}
+                    name={`groups.${index}.tags`}
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <MultiSelect
+                            options={Object.keys(data.records)}
+                            defaultValue={field.value}
+                            placeholder="Select Tags"
+                            onValueChange={(tags) => field.onChange(tags)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={control}
+                    name={`groups.${index}.ordering`}
+                    defaultValue={"in order"}
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <SelectOrdering
+                            selectedOrdering={field.value}
+                            onOrderingSelect={(ordering) =>
+                              field.onChange(ordering)
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
               ))}

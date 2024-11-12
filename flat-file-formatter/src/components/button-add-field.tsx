@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
-import { Input } from "@/components/ui/input";
 import { useContext, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -25,6 +24,7 @@ import { SelectTag } from "@/components/select-tag";
 import { SelectField } from "@/components/select-field";
 import { Operation, OperationSchema } from "@/types/schemas";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 
 export function ButtonAddField() {
   const { isReady, addFields } = useContext(ParserContext);
@@ -122,7 +122,7 @@ export function ButtonAddField() {
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <FormControl>
-                            <Input placeholder="Name" {...field} />
+                            <FloatingLabelInput label={"Name"} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -134,7 +134,7 @@ export function ButtonAddField() {
                       render={({ field }) => (
                         <FormItem className="flex-1">
                           <FormControl>
-                            <Input placeholder="Populate with..." {...field} />
+                            <FloatingLabelInput label="Populate" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

@@ -8,11 +8,11 @@ import {
 import { SelectAction } from "@/components/select-action";
 import { SelectField } from "@/components/select-field";
 import { Field } from "@/types/schemas";
-import { Input } from "@/components/ui/input";
 import { FormDuplicate } from "@/components/forms/form-duplicate";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 
 const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
   const { control } = useFormContext();
@@ -86,7 +86,7 @@ const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
                     render={({ field }) => (
                       <FormItem className="flex-1">
                         <FormControl>
-                          <Input placeholder="Value" {...field} />
+                          <FloatingLabelInput label="Value" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -125,7 +125,7 @@ const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Tag" {...field} />
+                <FloatingLabelInput label="Tag" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
