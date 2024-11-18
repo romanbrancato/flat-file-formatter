@@ -11,7 +11,7 @@ export async function parseFile(params: ParserParams) {
       case "delimited": {
         const config: Papa.ParseLocalConfig<unknown, any> = {
           skipEmptyLines: true,
-          delimitersToGuess: ["~"],
+          delimitersToGuess: ["~", "|"],
           complete: (results) => {
             const [fields, ...rows] = results.data as string[][];
 

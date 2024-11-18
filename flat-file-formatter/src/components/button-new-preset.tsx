@@ -1,13 +1,11 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useContext, useState } from "react";
 import {
   Form,
@@ -70,9 +68,6 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
       <DialogContent className="max-h-[800px] sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>New Preset</DialogTitle>
-          <DialogDescription>
-            Define a new preset to save the current configuration.
-          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
