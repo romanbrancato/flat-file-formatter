@@ -35,36 +35,13 @@ import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ParserContext } from "@/context/parser-context";
 
-const DraggableHeaderCell = ({ header }: any) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } =
-    useSortable({ id: header.column.id });
-  const style: CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    cursor: isDragging ? "grabbing" : "grab",
-    transform: CSS.Translate.toString(transform),
-    zIndex: isDragging ? 1 : 0,
-    whiteSpace: "nowrap",
-  };
-
-  return (
-    <TableHead
-      ref={setNodeRef}
-      colSpan={header.colSpan}
-      style={style}
-      {...attributes}
-      {...listeners}
-    >
-      {!header.isPlaceholder && (
-        <div className="flex items-center">
-          {flexRender(header.column.columnDef.header, header.getContext())}
-          <DragHandleDots2Icon className="ml-auto" />
-        </div>
-      )}
-    </TableHead>
-  );
-};
-
-const DraggableCell = ({ cell }: any) => {
+const DraggableCell = ({
+  cell,
+  isDraggableHeader = false,
+}: {
+  cell: any;
+  isDraggableHeader?: boolean;
+}) => {
   const { attributes, isDragging, listeners, setNodeRef, transform } =
     useSortable({ id: cell.column.id });
   const style: CSSProperties = {
@@ -75,7 +52,27 @@ const DraggableCell = ({ cell }: any) => {
     whiteSpace: "nowrap",
   };
 
-  return (
+  const Content = () => (
+    <div className="flex items-center">
+      {flexRender(
+        cell.column.columnDef[isDraggableHeader ? "header" : "cell"],
+        cell.getContext(),
+      )}
+      {isDraggableHeader && <DragHandleDots2Icon className="ml-auto" />}
+    </div>
+  );
+
+  return isDraggableHeader ? (
+    <TableHead
+      ref={setNodeRef}
+      colSpan={cell.colSpan}
+      style={style}
+      {...attributes}
+      {...listeners}
+    >
+      {!cell.isPlaceholder && <Content />}
+    </TableHead>
+  ) : (
     <TableCell ref={setNodeRef} style={style} {...attributes} {...listeners}>
       {flexRender(cell.column.columnDef.cell, cell.getContext())}
     </TableCell>
@@ -152,7 +149,11 @@ export function RecordTable({
                       strategy={horizontalListSortingStrategy}
                     >
                       {headerGroup.headers.map((header) => (
-                        <DraggableHeaderCell key={header.id} header={header} />
+                        <DraggableCell
+                          key={header.id}
+                          cell={header}
+                          isDraggableHeader
+                        />
                       ))}
                     </SortableContext>
                   </TableRow>
