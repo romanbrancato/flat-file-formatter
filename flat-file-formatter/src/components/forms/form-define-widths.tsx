@@ -84,8 +84,13 @@ function AccordionItemComponent({
                           {fieldName}
                         </span>
                         <Input
-                          className="text-right"
+                          className="text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           defaultValue={field.value}
+                          onWheel={(e) => {
+                            e.target instanceof HTMLElement
+                              ? e.target.blur()
+                              : null;
+                          }}
                           onBlur={(e) => field.onChange(e)}
                           type="number"
                           min={0}

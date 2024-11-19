@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { PresetContext } from "@/context/preset-context";
-import { Output, OutputSchema } from "@/types/schemas";
+import { OutputSchema } from "@/types/schemas";
 import { SelectFormat } from "@/components/select-format";
 import { FormGroups } from "@/components/forms/form-groups";
 import { FormDefineWidths } from "@/components/forms/form-define-widths";
@@ -19,7 +19,7 @@ import { FormDefineWidths } from "@/components/forms/form-define-widths";
 export function FormOutput() {
   const { preset, setPreset } = useContext(PresetContext);
 
-  const form = useForm<Output>({
+  const form = useForm<any>({
     resolver: zodResolver(OutputSchema),
     defaultValues: { ...preset.output },
   });
@@ -34,13 +34,10 @@ export function FormOutput() {
   });
 
   useEffect(() => {
-    const values = OutputSchema.safeParse(output);
-    if (values.success) {
-      setPreset({
-        ...preset,
-        output: values.data,
-      });
-    }
+    setPreset({
+      ...preset,
+      output: output,
+    });
   }, [output]);
 
   useEffect(() => {
