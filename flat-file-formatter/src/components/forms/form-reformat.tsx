@@ -28,16 +28,9 @@ export function FormReformat() {
   });
 
   const options = Object.entries(data.records)
-    .flatMap(([recordTag, records]) =>
-      records.fields.map((name) => ({ tag: recordTag, name })),
-    )
-    .filter(
-      (option) => option.tag && option.name && (!tag || option.tag === tag),
-    );
+    .filter(([recordTag]) => recordTag === tag)
+    .flatMap(([, records]) => records.fields.map((name) => ({ tag, name })));
 
-  useEffect(() => {
-    console.log(options);
-  }, [options]);
   return (
     <div className="space-y-1">
       <FormField

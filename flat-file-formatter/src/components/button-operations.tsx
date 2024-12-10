@@ -25,7 +25,6 @@ import { OperationSchema } from "@/types/schemas";
 import { FormConditional } from "@/components/forms/form-conditional";
 import { FormEquation } from "@/components/forms/form-equation";
 import { FormReformat } from "@/components/forms/form-reformat";
-import { Separator } from "@/components/ui/separator";
 import { SelectTag } from "@/components/select-tag";
 
 export function ButtonOperations() {
@@ -43,7 +42,7 @@ export function ButtonOperations() {
         { statement: "if", field: null, comparison: "=", value: "" },
       ],
       equation: [{ operator: "+", field: null }],
-      fields: [{ tag: "", name: "" }],
+      fields: [],
       actionTrue: { values: [{ field: null, value: "" }] },
       actionFalse: { values: [{ field: null, value: "" }] },
     },
