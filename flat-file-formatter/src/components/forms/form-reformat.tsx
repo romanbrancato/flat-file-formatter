@@ -10,7 +10,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { CheckboxOverpunch } from "@/components/checkbox-overpunch";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { SelectFields } from "@/components/select-fields";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { ParserContext } from "@/context/parser-context";
 
 export function FormReformat() {
@@ -28,9 +28,16 @@ export function FormReformat() {
   });
 
   const options = Object.entries(data.records)
-    .filter(([recordTag]) => recordTag === tag)
-    .flatMap(([, records]) => records.fields.map((name) => ({ tag, name })));
+    .flatMap(([recordTag, records]) =>
+      records.fields.map((name) => ({ tag: recordTag, name })),
+    )
+    .filter(
+      (option) => option.tag && option.name && (!tag || option.tag === tag),
+    );
 
+  useEffect(() => {
+    console.log(options);
+  }, [options]);
   return (
     <div className="space-y-1">
       <FormField
