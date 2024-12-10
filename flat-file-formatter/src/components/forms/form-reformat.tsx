@@ -5,23 +5,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { SelectType } from "@/components/select-type";
-import { SelectField } from "@/components/select-field";
 import { Field } from "@/types/schemas";
-import { Input } from "@/components/ui/input";
-import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
-import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
-import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
-import { Button } from "@/components/ui/button";
+import { useFormContext, useWatch } from "react-hook-form";
 import { CheckboxOverpunch } from "@/components/checkbox-overpunch";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
+import { SelectFields } from "@/components/select-fields";
+import { useContext } from "react";
+import { ParserContext } from "@/context/parser-context";
 
 export function FormReformat() {
   const { control } = useFormContext();
-
-  const { fields, append, remove } = useFieldArray({
-    name: `fields`,
-    control: control,
-  });
+  const { data } = useContext(ParserContext);
 
   const type = useWatch({
     control: control,
@@ -33,55 +27,29 @@ export function FormReformat() {
     name: "tag",
   });
 
+  const options = Object.entries(data.records)
+    .filter(([recordTag]) => recordTag === tag)
+    .flatMap(([, records]) => records.fields.map((name) => ({ tag, name })));
+
   return (
     <div className="space-y-1">
-      <ScrollArea>
-        <ScrollAreaViewport className="max-h-[400px]">
-          {fields.map((field, index) => (
-            <div
-              key={field.id}
-              className="mr-4 flex flex-row items-center gap-x-2"
-            >
-              <FormField
-                control={control}
-                name={`fields.${index}`}
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormControl>
-                      <SelectField
-                        selectedField={field.value as Field}
-                        filter={tag}
-                        onFieldSelect={(selectedField) => {
-                          field.onChange(selectedField);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+      <FormField
+        control={control}
+        name={`fields`}
+        render={({ field }) => (
+          <FormItem className="flex-1">
+            <FormControl>
+              <SelectFields
+                label="Select Fields"
+                options={options}
+                defaultValues={field.value as Field[]}
+                onValueChange={(fields) => field.onChange(fields)}
               />
-              <Cross2Icon
-                className="ml-auto opacity-70 hover:text-destructive"
-                onClick={() => remove(index)}
-              />
-            </div>
-          ))}
-        </ScrollAreaViewport>
-      </ScrollArea>
-      <Button
-        variant="outline"
-        size="sm"
-        className="w-full border-dashed"
-        onClick={(event) => {
-          event.preventDefault();
-          append({
-            field: { name: "", tag: "" },
-          });
-        }}
-      >
-        <PlusCircledIcon className="mr-2" />
-        Additional Field
-      </Button>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       <FormField
         control={control}
         name={`reformat.type`}

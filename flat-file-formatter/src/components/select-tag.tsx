@@ -34,7 +34,7 @@ export function SelectTag({
       <SelectContent>
         {Object.keys(data.records).map((tag) => (
           <SelectItem key={tag} value={tag}>
-            {tag.toUpperCase()}
+            {tag}
           </SelectItem>
         ))}
       </SelectContent>
