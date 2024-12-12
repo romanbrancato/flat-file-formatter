@@ -1,5 +1,4 @@
 import * as React from "react";
-
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,8 +10,8 @@ const FloatingInput = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, ...props }, ref) => {
     return (
       <Input
-        placeholder=" "
-        className={cn("peer", className)}
+        placeholder=""
+        className={cn("peer", "px-0", className)}
         ref={ref}
         {...props}
       />
@@ -28,7 +27,7 @@ const FloatingLabel = React.forwardRef<
   return (
     <Label
       className={cn(
-        "peer-focus:secondary peer-focus:dark:secondary absolute start-2 top-2 z-10 origin-[0] -translate-y-4 transform cursor-text bg-background px-2 text-xs font-normal text-muted-foreground duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:px-1 dark:bg-background rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4",
+        "peer-focus:secondary peer-focus:dark:secondary absolute start-2 top-2 z-10 origin-[0] -translate-y-4 transform cursor-text bg-background text-xs font-normal text-muted-foreground duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-sm peer-focus:start-0 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:text-xs peer-[&:not(:placeholder-shown)]:start-0 peer-[&:not(:placeholder-shown)]:top-2 peer-[&:not(:placeholder-shown)]:-translate-y-4 peer-[&:not(:placeholder-shown)]:text-xs dark:bg-background rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4",
         className,
       )}
       ref={ref}
@@ -45,7 +44,7 @@ const FloatingLabelInput = React.forwardRef<
   React.PropsWithoutRef<FloatingLabelInputProps>
 >(({ id, label, ...props }, ref) => {
   return (
-    <div className="relative my-3">
+    <div className="relative my-1">
       <FloatingInput ref={ref} id={id} {...props} />
       <FloatingLabel htmlFor={id}>{label}</FloatingLabel>
     </div>
