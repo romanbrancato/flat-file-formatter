@@ -45,10 +45,11 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
       changes: {
         ...preset.changes,
         order: Object.fromEntries(
-          Object.entries(data.records).map(([key, record]) => [
-            key,
-            record.fields,
-          ]),
+          Object.entries(data.records)
+            .filter(
+              ([key, record]) => record.fields && record.fields.length > 0,
+            )
+            .map(([key, record]) => [key, record.fields]),
         ),
       },
     };
