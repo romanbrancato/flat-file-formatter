@@ -1,5 +1,5 @@
 import { fromOverpunch, interpretValue } from "@/lib/utils";
-import { Action, Changes, Data, Operation } from "@/types/schemas";
+import { Action, Data, Operation } from "@/types/schemas";
 import numeral from "numeral";
 import dayjs from "dayjs";
 
@@ -208,8 +208,8 @@ export function reformatData(data: Data, operation: Operation): Data {
   return { ...data };
 }
 
-export function applyPreset(data: Data, changes: Changes): Data {
-  changes.history?.forEach((change) => {
+export function applyPreset(data: Data, changes: Operation[]): Data {
+  changes.forEach((change) => {
     switch (change.operation) {
       case "add":
         addFields(data, change);
@@ -226,15 +226,6 @@ export function applyPreset(data: Data, changes: Changes): Data {
       case "reformat":
         reformatData(data, change);
         break;
-    }
-  });
-
-  Object.keys(data.records).forEach((tag) => {
-    const orderIndices = changes.order?.[tag]?.map((field) =>
-      data.records[tag].fields.indexOf(field),
-    );
-    if (orderIndices) {
-      orderFields(data, tag, orderIndices);
     }
   });
 

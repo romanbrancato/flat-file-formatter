@@ -21,13 +21,13 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeProvider defaultTheme="system" enableSystem>
-          <Header />
           <Container>
+            <Header />
             <PresetProvider>
               <ParserProvider>{children}</ParserProvider>
             </PresetProvider>
+            <Toaster position="bottom-right" richColors />
           </Container>
-          <Toaster position="bottom-right" richColors />
         </ThemeProvider>
       </body>
     </html>

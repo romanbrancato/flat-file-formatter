@@ -65,10 +65,7 @@ export function ButtonOperations() {
     }
     setPreset({
       ...preset,
-      changes: {
-        ...preset.changes,
-        history: [...preset.changes.history, values],
-      },
+      changes: [...preset.changes, values],
     });
 
     setOpen(false);

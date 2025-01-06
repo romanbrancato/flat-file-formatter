@@ -1,4 +1,4 @@
-import { boolean, z } from "zod";
+import { z } from "zod";
 
 const DataSchema = z.object({
   records: z.record(
@@ -102,7 +102,7 @@ export const ReformatSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("number"),
-    overpunch: boolean(),
+    overpunch: z.boolean(),
     pattern: z.string(),
   }),
 ]);
@@ -172,13 +172,6 @@ export const FormatSchema = z.discriminatedUnion("format", [
   }),
 ]);
 
-export const ChangesSchema = z.object({
-  order: z.record(z.array(z.string())),
-  history: z.array(OperationSchema),
-});
-
-export type Changes = z.infer<typeof ChangesSchema>;
-
 export const OutputSchema = z.object({
   details: FormatSchema,
   groups: z.array(
@@ -195,7 +188,7 @@ export type Output = z.infer<typeof OutputSchema>;
 export const PresetSchema = z.object({
   name: z.string().nullable(),
   parser: ParserConfigSchema,
-  changes: ChangesSchema,
+  changes: z.array(OperationSchema),
   output: OutputSchema,
 });
 

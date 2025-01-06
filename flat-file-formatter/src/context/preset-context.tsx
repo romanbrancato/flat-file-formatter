@@ -16,10 +16,7 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
     parser: {
       format: "delimited",
     },
-    changes: {
-      order: {},
-      history: [],
-    },
+    changes: [],
     output: {
       details: {
         format: "fixed",

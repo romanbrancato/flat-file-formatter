@@ -1,4 +1,4 @@
-import { CSSProperties, useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -7,77 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  closestCenter,
-  DndContext,
-  DragEndEvent,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  horizontalListSortingStrategy,
-  SortableContext,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
-import { CSS } from "@dnd-kit/utilities";
-import {
-  ColumnDef,
-  getCoreRowModel,
-  getPaginationRowModel,
-} from "@tanstack/table-core";
-import { flexRender, useReactTable } from "@tanstack/react-table";
-import { DragHandleDots2Icon } from "@radix-ui/react-icons";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ParserContext } from "@/context/parser-context";
-
-const DraggableCell = ({
-  cell,
-  isDraggableHeader = false,
-}: {
-  cell: any;
-  isDraggableHeader?: boolean;
-}) => {
-  const { attributes, isDragging, listeners, setNodeRef, transform } =
-    useSortable({ id: cell.column.id });
-  const style: CSSProperties = {
-    opacity: isDragging ? 0.8 : 1,
-    cursor: isDragging ? "grabbing" : "grab",
-    transform: CSS.Translate.toString(transform),
-    zIndex: isDragging ? 1 : 0,
-    whiteSpace: "nowrap",
-  };
-
-  const Content = () => (
-    <div className="flex items-center">
-      {flexRender(
-        cell.column.columnDef[isDraggableHeader ? "header" : "cell"],
-        cell.getContext(),
-      )}
-      {isDraggableHeader && <DragHandleDots2Icon className="ml-auto" />}
-    </div>
-  );
-
-  return isDraggableHeader ? (
-    <TableHead
-      ref={setNodeRef}
-      colSpan={cell.colSpan}
-      style={style}
-      {...attributes}
-      {...listeners}
-    >
-      {!cell.isPlaceholder && <Content />}
-    </TableHead>
-  ) : (
-    <TableCell ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-    </TableCell>
-  );
-};
 
 export function RecordTable({
   tag,
@@ -88,95 +18,45 @@ export function RecordTable({
   fields: string[];
   rows: string[][];
 }) {
-  const { orderFields } = useContext(ParserContext);
-  const [columns, setColumns] = useState<ColumnDef<string[], string>[]>([]);
-  const [columnOrder, setColumnOrder] = useState<string[]>([]);
-
-  const table = useReactTable({
-    data: rows,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    state: { columnOrder, pagination: { pageIndex: 0, pageSize: 7 } },
-    onColumnOrderChange: setColumnOrder,
-  });
+  const [columns, setColumns] = useState<string[]>([]);
 
   useEffect(() => {
     if (fields.length) {
-      const newColumns = fields.map((field, index) => ({
-        accessorKey: index.toString(),
-        header: field,
-      }));
-      setColumns(newColumns);
-      setColumnOrder(newColumns.map((c) => c.accessorKey!));
+      setColumns(fields);
     }
   }, [fields]);
-
-  const handleDragEnd = ({ active, over }: DragEndEvent) => {
-    if (!active || !over || active.id === over.id) return;
-    const order = arrayMove(
-      columnOrder,
-      columnOrder.indexOf(active.id as string),
-      columnOrder.indexOf(over.id as string),
-    );
-    setColumnOrder(order);
-    orderFields(tag, order.map(Number));
-  };
 
   return (
     <>
       <span className="text-xs text-muted-foreground">
-        {tag}: {table.getCoreRowModel().rows.length} Row(s)
+        {tag}: {rows.length} Row(s)
       </span>
-      <div className="flex-grow overflow-hidden rounded-md border">
-        <DndContext
-          collisionDetection={closestCenter}
-          modifiers={[restrictToHorizontalAxis]}
-          onDragEnd={handleDragEnd}
-          sensors={useSensors(
-            useSensor(MouseSensor),
-            useSensor(TouchSensor),
-            useSensor(KeyboardSensor),
-          )}
-        >
-          <ScrollArea className="h-full">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    <SortableContext
-                      items={columnOrder}
-                      strategy={horizontalListSortingStrategy}
-                    >
-                      {headerGroup.headers.map((header) => (
-                        <DraggableCell
-                          key={header.id}
-                          cell={header}
-                          isDraggableHeader
-                        />
-                      ))}
-                    </SortableContext>
-                  </TableRow>
+      <div className="overflow-hidden rounded-md border">
+        <ScrollArea className="h-full">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {columns.map((col, index) => (
+                  <TableHead key={index}>
+                    <div className="whitespace-nowrap">{col}</div>
+                  </TableHead>
                 ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    <SortableContext
-                      items={columnOrder}
-                      strategy={horizontalListSortingStrategy}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <DraggableCell key={cell.id} cell={cell} />
-                      ))}
-                    </SortableContext>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-        </DndContext>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {row.map((cell, cellIndex) => (
+                    <TableCell key={cellIndex}>
+                      <div className="whitespace-nowrap">{cell}</div>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
     </>
   );

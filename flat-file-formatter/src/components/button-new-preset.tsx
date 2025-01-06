@@ -19,7 +19,6 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PresetContext } from "@/context/preset-context";
-import { ParserContext } from "@/context/parser-context";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 
 const NewPresetSchema = z.object({
@@ -27,7 +26,6 @@ const NewPresetSchema = z.object({
 });
 
 export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
-  const { data, isReady } = useContext(ParserContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
@@ -42,16 +40,6 @@ export function ButtonNewPreset({ trigger }: { trigger: React.ReactNode }) {
     const tempPreset = {
       ...preset,
       name: values.name,
-      changes: {
-        ...preset.changes,
-        order: Object.fromEntries(
-          Object.entries(data.records)
-            .filter(
-              ([key, record]) => record.fields && record.fields.length > 0,
-            )
-            .map(([key, record]) => [key, record.fields]),
-        ),
-      },
     };
     localStorage.setItem(
       `preset_${tempPreset.name}`,
