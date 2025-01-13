@@ -1,11 +1,42 @@
 import Papa from "papaparse";
 import { Options, parse, stringify } from "@evologi/fixed-width";
 import { toast } from "sonner";
-import { Data, Preset } from "@/types/schemas";
+import { Data, Preset, PresetSchema } from "@/types/schemas";
 import { download, tokenize } from "@/lib/utils";
-import { ParserParams } from "@/hooks/useParser";
+import { DataProcessorParams } from "@/hooks/useDataProcessor";
 
-export async function parseFile(params: ParserParams) {
+export async function parsePreset(file: File): Promise<Preset> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const obj = JSON.parse(event.target?.result as string);
+        const loadedPreset = PresetSchema.parse(obj);
+        localStorage.setItem(
+          `preset_${loadedPreset.name}`,
+          JSON.stringify({ ...loadedPreset }, null, 2),
+        );
+        resolve(loadedPreset);
+      } catch (error) {
+        toast.error("Invalid Preset", {
+          description: "The selected file is not a valid preset.",
+        });
+        reject(error);
+      }
+    };
+
+    reader.onerror = () => {
+      toast.error("Error Reading File", {
+        description: "Failed to read the preset file.",
+      });
+      reject(new Error("Failed to read file"));
+    };
+
+    reader.readAsText(file);
+  });
+}
+
+export async function parseFile(params: DataProcessorParams) {
   return new Promise<Data>((resolve, reject) => {
     switch (params.config.format) {
       case "delimited": {
@@ -114,15 +145,15 @@ export function unparseData(
       )
       .forEach(([tag, records]) => {
         flatData[tag] =
-          preset.output.details.format === "delimited"
+          preset.format.format === "delimited"
             ? Papa.unparse(
                 { fields: records.fields, data: records.rows },
                 {
-                  delimiter: preset.output.details.delimiter,
+                  delimiter: preset.format.delimiter,
                   skipEmptyLines: true,
                 },
               )
-            : preset.output.details.format === "fixed"
+            : preset.format.format === "fixed"
               ? stringify(
                   records.rows.map((row) =>
                     Object.fromEntries(
@@ -130,11 +161,11 @@ export function unparseData(
                     ),
                   ),
                   {
-                    pad: preset.output.details.pad,
+                    pad: preset.format.pad,
                     fields: records.fields.map((field) => {
                       const width =
-                        preset.output.details.format === "fixed"
-                          ? preset.output.details.widths[tag]?.[field]
+                        preset.format.format === "fixed"
+                          ? preset.format.widths[tag]?.[field]
                           : undefined;
 
                       if (!width || width <= 0) {
@@ -145,8 +176,8 @@ export function unparseData(
                         property: field,
                         width: width,
                         align:
-                          preset.output.details.format === "fixed"
-                            ? preset.output.details.align
+                          preset.format.format === "fixed"
+                            ? preset.format.align
                             : "left",
                       };
                     }),

@@ -65,7 +65,7 @@ export const ActionSchema = z.discriminatedUnion("action", [
     tag: z.string(),
   }),
   z.object({
-    action: z.literal("setValue"),
+    action: z.literal("set value"),
     values: z.array(
       z.object({
         field: FieldSchema,
@@ -94,18 +94,6 @@ export const ActionSchema = z.discriminatedUnion("action", [
 ]);
 
 export type Action = z.infer<typeof ActionSchema>;
-
-export const ReformatSchema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.literal("date"),
-    pattern: z.string(),
-  }),
-  z.object({
-    type: z.literal("number"),
-    overpunch: z.boolean(),
-    pattern: z.string(),
-  }),
-]);
 
 export const OperationSchema = z.discriminatedUnion("operation", [
   z.object({
@@ -153,7 +141,17 @@ export const OperationSchema = z.discriminatedUnion("operation", [
     operation: z.literal("reformat"),
     tag: z.string(),
     fields: z.array(FieldSchema),
-    reformat: ReformatSchema,
+    reformat: z.discriminatedUnion("type", [
+      z.object({
+        type: z.literal("date"),
+        pattern: z.string(),
+      }),
+      z.object({
+        type: z.literal("number"),
+        overpunch: z.boolean(),
+        pattern: z.string(),
+      }),
+    ]),
   }),
 ]);
 
@@ -172,8 +170,9 @@ export const FormatSchema = z.discriminatedUnion("format", [
   }),
 ]);
 
+export type Format = z.infer<typeof FormatSchema>;
+
 export const OutputSchema = z.object({
-  details: FormatSchema,
   groups: z.array(
     z.object({
       name: z.string().min(1),
@@ -189,6 +188,7 @@ export const PresetSchema = z.object({
   name: z.string().nullable(),
   parser: ParserConfigSchema,
   changes: z.array(OperationSchema),
+  format: FormatSchema,
   output: OutputSchema,
 });
 

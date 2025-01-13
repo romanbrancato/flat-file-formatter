@@ -16,7 +16,7 @@ import {
 
 import { useContext, useState } from "react";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
-import { ParserContext } from "@/context/parser-context";
+import { DataProcessorContext } from "@/context/data-processor-context";
 import { Field } from "@/types/schemas";
 
 export function SelectField({
@@ -30,7 +30,7 @@ export function SelectField({
   filter?: string[];
   onFieldSelect: (field: Field) => void;
 }) {
-  const { data } = useContext(ParserContext);
+  const { data } = useContext(DataProcessorContext);
   const [open, setOpen] = useState(false);
 
   function CommandGroupComponent({
@@ -71,7 +71,7 @@ export function SelectField({
           role="combobox"
           aria-label="Select a field..."
           aria-expanded={open}
-          className="w-full min-w-[100px] justify-between sm:min-w-[300px]"
+          className="flex w-full flex-row items-center justify-between"
         >
           <span className="text-xs font-normal text-muted-foreground">
             {label ? label : "Field"}:

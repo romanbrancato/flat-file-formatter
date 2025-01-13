@@ -4,16 +4,17 @@ import * as fns from "@/lib/data-functions";
 import { Data, Operation, ParserConfigSchema, Preset } from "@/types/schemas";
 import { z } from "zod";
 
-export const ParserParams = z.object({
+export const DataProcessorParams = z.object({
   file: z.instanceof(File),
   config: ParserConfigSchema,
 });
-export type ParserParams = z.infer<typeof ParserParams>;
+export type DataProcessorParams = z.infer<typeof DataProcessorParams>;
 
-export function useParser() {
+export function useDataProcessor() {
   const [isReady, setIsReady] = useState(false);
-  const [params, setParams] = useState<ParserParams | null>(null);
+  const [params, setParams] = useState<DataProcessorParams | null>(null);
   const [data, setData] = useState<Data>({} as Data);
+  const [focus, setFocus] = useState<string>("detail");
 
   useEffect(() => {
     if (!params) return;
@@ -27,6 +28,16 @@ export function useParser() {
         console.error(e);
       });
   }, [params]);
+
+  useEffect(() => {
+    if (!isReady) return;
+    if (
+      !Object.keys(data.records).includes(focus) &&
+      Object.keys(data.records).length > 0
+    ) {
+      setFocus(Object.keys(data.records)[0]);
+    }
+  }, [isReady, data]);
 
   const removeFields = useCallback(
     (operation: Operation) => {
@@ -96,6 +107,8 @@ export function useParser() {
     params,
     setParams,
     data,
+    focus,
+    setFocus,
     removeFields,
     addFields,
     orderFields,

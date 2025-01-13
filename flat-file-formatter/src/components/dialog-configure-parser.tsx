@@ -7,8 +7,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import {
   Form,
   FormControl,
@@ -25,8 +24,7 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Cross2Icon, GearIcon, PlusCircledIcon } from "@radix-ui/react-icons";
-import { SelectImportFormat } from "@/components/select-import-format";
+import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import {
   Accordion,
@@ -36,8 +34,8 @@ import {
 } from "@/components/ui/accordion";
 import { ParserConfig, ParserConfigSchema } from "@/types/schemas";
 import { PresetContext } from "@/context/preset-context";
-import { Label } from "@/components/ui/label";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
+import { Selector } from "@/components/selector";
 
 function AccordionItemComponent({ record }: { record: string }) {
   const { control } = useFormContext();
@@ -68,7 +66,7 @@ function AccordionItemComponent({ record }: { record: string }) {
       </AccordionTrigger>
       <AccordionContent className="space-y-1">
         <ScrollArea>
-          <ScrollAreaViewport className="max-h-[400px]">
+          <ScrollAreaViewport className="max-h-[300px]">
             {fields.map((field, index) => (
               <div
                 key={field.id}
@@ -78,7 +76,7 @@ function AccordionItemComponent({ record }: { record: string }) {
                   control={control}
                   name={`${record}.fields.${index}.property`}
                   render={({ field }) => (
-                    <FormItem className={"flex-1"}>
+                    <FormItem className="flex-1">
                       <FormControl>
                         <FloatingLabelInput label="Field" {...field} />
                       </FormControl>
@@ -90,7 +88,7 @@ function AccordionItemComponent({ record }: { record: string }) {
                   control={control}
                   name={`${record}.fields.${index}.width`}
                   render={({ field }) => (
-                    <FormItem className={"flex-1"}>
+                    <FormItem className="flex-1">
                       <FormControl>
                         <FloatingLabelInput
                           {...field}
@@ -128,15 +126,22 @@ function AccordionItemComponent({ record }: { record: string }) {
   );
 }
 
-export function ButtonParserConfig() {
+export function DialogConfigureParser({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<ParserConfig>({
     resolver: zodResolver(ParserConfigSchema),
-    defaultValues: {
-      format: "delimited",
-    },
+    defaultValues: { ...preset.parser },
+  });
+
+  const format = useWatch({
+    control: form.control,
+    name: "format",
   });
 
   function onSubmit(values: ParserConfig) {
@@ -147,32 +152,21 @@ export function ButtonParserConfig() {
     setOpen(false);
   }
 
-  useEffect(() => {
-    if (!preset.parser) return;
-    form.reset(preset.parser);
-  }, [preset.parser]);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          className="flex h-7 w-[145px] flex-row items-center text-xs"
-          variant="ghost"
-        >
-          <GearIcon className="mr-2" />
-          Configure Parser
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[800px] sm:max-w-[600px]">
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-h-[75%] max-w-[50%] overflow-auto">
         <DialogHeader>
           <DialogTitle>Parser Configuration</DialogTitle>
-          <DialogDescription>Configure the parser.</DialogDescription>
+          <DialogDescription>
+            Configure the parser to read a file correctly.
+          </DialogDescription>
         </DialogHeader>
         <FormProvider {...form}>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className={"space-y-1"}
+              className="flex flex-col gap-y-1"
             >
               <FormField
                 control={form.control}
@@ -180,27 +174,32 @@ export function ButtonParserConfig() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <SelectImportFormat
-                        value={field.value}
-                        onFormatSelect={(format) => field.onChange(format)}
+                      <Selector
+                        label={"format"}
+                        selected={field.value}
+                        options={[
+                          { label: "delimited", value: "delimited" },
+                          { label: "fixed", value: "fixed" },
+                        ]}
+                        onSelect={(format) => {
+                          field.onChange(format);
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              {form.getValues().format === "fixed" && (
+              {format === "fixed" && (
                 <Accordion type="single" collapsible>
                   <AccordionItemComponent record="header" />
                   <AccordionItemComponent record="detail" />
                   <AccordionItemComponent record="trailer" />
                 </Accordion>
               )}
-              <div className="flex">
-                <Button type="submit" className="ml-auto w-1/3">
-                  Save
-                </Button>
-              </div>
+              <Button type="submit" className="ml-auto w-1/3">
+                Save
+              </Button>
             </form>
           </Form>
         </FormProvider>

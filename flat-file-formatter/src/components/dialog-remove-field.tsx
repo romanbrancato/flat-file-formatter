@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useContext, useState } from "react";
-import { MinusCircledIcon } from "@radix-ui/react-icons";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -19,19 +18,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { PresetContext } from "@/context/preset-context";
-import { ParserContext } from "@/context/parser-context";
+import { DataProcessorContext } from "@/context/data-processor-context";
 import { Field, Operation, OperationSchema } from "@/types/schemas";
-import { SelectFields } from "@/components/select-fields";
+import { SelectMultiFields } from "@/components/select-multi-fields";
 
-export function ButtonRemoveField() {
-  const { isReady, removeFields } = useContext(ParserContext);
-  const { data } = useContext(ParserContext);
+export function DialogRemoveField({ children }: { children: React.ReactNode }) {
+  const { removeFields } = useContext(DataProcessorContext);
+  const { data } = useContext(DataProcessorContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-
-  const options = Object.entries(data.records).flatMap(([tag, records]) =>
-    records.fields.map((name) => ({ tag, name })),
-  );
 
   const form = useForm<Operation>({
     resolver: zodResolver(OperationSchema),
@@ -41,14 +36,17 @@ export function ButtonRemoveField() {
     },
   });
 
+  const options = data.records
+    ? Object.entries(data.records).flatMap(([tag, records]) =>
+        records.fields.map((name) => ({ tag, name })),
+      )
+    : [];
+
   function onSubmit(values: Operation) {
     removeFields(values);
     setPreset({
       ...preset,
-      changes: {
-        ...preset.changes,
-        history: [...preset.changes.history, values],
-      },
+      changes: [...preset.changes, values],
     });
     setOpen(false);
     form.reset();
@@ -56,18 +54,8 @@ export function ButtonRemoveField() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild className="flex-1">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full border-dashed"
-          disabled={!isReady}
-        >
-          <MinusCircledIcon className="mr-2" />
-          Remove Fields
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[800px] sm:max-w-[600px]">
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-h-[75%] max-w-[50%] overflow-auto">
         <DialogHeader>
           <DialogTitle>Remove Fields</DialogTitle>
           <DialogDescription>Select fields to remove.</DialogDescription>
@@ -81,9 +69,9 @@ export function ButtonRemoveField() {
               control={form.control}
               name={`fields`}
               render={({ field }) => (
-                <FormItem className="flex-1">
+                <FormItem>
                   <FormControl>
-                    <SelectFields
+                    <SelectMultiFields
                       label="Select Fields"
                       options={options}
                       defaultValues={field.value as Field[]}

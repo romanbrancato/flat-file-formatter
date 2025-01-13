@@ -19,6 +19,12 @@ export function removeFields(data: Data, operation: Operation): Data {
     records.rows.forEach((row) => row.splice(fieldIndex, 1));
   });
 
+  data.records = Object.fromEntries(
+    Object.entries(data.records).filter(
+      ([, record]) => record.fields.length > 0,
+    ),
+  );
+
   return { ...data };
 }
 
@@ -107,7 +113,7 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
       : actionFalse;
 
     switch (action.action) {
-      case "setValue":
+      case "set value":
         action.values.forEach(({ field, value }) => {
           row[records.fields.indexOf(field.name)] = interpretValue(
             row,

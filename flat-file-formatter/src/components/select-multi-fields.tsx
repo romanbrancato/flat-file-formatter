@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/types/schemas";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
-export function SelectFields({
+export function SelectMultiFields({
   label,
   options,
   defaultValues,
@@ -86,7 +86,7 @@ export function SelectFields({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild className="flex-1">
         <Button variant="outline" size="sm" className="w-full border-dashed">
           <PlusCircledIcon className="mr-2" />
           <span className="align">{label}</span>

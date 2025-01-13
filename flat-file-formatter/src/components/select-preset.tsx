@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/popover";
 
 import { useContext, useEffect, useState } from "react";
-import { toast } from "sonner";
 import { PresetContext } from "@/context/preset-context";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import {
@@ -23,40 +22,17 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { Preset, PresetSchema } from "@/types/schemas";
+import { Preset } from "@/types/schemas";
 
 export function SelectPreset() {
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-  const [file, setFile] = useState<File>();
   const [storedPresets, setStoredPresets] = useState<Preset[]>([]);
 
   const onDelete = (selectedPreset: Preset) => {
     localStorage.removeItem(`preset_${selectedPreset.name}`);
     window.dispatchEvent(new Event("storage"));
   };
-
-  useEffect(() => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const obj = JSON.parse(event.target?.result as string);
-        const importedPreset = PresetSchema.parse(obj);
-        setPreset(importedPreset);
-        localStorage.setItem(
-          `preset_${importedPreset.name}`,
-          JSON.stringify({ ...importedPreset }, null, 2),
-        );
-      } catch (error) {
-        toast.error("Invalid Preset", {
-          description: "The selected file is not a valid preset.",
-        });
-      }
-    };
-    reader.readAsText(file);
-  }, [file]);
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -75,7 +51,7 @@ export function SelectPreset() {
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
-  }, []);
+  }, [preset]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -85,7 +61,7 @@ export function SelectPreset() {
           role="combobox"
           aria-label="Load a preset..."
           aria-expanded={open}
-          className="min-w-[225px] flex-1 justify-between md:min-w-[300px]"
+          className="flex-1 justify-between"
         >
           {preset && preset.name ? preset.name : "Load a preset..."}
           <CaretSortIcon className="ml-2 opacity-50" />
@@ -94,14 +70,6 @@ export function SelectPreset() {
       <PopoverContent align="start" className="p-0">
         <Command>
           <CommandInput placeholder="Search presets..." />
-          <CommandGroup>
-            <Input
-              type="file"
-              accept=".json"
-              className="rounded-md border hover:bg-secondary"
-              onChange={(event) => setFile(event.target.files?.[0])}
-            />
-          </CommandGroup>
           {storedPresets.length > 0 && (
             <CommandGroup heading="Presets">
               <ScrollArea>

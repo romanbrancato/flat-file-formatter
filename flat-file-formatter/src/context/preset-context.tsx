@@ -17,13 +17,13 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
       format: "delimited",
     },
     changes: [],
+    format: {
+      format: "fixed",
+      pad: " ",
+      align: "left",
+      widths: {},
+    },
     output: {
-      details: {
-        format: "fixed",
-        pad: " ",
-        align: "left",
-        widths: {},
-      },
       groups: [],
     },
   });

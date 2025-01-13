@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
-import { useContext, useState } from "react";
+import { ReactNode, useContext, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -17,17 +17,16 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { PresetContext } from "@/context/preset-context";
-import { ParserContext } from "@/context/parser-context";
-import { SelectTag } from "@/components/select-tag";
+import { DataProcessorContext } from "@/context/data-processor-context";
 import { SelectField } from "@/components/select-field";
 import { Operation, OperationSchema } from "@/types/schemas";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 
-export function ButtonAddField() {
-  const { isReady, addFields } = useContext(ParserContext);
+export function DialogAddField({ children }: { children: ReactNode }) {
+  const { addFields, focus } = useContext(DataProcessorContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
@@ -35,8 +34,8 @@ export function ButtonAddField() {
     resolver: zodResolver(OperationSchema),
     defaultValues: {
       operation: "add",
-      tag: "detail",
-      fields: [{ name: "", value: "" }],
+      tag: focus,
+      fields: [],
       after: null,
     },
   });
@@ -46,20 +45,12 @@ export function ButtonAddField() {
     control: form.control,
   });
 
-  const tag = useWatch({
-    control: form.control,
-    name: "tag",
-  });
-
   function onSubmit(values: Operation) {
     if (values.operation != "add") return;
     addFields(values);
     setPreset({
       ...preset,
-      changes: {
-        ...preset.changes,
-        history: [...preset.changes.history, values],
-      },
+      changes: [...preset.changes, values],
     });
 
     setOpen(false);
@@ -68,18 +59,8 @@ export function ButtonAddField() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild className="flex-1">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full border-dashed"
-          disabled={!isReady}
-        >
-          <PlusCircledIcon className="mr-2" />
-          Add Fields
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[800px] sm:max-w-[600px]">
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-h-[75%], flex max-w-[50%] flex-col overflow-auto">
         <DialogHeader>
           <DialogTitle>Add Field</DialogTitle>
           <DialogDescription>
@@ -91,24 +72,6 @@ export function ButtonAddField() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-y-1"
           >
-            <FormField
-              control={form.control}
-              name="tag"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <SelectTag
-                      label="Add To"
-                      selectedTag={field.value}
-                      onTagSelect={(tag: string) => {
-                        field.onChange(tag);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <ScrollArea>
               <ScrollAreaViewport className="max-h-[400px]">
                 {fields.map((field, index) => (
@@ -172,7 +135,7 @@ export function ButtonAddField() {
                     <SelectField
                       selectedField={field.value}
                       label="Add After"
-                      filter={[tag]}
+                      filter={[focus]}
                       onFieldSelect={(selectedField) => {
                         field.onChange(selectedField);
                       }}

@@ -53,7 +53,7 @@ function AccordionItemComponent({
                   control={control}
                   name={`action${actionType}.row${row}.${index}.field`}
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex-1">
                       <FormControl>
                         <SelectField
                           selectedField={field.value as Field}
@@ -107,7 +107,7 @@ function AccordionItemComponent({
   );
 }
 
-export function FormDuplicate({
+export function FormDuplicateRow({
   actionType,
 }: {
   actionType: "True" | "False";

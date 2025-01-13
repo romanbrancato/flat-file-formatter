@@ -5,14 +5,14 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { SelectAction } from "@/components/select-action";
 import { SelectField } from "@/components/select-field";
 import { Field } from "@/types/schemas";
-import { FormDuplicate } from "@/components/forms/form-duplicate";
+import { FormDuplicateRow } from "@/components/form-duplicate-row";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
+import { Selector } from "@/components/selector";
 
 const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
   const { control } = useFormContext();
@@ -41,10 +41,16 @@ const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <SelectAction
-                label={`Action if ${actionType}`}
-                selectedAction={field.value}
-                onActionSelect={(action) => {
+              <Selector
+                label={`action on ${actionType}`}
+                selected={field.value}
+                options={[
+                  { label: "set value", value: "set value" },
+                  { label: "separate", value: "separate" },
+                  { label: "duplicate", value: "duplicate" },
+                  { label: "nothing", value: "nothing" },
+                ]}
+                onSelect={(action) => {
                   field.onChange(action);
                 }}
               />
@@ -53,7 +59,7 @@ const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
           </FormItem>
         )}
       />
-      {action === "setValue" && (
+      {action === "set value" && (
         <>
           <ScrollArea>
             <ScrollAreaViewport className="max-h-[100px]">
@@ -66,7 +72,7 @@ const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
                     control={control}
                     name={`action${actionType}.values.${index}.field`}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex-1">
                         <FormControl>
                           <SelectField
                             selectedField={field.value as Field}
@@ -132,12 +138,12 @@ const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
           )}
         />
       )}
-      {action === "duplicate" && <FormDuplicate actionType={actionType} />}
+      {action === "duplicate" && <FormDuplicateRow actionType={actionType} />}
     </>
   );
 };
 
-export function FormActions() {
+export function FormConditionalActions() {
   return (
     <>
       <ActionFields actionType="True" />
