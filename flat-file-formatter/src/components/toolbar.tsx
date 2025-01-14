@@ -22,7 +22,7 @@ import { download } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { MagicWandIcon } from "@radix-ui/react-icons";
 import { SelectPreset } from "@/components/select-preset";
-import { DialogOutput } from "@/components/dialog-output";
+import { DialogConfigureOutput } from "@/components/dialog-configure-output";
 import { DialogConfigureParser } from "@/components/dialog-configure-parser";
 import { DialogConfigureFormat } from "@/components/dialog-configure-format";
 
@@ -65,7 +65,7 @@ export function Toolbar() {
                 Configure Parser
               </MenubarItem>
             </DialogConfigureParser>
-            <DialogOutput>
+            <DialogConfigureOutput>
               <MenubarItem
                 onSelect={(e) => {
                   e.preventDefault();
@@ -74,7 +74,7 @@ export function Toolbar() {
               >
                 Download
               </MenubarItem>
-            </DialogOutput>
+            </DialogConfigureOutput>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>

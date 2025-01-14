@@ -18,7 +18,7 @@ export function Selector({
   options,
   onSelect,
 }: {
-  selected: string | null;
+  selected: string | undefined;
   label?: string;
   options: { label: string; value: string }[];
   onSelect: (value: string) => void;

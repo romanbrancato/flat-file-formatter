@@ -29,7 +29,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Selector } from "@/components/selector";
 import { exportFile } from "@/lib/parser-functions";
 
-export function DialogOutput({ children }: { children: React.ReactNode }) {
+export function DialogConfigureOutput({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { data } = useContext(DataProcessorContext);
   const { preset, setPreset } = useContext(PresetContext);
   const { params } = useContext(DataProcessorContext);

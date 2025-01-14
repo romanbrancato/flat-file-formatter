@@ -25,7 +25,7 @@ import {
   useWatch,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Format, FormatSchema, Output } from "@/types/schemas";
+import { Format, FormatSchema } from "@/types/schemas";
 import {
   Accordion,
   AccordionContent,
@@ -37,11 +37,20 @@ import { Separator } from "@/components/ui/separator";
 import { DataProcessorContext } from "@/context/data-processor-context";
 
 function TagAccordionItem({ tag, fields }: { tag: string; fields: string[] }) {
-  const { control } = useFormContext();
+  const { setValue, control } = useFormContext();
+  const { isReady, data } = useContext(DataProcessorContext);
+  const [inheritedTag, setInheritedTag] = useState<string | undefined>(
+    undefined,
+  );
+
+  const widths = useWatch({
+    control,
+    name: "widths",
+  });
 
   return (
     <AccordionItem value={tag}>
-      <AccordionTrigger className="flex gap-x-2 text-xs font-normal text-muted-foreground">
+      <AccordionTrigger className="flex gap-x-2 text-xs font-normal">
         {tag}
         <span className="ml-auto">
           {Object.values(
@@ -53,7 +62,28 @@ function TagAccordionItem({ tag, fields }: { tag: string; fields: string[] }) {
           ).reduce((total: number, width) => total + Number(width || 0), 0)}
         </span>
       </AccordionTrigger>
-      <AccordionContent className="space-y-1">
+      <AccordionContent>
+        <Selector
+          label={"inheritance"}
+          selected={inheritedTag}
+          options={
+            isReady
+              ? Object.keys(data.records).map((key) => ({
+                  label: key,
+                  value: key,
+                }))
+              : []
+          }
+          onSelect={(selectedTag: string) => {
+            fields.forEach((field) => {
+              setValue(
+                `widths.${tag}.${field}`,
+                widths[selectedTag][field] || 0,
+              );
+            });
+            setInheritedTag(selectedTag);
+          }}
+        />
         {fields.map((fieldName) => (
           <FormField
             control={control}
@@ -178,7 +208,7 @@ export function DialogConfigureFormat({
                   />
                   <ScrollArea>
                     <ScrollAreaViewport className="max-h-[400px]">
-                      <Accordion type="single" collapsible>
+                      <Accordion type="single" className="mr-4" collapsible>
                         {isReady &&
                           Object.keys(data.records).map((tag) => (
                             <TagAccordionItem
