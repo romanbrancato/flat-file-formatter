@@ -9,7 +9,7 @@ export function Footer() {
   return (
     <>
       {isReady && (
-        <footer className="sticky bottom-0 mt-auto border-t">
+        <footer className="sticky bottom-0 mt-auto flex items-center justify-between border-t">
           <div className="flex">
             {Object.keys(data.records).map((tag) => (
               <Button
@@ -21,6 +21,9 @@ export function Footer() {
               </Button>
             ))}
           </div>
+          <span className="text-xs text-muted-foreground">
+            {data.records[focus] && data.records[focus].rows.length} Row(s)
+          </span>
         </footer>
       )}
     </>
