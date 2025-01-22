@@ -88,7 +88,7 @@ export function SelectField({
           />
           <ScrollArea>
             <ScrollAreaViewport className="max-h-[300px]">
-              {Object.entries(data.records)
+              {Object.entries(data)
                 .filter(
                   ([tag, records]) =>
                     records.fields.length > 0 &&

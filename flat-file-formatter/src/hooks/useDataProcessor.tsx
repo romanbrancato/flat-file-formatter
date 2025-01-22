@@ -31,11 +31,8 @@ export function useDataProcessor() {
 
   useEffect(() => {
     if (!isReady) return;
-    if (
-      !Object.keys(data.records).includes(focus) &&
-      Object.keys(data.records).length > 0
-    ) {
-      setFocus(Object.keys(data.records)[0]);
+    if (!Object.keys(data).includes(focus) && Object.keys(data).length > 0) {
+      setFocus(Object.keys(data)[0]);
     }
   }, [isReady, data]);
 
@@ -94,9 +91,9 @@ export function useDataProcessor() {
   );
 
   const applyPreset = useCallback(
-    (preset: Preset) => {
+    (changes: Operation[]) => {
       setIsReady(false);
-      setData(fns.applyPreset(data, preset.changes));
+      setData(fns.applyPreset(data, changes));
       setIsReady(true);
     },
     [data],

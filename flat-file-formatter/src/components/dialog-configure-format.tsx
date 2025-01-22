@@ -213,7 +213,7 @@ export function DialogConfigureFormat({
                           Object.keys(data.records).map((tag) => (
                             <TagAccordionItem
                               tag={tag}
-                              fields={data.records[tag].fields}
+                              fields={data[tag].fields}
                               key={tag}
                             />
                           ))}

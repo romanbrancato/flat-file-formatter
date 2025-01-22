@@ -1,13 +1,11 @@
 import { z } from "zod";
 
-const DataSchema = z.object({
-  records: z.record(
-    z.object({
-      fields: z.array(z.string()),
-      rows: z.array(z.array(z.string())),
-    }),
-  ),
-});
+const DataSchema = z.record(
+  z.object({
+    fields: z.array(z.string()),
+    rows: z.array(z.array(z.string())),
+  }),
+);
 
 export type Data = z.infer<typeof DataSchema>;
 

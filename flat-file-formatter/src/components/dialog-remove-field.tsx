@@ -36,8 +36,8 @@ export function DialogRemoveField({ children }: { children: React.ReactNode }) {
     },
   });
 
-  const options = data.records
-    ? Object.entries(data.records).flatMap(([tag, records]) =>
+  const options = data
+    ? Object.entries(data).flatMap(([tag, records]) =>
         records.fields.map((name) => ({ tag, name })),
       )
     : [];

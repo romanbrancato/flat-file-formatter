@@ -27,8 +27,7 @@ import { DialogConfigureParser } from "@/components/dialog-configure-parser";
 import { DialogConfigureFormat } from "@/components/dialog-configure-format";
 
 export function Toolbar() {
-  const { isReady, data, params, setParams, applyPreset } =
-    useContext(DataProcessorContext);
+  const { isReady, setParams, applyPreset } = useContext(DataProcessorContext);
   const { preset, setPreset } = useContext(PresetContext);
 
   return (
@@ -230,7 +229,7 @@ export function Toolbar() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => applyPreset(preset)}
+          onClick={() => applyPreset(preset.changes)}
           disabled={!preset.name || !isReady}
         >
           <MagicWandIcon />

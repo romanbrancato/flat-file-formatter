@@ -9,7 +9,7 @@ export function removeFields(data: Data, operation: Operation): Data {
   const { fields } = operation;
 
   fields.forEach(({ name, tag }) => {
-    const records = data.records[tag];
+    const records = data[tag];
     if (!records) return;
 
     const fieldIndex = records.fields.indexOf(name);
@@ -19,11 +19,11 @@ export function removeFields(data: Data, operation: Operation): Data {
     records.rows.forEach((row) => row.splice(fieldIndex, 1));
   });
 
-  data.records = Object.fromEntries(
-    Object.entries(data.records).filter(
-      ([, record]) => record.fields.length > 0,
-    ),
-  );
+  Object.keys(data).forEach((tag) => {
+    if (data[tag].fields.length === 0) {
+      delete data[tag];
+    }
+  });
 
   return { ...data };
 }
@@ -32,7 +32,7 @@ export function addFields(data: Data, operation: Operation): Data {
   if (operation.operation !== "add") return data;
 
   const { tag, fields, after } = operation;
-  const records = data.records[tag];
+  const records = data[tag];
   if (!records) return data;
 
   let insertIndex = after
@@ -51,7 +51,7 @@ export function addFields(data: Data, operation: Operation): Data {
 }
 
 export function orderFields(data: Data, tag: string, order: number[]): Data {
-  const record = data.records[tag];
+  const record = data[tag];
   if (!record) return data;
 
   record.fields = order.map((index) => record.fields[index]);
@@ -64,7 +64,7 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
   if (operation.operation !== "conditional") return data;
 
   const { tag, conditions, actionTrue, actionFalse } = operation;
-  const records = data.records[tag];
+  const records = data[tag];
 
   function evaluateCondition(
     fields: string[],
@@ -97,8 +97,8 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
 
   // Ensures that any additional tags are created even if no rows end up being pushed to them.
   const createTag = (action: Action) => {
-    if (action.action === "separate" && !data.records[action.tag]) {
-      data.records[action.tag] = { fields: [...records.fields], rows: [] };
+    if (action.action === "separate" && !data[action.tag]) {
+      data[action.tag] = { fields: [...records.fields], rows: [] };
     }
   };
 
@@ -124,7 +124,7 @@ export function evaluateConditions(data: Data, operation: Operation): Data {
         return [row];
 
       case "separate":
-        data.records[action.tag].rows.push(row);
+        data[action.tag].rows.push(row);
         return [];
 
       case "duplicate":
@@ -149,7 +149,7 @@ export function evaluateEquation(data: Data, operation: Operation): Data {
   if (operation.operation !== "equation") return data;
 
   const { tag, direction, equation, output } = operation;
-  const records = data.records[tag];
+  const records = data[tag];
 
   if (!records) return data;
 
@@ -184,7 +184,7 @@ export function reformatData(data: Data, operation: Operation): Data {
   if (operation.operation !== "reformat") return data;
 
   const { tag, fields, reformat } = operation;
-  const records = data.records[tag];
+  const records = data[tag];
   if (!records) return data;
 
   records.rows = records.rows.map((row) => {

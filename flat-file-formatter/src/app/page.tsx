@@ -16,11 +16,8 @@ export default function App() {
         <Toolbar />
       </div>
       <>
-        {isReady && Object.keys(data.records).includes(focus) && (
-          <DataTable
-            fields={data.records[focus].fields}
-            rows={data.records[focus].rows}
-          />
+        {isReady && Object.keys(data).includes(focus) && (
+          <DataTable fields={data[focus].fields} rows={data[focus].rows} />
         )}
       </>
       <Footer />

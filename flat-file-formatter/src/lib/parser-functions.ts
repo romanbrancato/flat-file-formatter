@@ -53,11 +53,9 @@ export async function parseFile(params: DataProcessorParams) {
             );
 
             resolve({
-              records: {
-                detail: {
-                  fields: trimmedFields,
-                  rows: trimmedRows,
-                },
+              detail: {
+                fields: trimmedFields,
+                rows: trimmedRows,
               },
             });
           },
@@ -113,9 +111,7 @@ export async function parseFile(params: DataProcessorParams) {
             );
           }
 
-          resolve({
-            records,
-          });
+          resolve(records);
         };
 
         reader.readAsText(params.file);
@@ -139,7 +135,7 @@ export function unparseData(
       preset.output.groups.flatMap((group) => group.tags),
     );
 
-    Object.entries(data.records)
+    Object.entries(data)
       .filter(
         ([tag, records]) => records.fields.length > 0 && groupTags.has(tag),
       )

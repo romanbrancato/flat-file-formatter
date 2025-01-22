@@ -83,9 +83,10 @@ export function DialogReformat({ children }: { children: React.ReactNode }) {
                     <FormControl>
                       <SelectMultiFields
                         label="Select Fields"
-                        options={(data.records[focus]?.fields ?? []).map(
-                          (name) => ({ tag: focus, name }),
-                        )}
+                        options={(data[focus]?.fields ?? []).map((name) => ({
+                          tag: focus,
+                          name,
+                        }))}
                         defaultValues={field.value as Field[]}
                         onValueChange={(fields) => field.onChange(fields)}
                       />
