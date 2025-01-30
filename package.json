@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@evologi/fixed-width": "^1.0.1",
+    "@google-cloud/bigquery": "^7.9.1",
+    "@google-cloud/functions-framework": "^3.4.5",
+    "@google-cloud/storage": "^7.15.0",
     "@hookform/resolvers": "^3.4.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-checkbox": "^1.1.2",

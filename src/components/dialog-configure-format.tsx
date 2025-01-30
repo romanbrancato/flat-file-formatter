@@ -68,7 +68,7 @@ function TagAccordionItem({ tag, fields }: { tag: string; fields: string[] }) {
           selected={inheritedTag}
           options={
             isReady
-              ? Object.keys(data.records).map((key) => ({
+              ? Object.keys(data).map((key) => ({
                   label: key,
                   value: key,
                 }))
@@ -210,7 +210,7 @@ export function DialogConfigureFormat({
                     <ScrollAreaViewport className="max-h-[400px]">
                       <Accordion type="single" className="mr-4" collapsible>
                         {isReady &&
-                          Object.keys(data.records).map((tag) => (
+                          Object.keys(data).map((tag) => (
                             <TagAccordionItem
                               tag={tag}
                               fields={data[tag].fields}

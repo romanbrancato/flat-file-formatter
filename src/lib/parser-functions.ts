@@ -1,9 +1,11 @@
 import Papa from "papaparse";
 import { Options, parse, stringify } from "@evologi/fixed-width";
-import { toast } from "sonner";
-import { Data, Preset, PresetSchema } from "@/types/schemas";
-import { download, tokenize } from "@/lib/utils";
-import { DataProcessorParams } from "@/hooks/useDataProcessor";
+import {
+  Data,
+  DataProcessorParams,
+  Preset,
+  PresetSchema,
+} from "@/types/schemas";
 
 export async function parsePreset(file: File): Promise<Preset> {
   return new Promise((resolve, reject) => {
@@ -18,7 +20,7 @@ export async function parsePreset(file: File): Promise<Preset> {
         );
         resolve(loadedPreset);
       } catch (error) {
-        toast.error("Invalid Preset", {
+        console.log("Invalid Preset", {
           description: "The selected file is not a valid preset.",
         });
         reject(error);
@@ -26,7 +28,7 @@ export async function parsePreset(file: File): Promise<Preset> {
     };
 
     reader.onerror = () => {
-      toast.error("Error Reading File", {
+      console.log("Error Reading File", {
         description: "Failed to read the preset file.",
       });
       reject(new Error("Failed to read file"));
@@ -124,7 +126,7 @@ export async function parseFile(params: DataProcessorParams) {
   });
 }
 
-export function unparseData(
+export function formatData(
   data: Data,
   preset: Preset,
 ): Record<string, string> | undefined {
@@ -183,15 +185,13 @@ export function unparseData(
       });
     return flatData;
   } catch (error: any) {
-    toast.error("Failed to Export File", { description: error.message });
+    console.log("Failed to Export File", { description: error.message });
   }
 }
 
-export function exportFile(data: Data, preset: Preset, name: string) {
-  const flatData = unparseData(data, preset);
+export function createFile(data: Data, preset: Preset): File | undefined {
+  const flatData = formatData(data, preset);
   if (!flatData) return;
-
-  const tokenizedName = tokenize(name);
 
   preset.output.groups.forEach((group) => {
     let content = "";
@@ -223,13 +223,8 @@ export function exportFile(data: Data, preset: Preset, name: string) {
         break;
     }
 
-    download(
-      content.replace(/\n/g, "\r\n"),
-      group.name.replace(
-        /{(\d+)}/g,
-        (match, index) => tokenizedName[index] || "",
-      ),
-      "txt",
-    );
+    return new File([content.replace(/\n/g, "\r\n")], group.name, {
+      type: "text/plain",
+    });
   });
 }

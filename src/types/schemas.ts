@@ -47,6 +47,12 @@ export const ParserConfigSchema = z.discriminatedUnion("format", [
 
 export type ParserConfig = z.infer<typeof ParserConfigSchema>;
 
+export const DataProcessorParams = z.object({
+  file: z.instanceof(File),
+  config: ParserConfigSchema,
+});
+export type DataProcessorParams = z.infer<typeof DataProcessorParams>;
+
 export const FieldSchema = z.object(
   {
     tag: z.string().min(1),

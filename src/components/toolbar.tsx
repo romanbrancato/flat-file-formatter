@@ -114,9 +114,11 @@ export function Toolbar() {
             <MenubarItem
               onSelect={() => {
                 download(
-                  JSON.stringify(preset, null, 2),
-                  preset.name || "preset",
-                  "json",
+                  new File(
+                    [JSON.stringify(preset, null, 2)],
+                    preset.name || "preset",
+                    { type: "application/json" },
+                  ),
                 );
               }}
               disabled={!isReady}

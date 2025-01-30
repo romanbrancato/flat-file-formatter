@@ -1,14 +1,7 @@
 import { parseFile } from "@/lib/parser-functions";
 import { useCallback, useEffect, useState } from "react";
 import * as fns from "@/lib/data-functions";
-import { Data, Operation, ParserConfigSchema, Preset } from "@/types/schemas";
-import { z } from "zod";
-
-export const DataProcessorParams = z.object({
-  file: z.instanceof(File),
-  config: ParserConfigSchema,
-});
-export type DataProcessorParams = z.infer<typeof DataProcessorParams>;
+import { Data, DataProcessorParams, Operation } from "@/types/schemas";
 
 export function useDataProcessor() {
   const [isReady, setIsReady] = useState(false);
