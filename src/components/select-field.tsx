@@ -17,7 +17,7 @@ import {
 import { useContext, useState } from "react";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { DataProcessorContext } from "@/context/data-processor-context";
-import { Field } from "@/types/schemas";
+import { Field } from "@/common/types/schemas";
 
 export function SelectField({
   selectedField,

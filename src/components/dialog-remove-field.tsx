@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/form";
 import { PresetContext } from "@/context/preset-context";
 import { DataProcessorContext } from "@/context/data-processor-context";
-import { Field, Operation, OperationSchema } from "@/types/schemas";
+import { Field, Operation, OperationSchema } from "@/common/types/schemas";
 import { SelectMultiFields } from "@/components/select-multi-fields";
 
 export function DialogRemoveField({ children }: { children: React.ReactNode }) {

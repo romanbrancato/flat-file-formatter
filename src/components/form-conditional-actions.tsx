@@ -6,7 +6,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { SelectField } from "@/components/select-field";
-import { Field } from "@/types/schemas";
+import { Field } from "@/common/types/schemas";
 import { FormDuplicateRow } from "@/components/form-duplicate-row";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";

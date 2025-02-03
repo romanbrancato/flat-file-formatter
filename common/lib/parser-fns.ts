@@ -5,7 +5,7 @@ import {
   DataProcessorParams,
   Preset,
   PresetSchema,
-} from "@/types/schemas";
+} from "../types/schemas";
 
 export async function parsePreset(file: File): Promise<Preset> {
   return new Promise((resolve, reject) => {

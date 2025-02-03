@@ -9,7 +9,7 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { DialogAddField } from "@/components/dialog-add-field";
-import { parsePreset } from "@/lib/parser-functions";
+import { parsePreset } from "@/common/lib/parser-fns";
 import { DataProcessorContext } from "@/context/data-processor-context";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";

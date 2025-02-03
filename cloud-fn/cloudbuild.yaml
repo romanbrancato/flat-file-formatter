@@ -1,13 +1,14 @@
 steps:
+  - name: 'alpine'
+    args: ['cp', '-r', 'common', 'cloud-fn/']
+
   # Install dependencies
   - name: 'gcr.io/cloud-builders/npm'
-    args: ['install']
-    dir: 'src/cloud-fn'
+    args: ['install', '--workspace', 'cloud-fn']
 
   # Build the project
   - name: 'gcr.io/cloud-builders/npm'
-    args: ['run', 'build']
-    dir: 'src/cloud-fn'
+    args: ['run', '--workspace', 'cloud-fn', 'build']
 
   # Deploy the function
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -16,7 +17,7 @@ steps:
       - deploy
       - bqExport
       - --region=us-east5
-      - --source=flat-file-formatter/src/cloud-fn
+      - --source=cloud-fn
       - --trigger-http
       - --runtime=nodejs20
       - --memory=512Mi

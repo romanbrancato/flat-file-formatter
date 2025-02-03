@@ -1,7 +1,7 @@
-import { parseFile } from "@/lib/parser-functions";
+import { parseFile } from "@/common/lib/parser-fns";
 import { useCallback, useEffect, useState } from "react";
-import * as fns from "@/lib/data-functions";
-import { Data, DataProcessorParams, Operation } from "@/types/schemas";
+import * as fns from "@/common/lib/data-fns";
+import { Data, DataProcessorParams, Operation } from "@/common/types/schemas";
 
 export function useDataProcessor() {
   const [isReady, setIsReady] = useState(false);

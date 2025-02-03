@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { SelectField } from "@/components/select-field";
-import { Field } from "@/types/schemas";
+import { Field } from "@/common/types/schemas";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";

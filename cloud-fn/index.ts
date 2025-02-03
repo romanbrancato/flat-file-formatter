@@ -1,9 +1,9 @@
-import { HttpFunction } from "@google-cloud/functions-framework";
 import { Storage } from "@google-cloud/storage";
 import { BigQuery } from "@google-cloud/bigquery";
-import { Data, Preset } from "./types/schemas";
-import { createFile, parseFile } from "./lib/parser-functions";
-import { applyPreset } from "./lib/data-functions";
+import { Data, Preset } from "./common/types/schemas";
+import { createFile, parseFile } from "./common/lib/parser-fns";
+import { applyPreset } from "./common/lib/data-fns";
+import { HttpFunction } from "@google-cloud/functions-framework";
 
 interface RequestBody {
   query: string;

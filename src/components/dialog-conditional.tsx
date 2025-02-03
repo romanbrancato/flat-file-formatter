@@ -1,6 +1,6 @@
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { OperationSchema } from "@/types/schemas";
+import { OperationSchema } from "@/common/types/schemas";
 import { useContext, useState } from "react";
 import { DataProcessorContext } from "@/context/data-processor-context";
 import {

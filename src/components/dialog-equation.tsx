@@ -8,7 +8,7 @@ import {
   useWatch,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { OperationSchema } from "@/types/schemas";
+import { OperationSchema } from "@/common/types/schemas";
 import {
   Dialog,
   DialogContent,

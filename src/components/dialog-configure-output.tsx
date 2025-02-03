@@ -9,7 +9,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { DataProcessorContext } from "@/context/data-processor-context";
 import {
@@ -21,13 +21,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { download } from "@/lib/utils";
-import path from "node:path";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { PresetContext } from "@/context/preset-context";
-import { Output, OutputSchema } from "@/types/schemas";
+import { Output, OutputSchema } from "@/common/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Selector } from "@/components/selector";
-import { createFile } from "@/lib/parser-functions";
+import { createFile } from "@/common/lib/parser-fns";
 
 export function DialogConfigureOutput({
   children,

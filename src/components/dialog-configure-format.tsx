@@ -25,7 +25,7 @@ import {
   useWatch,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Format, FormatSchema } from "@/types/schemas";
+import { Format, FormatSchema } from "@/common/types/schemas";
 import {
   Accordion,
   AccordionContent,
