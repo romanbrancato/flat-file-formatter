@@ -22,7 +22,7 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { cn } from "@/lib/utils";
-import { Preset } from "@/common/types/schemas";
+import { Preset } from "@common/types/schemas";
 
 export function SelectPreset() {
   const { preset, setPreset } = useContext(PresetContext);

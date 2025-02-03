@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { DataProcessorContext } from "@/context/data-processor-context";
 import { PresetContext } from "@/context/preset-context";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
-import { Field, OperationSchema } from "@/common/types/schemas";
+import { Field, OperationSchema } from "@common/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,

@@ -23,10 +23,10 @@ import {
 import { download } from "@/lib/utils";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { PresetContext } from "@/context/preset-context";
-import { Output, OutputSchema } from "@/common/types/schemas";
+import { Output, OutputSchema } from "@common/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Selector } from "@/components/selector";
-import { createFile } from "@/common/lib/parser-fns";
+import { createFile } from "@common/lib/parser-fns";
 
 export function DialogConfigureOutput({
   children,
@@ -106,7 +106,7 @@ export function DialogConfigureOutput({
                           <FormItem>
                             <FormControl>
                               <MultiSelect
-                                options={Object.keys(data.records)}
+                                options={Object.keys(data)}
                                 defaultValue={field.value}
                                 placeholder="Select Tags"
                                 onValueChange={(tags) => field.onChange(tags)}
