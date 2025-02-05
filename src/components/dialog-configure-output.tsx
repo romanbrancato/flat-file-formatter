@@ -20,13 +20,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { download } from "@/lib/utils";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { PresetContext } from "@/context/preset-context";
 import { Output, OutputSchema } from "@common/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Selector } from "@/components/selector";
-import {generateFileBuffers} from "@common/lib/parser-fns";
 
 export function DialogConfigureOutput({
   children,
@@ -35,7 +33,6 @@ export function DialogConfigureOutput({
 }) {
   const { data } = useContext(DataProcessorContext);
   const { preset, setPreset } = useContext(PresetContext);
-  const { params } = useContext(DataProcessorContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<Output>({
@@ -52,20 +49,6 @@ export function DialogConfigureOutput({
     setPreset({
       ...preset,
       output: values,
-    });
-    if (!params) return;
-
-    const buffers = generateFileBuffers(data, preset);
-
-    // Handle file creation results
-    if (!buffers?.length) {
-      console.error("Failed to create files");
-      return;
-    }
-
-    // Download all generated files
-    buffers.forEach(buffer => {
-      download(buffer.content, buffer.name);
     });
 
     setOpen(false);
@@ -176,7 +159,7 @@ export function DialogConfigureOutput({
                 Add Group
               </Button>
               <Button type="submit" className="w-1/3">
-                Download
+                Save
               </Button>
             </div>
           </form>

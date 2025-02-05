@@ -25,9 +25,10 @@ import { SelectPreset } from "@/components/select-preset";
 import { DialogConfigureOutput } from "@/components/dialog-configure-output";
 import { DialogConfigureParser } from "@/components/dialog-configure-parser";
 import { DialogConfigureFormat } from "@/components/dialog-configure-format";
+import {generateFileBuffers} from "@common/lib/parser-fns";
 
 export function Toolbar() {
-  const { isReady, setParams, applyPreset } = useContext(DataProcessorContext);
+  const { isReady, data, setParams, applyPreset } = useContext(DataProcessorContext);
   const { preset, setPreset } = useContext(PresetContext);
 
   return (
@@ -45,7 +46,6 @@ export function Toolbar() {
                     const file = (e.target as HTMLInputElement).files?.[0];
                     if (!file) return;
 
-                    // Convert File to Uint8Array
                     const reader = new FileReader();
                     reader.onload = () => {
                       const arrayBuffer = reader.result as ArrayBuffer;
@@ -85,9 +85,26 @@ export function Toolbar() {
                 }}
                 disabled={!isReady}
               >
-                Download
+                Configure Output
               </MenubarItem>
             </DialogConfigureOutput>
+            <MenubarItem
+                onSelect={(e) => {
+                  const buffers = generateFileBuffers(data, preset);
+
+                  if (!buffers?.length) {
+                    console.error("Failed to create files");
+                    return;
+                  }
+
+                  buffers.forEach(buffer => {
+                    download(buffer.content, buffer.name);
+                  });
+                }}
+                disabled={!isReady || preset.output.groups.length === 0}
+            >
+              Download
+            </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
@@ -142,7 +159,7 @@ export function Toolbar() {
                       `${preset.name || 'preset'}.json`
                   );
                 }}
-                disabled={!isReady}
+                disabled={!preset.name}
             >
               Download
             </MenubarItem>

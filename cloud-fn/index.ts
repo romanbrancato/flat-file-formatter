@@ -1,7 +1,7 @@
 import { Storage } from "@google-cloud/storage";
 import { BigQuery } from "@google-cloud/bigquery";
 import { Preset } from "./common/types/schemas";
-import { generateFileBuffers, parseBuffer } from "./common/lib/parser-fns";
+import { generateFileBuffers, parseBuffer, parsePreset } from "./common/lib/parser-fns";
 import { applyPreset } from "./common/lib/data-fns";
 import { HttpFunction } from "@google-cloud/functions-framework";
 
@@ -62,7 +62,7 @@ export const bqExport: HttpFunction = async (req, res) => {
     const presetBucket = storage.bucket("format-presets");
     const presetFile = presetBucket.file(`${body.preset}.json`);
     const [presetContent] = await presetFile.download();
-    const preset: Preset = JSON.parse(presetContent.toString());
+    const preset: Preset = parsePreset(presetContent);
 
     // Process data
     const buffer = await queryToBuffer(body.query);
@@ -72,8 +72,6 @@ export const bqExport: HttpFunction = async (req, res) => {
     });
     const processedData = applyPreset(parsedData, preset.changes);
 
-    // Generate file buffers with error handling
-    console.log('Generating file buffers...');
     const buffers = generateFileBuffers(processedData, preset);
 
     if (!buffers?.length) {
@@ -87,24 +85,11 @@ export const bqExport: HttpFunction = async (req, res) => {
       });
     }
 
-    // Validate buffer structure
-    const invalidBuffers = buffers.filter(b =>
-        !b.name || !b.content || !(b.content instanceof Uint8Array)
-    );
-
-    if (invalidBuffers.length > 0) {
-      console.error('Invalid buffer format', invalidBuffers);
-      return res.status(500).json({
-        error: "Invalid file format",
-        details: "Generated buffers are malformed"
-      });
-    }
-
     // Save to GCS
     console.log(`Saving ${buffers.length} files to GCS...`);
     const destinationBucket = storage.bucket(body.destination);
     await Promise.all(
-        buffers.map(async (buffer) => {
+        buffers.map(async (buffer: {name:string, content: Uint8Array }) => {
           try {
             await destinationBucket.file(buffer.name).save(buffer.content);
             console.log(`Saved ${buffer.name} successfully`);
