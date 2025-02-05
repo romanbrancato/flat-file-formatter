@@ -72,26 +72,62 @@ export const bqExport: HttpFunction = async (req, res) => {
     });
     const processedData = applyPreset(parsedData, preset.changes);
 
-    // Generate file buffers
+    // Generate file buffers with error handling
+    console.log('Generating file buffers...');
     const buffers = generateFileBuffers(processedData, preset);
 
+    if (!buffers?.length) {
+      console.error('No buffers generated', {
+        processedData,
+        preset: preset.name
+      });
+      return res.status(500).json({
+        error: "File generation failed",
+        details: "No output files were created"
+      });
+    }
+
+    // Validate buffer structure
+    const invalidBuffers = buffers.filter(b =>
+        !b.name || !b.content || !(b.content instanceof Uint8Array)
+    );
+
+    if (invalidBuffers.length > 0) {
+      console.error('Invalid buffer format', invalidBuffers);
+      return res.status(500).json({
+        error: "Invalid file format",
+        details: "Generated buffers are malformed"
+      });
+    }
+
     // Save to GCS
+    console.log(`Saving ${buffers.length} files to GCS...`);
     const destinationBucket = storage.bucket(body.destination);
     await Promise.all(
         buffers.map(async (buffer) => {
-          await destinationBucket.file(buffer.name).save(buffer.content);
+          try {
+            await destinationBucket.file(buffer.name).save(buffer.content);
+            console.log(`Saved ${buffer.name} successfully`);
+          } catch (error) {
+            console.error(`Failed to save ${buffer.name}`, error);
+            throw error;
+          }
         })
     );
 
     res.status(200).json({
       message: "Success",
-      files: buffers.map(f => f.name)
+      files: buffers.map(f => f.name),
+      count: buffers.length
     });
   } catch (error) {
-    console.error(error);
+    console.error('Processing pipeline failed', error);
     res.status(500).json({
       error: "Processing failed",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error",
+      stack: process.env.NODE_ENV === 'development' && error instanceof Error
+          ? error.stack
+          : undefined
     });
   }
 };
