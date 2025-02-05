@@ -37,20 +37,34 @@ export function Toolbar() {
           <MenubarTrigger className="relative">File</MenubarTrigger>
           <MenubarContent>
             <MenubarItem
-              onSelect={() => {
-                const input = document.createElement("input");
-                input.type = "file";
-                input.accept = ".txt, .csv";
-                input.onchange = (e) => {
-                  const file = (e.target as HTMLInputElement).files?.[0];
-                  if (!file) return;
-                  setParams({
-                    file: file,
-                    config: preset.parser,
-                  });
-                };
-                input.click();
-              }}
+                onSelect={() => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = ".txt, .csv";
+                  input.onchange = async (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (!file) return;
+
+                    // Convert File to Uint8Array
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      const arrayBuffer = reader.result as ArrayBuffer;
+                      const uint8Array = new Uint8Array(arrayBuffer);
+
+                      setParams({
+                        buffer: uint8Array,
+                        config: preset.parser,
+                      });
+                    };
+
+                    reader.onerror = (error) => {
+                      console.error("Error reading file:", error);
+                    };
+
+                    reader.readAsArrayBuffer(file);
+                  };
+                  input.click();
+                }}
             >
               Open
             </MenubarItem>
@@ -80,22 +94,28 @@ export function Toolbar() {
           <MenubarTrigger className="relative">Preset</MenubarTrigger>
           <MenubarContent>
             <MenubarItem
-              onSelect={() => {
-                const input = document.createElement("input");
-                input.type = "file";
-                input.accept = ".json";
-                input.onchange = async (e) => {
-                  const file = (e.target as HTMLInputElement).files?.[0];
-                  if (!file) return;
-                  try {
-                    const parsed = await parsePreset(file);
-                    setPreset(parsed);
-                  } catch (error) {
-                    console.error(error);
-                  }
-                };
-                input.click();
-              }}
+                onSelect={() => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = ".json";
+                  input.onchange = async (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (!file) return;
+
+                    try {
+                      // Convert File to Uint8Array
+                      const arrayBuffer = await file.arrayBuffer();
+                      const buffer = new Uint8Array(arrayBuffer);
+
+                      // Pass buffer instead of File
+                      const parsed = parsePreset(buffer);
+                      setPreset(parsed);
+                    } catch (error) {
+                      console.error("Error loading preset:", error);
+                    }
+                  };
+                  input.click();
+                }}
             >
               Open
             </MenubarItem>
