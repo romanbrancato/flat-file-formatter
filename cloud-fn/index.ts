@@ -24,7 +24,7 @@ async function queryToBuffer(query: string): Promise<Uint8Array> {
       EXPORT DATA OPTIONS(
         uri='${gcsUri}',
         format='CSV',
-        headers=true,
+        header=true,
         overwrite=true
       ) AS ${query}
     `,
