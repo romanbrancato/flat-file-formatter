@@ -1,6 +1,6 @@
 import { Storage } from "@google-cloud/storage";
 import { BigQuery } from "@google-cloud/bigquery";
-import { Data, Preset } from "./common/types/schemas";
+import { Preset } from "./common/types/schemas";
 import { createFile, parseFile } from "./common/lib/parser-fns";
 import { applyPreset } from "./common/lib/data-fns";
 import { HttpFunction } from "@google-cloud/functions-framework";
@@ -13,15 +13,12 @@ interface RequestBody {
 
 const storage = new Storage();
 
-async function queryToFile(query: string): Promise<File> {
+async function queryToBuffer(query: string): Promise<Uint8Array> {
   const bigquery = new BigQuery();
-
-  // Unique prefix for the export
   const uuid = Math.random().toString(36).slice(2);
   const prefix = `exports/${uuid}_`;
-  const gcsUri = `gs://file-destinations/${prefix}*.csv`; // Wildcard required
+  const gcsUri = `gs://file-destinations/${prefix}*.csv`;
 
-  // Step 1: Run the export job
   const [job] = await bigquery.createQueryJob({
     query: `
       EXPORT DATA OPTIONS(
@@ -33,9 +30,8 @@ async function queryToFile(query: string): Promise<File> {
     location: 'US',
   });
 
-  await job.getQueryResults(); // Wait for completion
+  await job.getQueryResults();
 
-  // Step 2: List and combine exported files
   const bucket = storage.bucket('file-destinations');
   const [files] = await bucket.getFiles({ prefix });
 
@@ -43,62 +39,58 @@ async function queryToFile(query: string): Promise<File> {
     throw new Error('No files were exported.');
   }
 
-  // Download and concatenate all file contents
   let combinedContent = '';
   for (const file of files) {
     const [buffer] = await file.download();
     combinedContent += buffer.toString('utf8');
   }
 
-  // Step 3: Create a single File object
-  return new File([combinedContent], `results-${uuid}.csv`, {
-    type: 'text/csv',
-  });
+  // Convert to Uint8Array
+  return new TextEncoder().encode(combinedContent);
 }
 
 export const bqExport: HttpFunction = async (req, res) => {
   try {
-
     const body = req.body as RequestBody;
 
-    if (!body.query) {
-      return res.status(400).json({
-        error: "Missing required fields"
-      });
+    if (!body.query || !body.preset || !body.destination) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
+    // Load preset
     const presetBucket = storage.bucket("format-presets");
-
     const presetFile = presetBucket.file(`${body.preset}.json`);
     const [presetContent] = await presetFile.download();
     const preset: Preset = JSON.parse(presetContent.toString());
 
-    const file = await queryToFile(body.query);
+    // Process data
+    const buffer = await queryToBuffer(body.query);
+    const parsedData = await parseFile({
+      buffer,
+      config: preset.parser
+    });
+    const processedData = applyPreset(parsedData, preset.changes);
 
-    const data: Data = applyPreset(
-      await parseFile({ file, config: preset.parser }),
-      preset.changes,
-    );
-
-    const outputFile = createFile(data, preset);
-    if (!outputFile) {
-      return res.status(500).json({
-        error: "Failed to create file",
-        details: "Unknown error",
-      });
+    // Create and save files
+    const outputFiles = createFile(processedData, preset);
+    if (!outputFiles?.length) {
+      return res.status(500).json({ error: "Failed to create files" });
     }
 
-    await storage
-      .bucket(body.destination)
-      .file(outputFile.name)
-      .save(Buffer.from(await outputFile.arrayBuffer()));
+    const destinationBucket = storage.bucket(body.destination);
+    await Promise.all(outputFiles.map(async (file) => {
+      await destinationBucket.file(file.name).save(file.content);
+    }));
 
-    res.status(200).send("OK");
+    res.status(200).json({
+      message: "Success",
+      files: outputFiles.map(f => f.name)
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      error: "Failed to process request",
-      details: error instanceof Error ? error.message : "Unknown error",
+      error: "Processing failed",
+      details: error instanceof Error ? error.message : "Unknown error"
     });
   }
-}
+};
