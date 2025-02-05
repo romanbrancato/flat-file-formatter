@@ -37,7 +37,6 @@ export async function parseBuffer(params: DataProcessorParams): Promise<Data> {
       return result as Record<string, string>[]; // Add type assertion
     };
 
-// Update the fixed format handling
     if (params.config.format === "fixed") {
       return {
         header: params.config.header?.fields.length ? {
@@ -71,7 +70,6 @@ export function formatData(
     Object.entries(data).forEach(([tag, records]) => {
       if (!records.fields.length || !groupTags.has(tag)) return;
 
-      // Add type guard for fixed format
       if (preset.format.format === "fixed") {
         flatData[tag] = stringify(
             records.rows.map(row =>
