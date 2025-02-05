@@ -5,11 +5,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function download(file: File) {
-  const url = URL.createObjectURL(file);
+export function download(content: Uint8Array, filename: string) {
+  // Create a Blob from the Uint8Array
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+
   const link = document.createElement("a");
   link.href = url;
-  link.download = file.name;
+  link.download = filename;
+  document.body.appendChild(link);
   link.click();
-  URL.revokeObjectURL(url);
+  document.body.removeChild(link);
+
+  // Clean up after 1 minute (optional safety measure)
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }

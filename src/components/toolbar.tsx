@@ -132,16 +132,17 @@ export function Toolbar() {
             </DialogSavePreset>
 
             <MenubarItem
-              onSelect={() => {
-                download(
-                  new File(
-                    [JSON.stringify(preset, null, 2)],
-                    preset.name || "preset",
-                    { type: "application/json" },
-                  ),
-                );
-              }}
-              disabled={!isReady}
+                onSelect={() => {
+                  // Convert JSON to Uint8Array
+                  const encoder = new TextEncoder();
+                  const content = encoder.encode(JSON.stringify(preset, null, 2));
+
+                  download(
+                      content,
+                      `${preset.name || 'preset'}.json`
+                  );
+                }}
+                disabled={!isReady}
             >
               Download
             </MenubarItem>

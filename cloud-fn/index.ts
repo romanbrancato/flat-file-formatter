@@ -1,7 +1,7 @@
 import { Storage } from "@google-cloud/storage";
 import { BigQuery } from "@google-cloud/bigquery";
 import { Preset } from "./common/types/schemas";
-import { createFile, parseFile } from "./common/lib/parser-fns";
+import { generateFileBuffers, parseBuffer } from "./common/lib/parser-fns";
 import { applyPreset } from "./common/lib/data-fns";
 import { HttpFunction } from "@google-cloud/functions-framework";
 
@@ -72,15 +72,23 @@ export const bqExport: HttpFunction = async (req, res) => {
     });
     const processedData = applyPreset(parsedData, preset.changes);
 
-    console.log(processedData);
+    // Generate file buffers
+    const outputFiles = generateFileBuffers(processedData, preset);
 
-    // Create and save files
-    const outputFiles = createFile(processedData, preset);
+    if (!outputFiles?.length) {
+      return res.status(500).json({
+        error: "No files generated",
+        details: "File buffer creation failed"
+      });
+    }
 
+    // Save to GCS
     const destinationBucket = storage.bucket(body.destination);
-    await Promise.all(outputFiles.map(async (file) => {
-      await destinationBucket.file(file.name).save(file.content);
-    }));
+    await Promise.all(
+        outputFiles.map(async (file) => {
+          await destinationBucket.file(file.name).save(file.content);
+        })
+    );
 
     res.status(200).json({
       message: "Success",

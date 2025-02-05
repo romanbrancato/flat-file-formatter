@@ -26,7 +26,7 @@ import { PresetContext } from "@/context/preset-context";
 import { Output, OutputSchema } from "@common/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Selector } from "@/components/selector";
-import { createFile } from "@common/lib/parser-fns";
+import {generateFileBuffers} from "@common/lib/parser-fns";
 
 export function DialogConfigureOutput({
   children,
@@ -54,9 +54,20 @@ export function DialogConfigureOutput({
       output: values,
     });
     if (!params) return;
-    const file = createFile(data, preset);
-    if (!file) return;
-    download(file);
+
+    const buffers = generateFileBuffers(data, preset);
+
+    // Handle file creation results
+    if (!buffers?.length) {
+      console.error("Failed to create files");
+      return;
+    }
+
+    // Download all generated files
+    buffers.forEach(buffer => {
+      download(buffer.content, buffer.name);
+    });
+
     setOpen(false);
   }
 

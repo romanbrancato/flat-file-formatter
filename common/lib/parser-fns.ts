@@ -16,7 +16,7 @@ export function parsePreset(buffer: Uint8Array): Preset {
   }
 }
 
-export async function parseFile(params: DataProcessorParams): Promise<Data> {
+export async function parseBuffer(params: DataProcessorParams): Promise<Data> {
   const text = textDecoder.decode(params.buffer);
 
   if (params.config.format === "delimited") {
@@ -113,7 +113,7 @@ export function formatData(
   }
 }
 
-export const createFile = (data: Data, preset: Preset) => {
+export const generateFileBuffers = (data: Data, preset: Preset) => {
   const flatData = formatData(data, preset);
   return flatData && preset.output.groups.map(group => {
     const content = group.ordering === "round robin"
