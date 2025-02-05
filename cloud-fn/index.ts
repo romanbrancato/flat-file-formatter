@@ -66,7 +66,7 @@ export const bqExport: HttpFunction = async (req, res) => {
 
     // Process data
     const buffer = await queryToBuffer(body.query);
-    const parsedData = await parseFile({
+    const parsedData = await parseBuffer({
       buffer,
       config: preset.parser
     });
