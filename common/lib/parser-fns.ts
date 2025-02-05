@@ -83,6 +83,7 @@ export function formatData(
             ), {
               pad: preset.format.pad,
               fields: records.fields.map(field => {
+                if (preset.format.format !== "fixed") throw new Error("Invalid format");
                 const width = preset.format.widths[tag]?.[field];
                 if (!width || width <= 0) throw new Error(`Invalid width for ${field}`);
                 return {
