@@ -76,9 +76,6 @@ export const bqExport: HttpFunction = async (req, res) => {
 
     // Create and save files
     const outputFiles = createFile(processedData, preset);
-    if (!outputFiles?.length) {
-      return res.status(333).json({ error: "Failed to create files" });
-    }
 
     const destinationBucket = storage.bucket(body.destination);
     await Promise.all(outputFiles.map(async (file) => {
