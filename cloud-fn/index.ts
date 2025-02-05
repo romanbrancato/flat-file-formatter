@@ -73,26 +73,19 @@ export const bqExport: HttpFunction = async (req, res) => {
     const processedData = applyPreset(parsedData, preset.changes);
 
     // Generate file buffers
-    const outputFiles = generateFileBuffers(processedData, preset);
-
-    if (!outputFiles?.length) {
-      return res.status(500).json({
-        error: "No files generated",
-        details: "File buffer creation failed"
-      });
-    }
+    const buffers = generateFileBuffers(processedData, preset);
 
     // Save to GCS
     const destinationBucket = storage.bucket(body.destination);
     await Promise.all(
-        outputFiles.map(async (file) => {
-          await destinationBucket.file(file.name).save(file.content);
+        buffers.map(async (buffer) => {
+          await destinationBucket.file(buffer.name).save(buffer.content);
         })
     );
 
     res.status(200).json({
       message: "Success",
-      files: outputFiles.map(f => f.name)
+      files: buffers.map(f => f.name)
     });
   } catch (error) {
     console.error(error);
