@@ -25,9 +25,10 @@ import { SelectPreset } from "@/components/select-preset";
 import { DialogConfigureOutput } from "@/components/dialog-configure-output";
 import { DialogConfigureParser } from "@/components/dialog-configure-parser";
 import { DialogConfigureFormat } from "@/components/dialog-configure-format";
+import {generateFileBuffers} from "@common/lib/parser-fns";
 
 export function Toolbar() {
-  const { isReady, setParams, applyPreset } = useContext(DataProcessorContext);
+  const { isReady, data, setParams, applyPreset } = useContext(DataProcessorContext);
   const { preset, setPreset } = useContext(PresetContext);
 
   return (
@@ -37,20 +38,33 @@ export function Toolbar() {
           <MenubarTrigger className="relative">File</MenubarTrigger>
           <MenubarContent>
             <MenubarItem
-              onSelect={() => {
-                const input = document.createElement("input");
-                input.type = "file";
-                input.accept = ".txt, .csv";
-                input.onchange = (e) => {
-                  const file = (e.target as HTMLInputElement).files?.[0];
-                  if (!file) return;
-                  setParams({
-                    file: file,
-                    config: preset.parser,
-                  });
-                };
-                input.click();
-              }}
+                onSelect={() => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = ".txt, .csv";
+                  input.onchange = async (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      const arrayBuffer = reader.result as ArrayBuffer;
+                      const uint8Array = new Uint8Array(arrayBuffer);
+
+                      setParams({
+                        buffer: uint8Array,
+                        config: preset.parser,
+                      });
+                    };
+
+                    reader.onerror = (error) => {
+                      console.error("Error reading file:", error);
+                    };
+
+                    reader.readAsArrayBuffer(file);
+                  };
+                  input.click();
+                }}
             >
               Open
             </MenubarItem>
@@ -71,31 +85,55 @@ export function Toolbar() {
                 }}
                 disabled={!isReady}
               >
-                Download
+                Configure Output
               </MenubarItem>
             </DialogConfigureOutput>
+            <MenubarItem
+                onSelect={(e) => {
+                  const buffers = generateFileBuffers(data, preset);
+
+                  if (!buffers?.length) {
+                    console.error("Failed to create files");
+                    return;
+                  }
+
+                  buffers.forEach(buffer => {
+                    download(buffer.content, buffer.name);
+                  });
+                }}
+                disabled={!isReady || preset.output.groups.length === 0}
+            >
+              Download
+            </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
           <MenubarTrigger className="relative">Preset</MenubarTrigger>
           <MenubarContent>
             <MenubarItem
-              onSelect={() => {
-                const input = document.createElement("input");
-                input.type = "file";
-                input.accept = ".json";
-                input.onchange = async (e) => {
-                  const file = (e.target as HTMLInputElement).files?.[0];
-                  if (!file) return;
-                  try {
-                    const parsed = await parsePreset(file);
-                    setPreset(parsed);
-                  } catch (error) {
-                    console.error(error);
-                  }
-                };
-                input.click();
-              }}
+                onSelect={() => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = ".json";
+                  input.onchange = async (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (!file) return;
+
+                    try {
+                      // Convert File to Uint8Array
+                      const arrayBuffer = await file.arrayBuffer();
+                      const buffer = new Uint8Array(arrayBuffer);
+
+                      // Pass buffer instead of File
+                      const parsed = parsePreset(buffer);
+                      setPreset(parsed);
+                      localStorage.setItem(`preset_${parsed.name}`, JSON.stringify(parsed, null, 2));
+                    } catch (error) {
+                      console.error("Error loading preset:", error);
+                    }
+                  };
+                  input.click();
+                }}
             >
               Open
             </MenubarItem>
@@ -112,16 +150,17 @@ export function Toolbar() {
             </DialogSavePreset>
 
             <MenubarItem
-              onSelect={() => {
-                download(
-                  new File(
-                    [JSON.stringify(preset, null, 2)],
-                    preset.name || "preset",
-                    { type: "application/json" },
-                  ),
-                );
-              }}
-              disabled={!isReady}
+                onSelect={() => {
+                  // Convert JSON to Uint8Array
+                  const encoder = new TextEncoder();
+                  const content = encoder.encode(JSON.stringify(preset, null, 2));
+
+                  download(
+                      content,
+                      `${preset.name || 'preset'}.json`
+                  );
+                }}
+                disabled={!preset.name}
             >
               Download
             </MenubarItem>

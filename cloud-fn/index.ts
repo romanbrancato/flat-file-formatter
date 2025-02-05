@@ -1,104 +1,82 @@
-import { Storage } from "@google-cloud/storage";
-import { BigQuery } from "@google-cloud/bigquery";
-import { Data, Preset } from "./common/types/schemas";
-import { createFile, parseFile } from "./common/lib/parser-fns";
-import { applyPreset } from "./common/lib/data-fns";
-import { HttpFunction } from "@google-cloud/functions-framework";
+import {Storage} from "@google-cloud/storage";
+import {BigQuery} from "@google-cloud/bigquery";
+import {generateFileBuffers, parseBuffer, parsePreset} from "./common/lib/parser-fns";
+import {applyPreset} from "./common/lib/data-fns";
+import {HttpFunction} from "@google-cloud/functions-framework";
 
 interface RequestBody {
-  query: string;
-  preset: string;
-  destination: string;
+    query: string;
+    preset: string;
+    destination: string;
 }
 
 const storage = new Storage();
+const bigquery = new BigQuery();
 
-async function queryToFile(query: string): Promise<File> {
-  const bigquery = new BigQuery();
+const exportQuery = async (query: string) => {
+    const uuid = Math.random().toString(36).slice(2);
+    const prefix = `exports/${uuid}_`;
 
-  // Unique prefix for the export
-  const uuid = Math.random().toString(36).slice(2);
-  const prefix = `exports/${uuid}_`;
-  const gcsUri = `gs://file-destinations/${prefix}*.csv`; // Wildcard required
+    const [job] = await bigquery.createQueryJob({
+        query: `EXPORT DATA OPTIONS(
+      uri='gs://file-destinations/${prefix}*.csv',
+      format='CSV', header=true, overwrite=true
+    ) AS ${query}`,
+        location: 'US'
+    });
 
-  // Step 1: Run the export job
-  const [job] = await bigquery.createQueryJob({
-    query: `
-      EXPORT DATA OPTIONS(
-        uri='${gcsUri}',
-        format='CSV',
-        overwrite=true
-      ) AS ${query}
-    `,
-    location: 'US',
-  });
+    await job.getQueryResults();
+    return prefix;
+};
 
-  await job.getQueryResults(); // Wait for completion
+const combineFiles = async (prefix: string) => {
+    const [files] = await storage.bucket('file-destinations').getFiles({prefix});
+    if (!files.length) throw new Error('No files exported');
 
-  // Step 2: List and combine exported files
-  const bucket = storage.bucket('file-destinations');
-  const [files] = await bucket.getFiles({ prefix });
-
-  if (files.length === 0) {
-    throw new Error('No files were exported.');
-  }
-
-  // Download and concatenate all file contents
-  let combinedContent = '';
-  for (const file of files) {
-    const [buffer] = await file.download();
-    combinedContent += buffer.toString('utf8');
-  }
-
-  // Step 3: Create a single File object
-  return new File([combinedContent], `results-${uuid}.csv`, {
-    type: 'text/csv',
-  });
-}
+    const buffers = await Promise.all(files.map(file => file.download()));
+    return new TextEncoder().encode(buffers.map(b => b[0].toString()).join(''));
+};
 
 export const bqExport: HttpFunction = async (req, res) => {
-  try {
+    try {
+        const {query, preset: presetName, destination} = req.body as RequestBody;
+        if (!query || !presetName || !destination) return res.status(400).json({error: "Missing required fields"});
 
-    const body = req.body as RequestBody;
+        // Load preset
+        const [presetFile] = await storage.bucket("format-presets").file(`${presetName}.json`).download();
+        const preset = parsePreset(presetFile);
 
-    if (!body.query) {
-      return res.status(400).json({
-        error: "Missing required fields"
-      });
+        // Process data pipeline
+        const buffer = await exportQuery(query).then(combineFiles);
+        const processedData = applyPreset(await parseBuffer({buffer, config: preset.parser}), preset.changes);
+        const buffers = generateFileBuffers(processedData, preset);
+
+        if (!buffers?.length) return res.status(500).json({error: "File generation failed"});
+
+        // Save files
+        await Promise.all(
+            buffers.map(({name, content}) =>
+                storage.bucket(destination)
+                    .file(name)
+                    .save(content, {
+                        metadata: {
+                            contentType: 'text/plain; charset=utf-8'
+                        }
+                    })
+            )
+        );
+
+        return res.status(200).json({
+            message: "Success",
+            files: buffers.map(f => f.name),
+            count: buffers.length
+        });
+
+    } catch (error) {
+        console.error('Processing failed:', error);
+        return res.status(500).json({
+            error: "Processing failed",
+            details: error instanceof Error ? error.message : "Unknown error"
+        });
     }
-
-    const presetBucket = storage.bucket("format-presets");
-
-    const presetFile = presetBucket.file(`${body.preset}.json`);
-    const [presetContent] = await presetFile.download();
-    const preset: Preset = JSON.parse(presetContent.toString());
-
-    const file = await queryToFile(body.query);
-
-    const data: Data = applyPreset(
-      await parseFile({ file, config: preset.parser }),
-      preset.changes,
-    );
-
-    const outputFile = createFile(data, preset);
-    if (!outputFile) {
-      return res.status(500).json({
-        error: "Failed to create file",
-        details: "Unknown error",
-      });
-    }
-
-    await storage
-      .bucket(body.destination)
-      .file(outputFile.name)
-      .save(Buffer.from(await outputFile.arrayBuffer()));
-
-    res.status(200).send("OK");
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      error: "Failed to process request",
-      details: error instanceof Error ? error.message : "Unknown error",
-    });
-  }
-}
+};

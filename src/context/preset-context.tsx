@@ -17,12 +17,7 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
       format: "delimited",
     },
     changes: [],
-    format: {
-      format: "fixed",
-      pad: " ",
-      align: "left",
-      widths: {},
-    },
+    format: { format:"delimited", delimiter: "," },
     output: {
       groups: [],
     },

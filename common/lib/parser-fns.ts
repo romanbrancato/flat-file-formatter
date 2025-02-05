@@ -1,230 +1,127 @@
 import Papa from "papaparse";
 import { Options, parse, stringify } from "@evologi/fixed-width";
-import {
-  Data,
-  DataProcessorParams,
-  Preset,
-  PresetSchema,
-} from "../types/schemas";
+import { Data, DataProcessorParams, Preset, PresetSchema } from "../types/schemas";
 
-export async function parsePreset(file: File): Promise<Preset> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const obj = JSON.parse(event.target?.result as string);
-        const loadedPreset = PresetSchema.parse(obj);
-        localStorage.setItem(
-          `preset_${loadedPreset.name}`,
-          JSON.stringify({ ...loadedPreset }, null, 2),
-        );
-        resolve(loadedPreset);
-      } catch (error) {
-        console.log("Invalid Preset", {
-          description: "The selected file is not a valid preset.",
-        });
-        reject(error);
-      }
-    };
+const textDecoder = new TextDecoder();
+const textEncoder = new TextEncoder();
 
-    reader.onerror = () => {
-      console.log("Error Reading File", {
-        description: "Failed to read the preset file.",
-      });
-      reject(new Error("Failed to read file"));
-    };
-
-    reader.readAsText(file);
-  });
-}
-
-export async function parseFile(params: DataProcessorParams) {
-  return new Promise<Data>((resolve, reject) => {
-    switch (params.config.format) {
-      case "delimited": {
-        const config: Papa.ParseLocalConfig<unknown, any> = {
-          skipEmptyLines: true,
-          delimitersToGuess: ["~", "|"],
-          complete: (results) => {
-            const [fields, ...rows] = results.data as string[][];
-
-            const trimmedFields = fields.map((field) => field.trim());
-
-            const trimmedRows = rows.map((row) =>
-              row.map((cell) => cell.trim()),
-            );
-
-            resolve({
-              detail: {
-                fields: trimmedFields,
-                rows: trimmedRows,
-              },
-            });
-          },
-        };
-        Papa.parse(params.file, config);
-        break;
-      }
-
-      case "fixed": {
-        const reader = new FileReader();
-
-        reader.onload = (event) => {
-          if (params.config.format !== "fixed") return;
-
-          const fileContents = event.target?.result as string;
-          const lines = fileContents.split(/\r?\n/).filter(Boolean);
-
-          const records: Record<
-            string,
-            { fields: string[]; rows: string[][] }
-          > = {
-            header: { fields: [], rows: [] },
-            detail: { fields: [], rows: [] },
-            trailer: { fields: [], rows: [] },
-          };
-
-          const unzip = (parsedData: { [key: string]: any }[]) => {
-            if (!parsedData || parsedData.length === 0)
-              return { fields: [], rows: [] };
-            const fields = Object.keys(parsedData[0]);
-            const rows = parsedData.map((row) =>
-              fields.map((field) => row[field]),
-            );
-            return { fields, rows };
-          };
-
-          if (params.config.header?.fields.length) {
-            records.header = unzip(
-              parse(lines[0], params.config.header as Options),
-            );
-            lines.splice(0, 1);
-          }
-
-          if (params.config.trailer?.fields.length) {
-            records.trailer = unzip(
-              parse(lines.pop() as string, params.config.trailer as Options),
-            );
-          }
-
-          if (params.config.detail?.fields.length) {
-            records.detail = unzip(
-              parse(lines.join("\n"), params.config.detail as Options),
-            );
-          }
-
-          resolve(records);
-        };
-
-        reader.readAsText(params.file);
-        break;
-      }
-
-      default:
-        reject(new Error("Unsupported format"));
-    }
-  });
-}
-
-export function formatData(
-  data: Data,
-  preset: Preset,
-): Record<string, string> | undefined {
+export function parsePreset(buffer: Uint8Array): Preset {
   try {
-    const flatData: Record<string, string> = {};
-
-    const groupTags = new Set(
-      preset.output.groups.flatMap((group) => group.tags),
-    );
-
-    Object.entries(data)
-      .filter(
-        ([tag, records]) => records.fields.length > 0 && groupTags.has(tag),
-      )
-      .forEach(([tag, records]) => {
-        flatData[tag] =
-          preset.format.format === "delimited"
-            ? Papa.unparse(
-                { fields: records.fields, data: records.rows },
-                {
-                  delimiter: preset.format.delimiter,
-                  skipEmptyLines: true,
-                },
-              )
-            : preset.format.format === "fixed"
-              ? stringify(
-                  records.rows.map((row) =>
-                    Object.fromEntries(
-                      records.fields.map((field, index) => [field, row[index]]),
-                    ),
-                  ),
-                  {
-                    pad: preset.format.pad,
-                    fields: records.fields.map((field) => {
-                      const width =
-                        preset.format.format === "fixed"
-                          ? preset.format.widths[tag]?.[field]
-                          : undefined;
-
-                      if (!width || width <= 0) {
-                        throw new Error(`Invalid width for ${field}`);
-                      }
-
-                      return {
-                        property: field,
-                        width: width,
-                        align:
-                          preset.format.format === "fixed"
-                            ? preset.format.align
-                            : "left",
-                      };
-                    }),
-                  },
-                )
-              : "";
-      });
-    return flatData;
-  } catch (error: any) {
-    console.log("Failed to Export File", { description: error.message });
+    return PresetSchema.parse(JSON.parse(textDecoder.decode(buffer)));
+  } catch (error) {
+    console.log("Invalid Preset", { description: "Invalid preset file" });
+    throw error;
   }
 }
 
-export function createFile(data: Data, preset: Preset): File | undefined {
-  const flatData = formatData(data, preset);
-  if (!flatData) return;
+export async function parseBuffer(params: DataProcessorParams): Promise<Data> {
+  const text = textDecoder.decode(params.buffer);
 
-  preset.output.groups.forEach((group) => {
-    let content = "";
+  if (params.config.format === "delimited") {
+    return new Promise(resolve => Papa.parse(text, {
+      skipEmptyLines: true,
+      delimitersToGuess: ["~", "|"],
+      complete: ({ data }) => resolve({
+        detail: {
+          fields: (data[0] as string[]).map(f => f.trim()),
+          rows: data.slice(1).map(row => (row as string[]).map(cell => cell.trim()))
+        }
+      })
+    }));
+  }
 
-    switch (group.ordering) {
-      case "in order":
-        content = group.tags
-          .map((tag) => flatData[tag]?.trim())
-          .filter(Boolean)
-          .join("\n");
-        break;
+  if (params.config.format === "fixed") {
+    const lines = text.split(/\r?\n/).filter(Boolean);
+    const parseSection = (config: Options, ...lines: string[]) => {
+      const result = parse(lines.join("\n"), config);
+      return result as Record<string, string>[]; // Add type assertion
+    };
 
-      case "round robin": {
-        const tagData = group.tags.map(
-          (tag) => flatData[tag]?.split("\n") || [],
-        );
-        const maxLength = Math.max(...tagData.map((rows) => rows.length));
+    if (params.config.format === "fixed") {
+      return {
+        header: params.config.header?.fields.length ? {
+          fields: Object.keys(parseSection(params.config.header, lines.shift()!)[0]),
+          rows: parseSection(params.config.header, lines[0]).map(row => Object.values(row))
+        } : { fields: [], rows: [] },
 
-        content = Array.from({ length: maxLength }, (_, i) =>
-          group.tags
-            .map((tag, index) => tagData[index][i])
-            .filter(Boolean)
-            .join("\n"),
-        ).join("\n");
-        break;
-      }
+        detail: {
+          fields: Object.keys(parseSection(params.config.detail, ...lines)[0]),
+          rows: parseSection(params.config.detail, ...lines).map(row => Object.values(row))
+        },
 
-      default:
-        break;
+        trailer: params.config.trailer?.fields.length ? {
+          fields: Object.keys(parseSection(params.config.trailer, lines.pop()!)[0]),
+          rows: parseSection(params.config.trailer, lines[0]).map(row => Object.values(row))
+        } : { fields: [], rows: [] }
+      };
     }
+  }
 
-    return new File([content.replace(/\n/g, "\r\n")], group.name, {
-      type: "text/plain",
-    });
-  });
+  throw new Error("Unsupported format");
 }
+export function formatData(
+    data: Data,
+    preset: Preset
+): Record<string, string> | undefined {
+  try {
+    const flatData: Record<string, string> = {};
+    const groupTags = new Set(preset.output.groups.flatMap(g => g.tags));
+
+    Object.entries(data).forEach(([tag, records]) => {
+      if (!records.fields.length || !groupTags.has(tag)) return;
+
+      if (preset.format.format === "fixed") {
+        flatData[tag] = stringify(
+            records.rows.map(row =>
+                Object.fromEntries(
+                    records.fields.map((field, index) => [field, row[index]])
+                )
+            ), {
+              pad: preset.format.pad,
+              fields: records.fields.map(field => {
+                if (preset.format.format !== "fixed") throw new Error("Invalid format");
+                const width = preset.format.widths[tag]?.[field];
+                if (!width || width <= 0) throw new Error(`Invalid width for ${field}`);
+                return {
+                  property: field,
+                  width: width,
+                  align: preset.format.align
+                };
+              })
+            }
+        );
+      } else if (preset.format.format === "delimited") {
+        flatData[tag] = Papa.unparse({
+          fields: records.fields,
+          data: records.rows
+        }, {
+          delimiter: preset.format.delimiter,
+          skipEmptyLines: true
+        });
+      }
+    });
+
+    return flatData;
+  } catch (error: unknown) {
+    console.log("Export Failed", {
+      description: error instanceof Error ? error.message : "Unknown error"
+    });
+  }
+}
+
+export const generateFileBuffers = (data: Data, preset: Preset) => {
+  const flatData = formatData(data, preset);
+  return flatData && preset.output.groups.map(group => {
+    const content = group.ordering === "round robin"
+        ? Array.from({ length: Math.max(...group.tags.map(t =>
+              (flatData[t]?.split("\n") || []).length)) }, (_, i) =>
+            group.tags.map(t => flatData[t]?.split("\n")[i]).filter(Boolean).join("\n")
+        ).join("\n")
+        : group.tags.map(t => flatData[t]?.trim()).filter(Boolean).join("\n");
+
+    return {
+      name: group.name,
+      content: textEncoder.encode(content.replace(/\n/g, "\r\n"))
+    };
+  });
+};

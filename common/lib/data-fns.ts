@@ -189,7 +189,7 @@ export function reformatData(data: Data, operation: Operation): Data {
   records.rows = records.rows.map((row) => {
     fields.forEach((field) => {
       const fieldIndex = records.fields.indexOf(field.name);
-      if (fieldIndex === -1) return;
+      if (fieldIndex === -1 || !row[fieldIndex]) return;
 
       switch (reformat.type) {
         case "date":
