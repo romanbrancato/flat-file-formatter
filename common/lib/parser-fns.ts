@@ -7,9 +7,7 @@ const textEncoder = new TextEncoder();
 
 export function parsePreset(buffer: Uint8Array): Preset {
   try {
-    const loadedPreset = PresetSchema.parse(JSON.parse(textDecoder.decode(buffer)));
-    localStorage.setItem(`preset_${loadedPreset.name}`, JSON.stringify(loadedPreset, null, 2));
-    return loadedPreset;
+    return PresetSchema.parse(JSON.parse(textDecoder.decode(buffer)));
   } catch (error) {
     console.log("Invalid Preset", { description: "Invalid preset file" });
     throw error;

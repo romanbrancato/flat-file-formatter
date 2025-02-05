@@ -127,6 +127,7 @@ export function Toolbar() {
                       // Pass buffer instead of File
                       const parsed = parsePreset(buffer);
                       setPreset(parsed);
+                      localStorage.setItem(`preset_${parsed.name}`, JSON.stringify(parsed, null, 2));
                     } catch (error) {
                       console.error("Error loading preset:", error);
                     }
