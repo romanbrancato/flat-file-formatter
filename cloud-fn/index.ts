@@ -71,6 +71,8 @@ export const bqExport: HttpFunction = async (req, res) => {
     });
     const processedData = applyPreset(parsedData, preset.changes);
 
+    console.log(processedData);
+
     // Create and save files
     const outputFiles = createFile(processedData, preset);
     if (!outputFiles?.length) {
