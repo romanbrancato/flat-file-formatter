@@ -1,7 +1,7 @@
 import {Storage} from "@google-cloud/storage";
 import {BigQuery} from "@google-cloud/bigquery";
 import {generateFileBuffers, parseBuffer, parsePreset} from "./common/lib/parser-fns";
-import {applyPreset} from "./common/lib/data-fns";
+import {handlePreset} from "./common/lib/data-fns";
 import {HttpFunction} from "@google-cloud/functions-framework";
 
 interface RequestBody {
@@ -83,7 +83,7 @@ export const bqExport: HttpFunction = async (req, res) => {
             await cleanupFiles(prefix);
         }
 
-        const formattedData = applyPreset(await parseBuffer({buffer, config: preset.parser}), preset.changes);
+        const formattedData = handlePreset(await parseBuffer({buffer, config: preset.parser}), preset.changes);
         const buffers = generateFileBuffers(formattedData, preset);
 
         if (!buffers?.length) throw new Error('Failed to generate file, ensure preset.output is defined.');
