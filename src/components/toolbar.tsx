@@ -22,10 +22,10 @@ import { download } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { MagicWandIcon } from "@radix-ui/react-icons";
 import { SelectPreset } from "@/components/select-preset";
-import { DialogConfigureOutput } from "@/components/dialog-configure-output";
-import { DialogConfigureParser } from "@/components/dialog-configure-parser";
-import { DialogConfigureFormat } from "@/components/dialog-configure-format";
 import {generateFileBuffers} from "@common/lib/parser-fns";
+import {DialogParserConfig} from "@/components/dialog-parser-config";
+import {DialogOutputConfig} from "@/components/dialog-output-config";
+import {DialogFormatConfig} from "@/components/dialog-format-config";
 
 export function Toolbar() {
   const { isReady, data, setParams, applyPreset } = useContext(DataProcessorContext);
@@ -66,28 +66,28 @@ export function Toolbar() {
                   input.click();
                 }}
             >
-              Open
+              Open...
             </MenubarItem>
-            <DialogConfigureParser>
+            <DialogParserConfig>
               <MenubarItem
                 onSelect={(e) => {
                   e.preventDefault();
                 }}
                 disabled={!isReady}
               >
-                Configure Parser
+                Parser Config
               </MenubarItem>
-            </DialogConfigureParser>
-            <DialogConfigureOutput>
+            </DialogParserConfig>
+            <DialogOutputConfig>
               <MenubarItem
                 onSelect={(e) => {
                   e.preventDefault();
                 }}
                 disabled={!isReady}
               >
-                Configure Output
+                Output Config
               </MenubarItem>
-            </DialogConfigureOutput>
+            </DialogOutputConfig>
             <MenubarItem
                 onSelect={(e) => {
                   const buffers = generateFileBuffers(data, preset);
@@ -135,7 +135,7 @@ export function Toolbar() {
                   input.click();
                 }}
             >
-              Open
+              Open...
             </MenubarItem>
 
             <DialogSavePreset>
@@ -176,7 +176,7 @@ export function Toolbar() {
                 }}
                 disabled={!isReady}
               >
-                Add Field
+                Add
               </MenubarItem>
             </DialogAddField>
             <DialogRemoveField>
@@ -186,7 +186,7 @@ export function Toolbar() {
                 }}
                 disabled={!isReady}
               >
-                Remove Field
+                Remove
               </MenubarItem>
             </DialogRemoveField>
             <DialogConditional>
@@ -253,7 +253,7 @@ export function Toolbar() {
               </MenubarRadioItem>
             </MenubarRadioGroup>
             <MenubarSeparator />
-            <DialogConfigureFormat>
+            <DialogFormatConfig>
               <MenubarItem
                 disabled={!isReady}
                 onSelect={(e) => {
@@ -262,7 +262,7 @@ export function Toolbar() {
               >
                 Configure Format
               </MenubarItem>
-            </DialogConfigureFormat>
+            </DialogFormatConfig>
           </MenubarContent>
         </MenubarMenu>
       </Menubar>

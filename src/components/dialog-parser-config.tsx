@@ -126,7 +126,7 @@ function AccordionItemComponent({ record }: { record: string }) {
   );
 }
 
-export function DialogConfigureParser({
+export function DialogParserConfig({
   children,
 }: {
   children: React.ReactNode;
@@ -157,7 +157,7 @@ export function DialogConfigureParser({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[75%] max-w-[50%] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Parser Configuration</DialogTitle>
+          <DialogTitle>Parser Config</DialogTitle>
           <DialogDescription>
             Configure the parser to read a file correctly.
           </DialogDescription>

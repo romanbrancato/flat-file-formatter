@@ -121,7 +121,7 @@ function TagAccordionItem({ tag, fields }: { tag: string; fields: string[] }) {
   );
 }
 
-export function DialogConfigureFormat({
+export function DialogFormatConfig({
   children,
 }: {
   children: React.ReactNode;
@@ -148,7 +148,7 @@ export function DialogConfigureFormat({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[75%] max-w-[50%] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Format Configuration</DialogTitle>
+          <DialogTitle>Format Config</DialogTitle>
           <DialogDescription>Configure the desired format.</DialogDescription>
         </DialogHeader>
         <FormProvider {...form}>

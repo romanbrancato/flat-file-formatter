@@ -26,7 +26,7 @@ import { Output, OutputSchema } from "@common/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Selector } from "@/components/selector";
 
-export function DialogConfigureOutput({
+export function DialogOutputConfig({
   children,
 }: {
   children: React.ReactNode;
@@ -59,7 +59,7 @@ export function DialogConfigureOutput({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[75%] max-w-[50%] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Output</DialogTitle>
+          <DialogTitle>Output Config</DialogTitle>
           <DialogDescription className="flex flex-row items-center justify-between">
             Each defined group will be written to a separate file.
           </DialogDescription>

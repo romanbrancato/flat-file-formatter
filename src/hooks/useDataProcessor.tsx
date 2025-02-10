@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import * as fns from "@common/lib/data-fns";
 import { Data, DataProcessorParams, Operation } from "@common/types/schemas";
 import {parseBuffer} from "@common/lib/parser-fns";
+import {handleAdd, handleConditional, handleEquation, handlePreset, handleReformat, handleRemove} from "@common/lib/data-fns";
 
 export function useDataProcessor() {
   const [isReady, setIsReady] = useState(false);
@@ -32,7 +32,7 @@ export function useDataProcessor() {
   const removeFields = useCallback(
     (operation: Operation) => {
       setIsReady(false);
-      setData(fns.removeFields(data, operation));
+      setData(handleRemove(data, operation));
       setIsReady(true);
     },
     [data],
@@ -41,16 +41,7 @@ export function useDataProcessor() {
   const addFields = useCallback(
     (operation: Operation) => {
       setIsReady(false);
-      setData(fns.addFields(data, operation));
-      setIsReady(true);
-    },
-    [data],
-  );
-
-  const orderFields = useCallback(
-    (tag: string, order: number[]) => {
-      setIsReady(false);
-      setData(fns.orderFields(data, tag, order));
+      setData(handleAdd(data, operation));
       setIsReady(true);
     },
     [data],
@@ -59,7 +50,7 @@ export function useDataProcessor() {
   const evaluateConditions = useCallback(
     (operation: Operation) => {
       setIsReady(false);
-      setData(fns.evaluateConditions(data, operation));
+      setData(handleConditional(data, operation));
       setIsReady(true);
     },
     [data],
@@ -68,7 +59,7 @@ export function useDataProcessor() {
   const evaluateEquation = useCallback(
     (operation: Operation) => {
       setIsReady(false);
-      setData(fns.evaluateEquation(data, operation));
+      setData(handleEquation(data, operation));
       setIsReady(true);
     },
     [data],
@@ -77,7 +68,7 @@ export function useDataProcessor() {
   const reformatData = useCallback(
     (operation: Operation) => {
       setIsReady(false);
-      setData(fns.reformatData(data, operation));
+      setData(handleReformat(data, operation));
       setIsReady(true);
     },
     [data],
@@ -86,7 +77,7 @@ export function useDataProcessor() {
   const applyPreset = useCallback(
     (changes: Operation[]) => {
       setIsReady(false);
-      setData(fns.applyPreset(data, changes));
+      setData(handlePreset(data, changes));
       setIsReady(true);
     },
     [data],
@@ -101,7 +92,6 @@ export function useDataProcessor() {
     setFocus,
     removeFields,
     addFields,
-    orderFields,
     evaluateConditions,
     evaluateEquation,
     reformatData,
