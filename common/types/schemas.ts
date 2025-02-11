@@ -17,25 +17,12 @@ export const ParserFieldSchema = z.object({
         width: z.coerce.number(),
       }),
     )
-    .superRefine((widths, ctx) => {
-      widths.forEach((field, index) => {
-        if (!field.property) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-          });
-        }
-        if (field.width <= 0) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-          });
-        }
-      });
-    }),
 });
 
 export const ParserConfigSchema = z.discriminatedUnion("format", [
   z.object({
     format: z.literal("delimited"),
+    delimiter: z.string().nullable(),
   }),
   z.object({
     format: z.literal("fixed"),

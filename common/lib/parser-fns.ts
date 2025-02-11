@@ -20,7 +20,7 @@ export async function parseBuffer(params: DataProcessorParams): Promise<Data> {
   if (params.config.format === "delimited") {
     return new Promise(resolve => Papa.parse(text, {
       skipEmptyLines: true,
-      delimitersToGuess: ["~", "|"],
+      delimiter: params.config.format === "delimited" ? params.config.delimiter : "",
       complete: ({ data }) => resolve({
         detail: {
           fields: (data[0] as string[]).map(f => f.trim()),
@@ -59,6 +59,7 @@ export async function parseBuffer(params: DataProcessorParams): Promise<Data> {
 
   throw new Error("Unsupported format");
 }
+
 export function formatData(
     data: Data,
     preset: Preset

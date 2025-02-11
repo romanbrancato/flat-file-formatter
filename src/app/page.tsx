@@ -12,9 +12,7 @@ export default function App() {
   return (
     <main className="flex h-screen flex-col">
       <Header />
-      <div className="flex items-center justify-between border-y py-2">
-        <Toolbar />
-      </div>
+      <Toolbar />
       <>
         {isReady && Object.keys(data).includes(focus) && (
           <DataTable fields={data[focus].fields} rows={data[focus].rows} />

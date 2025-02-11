@@ -35,6 +35,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { DataProcessorContext } from "@/context/data-processor-context";
+import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 
 function TagAccordionItem({ tag, fields }: { tag: string; fields: string[] }) {
   const { setValue, control } = useFormContext();
@@ -93,7 +94,7 @@ function TagAccordionItem({ tag, fields }: { tag: string; fields: string[] }) {
               <FormItem className="mr-3 mt-2">
                 <FormControl>
                   <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-xs font-normal text-muted-foreground">
+                    <span className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-xs font-normal">
                       {fieldName}
                     </span>
                     <Input
@@ -226,24 +227,11 @@ export function DialogFormatConfig({
                 <FormField
                   control={form.control}
                   name="delimiter"
-                  defaultValue=" "
+                  defaultValue=""
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Selector
-                          label="Delimiter"
-                          selected={field.value}
-                          options={[
-                            { label: ",", value: "," },
-                            { label: ";", value: ";" },
-                            { label: ":", value: ":" },
-                            { label: "|", value: "|" },
-                            { label: "tab", value: "\t" },
-                            { label: "space", value: " " },
-                            { label: "=", value: "=" },
-                          ]}
-                          onSelect={(symbol) => field.onChange(symbol)}
-                        />
+                        <FloatingLabelInput label="Delimiter" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

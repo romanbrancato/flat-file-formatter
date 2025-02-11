@@ -46,7 +46,7 @@ function AccordionItemComponent({ record }: { record: string }) {
 
   return (
     <AccordionItem value={record}>
-      <AccordionTrigger className="flex gap-x-2 text-xs font-normal capitalize text-muted-foreground">
+      <AccordionTrigger className="text-muted-foreground flex gap-x-2 text-xs font-normal capitalize">
         {record}
         <span className="ml-auto">{`${Object.values(
           useWatch({
@@ -102,7 +102,7 @@ function AccordionItemComponent({ record }: { record: string }) {
                   )}
                 />
                 <Cross2Icon
-                  className="ml-auto opacity-70 hover:text-destructive"
+                  className="hover:text-destructive ml-auto opacity-70"
                   onClick={() => remove(index)}
                 />
               </div>
@@ -166,7 +166,7 @@ export function DialogParserConfig({
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col gap-y-1"
+              className="flex flex-col gap-y-2"
             >
               <FormField
                 control={form.control}
@@ -190,6 +190,20 @@ export function DialogParserConfig({
                   </FormItem>
                 )}
               />
+              {format === "delimited" && (
+                <FormField
+                  control={form.control}
+                  name={"delimiter"}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <FloatingLabelInput label="Delimiter" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               {format === "fixed" && (
                 <Accordion type="single" collapsible>
                   <AccordionItemComponent record="header" />

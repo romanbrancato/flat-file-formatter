@@ -7,7 +7,7 @@ export const DataProcessorContext = createContext<
   ReturnType<typeof useDataProcessor>
 >({} as ReturnType<typeof useDataProcessor>);
 
-export const ProcessorProvider = ({
+export const DataProcessorProvider = ({
   children,
 }: {
   children: React.ReactNode;

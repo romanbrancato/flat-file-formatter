@@ -4,7 +4,7 @@ import { Container } from "@/components/ui/container";
 import { ThemeProvider } from "@/context/theme-context";
 import { ReactNode } from "react";
 import { PresetProvider } from "@/context/preset-context";
-import { ProcessorProvider } from "@/context/data-processor-context";
+import { DataProcessorProvider } from "@/context/data-processor-context";
 
 export const metadata: Metadata = {
   title: "Flat File Formatter",
@@ -21,7 +21,7 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="system" enableSystem>
           <Container>
             <PresetProvider>
-              <ProcessorProvider>{children}</ProcessorProvider>
+              <DataProcessorProvider>{children}</DataProcessorProvider>
             </PresetProvider>
           </Container>
         </ThemeProvider>

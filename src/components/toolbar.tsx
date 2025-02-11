@@ -8,8 +8,8 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { Separator } from "@/components/ui/separator";
 import { DialogAddField } from "@/components/dialog-add-field";
-import { parsePreset } from "@common/lib/parser-fns";
 import { DataProcessorContext } from "@/context/data-processor-context";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset-context";
@@ -17,54 +17,51 @@ import { DialogRemoveField } from "@/components/dialog-remove-field";
 import { DialogConditional } from "@/components/dialog-conditional";
 import { DialogEquation } from "@/components/dialog-equation";
 import { DialogReformat } from "@/components/dialog-reformat";
-import { DialogSavePreset } from "@/components/dialog-save-preset";
 import { download } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { MagicWandIcon } from "@radix-ui/react-icons";
 import { SelectPreset } from "@/components/select-preset";
-import {generateFileBuffers} from "@common/lib/parser-fns";
-import {DialogParserConfig} from "@/components/dialog-parser-config";
-import {DialogOutputConfig} from "@/components/dialog-output-config";
-import {DialogFormatConfig} from "@/components/dialog-format-config";
+import { generateFileBuffers } from "@common/lib/parser-fns";
+import { DialogParserConfig } from "@/components/dialog-parser-config";
+import { DialogOutputConfig } from "@/components/dialog-output-config";
+import { DialogFormatConfig } from "@/components/dialog-format-config";
 
 export function Toolbar() {
-  const { isReady, data, setParams, applyPreset } = useContext(DataProcessorContext);
+  const { isReady, data, setParams } = useContext(DataProcessorContext);
   const { preset, setPreset } = useContext(PresetContext);
 
   return (
-    <>
+    <div className="flex w-full justify-between border-y py-2">
       <Menubar className="rounded-none border-none">
         <MenubarMenu>
           <MenubarTrigger className="relative">File</MenubarTrigger>
           <MenubarContent>
             <MenubarItem
-                onSelect={() => {
-                  const input = document.createElement("input");
-                  input.type = "file";
-                  input.accept = ".txt, .csv";
-                  input.onchange = async (e) => {
-                    const file = (e.target as HTMLInputElement).files?.[0];
-                    if (!file) return;
+              onSelect={() => {
+                const input = document.createElement("input");
+                input.type = "file";
+                input.accept = ".txt, .csv";
+                input.onchange = async (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0];
+                  if (!file) return;
 
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                      const arrayBuffer = reader.result as ArrayBuffer;
-                      const uint8Array = new Uint8Array(arrayBuffer);
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    const arrayBuffer = reader.result as ArrayBuffer;
+                    const uint8Array = new Uint8Array(arrayBuffer);
 
-                      setParams({
-                        buffer: uint8Array,
-                        config: preset.parser,
-                      });
-                    };
-
-                    reader.onerror = (error) => {
-                      console.error("Error reading file:", error);
-                    };
-
-                    reader.readAsArrayBuffer(file);
+                    setParams({
+                      buffer: uint8Array,
+                      config: preset.parser,
+                    });
                   };
-                  input.click();
-                }}
+
+                  reader.onerror = (error) => {
+                    console.error("Error reading file:", error);
+                  };
+
+                  reader.readAsArrayBuffer(file);
+                };
+                input.click();
+              }}
             >
               Open...
             </MenubarItem>
@@ -73,7 +70,6 @@ export function Toolbar() {
                 onSelect={(e) => {
                   e.preventDefault();
                 }}
-                disabled={!isReady}
               >
                 Parser Config
               </MenubarItem>
@@ -89,78 +85,19 @@ export function Toolbar() {
               </MenubarItem>
             </DialogOutputConfig>
             <MenubarItem
-                onSelect={(e) => {
-                  const buffers = generateFileBuffers(data, preset);
+              onSelect={(e) => {
+                const buffers = generateFileBuffers(data, preset);
 
-                  if (!buffers?.length) {
-                    console.error("Failed to create files");
-                    return;
-                  }
+                if (!buffers?.length) {
+                  console.error("Failed to create files");
+                  return;
+                }
 
-                  buffers.forEach(buffer => {
-                    download(buffer.content, buffer.name);
-                  });
-                }}
-                disabled={!isReady || preset.output.groups.length === 0}
-            >
-              Download
-            </MenubarItem>
-          </MenubarContent>
-        </MenubarMenu>
-        <MenubarMenu>
-          <MenubarTrigger className="relative">Preset</MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem
-                onSelect={() => {
-                  const input = document.createElement("input");
-                  input.type = "file";
-                  input.accept = ".json";
-                  input.onchange = async (e) => {
-                    const file = (e.target as HTMLInputElement).files?.[0];
-                    if (!file) return;
-
-                    try {
-                      // Convert File to Uint8Array
-                      const arrayBuffer = await file.arrayBuffer();
-                      const buffer = new Uint8Array(arrayBuffer);
-
-                      // Pass buffer instead of File
-                      const parsed = parsePreset(buffer);
-                      setPreset(parsed);
-                      localStorage.setItem(`preset_${parsed.name}`, JSON.stringify(parsed, null, 2));
-                    } catch (error) {
-                      console.error("Error loading preset:", error);
-                    }
-                  };
-                  input.click();
-                }}
-            >
-              Open...
-            </MenubarItem>
-
-            <DialogSavePreset>
-              <MenubarItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                }}
-                disabled={!isReady}
-              >
-                Save
-              </MenubarItem>
-            </DialogSavePreset>
-
-            <MenubarItem
-                onSelect={() => {
-                  // Convert JSON to Uint8Array
-                  const encoder = new TextEncoder();
-                  const content = encoder.encode(JSON.stringify(preset, null, 2));
-
-                  download(
-                      content,
-                      `${preset.name || 'preset'}.json`
-                  );
-                }}
-                disabled={!preset.name}
+                buffers.forEach((buffer) => {
+                  download(buffer.content, buffer.name);
+                });
+              }}
+              disabled={!isReady || preset.output.groups.length === 0}
             >
               Download
             </MenubarItem>
@@ -266,17 +203,7 @@ export function Toolbar() {
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
-      <div className="flex w-1/3 flex-row justify-end space-x-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => applyPreset(preset.changes)}
-          disabled={!preset.name || !isReady}
-        >
-          <MagicWandIcon />
-        </Button>
-        <SelectPreset />
-      </div>
-    </>
+      <SelectPreset className="w-1/3" />
+    </div>
   );
 }
