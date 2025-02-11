@@ -22,7 +22,7 @@ export const ParserFieldSchema = z.object({
 export const ParserConfigSchema = z.discriminatedUnion("format", [
   z.object({
     format: z.literal("delimited"),
-    delimiter: z.string().nullable(),
+    delimiter: z.string(),
   }),
   z.object({
     format: z.literal("fixed"),

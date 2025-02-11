@@ -1,5 +1,5 @@
-import Papa from "papaparse";
 import { Options, parse, stringify } from "@evologi/fixed-width";
+import Papa from "papaparse";
 import { Data, DataProcessorParams, Preset, PresetSchema } from "../types/schemas";
 
 const textDecoder = new TextDecoder();
@@ -15,7 +15,7 @@ export function parsePreset(buffer: Uint8Array): Preset {
 }
 
 export async function parseBuffer(params: DataProcessorParams): Promise<Data> {
-  const text = textDecoder.decode(params.buffer);
+  const text: string = textDecoder.decode(params.buffer);
 
   if (params.config.format === "delimited") {
     return new Promise(resolve => Papa.parse(text, {
