@@ -5,10 +5,8 @@ import {
   MenubarMenu,
   MenubarRadioGroup,
   MenubarRadioItem,
-  MenubarSeparator,
-  MenubarTrigger,
+  MenubarTrigger
 } from "@/components/ui/menubar";
-import { Separator } from "@/components/ui/separator";
 import { DialogAddField } from "@/components/dialog-add-field";
 import { DataProcessorContext } from "@/context/data-processor-context";
 import { useContext } from "react";
@@ -17,16 +15,18 @@ import { DialogRemoveField } from "@/components/dialog-remove-field";
 import { DialogConditional } from "@/components/dialog-conditional";
 import { DialogEquation } from "@/components/dialog-equation";
 import { DialogReformat } from "@/components/dialog-reformat";
-import { download } from "@/lib/utils";
+import { cn, download } from "@/lib/utils";
 import { SelectPreset } from "@/components/select-preset";
 import { generateFileBuffers } from "@common/lib/parser-fns";
 import { DialogParserConfig } from "@/components/dialog-parser-config";
 import { DialogOutputConfig } from "@/components/dialog-output-config";
-import { DialogFormatConfig } from "@/components/dialog-format-config";
+import { GearIcon } from "@radix-ui/react-icons";
+import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
+import { DialogFixedConfig } from "@/components/dialog-fixed-config";
 
 export function Toolbar() {
   const { isReady, data, setParams } = useContext(DataProcessorContext);
-  const { preset, setPreset } = useContext(PresetContext);
+  const { preset, setPreset, fixed, delimited } = useContext(PresetContext);
 
   return (
     <div className="flex w-full justify-between border-y py-2">
@@ -50,7 +50,7 @@ export function Toolbar() {
 
                     setParams({
                       buffer: uint8Array,
-                      config: preset.parser,
+                      config: preset.parser
                     });
                   };
 
@@ -62,28 +62,13 @@ export function Toolbar() {
                 };
                 input.click();
               }}
+              className="flex justify-between group"
             >
               Open...
+              <DialogParserConfig>
+                <GearIcon onClick={(e) => e.stopPropagation()} className="invisible cursor-pointer group-hover:visible" />
+              </DialogParserConfig>
             </MenubarItem>
-            <DialogParserConfig>
-              <MenubarItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                Parser Config
-              </MenubarItem>
-            </DialogParserConfig>
-            <DialogOutputConfig>
-              <MenubarItem
-                onSelect={(e) => {
-                  e.preventDefault();
-                }}
-                disabled={!isReady}
-              >
-                Output Config
-              </MenubarItem>
-            </DialogOutputConfig>
             <MenubarItem
               onSelect={(e) => {
                 const buffers = generateFileBuffers(data, preset);
@@ -97,9 +82,13 @@ export function Toolbar() {
                   download(buffer.content, buffer.name);
                 });
               }}
-              disabled={!isReady || preset.output.groups.length === 0}
+              disabled={!isReady}
+              className="flex justify-between group"
             >
               Download
+              <DialogOutputConfig>
+                <GearIcon onClick={(e) => e.stopPropagation()} className="invisible cursor-pointer group-hover:visible" />
+              </DialogOutputConfig>
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
@@ -163,43 +152,38 @@ export function Toolbar() {
           <MenubarContent>
             <MenubarRadioGroup
               value={preset.format.format}
-              onValueChange={(format: any) =>
-                setPreset({
-                  ...preset,
-                  format: { ...preset.format, format: format },
-                })
-              }
+              onValueChange={(format: string) => {
+                setPreset(prev => ({
+                  ...prev,
+                  format: format === "fixed" ? fixed : delimited
+                }));
+              }}
             >
               <MenubarRadioItem
                 value="delimited"
-                onSelect={(e) => {
-                  e.preventDefault();
-                }}
+                onSelect={(e) => e.preventDefault()}
                 disabled={!isReady}
+                className="flex justify-between"
               >
                 Delimited
+                <DialogDelimitedConfig>
+                  <GearIcon onClick={(e) => e.stopPropagation()}
+                            className={cn("cursor-pointer", { invisible: preset.format.format !== "delimited" })} />
+                </DialogDelimitedConfig>
               </MenubarRadioItem>
               <MenubarRadioItem
                 value="fixed"
-                onSelect={(e) => {
-                  e.preventDefault();
-                }}
+                onSelect={(e) => e.preventDefault()}
                 disabled={!isReady}
+                className="flex justify-between"
               >
                 Fixed
+                <DialogFixedConfig>
+                  <GearIcon onClick={(e) => e.stopPropagation()}
+                            className={cn("cursor-pointer", { invisible: preset.format.format !== "fixed" })} />
+                </DialogFixedConfig>
               </MenubarRadioItem>
             </MenubarRadioGroup>
-            <MenubarSeparator />
-            <DialogFormatConfig>
-              <MenubarItem
-                disabled={!isReady}
-                onSelect={(e) => {
-                  e.preventDefault();
-                }}
-              >
-                Configure Format
-              </MenubarItem>
-            </DialogFormatConfig>
           </MenubarContent>
         </MenubarMenu>
       </Menubar>

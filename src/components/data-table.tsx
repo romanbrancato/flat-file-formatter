@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,21 +8,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { DataProcessorContext } from "@/context/data-processor-context";
 
-export function DataTable({
-  fields,
-  rows,
-}: {
-  fields: string[];
-  rows: string[][];
-}) {
+export function DataTable() {
+  const {isReady, data, focus} = useContext(DataProcessorContext);
   const [columns, setColumns] = useState<string[]>([]);
 
   useEffect(() => {
-    if (fields.length) {
-      setColumns(fields);
-    }
-  }, [fields]);
+    if (!isReady || !Object.keys(data).includes(focus) || !data[focus].fields.length) return;
+    setColumns(data[focus].fields);
+  }, [isReady, data, focus]);
+
+  if(!isReady || !Object.keys(data).includes(focus)) {
+    return null
+  }
 
   return (
     <ScrollArea className="h-full">
@@ -37,7 +36,7 @@ export function DataTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((row, rowIndex) => (
+          {data[focus].rows.map((row, rowIndex) => (
             <TableRow key={rowIndex}>
               {row.map((cell, cellIndex) => (
                 <TableCell key={cellIndex}>

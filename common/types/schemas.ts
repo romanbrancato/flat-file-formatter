@@ -149,17 +149,25 @@ export const OperationSchema = z.discriminatedUnion("operation", [
 
 export type Operation = z.infer<typeof OperationSchema>;
 
+export const DelimitedSchema = z.object({
+  format: z.literal("delimited"),
+  delimiter: z.string()
+});
+
+export type Delimited = z.infer<typeof DelimitedSchema>;
+
+export const FixedSchema = z.object({
+  format: z.literal("fixed"),
+  pad: z.string(),
+  align: z.enum(["left", "right"]),
+  widths: z.record(z.record(z.coerce.number()))
+});
+
+export type Fixed = z.infer<typeof FixedSchema>;
+
 export const FormatSchema = z.discriminatedUnion("format", [
-  z.object({
-    format: z.literal("delimited"),
-    delimiter: z.string(),
-  }),
-  z.object({
-    format: z.literal("fixed"),
-    pad: z.string(),
-    align: z.enum(["left", "right"]),
-    widths: z.record(z.record(z.coerce.number())),
-  }),
+  DelimitedSchema,
+  FixedSchema
 ]);
 
 export type Format = z.infer<typeof FormatSchema>;
