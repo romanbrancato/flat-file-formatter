@@ -154,7 +154,9 @@ export function DialogParserConfig({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+        <DialogTrigger asChild>
+          {children}
+        </DialogTrigger>
       <DialogContent className="max-h-[75%] max-w-[50%] overflow-auto">
         <DialogHeader>
           <DialogTitle>Parser Config</DialogTitle>

@@ -21,7 +21,9 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="system" enableSystem>
           <Container>
             <PresetProvider>
-              <DataProcessorProvider>{children}</DataProcessorProvider>
+              <DataProcessorProvider>
+                {children}
+              </DataProcessorProvider>
             </PresetProvider>
           </Container>
         </ThemeProvider>

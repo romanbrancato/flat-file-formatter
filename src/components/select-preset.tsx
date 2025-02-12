@@ -86,7 +86,6 @@ export function SelectPreset({ className }: { className?: string }) {
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="p-0"
         style={{ width: "var(--radix-popover-trigger-width)" }}
       >
         <Command>

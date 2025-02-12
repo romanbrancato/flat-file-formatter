@@ -136,7 +136,7 @@ export function DialogEquation({ children }: { children: React.ReactNode }) {
                         control={form.control}
                         name={`equation.${index}.field`}
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="flex-1">
                             <FormControl>
                               <SelectField
                                 selectedField={field.value}
@@ -178,7 +178,7 @@ export function DialogEquation({ children }: { children: React.ReactNode }) {
                   control={form.control}
                   name="output"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex-1">
                       <FormControl>
                         <SelectField
                           selectedField={field.value}
