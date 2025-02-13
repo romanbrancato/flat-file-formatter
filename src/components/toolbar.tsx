@@ -4,10 +4,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DialogAddField } from "@/components/dialog-add-field";
 import { DataProcessorContext } from "@/context/data-processor-context";
 import { useContext } from "react";
@@ -43,7 +40,7 @@ export function Toolbar() {
         const uint8Array = new Uint8Array(arrayBuffer);
         setParams({
           buffer: uint8Array,
-          config: preset.parser
+          config: preset.parser,
         });
       };
       reader.onerror = (error) => console.error("Error reading file:", error);
@@ -63,25 +60,31 @@ export function Toolbar() {
         {/* File Menu */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="relative px-3 py-1 h-7 rounded-sm data-[state=open]:bg-accent data-[state=open]:text-accent-foreground">
+            <Button
+              variant="ghost"
+              className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground relative h-7 rounded-sm px-3 py-1"
+            >
               File
             </Button>
           </PopoverTrigger>
           <PopoverContent className="min-w-[12rem] p-1" align="start">
             <div>
-              <div className="flex items-center justify-between group px-2 py-1 text-sm rounded-sm hover:bg-accent">
-                <button onClick={handleFileOpen} className="w-full text-left">
+              <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm">
+                <button
+                  onClick={handleFileOpen}
+                  className="w-full cursor-default text-left"
+                >
                   Open...
                 </button>
                 <DialogParserConfig>
                   <GearIcon className="invisible cursor-pointer group-hover:visible" />
                 </DialogParserConfig>
               </div>
-              <div className="flex items-center justify-between group px-2 py-1 text-sm rounded-sm hover:bg-accent">
+              <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm [&:has(button:disabled)]:pointer-events-none [&:has(button:disabled)]:opacity-50">
                 <button
                   onClick={handleDownload}
                   disabled={!isReady}
-                  className="w-full text-left"
+                  className="w-full cursor-default text-left disabled:cursor-not-allowed"
                 >
                   Download
                 </button>
@@ -93,48 +96,42 @@ export function Toolbar() {
           </PopoverContent>
         </Popover>
 
-        {/* Edit Menu - Updated */}
+        {/* Edit Menu */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="relative px-3 py-1 h-7 rounded-sm data-[state=open]:bg-accent data-[state=open]:text-accent-foreground">
+            <Button
+              variant="ghost"
+              className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground relative h-7 rounded-sm px-3 py-1"
+              disabled={!isReady}
+            >
               Edit
             </Button>
           </PopoverTrigger>
           <PopoverContent className="min-w-[12rem] p-1" align="start">
             <div>
               <DialogAddField>
-                <div className="flex items-center px-2 py-1 text-sm rounded-sm hover:bg-accent">
-                  <button className="w-full text-left" disabled={!isReady}>
-                    Add
-                  </button>
+                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
+                  <button className="w-full text-left">Add</button>
                 </div>
               </DialogAddField>
               <DialogRemoveField>
-                <div className="flex items-center px-2 py-1 text-sm rounded-sm hover:bg-accent">
-                  <button className="w-full text-left" disabled={!isReady}>
-                    Remove
-                  </button>
+                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
+                  <button className="w-full text-left">Remove</button>
                 </div>
               </DialogRemoveField>
               <DialogConditional>
-                <div className="flex items-center px-2 py-1 text-sm rounded-sm hover:bg-accent">
-                  <button className="w-full text-left" disabled={!isReady}>
-                    Conditional
-                  </button>
+                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
+                  <button className="w-full text-left">Conditional</button>
                 </div>
               </DialogConditional>
               <DialogEquation>
-                <div className="flex items-center px-2 py-1 text-sm rounded-sm hover:bg-accent">
-                  <button className="w-full text-left" disabled={!isReady}>
-                    Equation
-                  </button>
+                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
+                  <button className="w-full text-left">Equation</button>
                 </div>
               </DialogEquation>
               <DialogReformat>
-                <div className="flex items-center px-2 py-1 text-sm rounded-sm hover:bg-accent">
-                  <button className="w-full text-left" disabled={!isReady}>
-                    Reformat
-                  </button>
+                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
+                  <button className="w-full text-left">Reformat</button>
                 </div>
               </DialogReformat>
             </div>
@@ -144,7 +141,11 @@ export function Toolbar() {
         {/* Format Menu - Updated */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="relative px-3 py-1 h-7 rounded-sm data-[state=open]:bg-accent data-[state=open]:text-accent-foreground">
+            <Button
+              variant="ghost"
+              className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground relative h-7 rounded-sm px-3 py-1"
+              disabled={!isReady}
+            >
               Format
             </Button>
           </PopoverTrigger>
@@ -152,35 +153,37 @@ export function Toolbar() {
             <RadioGroup
               value={preset.format.format}
               onValueChange={(format: string) => {
-                setPreset(prev => ({
+                setPreset((prev) => ({
                   ...prev,
-                  format: format === "fixed" ? fixed : delimited
+                  format: format === "fixed" ? fixed : delimited,
                 }));
               }}
             >
               <div>
-                <label className="flex items-center justify-between px-2 py-1 text-sm rounded-sm hover:bg-accent">
+                <label className="hover:bg-accent flex items-center justify-between rounded-sm px-2 py-1 text-sm">
                   <div className="flex items-center gap-2">
                     <RadioGroupItem value="delimited" id="delimited" />
                     Delimited
                   </div>
                   <DialogDelimitedConfig>
-                    <GearIcon className={cn(
-                      "cursor-pointer",
-                      { invisible: preset.format.format !== "delimited" }
-                    )} />
+                    <GearIcon
+                      className={cn("cursor-pointer", {
+                        invisible: preset.format.format !== "delimited",
+                      })}
+                    />
                   </DialogDelimitedConfig>
                 </label>
-                <label className="flex items-center justify-between px-2 py-1 text-sm rounded-sm hover:bg-accent">
+                <label className="hover:bg-accent flex items-center justify-between rounded-sm px-2 py-1 text-sm">
                   <div className="flex items-center gap-2">
                     <RadioGroupItem value="fixed" id="fixed" />
                     Fixed
                   </div>
                   <DialogFixedConfig>
-                    <GearIcon className={cn(
-                      "cursor-pointer",
-                      { invisible: preset.format.format !== "fixed" }
-                    )} />
+                    <GearIcon
+                      className={cn("cursor-pointer", {
+                        invisible: preset.format.format !== "fixed",
+                      })}
+                    />
                   </DialogFixedConfig>
                 </label>
               </div>

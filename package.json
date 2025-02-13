@@ -11,5 +11,8 @@
     "build": "npm --workspace src run build",
     "start": "npm --workspace src run start",
     "lint": "npm --workspace src run lint"
+  },
+  "dependencies": {
+    "@radix-ui/react-radio-group": "^1.2.3"
   }
 }

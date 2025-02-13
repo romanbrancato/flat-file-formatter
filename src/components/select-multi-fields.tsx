@@ -134,8 +134,7 @@ export function SelectMultiFields({
                       >
                         {tag}
                         <span className="invisible select-none group-hover:visible">
-                          {" "}
-                          (Toggle All){" "}
+                          Toggle All
                         </span>
                       </div>
                     }
@@ -152,7 +151,7 @@ export function SelectMultiFields({
                           onSelect={() => toggleOption(option)}
                         >
                           <div
-                            className={`mr-2 flex items-center justify-center rounded-sm border border-primary ${isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
+                            className={`border-primary mr-2 flex items-center justify-center rounded-sm border ${isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
                           >
                             <CheckIcon />
                           </div>

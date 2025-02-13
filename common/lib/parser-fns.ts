@@ -33,28 +33,38 @@ export async function parseBuffer(params: DataProcessorParams): Promise<Data> {
   if (params.config.format === "fixed") {
     const lines = text.split(/\r?\n/).filter(Boolean);
     const parseSection = (config: Options, ...lines: string[]) => {
-      const result = parse(lines.join("\n"), config);
-      return result as Record<string, string>[]; // Add type assertion
+      return parse(lines.join("\n"), config) as Record<string, string>[];
     };
 
-    if (params.config.format === "fixed") {
-      return {
-        header: params.config.header?.fields.length ? {
-          fields: Object.keys(parseSection(params.config.header, lines.shift()!)[0]),
-          rows: parseSection(params.config.header, lines[0]).map(row => Object.values(row))
-        } : { fields: [], rows: [] },
+    let headerLine: string | undefined;
+    let trailerLine: string | undefined;
 
-        detail: {
-          fields: Object.keys(parseSection(params.config.detail, ...lines)[0]),
-          rows: parseSection(params.config.detail, ...lines).map(row => Object.values(row))
-        },
-
-        trailer: params.config.trailer?.fields.length ? {
-          fields: Object.keys(parseSection(params.config.trailer, lines.pop()!)[0]),
-          rows: parseSection(params.config.trailer, lines[0]).map(row => Object.values(row))
-        } : { fields: [], rows: [] }
-      };
+    // Extract header if configured
+    if (params.config.header?.fields.length) {
+      headerLine = lines.shift();
     }
+
+    // Extract trailer if configured
+    if (params.config.trailer?.fields.length) {
+      trailerLine = lines.pop();
+    }
+
+    return {
+      header: params.config.header?.fields.length ? {
+        fields: Object.keys(parseSection(params.config.header, headerLine!)[0]),
+        rows: parseSection(params.config.header, headerLine!).map(row => Object.values(row))
+      } : { fields: [], rows: [] },
+
+      detail: {
+        fields: Object.keys(parseSection(params.config.detail, ...lines)[0]),
+        rows: parseSection(params.config.detail, ...lines).map(row => Object.values(row))
+      },
+
+      trailer: params.config.trailer?.fields.length ? {
+        fields: Object.keys(parseSection(params.config.trailer, trailerLine!)[0]),
+        rows: parseSection(params.config.trailer, trailerLine!).map(row => Object.values(row))
+      } : { fields: [], rows: [] }
+    };
   }
 
   throw new Error("Unsupported format");
