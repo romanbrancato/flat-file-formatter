@@ -7,7 +7,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { useContext, useState } from "react";
-import { PresetContext } from "@/context/preset-context";
+import { PresetContext } from "@/context/preset";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { Selector } from "@/components/selector";
@@ -18,7 +18,7 @@ import { Fixed, FixedSchema } from "@common/types/schemas";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { DataProcessorContext } from "@/context/data-processor-context";
+import { DataProcessorContext } from "@/context/data-processor";
 
 function TagAccordionItem({ tag, fields }: { tag: string; fields: string[] }) {
   const { setValue, control } = useFormContext();

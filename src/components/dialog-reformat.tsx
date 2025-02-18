@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
-import { DataProcessorContext } from "@/context/data-processor-context";
-import { PresetContext } from "@/context/preset-context";
+import { DataProcessorContext } from "@/context/data-processor";
+import { PresetContext } from "@/context/preset";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { Field, OperationSchema } from "@common/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";

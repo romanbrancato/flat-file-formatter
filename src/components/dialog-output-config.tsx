@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import { useContext, useState } from "react";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { DataProcessorContext } from "@/context/data-processor-context";
+import { DataProcessorContext } from "@/context/data-processor";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
-import { PresetContext } from "@/context/preset-context";
+import { PresetContext } from "@/context/preset";
 import { Output, OutputSchema } from "@common/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Selector } from "@/components/selector";

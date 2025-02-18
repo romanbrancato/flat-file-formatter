@@ -18,8 +18,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
-import { PresetContext } from "@/context/preset-context";
-import { DataProcessorContext } from "@/context/data-processor-context";
+import { PresetContext } from "@/context/preset";
+import { DataProcessorContext } from "@/context/data-processor";
 import { SelectField } from "@/components/select-field";
 import { Operation, OperationSchema } from "@common/types/schemas";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";

@@ -1,31 +1,30 @@
-import { useContext } from "react";
-import { DataProcessorContext } from "@/context/data-processor-context";
+"use client";
+
 import { Button } from "@/components/ui/button";
+import { useTables } from "@/context/tables";
 
 export function Footer() {
-  const { isReady, data } = useContext(DataProcessorContext);
-  const { focus, setFocus } = useContext(DataProcessorContext);
+  const { tables, activeTable, setActiveTable } = useTables();  
 
-  if (!isReady) {
-    return null;
-  }
+  if (tables.size <= 0)  return null;
 
   return (
-    <footer className="sticky bottom-0 mt-auto flex items-center justify-between border-t">
+    <footer className="sticky bottom-0 mt-auto flex items-center justify-between">
       <div className="flex">
-        {Object.keys(data).map((tag) => (
+        {Array.from(tables).map((table) => (
           <Button
-            key={tag}
-            onClick={() => setFocus(tag)}
-            className={`rounded-none px-3 py-1.5 shadow-none ${focus !== tag && "bg-background text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+            key={table}
+            onClick={() => setActiveTable(table)}
+            className={`hover:bg-foreground rounded-none px-3 py-1.5 shadow-none ${
+              activeTable !== table && 
+              "bg-background text-muted-foreground hover:bg-accent hover:text-foreground"
+            }`}
           >
-            {tag}
+            {table}
           </Button>
         ))}
       </div>
-      <span className="text-xs text-muted-foreground">
-            {data[focus] && data[focus].rows.length} Row(s)
-      </span>
     </footer>
   );
 }
+

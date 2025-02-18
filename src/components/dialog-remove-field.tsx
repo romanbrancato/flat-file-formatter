@@ -17,8 +17,8 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { PresetContext } from "@/context/preset-context";
-import { DataProcessorContext } from "@/context/data-processor-context";
+import { PresetContext } from "@/context/preset";
+import { DataProcessorContext } from "@/context/data-processor";
 import { Field, Operation, OperationSchema } from "@common/types/schemas";
 import { SelectMultiFields } from "@/components/select-multi-fields";
 

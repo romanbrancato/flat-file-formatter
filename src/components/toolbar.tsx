@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Popover,
   PopoverTrigger,
@@ -6,9 +8,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DialogAddField } from "@/components/dialog-add-field";
-import { DataProcessorContext } from "@/context/data-processor-context";
+import { DataProcessorContext } from "@/context/data-processor";
 import { useContext } from "react";
-import { PresetContext } from "@/context/preset-context";
+import { PresetContext } from "@/context/preset";
 import { DialogRemoveField } from "@/components/dialog-remove-field";
 import { DialogConditional } from "@/components/dialog-conditional";
 import { DialogEquation } from "@/components/dialog-equation";
@@ -21,10 +23,15 @@ import { DialogOutputConfig } from "@/components/dialog-output-config";
 import { GearIcon } from "@radix-ui/react-icons";
 import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
 import { DialogFixedConfig } from "@/components/dialog-fixed-config";
+import { loadCSVIntoTable } from "@common/lib/db";
+import { usePGlite } from "@electric-sql/pglite-react";
+import { useTables } from "@/context/tables";
 
 export function Toolbar() {
+  const { tables, setTables } = useTables();
   const { isReady, data, setParams } = useContext(DataProcessorContext);
   const { preset, setPreset, fixed, delimited } = useContext(PresetContext);
+  const db = usePGlite();
 
   const handleFileOpen = () => {
     const input = document.createElement("input");
@@ -35,13 +42,13 @@ export function Toolbar() {
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = async () => {
         const arrayBuffer = reader.result as ArrayBuffer;
         const uint8Array = new Uint8Array(arrayBuffer);
-        setParams({
-          buffer: uint8Array,
-          config: preset.parser,
-        });
+        const result = await loadCSVIntoTable(uint8Array, "testupload", db);
+        if (result.success) {
+          setTables(new Set([...tables, "testupload"]))
+        }
       };
       reader.onerror = (error) => console.error("Error reading file:", error);
       reader.readAsArrayBuffer(file);

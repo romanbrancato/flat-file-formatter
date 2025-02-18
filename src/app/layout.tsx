@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
-import { Container } from "@/components/ui/container";
-import { ThemeProvider } from "@/context/theme-context";
 import { ReactNode } from "react";
-import { PresetProvider } from "@/context/preset-context";
-import { DataProcessorProvider } from "@/context/data-processor-context";
+import { DataProcessorProvider } from "@/context/data-processor";
+import { PresetProvider } from "@/context/preset";
+import { DbProvider } from "@/context/db";
+import { ThemeProvider } from "@/context/theme";
+import { SqlTerminalProvider } from "@/context/sql-terminal";
+import { TablesProvider } from "@/context/tables";
 
 export const metadata: Metadata = {
   title: "Flat File Formatter",
@@ -18,15 +20,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeProvider defaultTheme="system" enableSystem>
-          <Container>
-            <PresetProvider>
-              <DataProcessorProvider>
-                {children}
-              </DataProcessorProvider>
-            </PresetProvider>
-          </Container>
-        </ThemeProvider>
+        <DbProvider>
+          <TablesProvider>
+            <SqlTerminalProvider>
+              <PresetProvider>
+                <DataProcessorProvider>
+                  <ThemeProvider defaultTheme="system" enableSystem>
+                    {children}
+                  </ThemeProvider>
+                </DataProcessorProvider>
+              </PresetProvider>
+            </SqlTerminalProvider>
+          </TablesProvider>
+        </DbProvider>
       </body>
     </html>
   );

@@ -2,7 +2,7 @@ import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { OperationSchema } from "@common/types/schemas";
 import { useContext, useState } from "react";
-import { DataProcessorContext } from "@/context/data-processor-context";
+import { DataProcessorContext } from "@/context/data-processor";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +24,7 @@ import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { SelectField } from "@/components/select-field";
 import { FormConditionalActions } from "@/components/form-conditional-actions";
-import { PresetContext } from "@/context/preset-context";
+import { PresetContext } from "@/context/preset";
 import { Selector } from "@/components/selector";
 
 export function DialogConditional({ children }: { children: React.ReactNode }) {

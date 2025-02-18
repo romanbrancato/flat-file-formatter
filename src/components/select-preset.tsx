@@ -23,8 +23,8 @@ import {
 
 import * as React from "react";
 import { useContext, useEffect, useState } from "react";
-import { PresetContext } from "@/context/preset-context";
-import { DataProcessorContext } from "@/context/data-processor-context";
+import { PresetContext } from "@/context/preset";
+import { DataProcessorContext } from "@/context/data-processor";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { cn, download } from "@/lib/utils";
 import { Preset } from "@common/types/schemas";
@@ -114,7 +114,6 @@ export function SelectPreset({ className }: { className?: string }) {
                           const arrayBuffer = await file.arrayBuffer();
                           const buffer = new Uint8Array(arrayBuffer);
 
-                          // Pass buffer instead of File
                           const parsed = parsePreset(buffer);
                           setPreset(parsed);
                           localStorage.setItem(

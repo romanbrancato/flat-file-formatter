@@ -33,7 +33,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ParserConfig, ParserConfigSchema } from "@common/types/schemas";
-import { PresetContext } from "@/context/preset-context";
+import { PresetContext } from "@/context/preset";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { Selector } from "@/components/selector";
 
