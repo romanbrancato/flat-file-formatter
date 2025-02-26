@@ -13,15 +13,15 @@ import { useTables } from "@/context/tables";
 import { identifier } from '@electric-sql/pglite/template'
 
 export function QueryTable() {
-  const pg = usePGlite(); 
-  const { focusedTable: activeTable } = useTables();
+  const pg = usePGlite();
+  const { focusedTable } = useTables();
 
   const items = useLiveQuery.sql`
     SELECT *
-    FROM ${identifier`${activeTable}`}
+    FROM ${identifier`${focusedTable}`}
   `;
 
-  if(!activeTable || !pg || !items) return null;
+  if(!focusedTable || !pg || !items) return null;
 
   return (
     <ScrollArea className="h-full">

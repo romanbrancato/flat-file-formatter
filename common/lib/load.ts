@@ -65,7 +65,7 @@ async function createAndPopulateTable(
   data: any[],
 ): Promise<void> {
   // Create table
-  await db.sql`DROP TABLE IF EXISTS ${identifier`${tableName}`}`;
+  await db.sql`DROP TABLE IF EXISTS ${identifier`${tableName}`} CASCADE`;
   await db.sql`CREATE TABLE ${identifier`${tableName}`} (${raw`${transformedFields.map((f) => `${f} TEXT`).join(", ")}`})`;
 
   // Insert data
@@ -97,9 +97,11 @@ export async function loadCSVIntoTable(
       ? skipRows(csvString, config.skipRows)
       : csvString;
 
+    if (config.format !== "delimited") throw new Error("Unsupported format");
     const { data, meta, errors } = Papa.parse(processedCsvString, {
       header: true,
       skipEmptyLines: true,
+      delimiter: config.delimiter,
       transform: (value) => value.trim(),
     });
 
