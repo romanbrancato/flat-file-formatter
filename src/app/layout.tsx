@@ -5,7 +5,7 @@ import { DataProcessorProvider } from "@/context/data-processor";
 import { PresetProvider } from "@/context/preset";
 import { DbProvider } from "@/context/db";
 import { ThemeProvider } from "@/context/theme";
-import { SqlTerminalProvider } from "@/context/sql-terminal";
+import { TerminalProvider } from "@/context/terminal";
 import { TablesProvider } from "@/context/tables";
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export default function RootLayout({
       <body>
         <DbProvider>
           <TablesProvider>
-            <SqlTerminalProvider>
+            <TerminalProvider>
               <PresetProvider>
                 <DataProcessorProvider>
                   <ThemeProvider defaultTheme="system" enableSystem>
@@ -30,7 +30,7 @@ export default function RootLayout({
                   </ThemeProvider>
                 </DataProcessorProvider>
               </PresetProvider>
-            </SqlTerminalProvider>
+            </TerminalProvider>
           </TablesProvider>
         </DbProvider>
       </body>

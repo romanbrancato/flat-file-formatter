@@ -18,12 +18,12 @@ import { DialogReformat } from "@/components/dialog-reformat";
 import { cn, download } from "@/lib/utils";
 import { SelectPreset } from "@/components/select-preset";
 import { generateFileBuffers } from "@common/lib/parser-fns";
-import { DialogParserConfig } from "@/components/dialog-parser-config";
+import { DialogLoadConfig } from "@/components/dialog-load-config";
 import { DialogOutputConfig } from "@/components/dialog-output-config";
 import { GearIcon } from "@radix-ui/react-icons";
 import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
 import { DialogFixedConfig } from "@/components/dialog-fixed-config";
-import { loadCSVIntoTable } from "@common/lib/db";
+import { loadCSVIntoTable, loadFixedIntoTable } from "@common/lib/load";
 import { usePGlite } from "@electric-sql/pglite-react";
 import { useTables } from "@/context/tables";
 
@@ -41,13 +41,22 @@ export function Toolbar() {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
+      // Reset input value to allow re-selecting same file
+      (e.target as HTMLInputElement).value = "";
+
       const reader = new FileReader();
       reader.onload = async () => {
         const arrayBuffer = reader.result as ArrayBuffer;
         const uint8Array = new Uint8Array(arrayBuffer);
-        const result = await loadCSVIntoTable(uint8Array, "testupload", db);
+        const result =
+          preset.parser.format === "delimited"
+            ? await loadCSVIntoTable(uint8Array, db, preset.parser)
+            : await loadFixedIntoTable(uint8Array, db, preset.parser);
+
         if (result.success) {
-          setTables(new Set([...tables, "testupload"]))
+          setTables((prev) => new Set([...prev, result.table!]));
+        } else {
+          console.error("Failed to load file:", result.error);
         }
       };
       reader.onerror = (error) => console.error("Error reading file:", error);
@@ -83,9 +92,9 @@ export function Toolbar() {
                 >
                   Open...
                 </button>
-                <DialogParserConfig>
+                <DialogLoadConfig>
                   <GearIcon className="invisible cursor-pointer group-hover:visible" />
-                </DialogParserConfig>
+                </DialogLoadConfig>
               </div>
               <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm [&:has(button:disabled)]:pointer-events-none [&:has(button:disabled)]:opacity-50">
                 <button

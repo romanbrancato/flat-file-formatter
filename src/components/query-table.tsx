@@ -14,7 +14,7 @@ import { identifier } from '@electric-sql/pglite/template'
 
 export function QueryTable() {
   const pg = usePGlite(); 
-  const { activeTable } = useTables();
+  const { focusedTable: activeTable } = useTables();
 
   const items = useLiveQuery.sql`
     SELECT *

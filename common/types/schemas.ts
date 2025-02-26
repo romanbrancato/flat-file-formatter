@@ -9,7 +9,7 @@ const DataSchema = z.record(
 
 export type Data = z.infer<typeof DataSchema>;
 
-export const ParserFieldSchema = z.object({
+export const LoadFieldSchema = z.object({
   fields: z
     .array(
       z.object({
@@ -19,24 +19,26 @@ export const ParserFieldSchema = z.object({
     )
 });
 
-export const ParserConfigSchema = z.discriminatedUnion("format", [
+export const LoadConfigSchema = z.discriminatedUnion("format", [
   z.object({
     format: z.literal("delimited"),
+    name: z.string(),
     delimiter: z.string(),
+    skipRows: z.string()
   }),
   z.object({
     format: z.literal("fixed"),
-    header: ParserFieldSchema.nullable(),
-    detail: ParserFieldSchema,
-    trailer: ParserFieldSchema.nullable(),
+    name: z.string(),
+    widths: LoadFieldSchema,
+    skipRows: z.string()
   }),
 ]);
 
-export type ParserConfig = z.infer<typeof ParserConfigSchema>;
+export type LoadConfig = z.infer<typeof LoadConfigSchema>;
 
 export const DataProcessorParams = z.object({
   buffer: z.instanceof(Uint8Array),
-  config: ParserConfigSchema,
+  config: LoadConfigSchema,
 });
 
 export type DataProcessorParams = z.infer<typeof DataProcessorParams>;
@@ -186,7 +188,7 @@ export type Output = z.infer<typeof OutputSchema>;
 
 export const PresetSchema = z.object({
   name: z.string().nullable(),
-  parser: ParserConfigSchema,
+  parser: LoadConfigSchema,
   changes: z.array(OperationSchema),
   format: FormatSchema,
   output: OutputSchema,

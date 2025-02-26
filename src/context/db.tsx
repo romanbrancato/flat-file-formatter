@@ -29,7 +29,5 @@ export function DbProvider({
 
   if (!pg) return null;
 
-  return (
-    <PGliteProvider db={pg}>{children}</PGliteProvider>
-  );
+  return <PGliteProvider db={pg}>{children}</PGliteProvider>;
 }
