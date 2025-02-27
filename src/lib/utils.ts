@@ -19,3 +19,5 @@ export function download(content: Uint8Array, filename: string) {
 
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
+
+

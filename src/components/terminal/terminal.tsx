@@ -1,0 +1,127 @@
+"use client";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import CodeMirror from "@uiw/react-codemirror";
+import { defaultKeymap } from "@codemirror/commands";
+import { keymap } from "@codemirror/view";
+import { PostgreSQL } from "@codemirror/lang-sql";
+import type { PGliteInterface } from "@electric-sql/pglite";
+import type { PGliteWithLive } from "@electric-sql/pglite/live";
+import { usePGlite } from "@electric-sql/pglite-react";
+import { makeSqlExt } from "./sql-support";
+import { getSchema, runQuery } from "./terminal-utils";
+import { TerminalResponse } from "./terminal-response";
+import type { Response } from "./terminal-types";
+import { githubDarkInit, githubLight } from "@uiw/codemirror-theme-github";
+import { useTheme } from "next-themes";
+
+const baseKeymap = defaultKeymap.filter(({ key }) => key !== "Enter");
+const lightTheme = githubLight;
+const darkTheme = githubDarkInit({
+  settings: {
+    background: "hsl(var(--background))",
+    lineHighlight: "hsl(var(--accent) / 0.5)"
+  }
+});
+
+interface TerminalProps {
+  pg?: PGliteInterface;
+  disableUpdateSchema?: boolean;
+}
+
+export function Terminal({ pg: pgProp, disableUpdateSchema = false }: TerminalProps) {
+  const { theme } = useTheme();
+  const [value, setValue] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [output, setOutput] = useState<Response[]>([]);
+  const [schema, setSchema] = useState<Record<string, string[]>>({});
+  const valueNoHistory = useRef("");
+  const historyPos = useRef(-1);
+  const outputRef = useRef<HTMLDivElement>(null);
+  const pg = usePGlite(pgProp as PGliteWithLive);
+
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+
+    pg.waitReady.then(() => active && setLoading(false));
+    return () => { active = false };
+  }, [pg]);
+
+  const handleQuery = async (query: string) => {
+    const response = await runQuery(query, pg);
+    setOutput(prev => [...prev, response]);
+    outputRef.current?.scrollTo(0, outputRef.current.scrollHeight);
+    if (!disableUpdateSchema) setSchema(await getSchema(pg));
+  };
+
+  const updateHistory = (direction: 'up' | 'down') => {
+    const maxPos = output.length - 1;
+    historyPos.current = Math.max(-1, Math.min(
+      historyPos.current + (direction === 'up' ? 1 : -1),
+      maxPos
+    ));
+
+    const newValue = historyPos.current === -1
+      ? valueNoHistory.current
+      : output[output.length - historyPos.current - 1].query;
+
+    setValue(newValue);
+  };
+
+  const extensions = useMemo(() => [
+    keymap.of([{
+      key: "Enter",
+      preventDefault: true,
+      run: () => {
+        if (!value.trim()) return false;
+        handleQuery(value);
+        historyPos.current = -1;
+        valueNoHistory.current = "";
+        setValue("");
+        return true;
+      }
+    }, {
+      key: "ArrowUp",
+      run: ({ state }) => {
+        const line = state.doc.lineAt(state.selection.main.head);
+        return line.number === 1 ? (updateHistory('up'), true) : false;
+      }
+    }, {
+      key: "ArrowDown",
+      run: ({ state }) => {
+        const line = state.doc.lineAt(state.selection.main.head);
+        return line.number === state.doc.lines ? (updateHistory('down'), true) : false;
+      }
+    }, ...baseKeymap]),
+    makeSqlExt({
+      dialect: PostgreSQL,
+      schema,
+      tables: [{ label: "d", displayLabel: "\\d" }],
+      defaultSchema: "public"
+    })
+  ], [pg, schema, value, output.length, disableUpdateSchema]);
+
+  return (
+    <div className="flex flex-col h-full w-full border text-xs">
+      <div className="flex-1 overflow-y-auto border-b p-2" ref={outputRef}>
+        {loading && <div className="text-border">Loading...</div>}
+        {output.map((response, i) => (
+          <TerminalResponse key={`${i}-${response.time}`} response={response} />
+        ))}
+      </div>
+      <CodeMirror
+        className="[&_.cm-cursor]:border-l-[0.5em] [&_.cm-gutter.cm-lineNumbers]:min-h-[75px]"
+        value={value}
+        basicSetup={{ defaultKeymap: false }}
+        extensions={extensions}
+        theme={theme === "dark" ? darkTheme : lightTheme}
+        onChange={useCallback((val: string) => {
+          setValue(val);
+          historyPos.current === -1 && (valueNoHistory.current = val);
+        }, [])}
+        editable={!loading}
+        onCreateEditor={() => getSchema(pg).then(setSchema)}
+      />
+    </div>
+  );
+}
