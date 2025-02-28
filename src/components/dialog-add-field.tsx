@@ -23,7 +23,6 @@ import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { useTerminal } from "@/context/terminal";
 import { z } from "zod";
 import { useTables } from "@/context/tables";
-import { usePGlite } from "@electric-sql/pglite-react";
 
 export const addColumnSchema = z.object({
     table: z.string(),
@@ -40,8 +39,7 @@ export type addColumn = z.infer<typeof addColumnSchema>;
 
 export function DialogAddField({ children }: { children: ReactNode }) {
   const {setValue} = useTerminal();
-  const pg = usePGlite();
-  const {focusedTable, getColumns} = useTables()
+  const {focusedTable} = useTables()
   const [open, setOpen] = useState(false);
 
   const form = useForm<addColumn>({
@@ -59,9 +57,40 @@ export function DialogAddField({ children }: { children: ReactNode }) {
 
   function onSubmit(values: addColumn) {
     const table = values.table;
-    const fields = values.fields.map(field => `ADD COLUMN ${field.name} TEXT`).join(", ");
-    const query = `ALTER TABLE ${table} ${fields};`;
-    setValue(query);
+    
+    const addColumnsQuery = `ALTER TABLE ${table} ${values.fields.map(field => 
+      `ADD COLUMN ${field.name} TEXT`
+    ).join(", ")};`;
+    
+    let queries = [addColumnsQuery];
+    
+    for (const field of values.fields) {
+      if (field.value) {
+        const referenceMatch = field.value.match(/^\{([^.]+)\.([^}]+)\}$/);
+        
+        if (referenceMatch) {
+          const [_, referenceTable, referenceColumn] = referenceMatch;
+          
+          if (referenceTable === table) {
+            // Same table - use direct column reference
+            queries.push(`UPDATE ${table} SET ${field.name} = ${referenceColumn};`);
+          } else {
+            // Different table - use correlated subquery
+            queries.push(`UPDATE ${table} SET ${field.name} = (
+              SELECT ${referenceColumn}
+              FROM ${referenceTable}
+              WHERE ${referenceTable}.id = ${table}.${referenceTable}_id 
+            );`);
+          }
+        } else {
+          // Direct value
+          const escapedValue = field.value.replace(/'/g, "''");
+          queries.push(`UPDATE ${table} SET ${field.name} = '${escapedValue}';`);
+        }
+      }
+    }
+    
+    setValue(queries.join("\n\n"));
     setOpen(false);
     form.reset();
   }
@@ -71,9 +100,9 @@ export function DialogAddField({ children }: { children: ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[75%], flex max-w-[50%] flex-col overflow-auto">
         <DialogHeader>
-          <DialogTitle>Add Field</DialogTitle>
+          <DialogTitle>Add Column</DialogTitle>
           <DialogDescription>
-            Define a field and what to populate it with.
+            Define a column and what to populate it with.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -133,7 +162,7 @@ export function DialogAddField({ children }: { children: ReactNode }) {
               }}
             >
               <PlusCircledIcon className="mr-2" />
-              Additional Field
+              Additional Column
             </Button>
             <Button type="submit" className="ml-auto w-1/3">
               Create Query

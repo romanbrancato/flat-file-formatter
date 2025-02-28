@@ -19,7 +19,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { SelectMultiFields } from "@/components/select-multi-fields";
+import { SelectColumns } from "@/components/select-columns";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { Selector } from "@/components/selector";
 import { Button } from "@/components/ui/button";
@@ -81,7 +81,7 @@ export function DialogReformat({ children }: { children: React.ReactNode }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <SelectMultiFields
+                      <SelectColumns
                         label="Select Fields"
                         options={(data[focus]?.fields ?? []).map((name) => ({
                           tag: focus,

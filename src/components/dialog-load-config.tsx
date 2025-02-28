@@ -230,6 +230,21 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name={"serialPrimaryKey"}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <FloatingLabelInput label="Serial Primary Key" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      If left blank, an id column will be generated.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <Button type="submit" className="ml-auto w-1/3">
                 Save
               </Button>

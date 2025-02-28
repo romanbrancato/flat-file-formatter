@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Column } from "./dialog-remove-field"
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
-export function SelectMultiFields({
+export function SelectColumns({
   label,
   options,
   defaultValues,
@@ -58,8 +58,8 @@ export function SelectMultiFields({
     onValueChange(newSelectedValues);
   };
 
-  const toggleGroup = (tag: string) => {
-    const groupOptions = groupedOptions[tag] || [];
+  const toggleGroup = (table: string) => {
+    const groupOptions = groupedOptions[table] || [];
     const isAllSelected = groupOptions.every((option) =>
       selectedValues.some(
         (selected) =>
@@ -68,7 +68,7 @@ export function SelectMultiFields({
     );
 
     const newSelectedValues = isAllSelected
-      ? selectedValues.filter((value) => value.table !== tag)
+      ? selectedValues.filter((value) => value.table !== table)
       : [
           ...selectedValues,
           ...groupOptions.filter(
@@ -123,16 +123,16 @@ export function SelectMultiFields({
           <CommandList>
             <ScrollArea>
               <ScrollAreaViewport className="max-h-[300px]">
-                <CommandEmpty>No fields found.</CommandEmpty>
-                {Object.entries(groupedOptions).map(([tag, options]) => (
+                <CommandEmpty>No columns found.</CommandEmpty>
+                {Object.entries(groupedOptions).map(([table, options]) => (
                   <CommandGroup
-                    key={tag}
+                    key={table}
                     heading={
                       <div
                         className="group flex flex-row items-center justify-between hover:cursor-pointer"
-                        onClick={() => toggleGroup(tag)}
+                        onClick={() => toggleGroup(table)}
                       >
-                        {tag}
+                        {table}
                         <span className="invisible select-none group-hover:visible">
                           Toggle All
                         </span>
@@ -169,7 +169,7 @@ export function SelectMultiFields({
                         onSelect={() => setSelectedValues([])}
                         className="justify-center text-center"
                       >
-                        Clear fields
+                        Clear
                       </CommandItem>
                     </CommandGroup>
                   </>

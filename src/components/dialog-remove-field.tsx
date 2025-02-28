@@ -7,7 +7,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -17,10 +17,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { PresetContext } from "@/context/preset";
-import { DataProcessorContext } from "@/context/data-processor";
-import { Columns, Operation, OperationSchema } from "@common/types/schemas";
-import { SelectMultiFields } from "@/components/select-multi-fields";
+import { SelectColumns } from "@/components/select-columns";
 import { z } from "zod";
 import { useTerminal } from "@/context/terminal";
 import { usePGlite } from "@electric-sql/pglite-react";
@@ -43,9 +40,10 @@ export function DialogRemoveField({ children }: { children: React.ReactNode }) {
   const {setValue} = useTerminal();
   const pg = usePGlite();
   const {tables, getColumns} = useTables();
-  const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-  const [options, setOptions] = useState<{ table: string; name: string }[]>([]);
+  const [columns, setColumns] = useState<{ table: string; name: string }[]>([]);
+  const options = useMemo(() => columns, [columns]);
+
 
   const form = useForm<dropColumn>({
     resolver: zodResolver(dropColumnSchema),
@@ -53,6 +51,7 @@ export function DialogRemoveField({ children }: { children: React.ReactNode }) {
       columns: [],
     },
   });
+  
 
   useEffect(() => {
     const fetchColumns = async () => {
@@ -61,11 +60,12 @@ export function DialogRemoveField({ children }: { children: React.ReactNode }) {
         const columns = await getColumns(pg, table);
         allOptions.push(...columns.map((name) => ({ table, name })));
       }
-      setOptions(allOptions);
+      setColumns(allOptions);
     };
-
+    
     fetchColumns();
   }, [tables, getColumns, pg]);
+
 
   function onSubmit(values: dropColumn) {
     setOpen(false);
@@ -77,8 +77,8 @@ export function DialogRemoveField({ children }: { children: React.ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[75%] max-w-[50%] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Remove Fields</DialogTitle>
-          <DialogDescription>Select fields to remove.</DialogDescription>
+          <DialogTitle>Drop Columns</DialogTitle>
+          <DialogDescription>Select columns to drop.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
@@ -91,11 +91,11 @@ export function DialogRemoveField({ children }: { children: React.ReactNode }) {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <SelectMultiFields
-                      label="Select Fields"
+                    <SelectColumns
+                      label="Select Columns"
                       options={options}
                       defaultValues={field.value as Column[]}
-                      onValueChange={(fields) => field.onChange(fields)}
+                      onValueChange={(columns) => field.onChange(columns)}
                     />
                   </FormControl>
                   <FormMessage />

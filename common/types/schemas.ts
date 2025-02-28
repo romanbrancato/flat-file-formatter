@@ -23,14 +23,16 @@ export const LoadConfigSchema = z.discriminatedUnion("format", [
   z.object({
     format: z.literal("delimited"),
     name: z.string(),
-    delimiter: z.string(),
-    skipRows: z.string()
+    delimiter: z.string().optional(),
+    skipRows: z.string().optional(),
+    serialPrimaryKey: z.string().optional(),
   }),
   z.object({
     format: z.literal("fixed"),
     name: z.string(),
     widths: LoadFieldSchema,
-    skipRows: z.string()
+    skipRows: z.string().optional(),
+    serialPrimaryKey: z.string().optional(),
   }),
 ]);
 

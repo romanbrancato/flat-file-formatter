@@ -12,9 +12,6 @@ import { DataProcessorContext } from "@/context/data-processor";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset";
 import { DialogRemoveField } from "@/components/dialog-remove-field";
-import { DialogConditional } from "@/components/dialog-conditional";
-import { DialogEquation } from "@/components/dialog-equation";
-import { DialogReformat } from "@/components/dialog-reformat";
 import { cn, download } from "@/lib/utils";
 import { SelectPreset } from "@/components/select-preset";
 import { generateFileBuffers } from "@common/lib/parser-fns";
@@ -23,7 +20,7 @@ import { DialogOutputConfig } from "@/components/dialog-output-config";
 import { GearIcon } from "@radix-ui/react-icons";
 import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
 import { DialogFixedConfig } from "@/components/dialog-fixed-config";
-import { loadCSVIntoTable, loadFixedIntoTable } from "@common/lib/load";
+import { loadDataIntoTable } from "@common/lib/load";
 import { usePGlite } from "@electric-sql/pglite-react";
 import { useTables } from "@/context/tables";
 
@@ -48,11 +45,7 @@ export function Toolbar() {
       reader.onload = async () => {
         const arrayBuffer = reader.result as ArrayBuffer;
         const uint8Array = new Uint8Array(arrayBuffer);
-        const result =
-          preset.parser.format === "delimited"
-            ? await loadCSVIntoTable(uint8Array, db, preset.parser)
-            : await loadFixedIntoTable(uint8Array, db, preset.parser);
-
+        const result = await loadDataIntoTable(uint8Array, db, preset.parser);
         if (result.success) {
           setTables((prev) => new Set([...prev, result.table!]));
         } else {
