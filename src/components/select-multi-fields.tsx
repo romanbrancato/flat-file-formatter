@@ -18,7 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Field } from "@common/types/schemas";
+import { Column } from "./dialog-remove-field"
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
 export function SelectMultiFields({
@@ -28,29 +28,29 @@ export function SelectMultiFields({
   onValueChange,
 }: {
   label?: string;
-  options: Field[];
-  defaultValues: Field[];
-  onValueChange: (fields: Field[]) => void;
+  options: Column[];
+  defaultValues: Column[];
+  onValueChange: (fields: Column[]) => void;
 }) {
-  const [selectedValues, setSelectedValues] = useState<Field[]>(defaultValues);
+  const [selectedValues, setSelectedValues] = useState<Column[]>(defaultValues);
 
   const groupedOptions = options.reduce(
     (acc, option) => {
-      acc[option.tag] = [...(acc[option.tag] || []), option];
+      acc[option.table] = [...(acc[option.table] || []), option];
       return acc;
     },
-    {} as Record<string, Field[]>,
+    {} as Record<string, Column[]>,
   );
 
-  const toggleOption = (option: Field) => {
+  const toggleOption = (option: Column) => {
     const isSelected = selectedValues.some(
       (selected) =>
-        selected.tag === option.tag && selected.name === option.name,
+        selected.table === option.table && selected.name === option.name,
     );
 
     const newSelectedValues = isSelected
       ? selectedValues.filter(
-          (value) => !(value.tag === option.tag && value.name === option.name),
+          (value) => !(value.table === option.table && value.name === option.name),
         )
       : [...selectedValues, option];
 
@@ -63,19 +63,19 @@ export function SelectMultiFields({
     const isAllSelected = groupOptions.every((option) =>
       selectedValues.some(
         (selected) =>
-          selected.tag === option.tag && selected.name === option.name,
+          selected.table === option.table && selected.name === option.name,
       ),
     );
 
     const newSelectedValues = isAllSelected
-      ? selectedValues.filter((value) => value.tag !== tag)
+      ? selectedValues.filter((value) => value.table !== tag)
       : [
           ...selectedValues,
           ...groupOptions.filter(
             (option) =>
               !selectedValues.some(
                 (selected) =>
-                  selected.tag === option.tag && selected.name === option.name,
+                  selected.table === option.table && selected.name === option.name,
               ),
           ),
         ];
@@ -102,9 +102,9 @@ export function SelectMultiFields({
                     {selectedValues.length} selected
                   </Badge>
                 ) : (
-                  selectedValues.map(({ tag, name }) => (
+                  selectedValues.map(({ table, name }) => (
                     <Badge
-                      key={`${tag}-${name}`}
+                      key={`${table}-${name}`}
                       variant="secondary"
                       className="rounded-sm px-1 font-normal"
                     >
@@ -142,12 +142,12 @@ export function SelectMultiFields({
                     {options.map((option) => {
                       const isSelected = selectedValues.some(
                         (selected) =>
-                          selected.tag === option.tag &&
+                          selected.table === option.table &&
                           selected.name === option.name,
                       );
                       return (
                         <CommandItem
-                          key={`${option.tag}-${option.name}`}
+                          key={`${option.table}-${option.name}`}
                           onSelect={() => toggleOption(option)}
                         >
                           <div

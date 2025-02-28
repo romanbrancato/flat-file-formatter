@@ -6,7 +6,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { SelectField } from "@/components/select-field";
-import { Field } from "@common/types/schemas";
+import { Columns } from "@common/types/schemas";
 import { FormDuplicateRow } from "@/components/form-duplicate-row";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
@@ -75,7 +75,7 @@ const ActionFields = ({ actionType }: { actionType: "True" | "False" }) => {
                       <FormItem className="flex-1">
                         <FormControl>
                           <SelectField
-                            selectedField={field.value as Field}
+                            selectedField={field.value as Columns}
                             filter={tag}
                             onFieldSelect={(selectedField) => {
                               field.onChange(selectedField);

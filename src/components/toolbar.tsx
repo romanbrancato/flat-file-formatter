@@ -118,7 +118,7 @@ export function Toolbar() {
             <Button
               variant="ghost"
               className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground relative h-7 rounded-sm px-3 py-1"
-              disabled={!isReady}
+              // disabled={!isReady}
             >
               Edit
             </Button>
@@ -135,21 +135,21 @@ export function Toolbar() {
                   <button className="w-full text-left">Remove</button>
                 </div>
               </DialogRemoveField>
-              <DialogConditional>
-                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Conditional</button>
-                </div>
-              </DialogConditional>
-              <DialogEquation>
-                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Equation</button>
-                </div>
-              </DialogEquation>
-              <DialogReformat>
-                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Reformat</button>
-                </div>
-              </DialogReformat>
+              {/*<DialogConditional>*/}
+              {/*  <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">*/}
+              {/*    <button className="w-full text-left">Conditional</button>*/}
+              {/*  </div>*/}
+              {/*</DialogConditional>*/}
+              {/*<DialogEquation>*/}
+              {/*  <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">*/}
+              {/*    <button className="w-full text-left">Equation</button>*/}
+              {/*  </div>*/}
+              {/*</DialogEquation>*/}
+              {/*<DialogReformat>*/}
+              {/*  <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">*/}
+              {/*    <button className="w-full text-left">Reformat</button>*/}
+              {/*  </div>*/}
+              {/*</DialogReformat>*/}
             </div>
           </PopoverContent>
         </Popover>

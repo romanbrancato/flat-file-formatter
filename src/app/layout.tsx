@@ -5,35 +5,35 @@ import { DataProcessorProvider } from "@/context/data-processor";
 import { PresetProvider } from "@/context/preset";
 import { DbProvider } from "@/context/db";
 import { ThemeProvider } from "@/context/theme";
-import { TerminalProvider } from "@/context/terminal";
 import { TablesProvider } from "@/context/tables";
+import { TerminalProvider } from "@/context/terminal";
 
 export const metadata: Metadata = {
-  title: "Flat File Formatter",
+  title: "Flat File Formatter"
 };
 
 export default function RootLayout({
-  children,
-}: Readonly<{
+                                     children
+                                   }: Readonly<{
   children: ReactNode;
 }>) {
   return (
     <html lang="en">
-      <body>
-        <DbProvider>
-          <TablesProvider>
-            <TerminalProvider>
-              <PresetProvider>
-                <DataProcessorProvider>
-                  <ThemeProvider defaultTheme="system" enableSystem>
-                    {children}
-                  </ThemeProvider>
-                </DataProcessorProvider>
-              </PresetProvider>
-            </TerminalProvider>
-          </TablesProvider>
-        </DbProvider>
-      </body>
+    <body>
+    <DbProvider>
+      <TablesProvider>
+        <PresetProvider>
+          <TerminalProvider>
+            <DataProcessorProvider>
+              <ThemeProvider defaultTheme="system" enableSystem>
+                {children}
+              </ThemeProvider>
+            </DataProcessorProvider>
+          </TerminalProvider>
+        </PresetProvider>
+      </TablesProvider>
+    </DbProvider>
+    </body>
     </html>
   );
 }

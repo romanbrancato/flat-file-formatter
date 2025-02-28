@@ -51,7 +51,7 @@ export const FieldSchema = z.object(
   { required_error: "Select a field." },
 );
 
-export type Field = z.infer<typeof FieldSchema>;
+export type Columns = z.infer<typeof FieldSchema>;
 
 export const ActionSchema = z.discriminatedUnion("action", [
   z.object({

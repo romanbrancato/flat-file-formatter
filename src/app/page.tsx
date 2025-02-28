@@ -1,3 +1,4 @@
+"use client"
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Toolbar } from "@/components/toolbar";
@@ -10,6 +11,7 @@ import {
 import { QueryTable } from "@/components/query-table";
 
 export default function App() {
+
   return (
     <main className="mx-auto flex h-screen max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
       <Header />

@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { SelectField } from "@/components/select-field";
-import { Field } from "@common/types/schemas";
+import { Columns } from "@common/types/schemas";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
@@ -56,7 +56,7 @@ function AccordionItemComponent({
                     <FormItem className="flex-1">
                       <FormControl>
                         <SelectField
-                          selectedField={field.value as Field}
+                          selectedField={field.value as Columns}
                           filter={tag}
                           onFieldSelect={(selectedField) => {
                             field.onChange(selectedField);

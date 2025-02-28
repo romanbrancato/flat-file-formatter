@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
-import { ReactNode, useContext, useState } from "react";
+import { ReactNode, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -18,25 +18,37 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
-import { PresetContext } from "@/context/preset";
-import { DataProcessorContext } from "@/context/data-processor";
-import { SelectField } from "@/components/select-field";
-import { Operation, OperationSchema } from "@common/types/schemas";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
+import { useTerminal } from "@/context/terminal";
+import { z } from "zod";
+import { useTables } from "@/context/tables";
+import { usePGlite } from "@electric-sql/pglite-react";
+
+export const addColumnSchema = z.object({
+    table: z.string(),
+    fields: z.array(
+      z.object({
+        name: z.string().min(1, "Enter a field name."),
+        value: z.string(),
+      }),
+    )
+})
+
+export type addColumn = z.infer<typeof addColumnSchema>;
+
 
 export function DialogAddField({ children }: { children: ReactNode }) {
-  const { addFields, focus } = useContext(DataProcessorContext);
-  const { preset, setPreset } = useContext(PresetContext);
+  const {setValue} = useTerminal();
+  const pg = usePGlite();
+  const {focusedTable, getColumns} = useTables()
   const [open, setOpen] = useState(false);
 
-  const form = useForm<Operation>({
-    resolver: zodResolver(OperationSchema),
+  const form = useForm<addColumn>({
+    resolver: zodResolver(addColumnSchema),
     defaultValues: {
-      operation: "add",
-      tag: focus,
-      fields: [],
-      after: null,
+      table: focusedTable || "",
+      fields: [{ name: "", value: "" }],
     },
   });
 
@@ -45,14 +57,11 @@ export function DialogAddField({ children }: { children: ReactNode }) {
     control: form.control,
   });
 
-  function onSubmit(values: Operation) {
-    if (values.operation != "add") return;
-    addFields(values);
-    setPreset({
-      ...preset,
-      changes: [...preset.changes, values],
-    });
-
+  function onSubmit(values: addColumn) {
+    const table = values.table;
+    const fields = values.fields.map(field => `ADD COLUMN ${field.name} TEXT`).join(", ");
+    const query = `ALTER TABLE ${table} ${fields};`;
+    setValue(query);
     setOpen(false);
     form.reset();
   }
@@ -126,27 +135,8 @@ export function DialogAddField({ children }: { children: ReactNode }) {
               <PlusCircledIcon className="mr-2" />
               Additional Field
             </Button>
-            <FormField
-              control={form.control}
-              name="after"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <SelectField
-                      selectedField={field.value}
-                      label="Add After"
-                      filter={[focus]}
-                      onFieldSelect={(selectedField) => {
-                        field.onChange(selectedField);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <Button type="submit" className="ml-auto w-1/3">
-              Add
+              Create Query
             </Button>
           </form>
         </Form>

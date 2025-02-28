@@ -4,8 +4,6 @@ import CodeMirror from "@uiw/react-codemirror";
 import { defaultKeymap } from "@codemirror/commands";
 import { keymap } from "@codemirror/view";
 import { PostgreSQL } from "@codemirror/lang-sql";
-import type { PGliteInterface } from "@electric-sql/pglite";
-import type { PGliteWithLive } from "@electric-sql/pglite/live";
 import { usePGlite } from "@electric-sql/pglite-react";
 import { makeSqlExt } from "./sql-support";
 import { getSchema, runQuery } from "./terminal-utils";
@@ -13,31 +11,27 @@ import { TerminalResponse } from "./terminal-response";
 import type { Response } from "./terminal-types";
 import { githubDarkInit, githubLight } from "@uiw/codemirror-theme-github";
 import { useTheme } from "next-themes";
+import { useTerminal } from "@/context/terminal";
 
 const baseKeymap = defaultKeymap.filter(({ key }) => key !== "Enter");
 const lightTheme = githubLight;
 const darkTheme = githubDarkInit({
   settings: {
     background: "hsl(var(--background))",
-    lineHighlight: "hsl(var(--accent) / 0.5)"
+    lineHighlight: "hsl(var(--accent) / 0.5)",
   }
 });
 
-interface TerminalProps {
-  pg?: PGliteInterface;
-  disableUpdateSchema?: boolean;
-}
-
-export function Terminal({ pg: pgProp, disableUpdateSchema = false }: TerminalProps) {
+export function Terminal() {
   const { theme } = useTheme();
-  const [value, setValue] = useState("");
+  const {value, setValue} = useTerminal()
   const [loading, setLoading] = useState(true);
   const [output, setOutput] = useState<Response[]>([]);
   const [schema, setSchema] = useState<Record<string, string[]>>({});
   const valueNoHistory = useRef("");
   const historyPos = useRef(-1);
   const outputRef = useRef<HTMLDivElement>(null);
-  const pg = usePGlite(pgProp as PGliteWithLive);
+  const pg = usePGlite();
 
   useEffect(() => {
     let active = true;
@@ -51,7 +45,7 @@ export function Terminal({ pg: pgProp, disableUpdateSchema = false }: TerminalPr
     const response = await runQuery(query, pg);
     setOutput(prev => [...prev, response]);
     outputRef.current?.scrollTo(0, outputRef.current.scrollHeight);
-    if (!disableUpdateSchema) setSchema(await getSchema(pg));
+    setSchema(await getSchema(pg));
   };
 
   const updateHistory = (direction: 'up' | 'down') => {
@@ -99,7 +93,7 @@ export function Terminal({ pg: pgProp, disableUpdateSchema = false }: TerminalPr
       tables: [{ label: "d", displayLabel: "\\d" }],
       defaultSchema: "public"
     })
-  ], [pg, schema, value, output.length, disableUpdateSchema]);
+  ], [pg, schema, value, output.length]);
 
   return (
     <div className="flex flex-col h-full w-full border text-xs">
@@ -110,7 +104,7 @@ export function Terminal({ pg: pgProp, disableUpdateSchema = false }: TerminalPr
         ))}
       </div>
       <CodeMirror
-        className="[&_.cm-cursor]:border-l-[0.5em] [&_.cm-gutter.cm-lineNumbers]:min-h-[75px]"
+        className="[&_.cm-gutter.cm-lineNumbers]:min-h-[75px]"
         value={value}
         basicSetup={{ defaultKeymap: false }}
         extensions={extensions}

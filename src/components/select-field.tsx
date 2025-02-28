@@ -17,7 +17,7 @@ import {
 import { useContext, useState } from "react";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { DataProcessorContext } from "@/context/data-processor";
-import { Field } from "@common/types/schemas";
+import { Columns } from "@common/types/schemas";
 
 export function SelectField({
   selectedField,
@@ -25,10 +25,10 @@ export function SelectField({
   filter,
   onFieldSelect,
 }: {
-  selectedField: Field | null;
+  selectedField: Columns | null;
   label?: string;
   filter?: string[];
-  onFieldSelect: (field: Field) => void;
+  onFieldSelect: (field: Columns) => void;
 }) {
   const { data } = useContext(DataProcessorContext);
   const [open, setOpen] = useState(false);

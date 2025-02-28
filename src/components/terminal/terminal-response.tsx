@@ -33,6 +33,7 @@ export const TerminalResponse = ({ response }: { response: Response }) => (
 
     <div className="flex items-center text-border gap-x-2">
       <hr className="flex-1" />
+      <div>{response.time.toFixed(1)}ms</div>
     </div>
   </>
 );

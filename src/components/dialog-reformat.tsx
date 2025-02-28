@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { DataProcessorContext } from "@/context/data-processor";
 import { PresetContext } from "@/context/preset";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
-import { Field, OperationSchema } from "@common/types/schemas";
+import { Columns, OperationSchema } from "@common/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
@@ -87,7 +87,7 @@ export function DialogReformat({ children }: { children: React.ReactNode }) {
                           tag: focus,
                           name,
                         }))}
-                        defaultValues={field.value as Field[]}
+                        defaultValues={field.value as Columns[]}
                         onValueChange={(fields) => field.onChange(fields)}
                       />
                     </FormControl>

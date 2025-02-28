@@ -1,34 +1,27 @@
-"use client";
-
-import React, { createContext, useContext } from "react";
+"use client"
+import { createContext, useContext, useState, ReactNode } from "react";
 
 interface TerminalContextType {
-  insertSQL: (sql: string) => void;
+  value: string;
+  setValue: (value: string) => void;
 }
 
-const TerminalContext = createContext<TerminalContextType>({
-  insertSQL: () => {},
-});
+const TerminalContext = createContext<TerminalContextType | undefined>(undefined);
 
-export const useTerminal = () => useContext(TerminalContext);
-
-export function TerminalProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const insertSQL = (sql: string) => {
-    const textArea = document.querySelector(
-      '.cm-content[contenteditable="true"]',
-    ) as HTMLElement;
-    if (textArea) {
-      textArea.innerHTML = sql;
-    }
-  };
+export const TerminalProvider = ({ children }: { children: ReactNode }) => {
+  const [value, setValue] = useState("");
 
   return (
-    <TerminalContext.Provider value={{ insertSQL }}>
+    <TerminalContext.Provider value={{ value, setValue }}>
       {children}
     </TerminalContext.Provider>
   );
-}
+};
+
+export const useTerminal = () => {
+  const context = useContext(TerminalContext);
+  if (!context) {
+    throw new Error("useTerminal must be used within a TerminalProvider");
+  }
+  return context;
+};
