@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { defaultKeymap } from "@codemirror/commands";
 import { keymap } from "@codemirror/view";
@@ -12,19 +12,21 @@ import type { Response } from "./terminal-types";
 import { githubDarkInit, githubLight } from "@uiw/codemirror-theme-github";
 import { useTheme } from "next-themes";
 import { useTerminal } from "@/context/terminal";
+import { PresetContext } from "@/context/preset";
 
 const baseKeymap = defaultKeymap.filter(({ key }) => key !== "Enter");
 const lightTheme = githubLight;
 const darkTheme = githubDarkInit({
   settings: {
     background: "hsl(var(--background))",
-    lineHighlight: "hsl(var(--accent) / 0.5)",
+    lineHighlight: "hsl(var(--accent) / 0.5)"
   }
 });
 
 export function Terminal() {
   const { theme } = useTheme();
-  const {value, setValue, terminalRef} = useTerminal()
+  const { setPreset} = useContext(PresetContext);
+  const { value, setValue, terminalRef } = useTerminal();
   const [loading, setLoading] = useState(true);
   const [output, setOutput] = useState<Response[]>([]);
   const [schema, setSchema] = useState<Record<string, string[]>>({});
@@ -38,20 +40,25 @@ export function Terminal() {
     setLoading(true);
 
     pg.waitReady.then(() => active && setLoading(false));
-    return () => { active = false };
+    return () => {
+      active = false;
+    };
   }, [pg]);
 
   const handleQuery = async (query: string) => {
     const response = await runQuery(query, pg);
+    if (!response.error) {
+      setPreset((prev) => ({ ...prev, queries: [...prev.queries, query] }));
+    }
     setOutput(prev => [...prev, response]);
     outputRef.current?.scrollTo(0, outputRef.current.scrollHeight);
     setSchema(await getSchema(pg));
   };
 
-  const updateHistory = (direction: 'up' | 'down') => {
+  const updateHistory = (direction: "up" | "down") => {
     const maxPos = output.length - 1;
     historyPos.current = Math.max(-1, Math.min(
-      historyPos.current + (direction === 'up' ? 1 : -1),
+      historyPos.current + (direction === "up" ? 1 : -1),
       maxPos
     ));
 
@@ -78,13 +85,13 @@ export function Terminal() {
       key: "ArrowUp",
       run: ({ state }) => {
         const line = state.doc.lineAt(state.selection.main.head);
-        return line.number === 1 ? (updateHistory('up'), true) : false;
+        return line.number === 1 ? (updateHistory("up"), true) : false;
       }
     }, {
       key: "ArrowDown",
       run: ({ state }) => {
         const line = state.doc.lineAt(state.selection.main.head);
-        return line.number === state.doc.lines ? (updateHistory('down'), true) : false;
+        return line.number === state.doc.lines ? (updateHistory("down"), true) : false;
       }
     }, ...baseKeymap]),
     makeSqlExt({
@@ -113,7 +120,7 @@ export function Terminal() {
         onChange={useCallback((val: string) => {
           setValue(val);
           historyPos.current === -1 && (valueNoHistory.current = val);
-        }, [])}
+        }, [setValue])}
         editable={!loading}
         onCreateEditor={() => getSchema(pg).then(setSchema)}
       />

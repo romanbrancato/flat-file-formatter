@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
 import { ReactNode } from "react";
-import { DataProcessorProvider } from "@/context/data-processor";
 import { PresetProvider } from "@/context/preset";
 import { DbProvider } from "@/context/db";
 import { ThemeProvider } from "@/context/theme";
@@ -24,11 +23,9 @@ export default function RootLayout({
       <TablesProvider>
         <PresetProvider>
           <TerminalProvider>
-            <DataProcessorProvider>
-              <ThemeProvider defaultTheme="system" enableSystem>
-                {children}
-              </ThemeProvider>
-            </DataProcessorProvider>
+            <ThemeProvider defaultTheme="system" enableSystem>
+              {children}
+            </ThemeProvider>
           </TerminalProvider>
         </PresetProvider>
       </TablesProvider>

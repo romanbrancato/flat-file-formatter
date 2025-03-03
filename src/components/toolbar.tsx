@@ -8,7 +8,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DialogAddColumn } from "@/components/dialog-add-column";
-import { DataProcessorContext } from "@/context/data-processor";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset";
 import { DialogDropColumn } from "@/components/dialog-drop-column";
@@ -19,14 +18,12 @@ import { DialogLoadConfig } from "@/components/dialog-load-config";
 import { DialogOutputConfig } from "@/components/dialog-output-config";
 import { GearIcon } from "@radix-ui/react-icons";
 import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
-import { DialogFixedConfig } from "@/components/dialog-fixed-config";
 import { loadDataIntoTable } from "@common/lib/load";
 import { usePGlite } from "@electric-sql/pglite-react";
 import { useTables } from "@/context/tables";
 
 export function Toolbar() {
   const { tables, setTables } = useTables();
-  const { isReady, data, setParams } = useContext(DataProcessorContext);
   const { preset, setPreset, fixed, delimited } = useContext(PresetContext);
   const db = usePGlite();
 
@@ -59,8 +56,8 @@ export function Toolbar() {
   };
 
   const handleDownload = () => {
-    const buffers = generateFileBuffers(data, preset);
-    buffers?.forEach((buffer) => download(buffer.content, buffer.name));
+    // const buffers = generateFileBuffers(data, preset);
+    // buffers?.forEach((buffer) => download(buffer.content, buffer.name));
   };
 
   return (
@@ -92,7 +89,6 @@ export function Toolbar() {
               <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm [&:has(button:disabled)]:pointer-events-none [&:has(button:disabled)]:opacity-50">
                 <button
                   onClick={handleDownload}
-                  disabled={!isReady}
                   className="w-full cursor-default text-left disabled:cursor-not-allowed"
                 >
                   Download
@@ -152,7 +148,6 @@ export function Toolbar() {
             <Button
               variant="ghost"
               className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground relative h-7 rounded-sm px-3 py-1"
-              disabled={!isReady}
             >
               Format
             </Button>
@@ -186,13 +181,13 @@ export function Toolbar() {
                     <RadioGroupItem value="fixed" id="fixed" />
                     Fixed
                   </div>
-                  <DialogFixedConfig>
-                    <GearIcon
-                      className={cn("cursor-pointer", {
-                        invisible: preset.format.format !== "fixed",
-                      })}
-                    />
-                  </DialogFixedConfig>
+                  {/*<DialogFixedConfig>*/}
+                  {/*  <GearIcon*/}
+                  {/*    className={cn("cursor-pointer", {*/}
+                  {/*      invisible: preset.format.format !== "fixed",*/}
+                  {/*    })}*/}
+                  {/*  />*/}
+                  {/*</DialogFixedConfig>*/}
                 </label>
               </div>
             </RadioGroup>

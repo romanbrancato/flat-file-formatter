@@ -20,7 +20,6 @@ import {
 import { SelectColumns } from "@/components/select-columns";
 import { z } from "zod";
 import { useTerminal } from "@/context/terminal";
-import { usePGlite } from "@electric-sql/pglite-react";
 import { useTables } from "@/context/tables";
 
 export const columnSchema = z.object({
@@ -38,12 +37,8 @@ export type dropColumn = z.infer<typeof dropColumnSchema>;
 
 export function DialogDropColumn({ children }: { children: React.ReactNode }) {
   const {setValue, focusTerminal} = useTerminal();
-  const pg = usePGlite();
-  const {tables, getColumns} = useTables();
+  const {columns} = useTables();
   const [open, setOpen] = useState(false);
-  const [columns, setColumns] = useState<{ table: string; name: string }[]>([]);
-  const options = useMemo(() => columns, [columns]);
-
 
   const form = useForm<dropColumn>({
     resolver: zodResolver(dropColumnSchema),
@@ -51,21 +46,6 @@ export function DialogDropColumn({ children }: { children: React.ReactNode }) {
       columns: [],
     },
   });
-  
-
-  useEffect(() => {
-    const fetchColumns = async () => {
-      const allOptions: Column[] = [];
-      for (const table of tables) {
-        const columns = await getColumns(pg, table);
-        allOptions.push(...columns.map((name) => ({ table, name })));
-      }
-      setColumns(allOptions);
-    };
-    
-    fetchColumns();
-  }, [tables, getColumns, pg]);
-
 
   function onSubmit(values: dropColumn) {
     // Group columns by table
@@ -114,7 +94,7 @@ export function DialogDropColumn({ children }: { children: React.ReactNode }) {
                   <FormControl>
                     <SelectColumns
                       label="Select Columns"
-                      options={options}
+                      options={columns}
                       defaultValues={field.value as Column[]}
                       onValueChange={(columns) => field.onChange(columns)}
                     />

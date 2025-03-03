@@ -1,14 +1,5 @@
 import { z } from "zod";
 
-const DataSchema = z.record(
-  z.object({
-    fields: z.array(z.string()),
-    rows: z.array(z.array(z.string())),
-  }),
-);
-
-export type Data = z.infer<typeof DataSchema>;
-
 export const LoadFieldSchema = z.object({
   fields: z
     .array(
@@ -37,121 +28,6 @@ export const LoadConfigSchema = z.discriminatedUnion("format", [
 ]);
 
 export type LoadConfig = z.infer<typeof LoadConfigSchema>;
-
-export const DataProcessorParams = z.object({
-  buffer: z.instanceof(Uint8Array),
-  config: LoadConfigSchema,
-});
-
-export type DataProcessorParams = z.infer<typeof DataProcessorParams>;
-
-export const FieldSchema = z.object(
-  {
-    tag: z.string().min(1),
-    name: z.string().min(1),
-  },
-  { required_error: "Select a field." },
-);
-
-export type Columns = z.infer<typeof FieldSchema>;
-
-export const ActionSchema = z.discriminatedUnion("action", [
-  z.object({
-    action: z.literal("separate"),
-    tag: z.string(),
-  }),
-  z.object({
-    action: z.literal("set value"),
-    values: z.array(
-      z.object({
-        field: FieldSchema,
-        value: z.string(),
-      }),
-    ),
-  }),
-  z.object({
-    action: z.literal("duplicate"),
-    rowOriginal: z.array(
-      z.object({
-        field: FieldSchema,
-        value: z.string(),
-      }),
-    ),
-    rowDuplicate: z.array(
-      z.object({
-        field: FieldSchema,
-        value: z.string(),
-      }),
-    ),
-  }),
-  z.object({
-    action: z.literal("nothing"),
-  }),
-]);
-
-export type Action = z.infer<typeof ActionSchema>;
-
-export const OperationSchema = z.discriminatedUnion("operation", [
-  z.object({
-    operation: z.literal("add"),
-    tag: z.string(),
-    fields: z.array(
-      z.object({
-        name: z.string().min(1, "Enter a field name."),
-        value: z.string(),
-      }),
-    ),
-    after: FieldSchema.nullable(),
-  }),
-  z.object({
-    operation: z.literal("remove"),
-    fields: z.array(FieldSchema),
-  }),
-  z.object({
-    operation: z.literal("conditional"),
-    tag: z.string(),
-    conditions: z.array(
-      z.object({
-        statement: z.enum(["if", "if not"]),
-        field: FieldSchema,
-        comparison: z.enum(["<", "<=", "=", ">=", ">"]),
-        value: z.string(),
-      }),
-    ),
-    actionTrue: ActionSchema,
-    actionFalse: ActionSchema,
-  }),
-  z.object({
-    operation: z.literal("equation"),
-    tag: z.string(),
-    direction: z.enum(["row", "column"]),
-    equation: z.array(
-      z.object({
-        operator: z.enum(["+", "-"]),
-        field: FieldSchema,
-      }),
-    ),
-    output: FieldSchema,
-  }),
-  z.object({
-    operation: z.literal("reformat"),
-    tag: z.string(),
-    fields: z.array(FieldSchema),
-    reformat: z.discriminatedUnion("type", [
-      z.object({
-        type: z.literal("date"),
-        pattern: z.string(),
-      }),
-      z.object({
-        type: z.literal("number"),
-        overpunch: z.boolean(),
-        pattern: z.string(),
-      }),
-    ]),
-  }),
-]);
-
-export type Operation = z.infer<typeof OperationSchema>;
 
 export const DelimitedSchema = z.object({
   format: z.literal("delimited"),
@@ -191,7 +67,7 @@ export type Output = z.infer<typeof OutputSchema>;
 export const PresetSchema = z.object({
   name: z.string().nullable(),
   parser: LoadConfigSchema,
-  changes: z.array(OperationSchema),
+  queries: z.array(z.string()),
   format: FormatSchema,
   output: OutputSchema,
 });

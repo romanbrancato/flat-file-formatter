@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/form";
 import { useContext, useState } from "react";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { DataProcessorContext } from "@/context/data-processor";
 import {
   Dialog,
   DialogContent,
@@ -25,13 +24,14 @@ import { PresetContext } from "@/context/preset";
 import { Output, OutputSchema } from "@common/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Selector } from "@/components/selector";
+import { useTables } from "@/context/tables";
 
 export function DialogOutputConfig({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { data } = useContext(DataProcessorContext);
+  const {tables} = useTables();
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
@@ -100,7 +100,7 @@ export function DialogOutputConfig({
                           <FormItem>
                             <FormControl>
                               <MultiSelect
-                                options={Object.keys(data)}
+                                options={Array.from(tables)}
                                 defaultValue={field.value}
                                 placeholder="Select Tags"
                                 onValueChange={(tags) => field.onChange(tags)}

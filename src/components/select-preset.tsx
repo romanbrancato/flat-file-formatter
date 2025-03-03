@@ -24,7 +24,6 @@ import {
 import * as React from "react";
 import { useContext, useEffect, useState } from "react";
 import { PresetContext } from "@/context/preset";
-import { DataProcessorContext } from "@/context/data-processor";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { cn, download } from "@/lib/utils";
 import { Preset } from "@common/types/schemas";
@@ -32,7 +31,6 @@ import { parsePreset } from "@common/lib/parser-fns";
 import { DialogSavePreset } from "@/components/dialog-save-preset";
 
 export function SelectPreset({ className }: { className?: string }) {
-  const { isReady, applyPreset } = useContext(DataProcessorContext);
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [storedPresets, setStoredPresets] = useState<Preset[]>([]);
@@ -76,9 +74,9 @@ export function SelectPreset({ className }: { className?: string }) {
             <MagicWandIcon
               onClick={(e) => {
                 e.stopPropagation();
-                applyPreset(preset.changes);
+                // applyPreset(preset.changes);
               }}
-              className={cn({ invisible: !preset.name || !isReady })}
+              className={cn({ invisible: !preset.name })}
             />
             <CaretSortIcon />
           </div>

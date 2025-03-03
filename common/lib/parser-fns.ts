@@ -1,6 +1,6 @@
-import { Options, parse, stringify } from "@evologi/fixed-width";
+import { stringify } from "@evologi/fixed-width";
 import Papa from "papaparse";
-import { Data, DataProcessorParams, Preset, PresetSchema } from "../types/schemas";
+import { Preset, PresetSchema } from "../types/schemas";
 
 const textDecoder = new TextDecoder();
 const textEncoder = new TextEncoder();
@@ -12,62 +12,6 @@ export function parsePreset(buffer: Uint8Array): Preset {
     console.log("Invalid Preset", { description: "Invalid preset file" });
     throw error;
   }
-}
-
-export async function parseBuffer(params: DataProcessorParams): Promise<Data> {
-  const text: string = textDecoder.decode(params.buffer);
-
-  if (params.config.format === "delimited") {
-    return new Promise(resolve => Papa.parse(text, {
-      skipEmptyLines: true,
-      delimiter: params.config.format === "delimited" ? params.config.delimiter : "",
-      complete: ({ data }) => resolve({
-        detail: {
-          fields: (data[0] as string[]).map(f => f.trim()),
-          rows: data.slice(1).map(row => (row as string[]).map(cell => cell.trim()))
-        }
-      })
-    }));
-  }
-
-  if (params.config.format === "fixed") {
-    const lines = text.split(/\r?\n/).filter(Boolean);
-    const parseSection = (config: Options, ...lines: string[]) => {
-      return parse(lines.join("\n"), config) as Record<string, string>[];
-    };
-
-    let headerLine: string | undefined;
-    let trailerLine: string | undefined;
-
-    // Extract header if configured
-    if (params.config.header?.fields.length) {
-      headerLine = lines.shift();
-    }
-
-    // Extract trailer if configured
-    if (params.config.trailer?.fields.length) {
-      trailerLine = lines.pop();
-    }
-
-    return {
-      header: params.config.header?.fields.length ? {
-        fields: Object.keys(parseSection(params.config.header, headerLine!)[0]),
-        rows: parseSection(params.config.header, headerLine!).map(row => Object.values(row))
-      } : { fields: [], rows: [] },
-
-      detail: {
-        fields: Object.keys(parseSection(params.config.detail, ...lines)[0]),
-        rows: parseSection(params.config.detail, ...lines).map(row => Object.values(row))
-      },
-
-      trailer: params.config.trailer?.fields.length ? {
-        fields: Object.keys(parseSection(params.config.trailer, trailerLine!)[0]),
-        rows: parseSection(params.config.trailer, trailerLine!).map(row => Object.values(row))
-      } : { fields: [], rows: [] }
-    };
-  }
-
-  throw new Error("Unsupported format");
 }
 
 export function formatData(

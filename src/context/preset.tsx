@@ -16,7 +16,7 @@ const DEFAULTS = {
 const DEFAULT_PRESET: Preset = {
   name: null,
   parser: DEFAULTS.parser,
-  changes: [],
+  queries: [],
   format: DEFAULTS.delimited,
   output: { groups: [] },
 };
@@ -50,6 +50,10 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
       setFixed(preset.format);
     }
   }, [preset.format]);
+
+  useEffect(() => {
+    console.log(preset.queries);
+  }, [preset]);
 
   const contextValue = useMemo(() => ({
     preset,
