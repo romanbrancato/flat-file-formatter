@@ -24,7 +24,7 @@ const darkTheme = githubDarkInit({
 
 export function Terminal() {
   const { theme } = useTheme();
-  const {value, setValue} = useTerminal()
+  const {value, setValue, terminalRef} = useTerminal()
   const [loading, setLoading] = useState(true);
   const [output, setOutput] = useState<Response[]>([]);
   const [schema, setSchema] = useState<Record<string, string[]>>({});
@@ -104,6 +104,7 @@ export function Terminal() {
         ))}
       </div>
       <CodeMirror
+        ref={terminalRef}
         className="[&_.cm-gutter.cm-lineNumbers]:min-h-[75px]"
         value={value}
         basicSetup={{ defaultKeymap: false }}

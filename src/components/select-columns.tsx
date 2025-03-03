@@ -18,7 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Column } from "./dialog-remove-field"
+import { Column } from "./dialog-drop-column"
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
 export function SelectColumns({

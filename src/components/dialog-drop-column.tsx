@@ -36,8 +36,8 @@ export const dropColumnSchema = z.object({
 
 export type dropColumn = z.infer<typeof dropColumnSchema>;
 
-export function DialogRemoveField({ children }: { children: React.ReactNode }) {
-  const {setValue} = useTerminal();
+export function DialogDropColumn({ children }: { children: React.ReactNode }) {
+  const {setValue, focusTerminal} = useTerminal();
   const pg = usePGlite();
   const {tables, getColumns} = useTables();
   const [open, setOpen] = useState(false);
@@ -68,7 +68,28 @@ export function DialogRemoveField({ children }: { children: React.ReactNode }) {
 
 
   function onSubmit(values: dropColumn) {
+    // Group columns by table
+    const columnsByTable = values.columns.reduce((acc, column) => {
+      if (!acc[column.table]) {
+        acc[column.table] = [];
+      }
+      acc[column.table].push(column.name);
+      return acc;
+    }, {} as Record<string, string[]>);
+    
+    // Generate SQL queries
+    const queries = Object.entries(columnsByTable).map(([table, columns]) => {
+      // For multiple columns in the same table, combine them in one ALTER TABLE statement
+      const dropClauses = columns.map(col => `DROP COLUMN ${col} CASCADE`).join(', ');
+      return `ALTER TABLE ${table} ${dropClauses};`;
+    });
+    
+    // Join all queries and set the terminal value
+    const fullQuery = queries.join('\n');
+    setValue(fullQuery);
+    
     setOpen(false);
+    focusTerminal();
     form.reset();
   }
 

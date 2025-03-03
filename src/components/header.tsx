@@ -11,7 +11,7 @@ export function Header() {
   };
 
   return (
-    <header className="z-10 mb-3 py-3">
+    <header className="z-10 py-3">
       <div className="flex flex-row items-center justify-between">
         <span className="text-md font-medium peer-disabled:cursor-not-allowed">
           Flat File Formatter

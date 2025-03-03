@@ -37,8 +37,8 @@ export const addColumnSchema = z.object({
 export type addColumn = z.infer<typeof addColumnSchema>;
 
 
-export function DialogAddField({ children }: { children: ReactNode }) {
-  const {setValue} = useTerminal();
+export function DialogAddColumn({ children }: { children: ReactNode }) {
+  const {setValue, focusTerminal} = useTerminal();
   const {focusedTable} = useTables()
   const [open, setOpen] = useState(false);
 
@@ -90,8 +90,9 @@ export function DialogAddField({ children }: { children: ReactNode }) {
       }
     }
     
-    setValue(queries.join("\n\n"));
+    setValue(queries.join("\n"));
     setOpen(false);
+    focusTerminal();
     form.reset();
   }
 

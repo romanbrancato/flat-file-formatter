@@ -1,35 +1,28 @@
 "use client";
-
-import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { useTables } from "@/context/tables";
 import { useLiveQuery } from "@electric-sql/pglite-react";
 import { identifier } from "@electric-sql/pglite/template";
+import { PlusCircledIcon } from "@radix-ui/react-icons";
 
 export function Footer() {
   const { tables, focusedTable, setFocusedTable } = useTables();
 
   const numRows = useLiveQuery.sql`
     SELECT COUNT(*) FROM ${identifier`${focusedTable}`}
-  `
-  if (tables.size <= 0 || !numRows)  return null;
+  `;
 
   return (
-    <footer className="sticky bottom-0 mt-auto flex items-center justify-between">
-      <div className="flex">
+    <footer className="sticky bottom-0 flex items-center h-10">
+        <ToggleGroup type="single" value={focusedTable as string} onValueChange={(table) => {if(table) setFocusedTable(table)}} className="gap-x-0">
         {Array.from(tables).map((table) => (
-          <Button
-            key={table}
-            onClick={() => setFocusedTable(table)}
-            className={`hover:bg-foreground rounded-none px-3 py-1.5 shadow-none ${
-              focusedTable !== table &&
-              "bg-background text-muted-foreground hover:bg-accent hover:text-foreground"
-            }`}
-          >
-            {table}
-          </Button>
+           <ToggleGroupItem value={table} className="rounded-none"> {table} </ToggleGroupItem>
         ))}
-      </div>
-      <span className="text-xs text-muted-foreground">{numRows.rows[0].count as number || 0} row(s)</span>
+        </ToggleGroup>
+        <PlusCircledIcon className="ml-2 cursor-pointer" />
+      <span className="text-muted-foreground text-xs ml-auto">
+        {(numRows?.rows[0].count as number) || 0} row(s)
+      </span>
     </footer>
   );
 }

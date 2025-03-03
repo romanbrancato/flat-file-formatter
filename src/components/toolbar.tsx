@@ -7,11 +7,11 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { DialogAddField } from "@/components/dialog-add-field";
+import { DialogAddColumn } from "@/components/dialog-add-column";
 import { DataProcessorContext } from "@/context/data-processor";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset";
-import { DialogRemoveField } from "@/components/dialog-remove-field";
+import { DialogDropColumn } from "@/components/dialog-drop-column";
 import { cn, download } from "@/lib/utils";
 import { SelectPreset } from "@/components/select-preset";
 import { generateFileBuffers } from "@common/lib/parser-fns";
@@ -105,29 +105,28 @@ export function Toolbar() {
           </PopoverContent>
         </Popover>
 
-        {/* Edit Menu */}
+      {/* Query Menu */}
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="ghost"
               className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground relative h-7 rounded-sm px-3 py-1"
-              // disabled={!isReady}
             >
-              Edit
+             Query
             </Button>
           </PopoverTrigger>
           <PopoverContent className="min-w-[12rem] p-1" align="start">
             <div>
-              <DialogAddField>
+              <DialogAddColumn>
                 <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Add</button>
+                  <button className="w-full text-left">Add Column</button>
                 </div>
-              </DialogAddField>
-              <DialogRemoveField>
+              </DialogAddColumn>
+              <DialogDropColumn>
                 <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Remove</button>
+                  <button className="w-full text-left">Drop Column</button>
                 </div>
-              </DialogRemoveField>
+              </DialogDropColumn>
               {/*<DialogConditional>*/}
               {/*  <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">*/}
               {/*    <button className="w-full text-left">Conditional</button>*/}

@@ -57,6 +57,9 @@ async function createAndPopulateTable(
   serialPrimaryKey: string
 ): Promise<void> {
   const containsPrimaryKey = fields.includes(serialPrimaryKey);
+
+  // Drop table if it already exists
+  await db.query(`DROP TABLE IF EXISTS ${tableName}`);
   
   // Create table with appropriate schema
   await db.query(`
