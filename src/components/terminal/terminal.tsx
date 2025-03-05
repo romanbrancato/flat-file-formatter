@@ -13,6 +13,7 @@ import { githubDarkInit, githubLight } from "@uiw/codemirror-theme-github";
 import { useTheme } from "next-themes";
 import { useTerminal } from "@/context/terminal";
 import { PresetContext } from "@/context/preset";
+import { useTables } from "@/context/tables";
 
 const baseKeymap = defaultKeymap.filter(({ key }) => key !== "Enter");
 const lightTheme = githubLight;
@@ -25,6 +26,7 @@ const darkTheme = githubDarkInit({
 
 export function Terminal() {
   const { theme } = useTheme();
+  const {updateTables} = useTables();
   const { setPreset} = useContext(PresetContext);
   const { value, setValue, terminalRef } = useTerminal();
   const [loading, setLoading] = useState(true);
@@ -49,6 +51,7 @@ export function Terminal() {
     const response = await runQuery(query, pg);
     if (!response.error) {
       setPreset((prev) => ({ ...prev, queries: [...prev.queries, query] }));
+      updateTables();
     }
     setOutput(prev => [...prev, response]);
     outputRef.current?.scrollTo(0, outputRef.current.scrollHeight);

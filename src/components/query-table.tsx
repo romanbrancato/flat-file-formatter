@@ -1,5 +1,5 @@
 "use client"
-import { useLiveQuery, usePGlite } from "@electric-sql/pglite-react";
+import { usePGlite } from "@electric-sql/pglite-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Table,
@@ -10,27 +10,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useTables } from "@/context/tables";
-import { identifier } from '@electric-sql/pglite/template'
+import { PresetContext } from "@/context/preset";
+import { useContext, useEffect, useState } from "react";
 
 export function QueryTable() {
   const pg = usePGlite();
   const { focusedTable } = useTables();
+  const { preset } = useContext(PresetContext);
+  const [items, setItems] = useState<{fields: string[], rows: unknown[]}>({fields: [], rows: []});
 
-  const items = useLiveQuery.sql`
-    SELECT *
-    FROM ${identifier`${focusedTable}`}
-  `;
+  useEffect(() => {
+    if (!pg || !focusedTable) return
+    const getTableContents = async () => {
+      const res = await pg.query(`SELECT * FROM ${focusedTable}`);
+      setItems({fields: res.fields.map((field: any) => field.name), rows: res.rows});
+    }
+    getTableContents();
+  }, [pg, focusedTable, preset.queries.length]);
 
-  if(!focusedTable || !pg || !items) return null;
+  if(!items) return null;
 
   return (
     <ScrollArea className="h-full">
-      <Table>
+      <Table key={preset.queries.length}>
         <TableHeader className="bg-background sticky top-0">
           <TableRow>
             {items.fields.map((field, index) => (
               <TableHead key={index}>
-                <div className="whitespace-nowrap">{field.name}</div>
+                <div className="whitespace-nowrap">{field}</div>
               </TableHead>
             ))}
           </TableRow>
@@ -41,7 +48,7 @@ export function QueryTable() {
               {items.fields.map((field, cellIndex) => (
                 <TableCell key={cellIndex}>
                   <div className="whitespace-nowrap">
-                    {row[field.name]?.toString() ?? ""}
+                    {(row as Record<string, any>)[field]?.toString() ?? ""}
                   </div>
                 </TableCell>
               ))}

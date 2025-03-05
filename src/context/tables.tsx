@@ -4,31 +4,31 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 import { usePGlite } from "@electric-sql/pglite-react";
 
 interface TablesContextType {
-  tables: Set<string>;
-  setTables: React.Dispatch<React.SetStateAction<Set<string>>>;
+  tables: string[];
   focusedTable: string | null;
   setFocusedTable: React.Dispatch<React.SetStateAction<string | null>>;
   columns: { table: string; name: string }[];
+  updateTables: () => void;
 }
 
 const TablesContext = createContext<TablesContextType>({
-  tables: new Set<string>(),
-  setTables: () => {},
+  tables: [],
   focusedTable: null,
   setFocusedTable: () => {},
-  columns: []
+  columns: [],
+  updateTables: () => {}
 });
 
 export const useTables = () => useContext(TablesContext);
 
 export const TablesProvider = ({ children }: { children: ReactNode }) => {
   const pg = usePGlite();
-  const [tables, setTables] = useState<Set<string>>(new Set());
+  const [tables, setTables] = useState<string[]>([]);
   const [focusedTable, setFocusedTable] = useState<string | null>(null);
   const [columns, setColumns] = useState<{ table: string; name: string }[]>([]);
 
   useEffect(() => {
-    if (!focusedTable && tables.size > 0) {
+    if (!focusedTable && tables.length > 0) {
       setFocusedTable(Array.from(tables)[0]);
     }
   }, [tables, focusedTable, setFocusedTable]);
@@ -67,15 +67,23 @@ export const TablesProvider = ({ children }: { children: ReactNode }) => {
       setColumns(allColumns);
     };
 
-    if (tables.size > 0) {
+    if (tables.length > 0) {
       fetchColumns();
     } else {
       setColumns([]);
     }
   }, [tables, pg]);
 
+
+  const updateTables = async () => {
+    const res = await pg.query(`
+          SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public';
+        `);
+    setTables(res.rows.map((row: any) => row.tablename));
+  };
+
   return (
-    <TablesContext.Provider value={{ tables, setTables, focusedTable, setFocusedTable, columns }}>
+    <TablesContext.Provider value={{ tables, columns, focusedTable, setFocusedTable, updateTables}}>
       {children}
     </TablesContext.Provider>
   );

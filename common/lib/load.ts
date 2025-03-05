@@ -29,26 +29,6 @@ function skipRows(dataString: string, skipRows: string): string {
   return lines.filter((_, index) => !rowsToSkip.has(index)).join("\n");
 }
 
-function normalizeColumnNames(fields: string[]): string[] {
-  const seenColumns = new Set<string>();
-
-  return fields.map(field => {
-    const normalized = field.toLowerCase()
-      .replace(/[^a-z0-9]+/g, "_")
-      .replace(/^_+|_+$/g, "") || "column";
-    
-    let uniqueName = normalized;
-    let counter = 0;
-    
-    while (seenColumns.has(uniqueName)) {
-      uniqueName = `${normalized}_${++counter}`;
-    }
-    
-    seenColumns.add(uniqueName);
-    return uniqueName;
-  });
-}
-
 async function createAndPopulateTable(
   db: PGliteWithLive,
   tableName: string,
@@ -59,21 +39,21 @@ async function createAndPopulateTable(
   const containsPrimaryKey = fields.includes(serialPrimaryKey);
 
   // Drop table if it already exists
-  await db.query(`DROP TABLE IF EXISTS ${tableName}`);
+  await db.query(`DROP TABLE IF EXISTS "${tableName}"`);
   
   // Create table with appropriate schema
   await db.query(`
-    CREATE TABLE ${tableName} (
-      ${containsPrimaryKey ? '' : `${serialPrimaryKey} SERIAL PRIMARY KEY,`}
-      ${fields.map(f => `${f} TEXT`).join(", ")}
+    CREATE TABLE "${tableName}" (
+      ${containsPrimaryKey ? '' : `"${serialPrimaryKey}" SERIAL PRIMARY KEY,`}
+      ${fields.map(f => `"${f}" TEXT`).join(", ")}
     )
   `);
   
   // Add primary key constraint if using existing column
   if (containsPrimaryKey) {
     await db.query(`
-      ALTER TABLE ${tableName}
-      ADD PRIMARY KEY (${serialPrimaryKey})
+      ALTER TABLE "${tableName}"
+      ADD PRIMARY KEY ("${serialPrimaryKey}")
     `);
   }
 
@@ -89,7 +69,7 @@ async function createAndPopulateTable(
       .join(", ");
 
     await db.query(`
-      INSERT INTO ${tableName} (${fields.join(", ")})
+      INSERT INTO "${tableName}" (${fields.map(f => `"${f}"`).join(", ")})
       VALUES (${values})
     `);
   }
@@ -122,11 +102,11 @@ export async function loadDataIntoTable(
       }
       
       data = result.data;
-      fields = normalizeColumnNames(result.meta.fields || []);
+      fields = result.meta.fields || [];
       
     } else if (config.format === "fixed") {
       data = parse(processedString, config.widths);
-      fields = normalizeColumnNames(config.widths.fields.map(f => f.property));
+      fields = config.widths.fields.map(f => f.property);
       
     } else {
       throw new Error(`Unsupported format`);

@@ -1,13 +1,12 @@
 import { z } from "zod";
 
 export const LoadFieldSchema = z.object({
-  fields: z
-    .array(
-      z.object({
-        property: z.string(),
-        width: z.coerce.number(),
-      }),
-    )
+  fields: z.array(
+    z.object({
+      property: z.string(),
+      width: z.coerce.number(),
+    }),
+  ),
 });
 
 export const LoadConfigSchema = z.discriminatedUnion("format", [
@@ -31,7 +30,7 @@ export type LoadConfig = z.infer<typeof LoadConfigSchema>;
 
 export const DelimitedSchema = z.object({
   format: z.literal("delimited"),
-  delimiter: z.string()
+  delimiter: z.string(),
 });
 
 export type Delimited = z.infer<typeof DelimitedSchema>;
@@ -40,36 +39,30 @@ export const FixedSchema = z.object({
   format: z.literal("fixed"),
   pad: z.string(),
   align: z.enum(["left", "right"]),
-  widths: z.record(z.record(z.coerce.number()))
+  widths: z.record(z.record(z.coerce.number())),
 });
 
 export type Fixed = z.infer<typeof FixedSchema>;
 
 export const FormatSchema = z.discriminatedUnion("format", [
   DelimitedSchema,
-  FixedSchema
+  FixedSchema,
 ]);
 
 export type Format = z.infer<typeof FormatSchema>;
 
-export const OutputSchema = z.object({
-  groups: z.array(
-    z.object({
-      name: z.string().min(1),
-      tags: z.array(z.string()),
-      ordering: z.enum(["in order", "round robin"]),
-    }),
-  ),
+export const ExportSchema = z.object({
+  files: z.array(z.object({name:z.string(), query:z.string()})),
 });
 
-export type Output = z.infer<typeof OutputSchema>;
+export type Export = z.infer<typeof ExportSchema>;
 
 export const PresetSchema = z.object({
   name: z.string().nullable(),
   parser: LoadConfigSchema,
   queries: z.array(z.string()),
   format: FormatSchema,
-  output: OutputSchema,
+  export: ExportSchema,
 });
 
 export type Preset = z.infer<typeof PresetSchema>;

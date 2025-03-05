@@ -223,7 +223,7 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
                       <FloatingLabelInput label="Skip Rows" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Enter row numbers to skip, separated by commas. Use colons
+                      Enter row numbers to skip, separated by commas. Use a colon
                       to indicate a range e.g., "0,2:4,6,-1"{" "}
                     </FormDescription>
                     <FormMessage />

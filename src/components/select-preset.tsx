@@ -27,7 +27,6 @@ import { PresetContext } from "@/context/preset";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { cn, download } from "@/lib/utils";
 import { Preset } from "@common/types/schemas";
-import { parsePreset } from "@common/lib/parser-fns";
 import { DialogSavePreset } from "@/components/dialog-save-preset";
 
 export function SelectPreset({ className }: { className?: string }) {
@@ -86,7 +85,7 @@ export function SelectPreset({ className }: { className?: string }) {
         align="start"
         style={{ width: "var(--radix-popover-trigger-width)" }}
       >
-        <Command>
+        {/* <Command>
           <CommandInput placeholder="Search presets..." />
           <CommandEmpty>No presets found.</CommandEmpty>
           <CommandGroup
@@ -112,7 +111,7 @@ export function SelectPreset({ className }: { className?: string }) {
                           const arrayBuffer = await file.arrayBuffer();
                           const buffer = new Uint8Array(arrayBuffer);
 
-                          const parsed = parsePreset(buffer);
+                          // const parsed = parsePreset(buffer);
                           setPreset(parsed);
                           localStorage.setItem(
                             `preset_${parsed.name}`,
@@ -171,7 +170,7 @@ export function SelectPreset({ className }: { className?: string }) {
               </ScrollAreaViewport>
             </ScrollArea>
           </CommandGroup>
-        </Command>
+        </Command> */}
       </PopoverContent>
     </Popover>
   );

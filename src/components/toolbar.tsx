@@ -13,7 +13,6 @@ import { PresetContext } from "@/context/preset";
 import { DialogDropColumn } from "@/components/dialog-drop-column";
 import { cn, download } from "@/lib/utils";
 import { SelectPreset } from "@/components/select-preset";
-import { generateFileBuffers } from "@common/lib/parser-fns";
 import { DialogLoadConfig } from "@/components/dialog-load-config";
 import { DialogOutputConfig } from "@/components/dialog-output-config";
 import { GearIcon } from "@radix-ui/react-icons";
@@ -21,9 +20,10 @@ import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
 import { loadDataIntoTable } from "@common/lib/load";
 import { usePGlite } from "@electric-sql/pglite-react";
 import { useTables } from "@/context/tables";
+import { handleExport } from "@common/lib/export";
 
 export function Toolbar() {
-  const { tables, setTables } = useTables();
+  const { updateTables } = useTables();
   const { preset, setPreset, fixed, delimited } = useContext(PresetContext);
   const db = usePGlite();
 
@@ -44,7 +44,7 @@ export function Toolbar() {
         const uint8Array = new Uint8Array(arrayBuffer);
         const result = await loadDataIntoTable(uint8Array, db, preset.parser);
         if (result.success) {
-          setTables((prev) => new Set([...prev, result.table!]));
+          updateTables();
         } else {
           console.error("Failed to load file:", result.error);
         }
@@ -55,9 +55,15 @@ export function Toolbar() {
     input.click();
   };
 
-  const handleDownload = () => {
-    // const buffers = generateFileBuffers(data, preset);
-    // buffers?.forEach((buffer) => download(buffer.content, buffer.name));
+  const handleDownload = async () => {
+    const result = await handleExport(db, preset.export, preset.format);
+    if(result.success && result.files) {
+      result.files.map((file) => {
+        download(file.dataString, file.name, "text/plain");
+      });
+    }else {
+      console.error("Failed download:", result.error);
+    }
   };
 
   return (
