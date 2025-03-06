@@ -1,4 +1,5 @@
 import { LoadConfig } from "@common/types/schemas";
+import { Transaction } from "@electric-sql/pglite";
 import { PGliteWithLive } from "@electric-sql/pglite/live";
 import { parse } from "@evologi/fixed-width";
 import Papa from "papaparse";
@@ -30,30 +31,27 @@ function skipRows(dataString: string, skipRows: string): string {
 }
 
 async function createAndPopulateTable(
-  db: PGliteWithLive,
+  tx: Transaction,
   tableName: string,
   fields: string[],
   data: any[],
-  serialPrimaryKey: string
+  primaryKey?: string
 ): Promise<void> {
-  const containsPrimaryKey = fields.includes(serialPrimaryKey);
 
   // Drop table if it already exists
-  await db.query(`DROP TABLE IF EXISTS "${tableName}"`);
+  await tx.query(`DROP TABLE IF EXISTS "${tableName}"`);
   
   // Create table with appropriate schema
-  await db.query(`
+  await tx.query(`
     CREATE TABLE "${tableName}" (
-      ${containsPrimaryKey ? '' : `"${serialPrimaryKey}" SERIAL PRIMARY KEY,`}
       ${fields.map(f => `"${f}" TEXT`).join(", ")}
     )
   `);
   
-  // Add primary key constraint if using existing column
-  if (containsPrimaryKey) {
-    await db.query(`
+  if (primaryKey) {
+    await tx.query(`
       ALTER TABLE "${tableName}"
-      ADD PRIMARY KEY ("${serialPrimaryKey}")
+      ADD PRIMARY KEY ("${primaryKey}")
     `);
   }
 
@@ -68,7 +66,7 @@ async function createAndPopulateTable(
       })
       .join(", ");
 
-    await db.query(`
+    await tx.query(`
       INSERT INTO "${tableName}" (${fields.map(f => `"${f}"`).join(", ")})
       VALUES (${values})
     `);
@@ -79,11 +77,11 @@ export async function loadDataIntoTable(
   fileData: Uint8Array,
   db: PGliteWithLive,
   config: LoadConfig
-): Promise<{ success: boolean; table?: string; error?: string }> {
+): Promise<{ success: boolean; error?: string }> {
   try {
     const dataString = new TextDecoder().decode(fileData);
     const processedString = config.skipRows ? skipRows(dataString, config.skipRows) : dataString;
-    const serialPK = config.serialPrimaryKey || "id";
+    const primaryKey = config.primaryKey;
     
     let data: any[] = [];
     let fields: string[] = [];
@@ -114,8 +112,12 @@ export async function loadDataIntoTable(
     
     if (!data.length) throw new Error("No data found in file");
     
-    await createAndPopulateTable(db, config.name, fields, data, serialPK);
-    return { success: true, table: config.name };
+    // Wrap operations in a transaction
+    await db.transaction(async (tx) => {
+      await createAndPopulateTable(tx, config.name, fields, data, primaryKey);
+    });
+    
+    return { success: true };
     
   } catch (error) {
     return {

@@ -33,7 +33,7 @@ export function Footer() {
         }}
         className="gap-x-0"
       >
-        {Array.from(tables).map((table) => (
+        {Object.keys(tables).map((table) => (
           <ToggleGroupItem value={table} className="rounded-none" key={table}>
             {" "}
             {table}{" "}

@@ -28,8 +28,13 @@ import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { cn, download } from "@/lib/utils";
 import { Preset } from "@common/types/schemas";
 import { DialogSavePreset } from "@/components/dialog-save-preset";
+import { loadPresetFromFile, runQueriesFromPreset } from "@common/lib/preset";
+import { usePGlite } from "@electric-sql/pglite-react";
+import { useTables } from "@/context/tables";
 
 export function SelectPreset({ className }: { className?: string }) {
+  const db = usePGlite();
+  const { updateTables } = useTables();
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [storedPresets, setStoredPresets] = useState<Preset[]>([]);
@@ -71,9 +76,17 @@ export function SelectPreset({ className }: { className?: string }) {
           {preset && preset.name ? preset.name : "Load a preset..."}
           <div className="flex gap-x-2">
             <MagicWandIcon
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.stopPropagation();
-                // applyPreset(preset.changes);
+                const result = await runQueriesFromPreset(db, preset.queries);
+                if (result.success) {
+                  updateTables();
+                } else {
+                  console.error(
+                    "Failed to run queries, no changes committed:",
+                    result.error,
+                  );
+                }
               }}
               className={cn({ invisible: !preset.name })}
             />
@@ -85,7 +98,7 @@ export function SelectPreset({ className }: { className?: string }) {
         align="start"
         style={{ width: "var(--radix-popover-trigger-width)" }}
       >
-        {/* <Command>
+        <Command>
           <CommandInput placeholder="Search presets..." />
           <CommandEmpty>No presets found.</CommandEmpty>
           <CommandGroup
@@ -106,19 +119,18 @@ export function SelectPreset({ className }: { className?: string }) {
                         const file = (e.target as HTMLInputElement).files?.[0];
                         if (!file) return;
 
-                        try {
-                          // Convert File to Uint8Array
-                          const arrayBuffer = await file.arrayBuffer();
-                          const buffer = new Uint8Array(arrayBuffer);
+                        const arrayBuffer = await file.arrayBuffer();
+                        const buffer = new Uint8Array(arrayBuffer);
 
-                          // const parsed = parsePreset(buffer);
-                          setPreset(parsed);
+                        const result = loadPresetFromFile(buffer);
+                        if (result.success) {
+                          setPreset(result.preset);
                           localStorage.setItem(
-                            `preset_${parsed.name}`,
-                            JSON.stringify(parsed, null, 2),
+                            `preset_${result.preset.name}`,
+                            JSON.stringify(result.preset, null, 2),
                           );
-                        } catch (error) {
-                          console.error("Error loading preset:", error);
+                        } else {
+                          console.error("Failed to load preset:", result.error);
                         }
                       };
                       input.click();
@@ -152,11 +164,12 @@ export function SelectPreset({ className }: { className?: string }) {
                         className="cursor-pointer opacity-0 group-hover:opacity-100"
                         onClick={(e) => {
                           e.stopPropagation();
-                          const encoder = new TextEncoder();
-                          const content = encoder.encode(
-                            JSON.stringify(p, null, 2),
+                          const content = JSON.stringify(p, null, 2);
+                          download(
+                            content,
+                            `${p.name || "preset"}`,
+                            "application/json",
                           );
-                          download(content, `${p.name || "preset"}.json`);
                         }}
                       />
                       <CheckIcon
@@ -170,7 +183,7 @@ export function SelectPreset({ className }: { className?: string }) {
               </ScrollAreaViewport>
             </ScrollArea>
           </CommandGroup>
-        </Command> */}
+        </Command>
       </PopoverContent>
     </Popover>
   );

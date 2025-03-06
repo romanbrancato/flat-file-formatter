@@ -132,6 +132,7 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
                 <FormField
                   control={form.control}
                   name={"delimiter"}
+                  defaultValue=""
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -217,6 +218,7 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
               <FormField
                 control={form.control}
                 name={"skipRows"}
+                defaultValue=""
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -232,15 +234,13 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
               />
               <FormField
                 control={form.control}
-                name={"serialPrimaryKey"}
+                name={"primaryKey"}
+                defaultValue=""
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <FloatingLabelInput label="Serial Primary Key" {...field} />
+                      <FloatingLabelInput label="Primary Key" {...field} />
                     </FormControl>
-                    <FormDescription>
-                      If left blank, an id column will be generated.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

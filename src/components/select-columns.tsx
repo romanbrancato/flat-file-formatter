@@ -18,52 +18,47 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Column } from "./dialog-drop-column"
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
+
+type SelectedColumn = {
+  table: string;
+  name: string;
+};
 
 export function SelectColumns({
   label,
-  options,
+  tables,
   defaultValues,
   onValueChange,
 }: {
   label?: string;
-  options: Column[];
-  defaultValues: Column[];
-  onValueChange: (fields: Column[]) => void;
+  tables: Record<string, string[]>;
+  defaultValues: SelectedColumn[];
+  onValueChange: (fields: SelectedColumn[]) => void;
 }) {
-  const [selectedValues, setSelectedValues] = useState<Column[]>(defaultValues);
+  const [selectedValues, setSelectedValues] =
+    useState<SelectedColumn[]>(defaultValues);
 
-  const groupedOptions = options.reduce(
-    (acc, option) => {
-      acc[option.table] = [...(acc[option.table] || []), option];
-      return acc;
-    },
-    {} as Record<string, Column[]>,
-  );
-
-  const toggleOption = (option: Column) => {
+  const toggleOption = (table: string, name: string) => {
     const isSelected = selectedValues.some(
-      (selected) =>
-        selected.table === option.table && selected.name === option.name,
+      (selected) => selected.table === table && selected.name === name,
     );
 
     const newSelectedValues = isSelected
       ? selectedValues.filter(
-          (value) => !(value.table === option.table && value.name === option.name),
+          (value) => !(value.table === table && value.name === name),
         )
-      : [...selectedValues, option];
+      : [...selectedValues, { table, name }];
 
     setSelectedValues(newSelectedValues);
     onValueChange(newSelectedValues);
   };
 
   const toggleGroup = (table: string) => {
-    const groupOptions = groupedOptions[table] || [];
-    const isAllSelected = groupOptions.every((option) =>
+    const tableColumns = tables[table] || [];
+    const isAllSelected = tableColumns.every((columnName) =>
       selectedValues.some(
-        (selected) =>
-          selected.table === option.table && selected.name === option.name,
+        (selected) => selected.table === table && selected.name === columnName,
       ),
     );
 
@@ -71,13 +66,15 @@ export function SelectColumns({
       ? selectedValues.filter((value) => value.table !== table)
       : [
           ...selectedValues,
-          ...groupOptions.filter(
-            (option) =>
-              !selectedValues.some(
-                (selected) =>
-                  selected.table === option.table && selected.name === option.name,
-              ),
-          ),
+          ...tableColumns
+            .filter(
+              (columnName) =>
+                !selectedValues.some(
+                  (selected) =>
+                    selected.table === table && selected.name === columnName,
+                ),
+            )
+            .map((columnName) => ({ table, name: columnName })),
         ];
 
     setSelectedValues(newSelectedValues);
@@ -123,8 +120,8 @@ export function SelectColumns({
           <CommandList>
             <ScrollArea>
               <ScrollAreaViewport className="max-h-[300px]">
-                <CommandEmpty>No columns found.</CommandEmpty>
-                {Object.entries(groupedOptions).map(([table, options]) => (
+                <CommandEmpty>No tables found.</CommandEmpty>
+                {Object.entries(tables).map(([table, columnNames]) => (
                   <CommandGroup
                     key={table}
                     heading={
@@ -139,23 +136,23 @@ export function SelectColumns({
                       </div>
                     }
                   >
-                    {options.map((option) => {
+                    {columnNames.map((columnName) => {
                       const isSelected = selectedValues.some(
                         (selected) =>
-                          selected.table === option.table &&
-                          selected.name === option.name,
+                          selected.table === table &&
+                          selected.name === columnName,
                       );
                       return (
                         <CommandItem
-                          key={`${option.table}-${option.name}`}
-                          onSelect={() => toggleOption(option)}
+                          key={`${table}-${columnName}`}
+                          onSelect={() => toggleOption(table, columnName)}
                         >
                           <div
                             className={`border-primary mr-2 flex items-center justify-center rounded-sm border ${isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
                           >
                             <CheckIcon />
                           </div>
-                          <span>{option.name}</span>
+                          <span>{columnName}</span>
                         </CommandItem>
                       );
                     })}
@@ -166,7 +163,10 @@ export function SelectColumns({
                     <CommandSeparator />
                     <CommandGroup>
                       <CommandItem
-                        onSelect={() => setSelectedValues([])}
+                        onSelect={() => {
+                          setSelectedValues([]);
+                          onValueChange([]);
+                        }}
                         className="justify-center text-center"
                       >
                         Clear

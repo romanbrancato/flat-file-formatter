@@ -21,6 +21,7 @@ import { loadDataIntoTable } from "@common/lib/load";
 import { usePGlite } from "@electric-sql/pglite-react";
 import { useTables } from "@/context/tables";
 import { handleExport } from "@common/lib/export";
+import { DialogFixedConfig } from "./dialog-fixed-config";
 
 export function Toolbar() {
   const { updateTables } = useTables();
@@ -57,11 +58,11 @@ export function Toolbar() {
 
   const handleDownload = async () => {
     const result = await handleExport(db, preset.export, preset.format);
-    if(result.success && result.files) {
+    if (result.success && result.files) {
       result.files.map((file) => {
         download(file.dataString, file.name, "text/plain");
       });
-    }else {
+    } else {
       console.error("Failed download:", result.error);
     }
   };
@@ -107,14 +108,14 @@ export function Toolbar() {
           </PopoverContent>
         </Popover>
 
-      {/* Query Menu */}
+        {/* Query Menu */}
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="ghost"
               className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground relative h-7 rounded-sm px-3 py-1"
             >
-             Query
+              Query
             </Button>
           </PopoverTrigger>
           <PopoverContent className="min-w-[12rem] p-1" align="start">
@@ -187,13 +188,13 @@ export function Toolbar() {
                     <RadioGroupItem value="fixed" id="fixed" />
                     Fixed
                   </div>
-                  {/*<DialogFixedConfig>*/}
-                  {/*  <GearIcon*/}
-                  {/*    className={cn("cursor-pointer", {*/}
-                  {/*      invisible: preset.format.format !== "fixed",*/}
-                  {/*    })}*/}
-                  {/*  />*/}
-                  {/*</DialogFixedConfig>*/}
+                  <DialogFixedConfig>
+                    <GearIcon
+                      className={cn("cursor-pointer", {
+                        invisible: preset.format.format !== "fixed",
+                      })}
+                    />
+                  </DialogFixedConfig>
                 </label>
               </div>
             </RadioGroup>

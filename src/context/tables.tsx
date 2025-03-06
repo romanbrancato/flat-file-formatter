@@ -4,18 +4,16 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 import { usePGlite } from "@electric-sql/pglite-react";
 
 interface TablesContextType {
-  tables: string[];
+  tables: Record<string, string[]>;
   focusedTable: string | null;
   setFocusedTable: React.Dispatch<React.SetStateAction<string | null>>;
-  columns: { table: string; name: string }[];
   updateTables: () => void;
 }
 
 const TablesContext = createContext<TablesContextType>({
-  tables: [],
+  tables: {},
   focusedTable: null,
   setFocusedTable: () => {},
-  columns: [],
   updateTables: () => {}
 });
 
@@ -23,67 +21,58 @@ export const useTables = () => useContext(TablesContext);
 
 export const TablesProvider = ({ children }: { children: ReactNode }) => {
   const pg = usePGlite();
-  const [tables, setTables] = useState<string[]>([]);
+  const [tables, setTables] = useState<Record<string, string[]>>({});
   const [focusedTable, setFocusedTable] = useState<string | null>(null);
-  const [columns, setColumns] = useState<{ table: string; name: string }[]>([]);
 
   useEffect(() => {
-    if (!focusedTable && tables.length > 0) {
-      setFocusedTable(Array.from(tables)[0]);
+    const tableNames = Object.keys(tables);
+    if (!focusedTable && tableNames.length > 0) {
+      setFocusedTable(tableNames[0]);
     }
   }, [tables, focusedTable, setFocusedTable]);
 
-  useEffect(() => {
-    const fetchColumns = async () => {
-      const allColumns: { table: string; name: string }[] = [];
-
-      for (const table of tables) {
+  const updateTables = async () => {
+    try {
+      // Fetch all table names
+      const tablesRes = await pg.query(`
+        SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public';
+      `);
+      const tableNames = tablesRes.rows.map((row: any) => row.tablename);
+      
+      // Fetch columns for each table
+      const tablesData: Record<string, string[]> = {};
+      
+      for (const tableName of tableNames) {
         try {
-          const res = await pg.query(`
+          const columnsRes = await pg.query(`
             SELECT
               attname AS column_name
             FROM
               pg_catalog.pg_attribute
             WHERE
-              attrelid = 'public.${table}'::regclass
+              attrelid = 'public.${tableName}'::regclass
               AND attnum > 0
               AND NOT attisdropped
             ORDER BY
               attnum;
           `);
-
-          // Map each column to include its table name
-          const tableColumns = res.rows.map((row: any) => ({
-            table,
-            name: row.column_name
-          }));
-
-          allColumns.push(...tableColumns);
+          
+          tablesData[tableName] = columnsRes.rows.map((row: any) => row.column_name);
         } catch (error) {
-          console.error(`Error fetching columns for table ${table}:`, error);
+          console.error(`Error fetching columns for table ${tableName}:`, error);
+          tablesData[tableName] = [];
         }
       }
-
-      setColumns(allColumns);
-    };
-
-    if (tables.length > 0) {
-      fetchColumns();
-    } else {
-      setColumns([]);
+      
+      setTables(tablesData);
+    } catch (error) {
+      console.error("Error fetching tables:", error);
+      setTables({});
     }
-  }, [tables, pg]);
-
-
-  const updateTables = async () => {
-    const res = await pg.query(`
-          SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public';
-        `);
-    setTables(res.rows.map((row: any) => row.tablename));
   };
 
   return (
-    <TablesContext.Provider value={{ tables, columns, focusedTable, setFocusedTable, updateTables}}>
+    <TablesContext.Provider value={{ tables, focusedTable, setFocusedTable, updateTables }}>
       {children}
     </TablesContext.Provider>
   );

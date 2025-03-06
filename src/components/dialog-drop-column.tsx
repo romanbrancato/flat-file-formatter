@@ -37,7 +37,7 @@ export type dropColumn = z.infer<typeof dropColumnSchema>;
 
 export function DialogDropColumn({ children }: { children: React.ReactNode }) {
   const {setValue, focusTerminal} = useTerminal();
-  const {columns} = useTables();
+  const {tables} = useTables();
   const [open, setOpen] = useState(false);
 
   const form = useForm<dropColumn>({
@@ -60,7 +60,7 @@ export function DialogDropColumn({ children }: { children: React.ReactNode }) {
     // Generate SQL queries
     const queries = Object.entries(columnsByTable).map(([table, columns]) => {
       // For multiple columns in the same table, combine them in one ALTER TABLE statement
-      const dropClauses = columns.map(col => `DROP COLUMN ${col} CASCADE`).join(', ');
+      const dropClauses = columns.map(col => `DROP COLUMN "${col}" CASCADE`).join(', ');
       return `ALTER TABLE ${table} ${dropClauses};`;
     });
     
@@ -94,7 +94,7 @@ export function DialogDropColumn({ children }: { children: React.ReactNode }) {
                   <FormControl>
                     <SelectColumns
                       label="Select Columns"
-                      options={columns}
+                      tables={tables}
                       defaultValues={field.value as Column[]}
                       onValueChange={(columns) => field.onChange(columns)}
                     />

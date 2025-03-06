@@ -15,14 +15,14 @@ export const LoadConfigSchema = z.discriminatedUnion("format", [
     name: z.string(),
     delimiter: z.string().optional(),
     skipRows: z.string().optional(),
-    serialPrimaryKey: z.string().optional(),
+    primaryKey: z.string().optional(),
   }),
   z.object({
     format: z.literal("fixed"),
     name: z.string(),
     widths: LoadFieldSchema,
     skipRows: z.string().optional(),
-    serialPrimaryKey: z.string().optional(),
+    primaryKey: z.string().optional(),
   }),
 ]);
 
@@ -58,7 +58,7 @@ export const ExportSchema = z.object({
 export type Export = z.infer<typeof ExportSchema>;
 
 export const PresetSchema = z.object({
-  name: z.string().nullable(),
+  name: z.string(),
   parser: LoadConfigSchema,
   queries: z.array(z.string()),
   format: FormatSchema,
