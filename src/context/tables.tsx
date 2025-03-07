@@ -2,6 +2,7 @@
 
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { usePGlite } from "@electric-sql/pglite-react";
+import { toast } from "sonner";
 
 interface TablesContextType {
   tables: Record<string, string[]>;
@@ -59,6 +60,9 @@ export const TablesProvider = ({ children }: { children: ReactNode }) => {
           
           tablesData[tableName] = columnsRes.rows.map((row: any) => row.column_name);
         } catch (error) {
+          toast.error(`Error fetching columns for table ${tableName}`, {
+            description: error instanceof Error ? error.message : String(error),
+          });
           console.error(`Error fetching columns for table ${tableName}:`, error);
           tablesData[tableName] = [];
         }
@@ -66,6 +70,9 @@ export const TablesProvider = ({ children }: { children: ReactNode }) => {
       
       setTables(tablesData);
     } catch (error) {
+      toast.error("Error fetching tables", {
+        description: error instanceof Error ? error.message : String(error),
+      });
       console.error("Error fetching tables:", error);
       setTables({});
     }

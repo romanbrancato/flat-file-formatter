@@ -15,7 +15,7 @@ import { useContext, useEffect, useState } from "react";
 
 export function QueryTable() {
   const pg = usePGlite();
-  const { focusedTable } = useTables();
+  const { tables, focusedTable } = useTables();
   const { preset } = useContext(PresetContext);
   const [items, setItems] = useState<{fields: string[], rows: unknown[]}>({fields: [], rows: []});
 
@@ -26,7 +26,7 @@ export function QueryTable() {
       setItems({fields: res.fields.map((field: any) => field.name), rows: res.rows});
     }
     getTableContents();
-  }, [pg, focusedTable, preset.queries.length]);
+  }, [pg, tables, focusedTable, preset.queries.length]);
 
   if(!items) return null;
 

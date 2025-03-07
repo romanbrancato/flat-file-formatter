@@ -9,21 +9,25 @@ export const LoadFieldSchema = z.object({
   ),
 });
 
+const BaseLoadSchema = z.object({
+  tablename: z.string(),
+  skipRows: z.string().optional(),
+  primaryKey: z.string().optional(),
+});
+
 export const LoadConfigSchema = z.discriminatedUnion("format", [
-  z.object({
-    format: z.literal("delimited"),
-    name: z.string(),
-    delimiter: z.string().optional(),
-    skipRows: z.string().optional(),
-    primaryKey: z.string().optional(),
-  }),
-  z.object({
-    format: z.literal("fixed"),
-    name: z.string(),
-    widths: LoadFieldSchema,
-    skipRows: z.string().optional(),
-    primaryKey: z.string().optional(),
-  }),
+  BaseLoadSchema.merge(
+    z.object({
+      format: z.literal("delimited"),
+      delimiter: z.string().optional(),
+    }),
+  ),
+  BaseLoadSchema.merge(
+    z.object({
+      format: z.literal("fixed"),
+      widths: LoadFieldSchema,
+    }),
+  ),
 ]);
 
 export type LoadConfig = z.infer<typeof LoadConfigSchema>;
@@ -52,14 +56,14 @@ export const FormatSchema = z.discriminatedUnion("format", [
 export type Format = z.infer<typeof FormatSchema>;
 
 export const ExportSchema = z.object({
-  files: z.array(z.object({name:z.string(), query:z.string()})),
+  files: z.array(z.object({ name: z.string(), query: z.string() })),
 });
 
 export type Export = z.infer<typeof ExportSchema>;
 
 export const PresetSchema = z.object({
   name: z.string(),
-  parser: LoadConfigSchema,
+  load: z.array(LoadConfigSchema),
   queries: z.array(z.string()),
   format: FormatSchema,
   export: ExportSchema,

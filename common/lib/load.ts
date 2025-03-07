@@ -114,7 +114,7 @@ export async function loadDataIntoTable(
     
     // Wrap operations in a transaction
     await db.transaction(async (tx) => {
-      await createAndPopulateTable(tx, config.name, fields, data, primaryKey);
+      await createAndPopulateTable(tx, config.tablename, fields, data, primaryKey);
     });
     
     return { success: true };

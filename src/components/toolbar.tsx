@@ -12,49 +12,20 @@ import { useContext } from "react";
 import { PresetContext } from "@/context/preset";
 import { DialogDropColumn } from "@/components/dialog-drop-column";
 import { cn, download } from "@/lib/utils";
-import { SelectPreset } from "@/components/select-preset";
+import { PresetToolbar } from "@/components/preset-toolbar";
 import { DialogLoadConfig } from "@/components/dialog-load-config";
 import { DialogOutputConfig } from "@/components/dialog-output-config";
 import { GearIcon } from "@radix-ui/react-icons";
 import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
-import { loadDataIntoTable } from "@common/lib/load";
-import { usePGlite } from "@electric-sql/pglite-react";
-import { useTables } from "@/context/tables";
 import { handleExport } from "@common/lib/export";
 import { DialogFixedConfig } from "./dialog-fixed-config";
+import { toast } from "sonner";
+import { usePGlite } from "@electric-sql/pglite-react";
+import { CommandShortcut } from "./ui/command";
 
 export function Toolbar() {
-  const { updateTables } = useTables();
   const { preset, setPreset, fixed, delimited } = useContext(PresetContext);
   const db = usePGlite();
-
-  const handleFileOpen = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".txt, .csv";
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      // Reset input value to allow re-selecting same file
-      (e.target as HTMLInputElement).value = "";
-
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const arrayBuffer = reader.result as ArrayBuffer;
-        const uint8Array = new Uint8Array(arrayBuffer);
-        const result = await loadDataIntoTable(uint8Array, db, preset.parser);
-        if (result.success) {
-          updateTables();
-        } else {
-          console.error("Failed to load file:", result.error);
-        }
-      };
-      reader.onerror = (error) => console.error("Error reading file:", error);
-      reader.readAsArrayBuffer(file);
-    };
-    input.click();
-  };
 
   const handleDownload = async () => {
     const result = await handleExport(db, preset.export, preset.format);
@@ -63,6 +34,9 @@ export function Toolbar() {
         download(file.dataString, file.name, "text/plain");
       });
     } else {
+      toast.error("Failed to download file", {
+        description: result.error,
+      });
       console.error("Failed download:", result.error);
     }
   };
@@ -83,15 +57,14 @@ export function Toolbar() {
           <PopoverContent className="min-w-[12rem] p-1" align="start">
             <div>
               <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm">
+              <DialogLoadConfig>
                 <button
-                  onClick={handleFileOpen}
                   className="w-full cursor-default text-left"
                 >
                   Open...
                 </button>
-                <DialogLoadConfig>
-                  <GearIcon className="invisible cursor-pointer group-hover:visible" />
                 </DialogLoadConfig>
+                <CommandShortcut>⌘O</CommandShortcut>
               </div>
               <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm [&:has(button:disabled)]:pointer-events-none [&:has(button:disabled)]:opacity-50">
                 <button
@@ -202,7 +175,7 @@ export function Toolbar() {
         </Popover>
       </div>
 
-      <SelectPreset className="w-1/3" />
+      <PresetToolbar className="w-1/3" />
     </div>
   );
 }

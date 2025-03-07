@@ -88,7 +88,7 @@ export function DialogOutputConfig({
               <div className="flex flex-col gap-y-1">
                 {fields.map((field, index) => (
                   <div
-                    className="hover:border-muted-foreground mr-4 flex border p-2"
+                    className="hover:border-muted-foreground mr-4 flex border p-4"
                     key={field.id}
                   >
                     <div className="flex-1 flex-row space-y-1">

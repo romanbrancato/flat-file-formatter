@@ -37,14 +37,20 @@ import { LoadConfig, LoadConfigSchema } from "@common/types/schemas";
 import { PresetContext } from "@/context/preset";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { Selector } from "@/components/selector";
+import { useTables } from "@/context/tables";
+import { loadDataIntoTable } from "@common/lib/load";
+import { usePGlite } from "@electric-sql/pglite-react";
+import { toast } from "sonner";
 
 export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
+  const db = usePGlite();
+  const {updateTables} = useTables();
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
   const form = useForm<LoadConfig>({
     resolver: zodResolver(LoadConfigSchema),
-    defaultValues: { ...preset.parser },
+    defaultValues: preset.load[-1],
   });
 
   const format = useWatch({
@@ -71,11 +77,45 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
   });
 
   function onSubmit(values: LoadConfig) {
-    setPreset({
-      ...preset,
-      parser: values,
-    });
-    setOpen(false);
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".txt, .csv";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      // Reset input value to allow re-selecting same file
+      (e.target as HTMLInputElement).value = "";
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const arrayBuffer = reader.result as ArrayBuffer;
+        const uint8Array = new Uint8Array(arrayBuffer);
+        console.log(values)
+        const result = await loadDataIntoTable(uint8Array, db, values);
+        if (result.success) {
+          updateTables();
+          setPreset((prev) => ({
+            ...prev,
+            load: [...prev.load, values],
+          }));
+          setOpen(false);
+        } else {
+          toast.error("Failed to load file", {
+            description: result.error
+          });
+          console.error("Failed to load file:", result.error);
+        }
+      };
+      reader.onerror = (error) => {
+        toast.error("Error reading file", {
+          description: file.name
+        });
+        console.error("Error reading file:", file.name, error);
+      };
+      reader.readAsArrayBuffer(file);
+    };
+    input.click();
   }
 
   return (
@@ -96,7 +136,7 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
             >
               <FormField
                 control={form.control}
-                name={"name"}
+                name={"tablename"}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -246,7 +286,7 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
                 )}
               />
               <Button type="submit" className="ml-auto w-1/3">
-                Save
+                Choose File
               </Button>
             </form>
           </Form>

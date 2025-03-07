@@ -3,7 +3,6 @@ import { createContext, ReactNode, useState, useMemo, useEffect } from "react";
 import { Preset, Delimited, Fixed } from "@common/types/schemas";
 
 const DEFAULTS = {
-  parser: { name: "", format: "delimited" as const },
   delimited: { format: "delimited" as const, delimiter: "," },
   fixed: {
     format: "fixed" as const,
@@ -15,7 +14,7 @@ const DEFAULTS = {
 
 const DEFAULT_PRESET: Preset = {
   name: "",
-  parser: DEFAULTS.parser,
+  load: [],
   queries: [],
   format: DEFAULTS.delimited,
   export: { files: [] },

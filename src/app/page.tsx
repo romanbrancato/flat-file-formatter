@@ -9,6 +9,7 @@ import {
   ResizableHandle,
 } from "@/components/ui/resizable";
 import { QueryTable } from "@/components/query-table";
+import { Toaster } from "sonner";
 
 export default function App() {
 
@@ -26,6 +27,7 @@ export default function App() {
         </ResizablePanel>
       </ResizablePanelGroup>
       <Footer />
+      <Toaster richColors />
     </main>
   );
 }

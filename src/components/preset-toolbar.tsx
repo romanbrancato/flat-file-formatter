@@ -31,8 +31,9 @@ import { DialogSavePreset } from "@/components/dialog-save-preset";
 import { loadPresetFromFile, runQueriesFromPreset } from "@common/lib/preset";
 import { usePGlite } from "@electric-sql/pglite-react";
 import { useTables } from "@/context/tables";
+import { toast } from "sonner";
 
-export function SelectPreset({ className }: { className?: string }) {
+export function PresetToolbar({ className }: { className?: string }) {
   const db = usePGlite();
   const { updateTables } = useTables();
   const { preset, setPreset } = useContext(PresetContext);
@@ -82,6 +83,9 @@ export function SelectPreset({ className }: { className?: string }) {
                 if (result.success) {
                   updateTables();
                 } else {
+                  toast.error("Failed to run queries, no changes committed", {
+                    description: result.error
+                  });
                   console.error(
                     "Failed to run queries, no changes committed:",
                     result.error,
@@ -130,6 +134,9 @@ export function SelectPreset({ className }: { className?: string }) {
                             JSON.stringify(result.preset, null, 2),
                           );
                         } else {
+                          toast.error("Failed to load preset", {
+                            description: result.error
+                          });
                           console.error("Failed to load preset:", result.error);
                         }
                       };

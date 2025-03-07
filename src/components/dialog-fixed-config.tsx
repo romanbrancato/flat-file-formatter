@@ -29,7 +29,6 @@ import {
   AccordionTrigger 
 } from "@/components/ui/accordion";
 import { useTables } from "@/context/tables";
-import { Separator } from "@/components/ui/separator";
 
 export function DialogFixedConfig({ children }: { children: React.ReactNode }) {
   const { tables } = useTables();
