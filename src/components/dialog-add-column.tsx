@@ -76,11 +76,7 @@ export function DialogAddColumn({ children }: { children: ReactNode }) {
             queries.push(`UPDATE ${table} SET ${field.name} = ${referenceColumn};`);
           } else {
             // Different table - use correlated subquery
-            queries.push(`UPDATE ${table} SET ${field.name} = (
-              SELECT ${referenceColumn}
-              FROM ${referenceTable}
-              WHERE ${referenceTable}.id = ${table}.${referenceTable}_id 
-            );`);
+            queries.push(`UPDATE ${table} SET ${field.name} = (SELECT ${referenceColumn} FROM ${referenceTable} WHERE ${referenceTable}.id = ${table}.${referenceTable}_id );`);
           }
         } else {
           // Direct value
@@ -113,47 +109,49 @@ export function DialogAddColumn({ children }: { children: ReactNode }) {
           >
             <ScrollArea>
               <ScrollAreaViewport className="max-h-[400px]">
-                {fields.map((field, index) => (
-                  <div
-                    key={field.id}
-                    className="mr-4 flex flex-row items-center gap-x-2"
-                  >
-                    <FormField
-                      control={form.control}
-                      name={`fields.${index}.name`}
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormControl>
-                            <FloatingLabelInput label={"Name"} {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`fields.${index}.value`}
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormControl>
-                            <FloatingLabelInput label="Populate" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Cross2Icon
-                      className="ml-auto opacity-70 hover:text-destructive"
-                      onClick={() => remove(index)}
-                    />
-                  </div>
-                ))}
+              {fields.map((field, index) => (
+  <div
+    key={field.id}
+    className="mr-4 flex flex-row items-center gap-x-2 group relative"
+  >
+    <Cross2Icon
+      className="ml-auto opacity-0 group-hover:opacity-70 hover:text-destructive"
+      onClick={() => remove(index)}
+    />
+    <FormField
+      control={form.control}
+      name={`fields.${index}.name`}
+      render={({ field }) => (
+        <FormItem className="flex-1">
+          <FormControl>
+            <FloatingLabelInput label={"Name"} {...field} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+    <FormField
+      control={form.control}
+      name={`fields.${index}.value`}
+      render={({ field }) => (
+        <FormItem className="flex-1">
+          <FormControl>
+            <FloatingLabelInput label="Populate" {...field} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  </div>
+))}
               </ScrollAreaViewport>
             </ScrollArea>
+            <div className="flex content-center justify-between">
+
             <Button
               variant="outline"
               size="sm"
-              className="w-full border-dashed"
+              className="w-1/3 border-dashed"
               onClick={(event) => {
                 event.preventDefault();
                 append({
@@ -168,6 +166,7 @@ export function DialogAddColumn({ children }: { children: ReactNode }) {
             <Button type="submit" className="ml-auto w-1/3">
               Create Query
             </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>

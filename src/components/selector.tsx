@@ -17,11 +17,13 @@ export function Selector({
   label,
   options,
   onSelect,
+  className,
 }: {
   selected: string | undefined;
   label?: string;
-  options: { label: string; value: string }[];
+  options: { label: string; value: any }[];
   onSelect: (value: string) => void;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -33,7 +35,7 @@ export function Selector({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between capitalize"
+          className={`w-full justify-between capitalize ${className}`}
         >
           <span className="text-xs font-normal text-muted-foreground">
             {label ? `${label}:` : ""}

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormMessage,
@@ -24,6 +23,10 @@ import { PresetContext } from "@/context/preset";
 import { Export, ExportSchema } from "@common/types/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SqlTextArea } from "./sql-text-area";
+import { handleExport } from "@common/lib/export";
+import { usePGlite } from "@electric-sql/pglite-react";
+import { download } from "@/lib/utils";
+import { toast } from "sonner";
 
 // SELECT 
 //   row_to_json(test1.*) AS row_data,  -- Converts the entire row to a JSON object
@@ -41,11 +44,12 @@ import { SqlTextArea } from "./sql-text-area";
 
 // ORDER BY claimno, sort_order;
 
-export function DialogOutputConfig({
+export function DialogOutput({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const db = usePGlite();
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
 
@@ -59,9 +63,20 @@ export function DialogOutputConfig({
     control: form.control
     });
 
-  function onSubmit(values: Export) {
-    setPreset((prev) => ({ ...prev, export: values }));
-    setOpen(false);
+  async function onSubmit(values: Export) {
+    const result = await handleExport(db, preset.export, preset.format);
+    if (result.success && result.files) {
+      result.files.map((file) => {
+        download(file.dataString, file.name, "text/plain");
+      });
+      setPreset((prev) => ({ ...prev, export: values }));
+      setOpen(false);
+    } else {
+      toast.error("Failed to download file", {
+        description: result.error,
+      });
+      console.error("Failed download:", result.error);
+    }
   }
 
   return (
@@ -73,9 +88,7 @@ export function DialogOutputConfig({
           <DialogDescription className="flex flex-row items-center justify-between">
             Define files and their contents to be exported. 
             <br />
-            Each query must return a column named "row_data" where each row contains a single row's data as a JSON object.
-            <br />
-            Rows will be ordered as they are in the results.
+            Each query must return a column named "row_data" where each row is a JSON object.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -94,13 +107,13 @@ export function DialogOutputConfig({
                     <div className="flex-1 flex-row space-y-1">
                       <FormField
                         control={form.control}
-                        name={`files.${index}.name`}
+                        name={`files.${index}.filename`}
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
                               <FloatingLabelInput
                                 defaultValue={field.value}
-                                label="Name"
+                                label="File Name"
                                 onBlur={(e) => field.onChange(e)}
                               />
                             </FormControl>
@@ -140,14 +153,14 @@ export function DialogOutputConfig({
                 className="w-1/3 border-dashed"
                 onClick={(event) => {
                   event.preventDefault();
-                  append({ name: "", query: ""});
+                  append({ filename: "", query: ""});
                 }}
               >
                 <PlusCircledIcon className="mr-2" />
                 Add File
               </Button>
               <Button type="submit" className="w-1/3">
-                Save
+                Export
               </Button>
             </div>
           </form>

@@ -7,7 +7,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Form,
   FormControl,
@@ -20,7 +20,6 @@ import {
   FormProvider,
   useFieldArray,
   useForm,
-  useFormContext,
   useWatch,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,15 +41,20 @@ import { loadDataIntoTable } from "@common/lib/load";
 import { usePGlite } from "@electric-sql/pglite-react";
 import { toast } from "sonner";
 
-export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
+export function DialogLoad({ children }: { children: React.ReactNode }) {
   const db = usePGlite();
-  const {updateTables} = useTables();
+  const { updateTables } = useTables();
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
+  const [presetIndex, setPresetIndex] = useState(0);
+
+  useEffect(() => {
+    form.reset(preset.load[presetIndex]);
+    }, [presetIndex]);
 
   const form = useForm<LoadConfig>({
     resolver: zodResolver(LoadConfigSchema),
-    defaultValues: preset.load[-1],
+    defaultValues: preset.load[presetIndex]
   });
 
   const format = useWatch({
@@ -67,9 +71,12 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
         width: 0,
       },
     ],
-  })
+  });
 
-  const totalWidth = widths.reduce((total: number, field: any) => total + Number(field.width), 0)
+  const totalWidth = widths.reduce(
+    (total: number, field: any) => total + Number(field.width),
+    0,
+  );
 
   const { fields, append, remove } = useFieldArray({
     name: `widths.fields`,
@@ -91,7 +98,7 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
       reader.onload = async () => {
         const arrayBuffer = reader.result as ArrayBuffer;
         const uint8Array = new Uint8Array(arrayBuffer);
-        console.log(values)
+        console.log(values);
         const result = await loadDataIntoTable(uint8Array, db, values);
         if (result.success) {
           updateTables();
@@ -99,17 +106,18 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
             ...prev,
             load: [...prev.load, values],
           }));
+          setPresetIndex(preset.load.length);
           setOpen(false);
         } else {
           toast.error("Failed to load file", {
-            description: result.error
+            description: result.error,
           });
           console.error("Failed to load file:", result.error);
         }
       };
       reader.onerror = (error) => {
         toast.error("Error reading file", {
-          description: file.name
+          description: file.name,
         });
         console.error("Error reading file:", file.name, error);
       };
@@ -137,6 +145,7 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
               <FormField
                 control={form.control}
                 name={"tablename"}
+                defaultValue=""
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -178,6 +187,9 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
                       <FormControl>
                         <FloatingLabelInput label="Delimiter" {...field} />
                       </FormControl>
+                      <FormDescription>
+                        If autodetection fails to work
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -265,8 +277,8 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
                       <FloatingLabelInput label="Skip Rows" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Enter row numbers to skip, separated by commas. Use a colon
-                      to indicate a range e.g., "0,2:4,6,-1"{" "}
+                      Enter row numbers to skip, separated by commas. Use a
+                      colon to indicate a range e.g., "0,2:4,6,-1"{" "}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -285,9 +297,25 @@ export function DialogLoadConfig({ children }: { children: React.ReactNode }) {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="ml-auto w-1/3">
-                Choose File
-              </Button>
+              <div className="flex content-center justify-between">
+                {preset.load.length > 0 && (
+                  <Selector
+                    className="w-1/3"
+                    label={"Load Config"}
+                    selected={undefined}
+                    options={preset.load.map((loadConfig, i) => ({
+                      label: loadConfig.tablename,
+                      value: i,
+                    }))}
+                    onSelect={(index) => {
+                      setPresetIndex(Number(index));
+                    }}
+                  />
+                )}
+                <Button type="submit" className="ml-auto w-1/3">
+                  Choose File
+                </Button>
+              </div>
             </form>
           </Form>
         </FormProvider>

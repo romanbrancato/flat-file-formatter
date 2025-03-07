@@ -11,35 +11,17 @@ import { DialogAddColumn } from "@/components/dialog-add-column";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset";
 import { DialogDropColumn } from "@/components/dialog-drop-column";
-import { cn, download } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { PresetToolbar } from "@/components/preset-toolbar";
-import { DialogLoadConfig } from "@/components/dialog-load-config";
-import { DialogOutputConfig } from "@/components/dialog-output-config";
+import { DialogLoad } from "@/components/dialog-load";
+import { DialogOutput } from "@/components/dialog-output";
 import { GearIcon } from "@radix-ui/react-icons";
 import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
-import { handleExport } from "@common/lib/export";
 import { DialogFixedConfig } from "./dialog-fixed-config";
-import { toast } from "sonner";
-import { usePGlite } from "@electric-sql/pglite-react";
 import { CommandShortcut } from "./ui/command";
 
 export function Toolbar() {
   const { preset, setPreset, fixed, delimited } = useContext(PresetContext);
-  const db = usePGlite();
-
-  const handleDownload = async () => {
-    const result = await handleExport(db, preset.export, preset.format);
-    if (result.success && result.files) {
-      result.files.map((file) => {
-        download(file.dataString, file.name, "text/plain");
-      });
-    } else {
-      toast.error("Failed to download file", {
-        description: result.error,
-      });
-      console.error("Failed download:", result.error);
-    }
-  };
 
   return (
     <div className="flex w-full justify-between border-y py-2">
@@ -57,25 +39,23 @@ export function Toolbar() {
           <PopoverContent className="min-w-[12rem] p-1" align="start">
             <div>
               <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm">
-              <DialogLoadConfig>
+              <DialogLoad>
                 <button
                   className="w-full cursor-default text-left"
                 >
                   Open...
                 </button>
-                </DialogLoadConfig>
+                </DialogLoad>
                 <CommandShortcut>⌘O</CommandShortcut>
               </div>
               <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm [&:has(button:disabled)]:pointer-events-none [&:has(button:disabled)]:opacity-50">
+              <DialogOutput>
                 <button
-                  onClick={handleDownload}
                   className="w-full cursor-default text-left disabled:cursor-not-allowed"
                 >
-                  Download
+                  Export...
                 </button>
-                <DialogOutputConfig>
-                  <GearIcon className="invisible cursor-pointer group-hover:visible" />
-                </DialogOutputConfig>
+                </DialogOutput>
               </div>
             </div>
           </PopoverContent>

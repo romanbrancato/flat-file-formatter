@@ -56,7 +56,7 @@ export const FormatSchema = z.discriminatedUnion("format", [
 export type Format = z.infer<typeof FormatSchema>;
 
 export const ExportSchema = z.object({
-  files: z.array(z.object({ name: z.string(), query: z.string() })),
+  files: z.array(z.object({ filename: z.string(), query: z.string() })),
 });
 
 export type Export = z.infer<typeof ExportSchema>;

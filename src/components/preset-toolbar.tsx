@@ -92,7 +92,7 @@ export function PresetToolbar({ className }: { className?: string }) {
                   );
                 }
               }}
-              className={cn({ invisible: !preset.name })}
+              className={cn({ invisible: !preset.name || preset.queries.length === 0 })}
             />
             <CaretSortIcon />
           </div>
