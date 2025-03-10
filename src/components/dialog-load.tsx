@@ -278,7 +278,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                     </FormControl>
                     <FormDescription>
                       Enter row numbers to skip, separated by commas. Use a
-                      colon to indicate a range e.g., "0,2:4,6,-1"{" "}
+                      colon to indicate a range e.g., [0,2:4,6,-1]
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

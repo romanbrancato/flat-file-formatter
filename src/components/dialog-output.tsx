@@ -88,7 +88,7 @@ export function DialogOutput({
           <DialogDescription className="flex flex-row items-center justify-between">
             Define files and their contents to be exported. 
             <br />
-            Each query must return a column named "row_data" where each row is a JSON object.
+            Each query must return a column named [row_data] where each row is a JSON object.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
