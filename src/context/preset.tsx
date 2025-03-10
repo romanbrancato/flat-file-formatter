@@ -3,7 +3,6 @@ import { createContext, ReactNode, useState, useMemo, useEffect } from "react";
 import { Preset, Delimited, Fixed } from "@common/types/schemas";
 
 const DEFAULTS = {
-  parser: { format: "delimited" as const, delimiter: "" },
   delimited: { format: "delimited" as const, delimiter: "," },
   fixed: {
     format: "fixed" as const,
@@ -14,12 +13,12 @@ const DEFAULTS = {
 };
 
 const DEFAULT_PRESET: Preset = {
-  name: null,
-  parser: DEFAULTS.parser,
-  changes: [],
+  name: "",
+  load: [],
+  queries: [],
   format: DEFAULTS.delimited,
-  output: { groups: [] },
-};
+  export: { files: [] },
+}
 
 export const PresetContext = createContext<{
   preset: Preset;
@@ -50,6 +49,7 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
       setFixed(preset.format);
     }
   }, [preset.format]);
+
 
   const contextValue = useMemo(() => ({
     preset,

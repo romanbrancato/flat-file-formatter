@@ -1,30 +1,55 @@
-import { useContext } from "react";
-import { DataProcessorContext } from "@/context/data-processor-context";
-import { Button } from "@/components/ui/button";
+"use client";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { PresetContext } from "@/context/preset";
+import { useTables } from "@/context/tables";
+import { useTerminal } from "@/context/terminal";
+import { usePGlite} from "@electric-sql/pglite-react";
+import { PlusCircledIcon } from "@radix-ui/react-icons";
+import { useContext, useEffect, useState } from "react";
 
 export function Footer() {
-  const { isReady, data } = useContext(DataProcessorContext);
-  const { focus, setFocus } = useContext(DataProcessorContext);
+  const pg = usePGlite();
+  const { preset } = useContext(PresetContext);
+  const { tables, focusedTable, setFocusedTable } = useTables();
+  const { setValue } = useTerminal();
+  const [numRows, setNumRows] = useState<number>(0);
 
-  if (!isReady) {
-    return null;
-  }
+  useEffect(() => {
+      if (!pg || !focusedTable) return
+      const getTableContents = async () => {
+        const res = await pg.query(`SELECT COUNT(*) FROM ${focusedTable}`);
+        setNumRows(Number(Object.values(res?.rows[0] || {})[0]) || 0);
+      }
+      getTableContents();
+    }, [pg, focusedTable, preset.queries.length]);
 
   return (
-    <footer className="sticky bottom-0 mt-auto flex items-center justify-between border-t">
-      <div className="flex">
-        {Object.keys(data).map((tag) => (
-          <Button
-            key={tag}
-            onClick={() => setFocus(tag)}
-            className={`rounded-none px-3 py-1.5 shadow-none ${focus !== tag && "bg-background text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-          >
-            {tag}
-          </Button>
+    <footer className="sticky bottom-0 flex h-10 items-center">
+      <ToggleGroup
+        type="single"
+        value={focusedTable as string}
+        onValueChange={(table) => {
+          if (table) setFocusedTable(table);
+        }}
+        className="gap-x-0"
+      >
+        {Object.keys(tables).map((table) => (
+          <ToggleGroupItem value={table} className="rounded-none" key={table}>
+            {" "}
+            {table}{" "}
+          </ToggleGroupItem>
         ))}
-      </div>
-      <span className="text-xs text-muted-foreground">
-            {data[focus] && data[focus].rows.length} Row(s)
+      </ToggleGroup>
+      <PlusCircledIcon
+        className="ml-2 cursor-pointer"
+        onClick={() =>
+          setValue(
+            `CREATE TABLE tablename (id SERIAL PRIMARY KEY, field1 TEXT, ...)`,
+          )
+        }
+      />
+      <span className="text-muted-foreground ml-auto text-xs">
+        {numRows} row(s)
       </span>
     </footer>
   );

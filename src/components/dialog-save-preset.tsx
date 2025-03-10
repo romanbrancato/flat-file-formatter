@@ -20,7 +20,7 @@ import { z } from "zod";
 import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PresetContext } from "@/context/preset-context";
+import { PresetContext } from "@/context/preset";
 
 const SavePresetSchema = z.object({
   name: z.string().min(1, "Enter a preset name."),

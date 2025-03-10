@@ -10,6 +10,12 @@ const nextConfig = {
         );
         return config;
     },
+    transpilePackages: [
+        '@electric-sql/pglite-react',
+        '@electric-sql/pglite',
+        '@electric-sql/pglite-repl'
+    ],
+    reactStrictMode: false
 };
 
 export default nextConfig;

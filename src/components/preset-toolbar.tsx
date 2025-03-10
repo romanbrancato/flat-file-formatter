@@ -5,7 +5,6 @@ import {
   Cross2Icon,
   DownloadIcon,
   FilePlusIcon,
-  MagicWandIcon,
 } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,16 +22,19 @@ import {
 
 import * as React from "react";
 import { useContext, useEffect, useState } from "react";
-import { PresetContext } from "@/context/preset-context";
-import { DataProcessorContext } from "@/context/data-processor-context";
+import { PresetContext } from "@/context/preset";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { cn, download } from "@/lib/utils";
 import { Preset } from "@common/types/schemas";
-import { parsePreset } from "@common/lib/parser-fns";
 import { DialogSavePreset } from "@/components/dialog-save-preset";
+import { loadPresetFromFile, runQueriesFromPreset } from "@common/lib/preset";
+import { usePGlite } from "@electric-sql/pglite-react";
+import { useTables } from "@/context/tables";
+import { toast } from "sonner";
 
-export function SelectPreset({ className }: { className?: string }) {
-  const { isReady, applyPreset } = useContext(DataProcessorContext);
+export function PresetToolbar({ className }: { className?: string }) {
+  const db = usePGlite();
+  const { updateTables } = useTables();
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [storedPresets, setStoredPresets] = useState<Preset[]>([]);
@@ -72,14 +74,27 @@ export function SelectPreset({ className }: { className?: string }) {
           className={`justify-between ${className}`}
         >
           {preset && preset.name ? preset.name : "Load a preset..."}
-          <div className="flex gap-x-2">
-            <MagicWandIcon
-              onClick={(e) => {
+          <div className="flex items-center gap-x-2">
+            <div
+              onClick={async (e) => {
                 e.stopPropagation();
-                applyPreset(preset.changes);
+                const result = await runQueriesFromPreset(db, preset.queries);
+                if (result.success) {
+                  updateTables();
+                } else {
+                  toast.error("Failed to run queries, no changes committed", {
+                    description: result.error
+                  });
+                  console.error(
+                    "Failed to run queries, no changes committed:",
+                    result.error,
+                  );
+                }
               }}
-              className={cn({ invisible: !preset.name || !isReady })}
-            />
+              className={cn("text-muted-foreground border bg-muted px-1.5 rounded hover:text-foreground hover:border-foreground", { invisible: !preset.name || preset.queries.length === 0 })}
+            > 
+            Run
+            </div>
             <CaretSortIcon />
           </div>
         </Button>
@@ -109,20 +124,21 @@ export function SelectPreset({ className }: { className?: string }) {
                         const file = (e.target as HTMLInputElement).files?.[0];
                         if (!file) return;
 
-                        try {
-                          // Convert File to Uint8Array
-                          const arrayBuffer = await file.arrayBuffer();
-                          const buffer = new Uint8Array(arrayBuffer);
+                        const arrayBuffer = await file.arrayBuffer();
+                        const buffer = new Uint8Array(arrayBuffer);
 
-                          // Pass buffer instead of File
-                          const parsed = parsePreset(buffer);
-                          setPreset(parsed);
+                        const result = loadPresetFromFile(buffer);
+                        if (result.success) {
+                          setPreset(result.preset);
                           localStorage.setItem(
-                            `preset_${parsed.name}`,
-                            JSON.stringify(parsed, null, 2),
+                            `preset_${result.preset.name}`,
+                            JSON.stringify(result.preset, null, 2),
                           );
-                        } catch (error) {
-                          console.error("Error loading preset:", error);
+                        } else {
+                          toast.error("Failed to load preset", {
+                            description: result.error
+                          });
+                          console.error("Failed to load preset:", result.error);
                         }
                       };
                       input.click();
@@ -156,11 +172,12 @@ export function SelectPreset({ className }: { className?: string }) {
                         className="cursor-pointer opacity-0 group-hover:opacity-100"
                         onClick={(e) => {
                           e.stopPropagation();
-                          const encoder = new TextEncoder();
-                          const content = encoder.encode(
-                            JSON.stringify(p, null, 2),
+                          const content = JSON.stringify(p, null, 2);
+                          download(
+                            content,
+                            `${p.name || "preset"}`,
+                            "application/json",
                           );
-                          download(content, `${p.name || "preset"}.json`);
                         }}
                       />
                       <CheckIcon

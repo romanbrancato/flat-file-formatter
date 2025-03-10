@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Popover,
   PopoverTrigger,
@@ -5,54 +7,21 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { DialogAddField } from "@/components/dialog-add-field";
-import { DataProcessorContext } from "@/context/data-processor-context";
+import { DialogAddColumn } from "@/components/dialog-add-column";
 import { useContext } from "react";
-import { PresetContext } from "@/context/preset-context";
-import { DialogRemoveField } from "@/components/dialog-remove-field";
-import { DialogConditional } from "@/components/dialog-conditional";
-import { DialogEquation } from "@/components/dialog-equation";
-import { DialogReformat } from "@/components/dialog-reformat";
-import { cn, download } from "@/lib/utils";
-import { SelectPreset } from "@/components/select-preset";
-import { generateFileBuffers } from "@common/lib/parser-fns";
-import { DialogParserConfig } from "@/components/dialog-parser-config";
-import { DialogOutputConfig } from "@/components/dialog-output-config";
+import { PresetContext } from "@/context/preset";
+import { DialogDropColumn } from "@/components/dialog-drop-column";
+import { cn } from "@/lib/utils";
+import { PresetToolbar } from "@/components/preset-toolbar";
+import { DialogLoad } from "@/components/dialog-load";
+import { DialogOutput } from "@/components/dialog-output";
 import { GearIcon } from "@radix-ui/react-icons";
 import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
-import { DialogFixedConfig } from "@/components/dialog-fixed-config";
+import { DialogFixedConfig } from "./dialog-fixed-config";
+import { CommandShortcut } from "./ui/command";
 
 export function Toolbar() {
-  const { isReady, data, setParams } = useContext(DataProcessorContext);
   const { preset, setPreset, fixed, delimited } = useContext(PresetContext);
-
-  const handleFileOpen = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".txt, .csv";
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        const arrayBuffer = reader.result as ArrayBuffer;
-        const uint8Array = new Uint8Array(arrayBuffer);
-        setParams({
-          buffer: uint8Array,
-          config: preset.parser,
-        });
-      };
-      reader.onerror = (error) => console.error("Error reading file:", error);
-      reader.readAsArrayBuffer(file);
-    };
-    input.click();
-  };
-
-  const handleDownload = () => {
-    const buffers = generateFileBuffers(data, preset);
-    buffers?.forEach((buffer) => download(buffer.content, buffer.name));
-  };
 
   return (
     <div className="flex w-full justify-between border-y py-2">
@@ -70,70 +39,65 @@ export function Toolbar() {
           <PopoverContent className="min-w-[12rem] p-1" align="start">
             <div>
               <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm">
+              <DialogLoad>
                 <button
-                  onClick={handleFileOpen}
                   className="w-full cursor-default text-left"
                 >
                   Open...
                 </button>
-                <DialogParserConfig>
-                  <GearIcon className="invisible cursor-pointer group-hover:visible" />
-                </DialogParserConfig>
+                </DialogLoad>
+                <CommandShortcut>⌘O</CommandShortcut>
               </div>
               <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm [&:has(button:disabled)]:pointer-events-none [&:has(button:disabled)]:opacity-50">
+              <DialogOutput>
                 <button
-                  onClick={handleDownload}
-                  disabled={!isReady}
                   className="w-full cursor-default text-left disabled:cursor-not-allowed"
                 >
-                  Download
+                  Export...
                 </button>
-                <DialogOutputConfig>
-                  <GearIcon className="invisible cursor-pointer group-hover:visible" />
-                </DialogOutputConfig>
+                </DialogOutput>
               </div>
             </div>
           </PopoverContent>
         </Popover>
 
-        {/* Edit Menu */}
+        {/* Query Menu */}
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="ghost"
               className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground relative h-7 rounded-sm px-3 py-1"
-              disabled={!isReady}
             >
-              Edit
+              Query
             </Button>
           </PopoverTrigger>
           <PopoverContent className="min-w-[12rem] p-1" align="start">
             <div>
-              <DialogAddField>
+              <DialogAddColumn>
                 <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Add</button>
+                  <button className="w-full text-left">Add Column</button>
                 </div>
-              </DialogAddField>
-              <DialogRemoveField>
+              </DialogAddColumn>
+              <DialogDropColumn>
                 <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Remove</button>
+                  <button className="w-full text-left">Drop Column</button>
                 </div>
-              </DialogRemoveField>
-              <DialogConditional>
-                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Conditional</button>
-                </div>
-              </DialogConditional>
-              <DialogEquation>
-                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Equation</button>
-                </div>
-              </DialogEquation>
-              <DialogReformat>
-                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Reformat</button>
-                </div>
-              </DialogReformat>
+              </DialogDropColumn>
+              {/*<DialogConditional>*/}
+              {/*  <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">*/}
+              {/*    <button className="w-full text-left">Conditional</button>*/}
+              {/*  </div>*/}
+              {/*</DialogConditional>*/}
+              {/*<DialogEquation>*/}
+              {/*  <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">*/}
+              {/*    <button className="w-full text-left">Equation</button>*/}
+              {/*  </div>*/}
+              {/*</DialogEquation>*/}
+              {/*<DialogReformat>*/}
+              {/*  <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">*/}
+              {/*    <button className="w-full text-left">Reformat</button>*/}
+              {/*  </div>*/}
+              {/*</DialogReformat>*/}
             </div>
           </PopoverContent>
         </Popover>
@@ -144,7 +108,6 @@ export function Toolbar() {
             <Button
               variant="ghost"
               className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground relative h-7 rounded-sm px-3 py-1"
-              disabled={!isReady}
             >
               Format
             </Button>
@@ -192,7 +155,7 @@ export function Toolbar() {
         </Popover>
       </div>
 
-      <SelectPreset className="w-1/3" />
+      <PresetToolbar className="w-1/3" />
     </div>
   );
 }

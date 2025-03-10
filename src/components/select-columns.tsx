@@ -18,66 +18,63 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Field } from "@common/types/schemas";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 
-export function SelectMultiFields({
+type SelectedColumn = {
+  table: string;
+  name: string;
+};
+
+export function SelectColumns({
   label,
-  options,
+  tables,
   defaultValues,
   onValueChange,
 }: {
   label?: string;
-  options: Field[];
-  defaultValues: Field[];
-  onValueChange: (fields: Field[]) => void;
+  tables: Record<string, string[]>;
+  defaultValues: SelectedColumn[];
+  onValueChange: (fields: SelectedColumn[]) => void;
 }) {
-  const [selectedValues, setSelectedValues] = useState<Field[]>(defaultValues);
+  const [selectedValues, setSelectedValues] =
+    useState<SelectedColumn[]>(defaultValues);
 
-  const groupedOptions = options.reduce(
-    (acc, option) => {
-      acc[option.tag] = [...(acc[option.tag] || []), option];
-      return acc;
-    },
-    {} as Record<string, Field[]>,
-  );
-
-  const toggleOption = (option: Field) => {
+  const toggleOption = (table: string, name: string) => {
     const isSelected = selectedValues.some(
-      (selected) =>
-        selected.tag === option.tag && selected.name === option.name,
+      (selected) => selected.table === table && selected.name === name,
     );
 
     const newSelectedValues = isSelected
       ? selectedValues.filter(
-          (value) => !(value.tag === option.tag && value.name === option.name),
+          (value) => !(value.table === table && value.name === name),
         )
-      : [...selectedValues, option];
+      : [...selectedValues, { table, name }];
 
     setSelectedValues(newSelectedValues);
     onValueChange(newSelectedValues);
   };
 
-  const toggleGroup = (tag: string) => {
-    const groupOptions = groupedOptions[tag] || [];
-    const isAllSelected = groupOptions.every((option) =>
+  const toggleGroup = (table: string) => {
+    const tableColumns = tables[table] || [];
+    const isAllSelected = tableColumns.every((columnName) =>
       selectedValues.some(
-        (selected) =>
-          selected.tag === option.tag && selected.name === option.name,
+        (selected) => selected.table === table && selected.name === columnName,
       ),
     );
 
     const newSelectedValues = isAllSelected
-      ? selectedValues.filter((value) => value.tag !== tag)
+      ? selectedValues.filter((value) => value.table !== table)
       : [
           ...selectedValues,
-          ...groupOptions.filter(
-            (option) =>
-              !selectedValues.some(
-                (selected) =>
-                  selected.tag === option.tag && selected.name === option.name,
-              ),
-          ),
+          ...tableColumns
+            .filter(
+              (columnName) =>
+                !selectedValues.some(
+                  (selected) =>
+                    selected.table === table && selected.name === columnName,
+                ),
+            )
+            .map((columnName) => ({ table, name: columnName })),
         ];
 
     setSelectedValues(newSelectedValues);
@@ -102,9 +99,9 @@ export function SelectMultiFields({
                     {selectedValues.length} selected
                   </Badge>
                 ) : (
-                  selectedValues.map(({ tag, name }) => (
+                  selectedValues.map(({ table, name }) => (
                     <Badge
-                      key={`${tag}-${name}`}
+                      key={`${table}-${name}`}
                       variant="secondary"
                       className="rounded-sm px-1 font-normal"
                     >
@@ -123,39 +120,39 @@ export function SelectMultiFields({
           <CommandList>
             <ScrollArea>
               <ScrollAreaViewport className="max-h-[300px]">
-                <CommandEmpty>No fields found.</CommandEmpty>
-                {Object.entries(groupedOptions).map(([tag, options]) => (
+                <CommandEmpty>No tables found.</CommandEmpty>
+                {Object.entries(tables).map(([table, columnNames]) => (
                   <CommandGroup
-                    key={tag}
+                    key={table}
                     heading={
                       <div
                         className="group flex flex-row items-center justify-between hover:cursor-pointer"
-                        onClick={() => toggleGroup(tag)}
+                        onClick={() => toggleGroup(table)}
                       >
-                        {tag}
+                        {table}
                         <span className="invisible select-none group-hover:visible">
                           Toggle All
                         </span>
                       </div>
                     }
                   >
-                    {options.map((option) => {
+                    {columnNames.map((columnName) => {
                       const isSelected = selectedValues.some(
                         (selected) =>
-                          selected.tag === option.tag &&
-                          selected.name === option.name,
+                          selected.table === table &&
+                          selected.name === columnName,
                       );
                       return (
                         <CommandItem
-                          key={`${option.tag}-${option.name}`}
-                          onSelect={() => toggleOption(option)}
+                          key={`${table}-${columnName}`}
+                          onSelect={() => toggleOption(table, columnName)}
                         >
                           <div
                             className={`border-primary mr-2 flex items-center justify-center rounded-sm border ${isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
                           >
                             <CheckIcon />
                           </div>
-                          <span>{option.name}</span>
+                          <span>{columnName}</span>
                         </CommandItem>
                       );
                     })}
@@ -166,10 +163,13 @@ export function SelectMultiFields({
                     <CommandSeparator />
                     <CommandGroup>
                       <CommandItem
-                        onSelect={() => setSelectedValues([])}
+                        onSelect={() => {
+                          setSelectedValues([]);
+                          onValueChange([]);
+                        }}
                         className="justify-center text-center"
                       >
-                        Clear fields
+                        Clear
                       </CommandItem>
                     </CommandGroup>
                   </>
