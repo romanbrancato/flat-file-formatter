@@ -14,7 +14,7 @@ async function getExportQueryResults<T>(
 
   const promises = config.files.map(async (query) => {
     return {
-      name: query.name,
+      name: query.filename,
       res: await db.query<T>(query.query),
     };
   });
