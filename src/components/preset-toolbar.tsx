@@ -5,7 +5,6 @@ import {
   Cross2Icon,
   DownloadIcon,
   FilePlusIcon,
-  MagicWandIcon,
 } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -75,8 +74,8 @@ export function PresetToolbar({ className }: { className?: string }) {
           className={`justify-between ${className}`}
         >
           {preset && preset.name ? preset.name : "Load a preset..."}
-          <div className="flex gap-x-2">
-            <MagicWandIcon
+          <div className="flex items-center gap-x-2">
+            <div
               onClick={async (e) => {
                 e.stopPropagation();
                 const result = await runQueriesFromPreset(db, preset.queries);
@@ -92,8 +91,10 @@ export function PresetToolbar({ className }: { className?: string }) {
                   );
                 }
               }}
-              className={cn({ invisible: !preset.name || preset.queries.length === 0 })}
-            />
+              className={cn("text-muted-foreground border bg-muted px-1.5 rounded hover:text-foreground hover:border-foreground", { invisible: !preset.name || preset.queries.length === 0 })}
+            > 
+            Run
+            </div>
             <CaretSortIcon />
           </div>
         </Button>
