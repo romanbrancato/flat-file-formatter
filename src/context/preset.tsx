@@ -1,6 +1,6 @@
 "use client";
 import { createContext, ReactNode, useState, useMemo, useEffect } from "react";
-import { Preset, Delimited, Fixed } from "@common/types/schemas";
+import { Preset, Delimited, Fixed } from "@common/types/preset";
 
 const DEFAULTS = {
   delimited: { format: "delimited" as const, delimiter: "," },

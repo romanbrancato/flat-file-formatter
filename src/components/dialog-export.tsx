@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { PresetContext } from "@/context/preset";
-import { Export, ExportSchema } from "@common/types/schemas";
+import { Export, ExportSchema } from "@common/types/preset";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SqlTextArea } from "./sql-text-area";
 import { handleExport } from "@common/lib/export";
@@ -28,23 +28,7 @@ import { usePGlite } from "@electric-sql/pglite-react";
 import { download } from "@/lib/utils";
 import { toast } from "sonner";
 
-// SELECT 
-//   row_to_json(test1.*) AS row_data,  -- Converts the entire row to a JSON object
-//   1 AS sort_order,
-//   claimno
-// FROM test1
-
-// UNION ALL
-
-// SELECT 
-//   row_to_json(test2.*) AS row_data,  -- Converts the entire row to a JSON object
-//   2 AS sort_order,
-//   claimno
-// FROM test2
-
-// ORDER BY claimno, sort_order;
-
-export function DialogOutput({
+export function DialogExport({
   children,
 }: {
   children: React.ReactNode;
@@ -64,7 +48,7 @@ export function DialogOutput({
     });
 
   async function onSubmit(values: Export) {
-    const result = await handleExport(db, preset.export, preset.format);
+    const result = await handleExport(db, values, preset.format);
     if (result.success && result.files) {
       result.files.map((file) => {
         download(file.dataString, file.name, "text/plain");
@@ -84,7 +68,7 @@ export function DialogOutput({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="max-h-[75%] max-w-[50%] overflow-auto">
         <DialogHeader>
-          <DialogTitle>Export Config</DialogTitle>
+          <DialogTitle>Export</DialogTitle>
           <DialogDescription className="flex flex-row items-center justify-between">
             Define files and their contents to be exported. 
             <br />

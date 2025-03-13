@@ -1,4 +1,4 @@
-import { Export, Format } from "../types/schemas";
+import { Export, Format } from "../types/preset";
 import { PGliteWithLive } from "@electric-sql/pglite/live";
 import { Results } from "@electric-sql/pglite";
 import Papa from "papaparse";
@@ -24,40 +24,46 @@ async function getExportQueryResults<T>(
 }
 
 function formatExportQueryResults<T>(
-    results: { name: string; res: Results<T> }[],
-    format: Format,
-  ): { name: string; dataString: string }[] {
-    const formattedData: { name: string; dataString: string }[] = [];
-    
-    results.forEach((result) => {
-      // Extract the row_data from each row object
-      const dataToFormat = result.res.rows.map((row: any) => row.row_data);
-  
-      if (format.format === "delimited") {
-        const csvString = Papa.unparse(dataToFormat, { // Use the extracted row_data
+  results: { name: string; res: Results<T> }[],
+  format: Format,
+): { name: string; dataString: string }[] {
+  const formattedData: { name: string; dataString: string }[] = [];
+
+  results.forEach((result) => {
+    const rows = result.res.rows.map((row: any) => row.row_data);
+
+    if (format.format === "delimited") {
+      // Process each row individually and join with CRLF
+      const csvLines: string[] = [];
+      rows.forEach(row => {
+        const csvLine = Papa.unparse([row], {
+          header: false,
           delimiter: format.delimiter,
           skipEmptyLines: true,
         });
-        formattedData.push({ name: result.name, dataString: csvString });
-      } else if (format.format === "fixed") {
-        const fixedString = stringify(dataToFormat, { // Use the extracted row_data
-          pad: format.pad,
-          fields: Object.entries(format.widths[result.name] || {}).map(([field, width]) => {
-            if (!width || width <= 0)
-              throw new Error(`Invalid width for ${field}`);
-            return {
-              property: field,
-              width: width,
-              align: format.align,
-            };
-          }),
-        });
-        formattedData.push({ name: result.name, dataString: fixedString });
-      }
-    });
-  
-    return formattedData;
-  }
+        csvLines.push(csvLine);
+      });
+      const csvString = csvLines.join('\r\n');
+      formattedData.push({ name: result.name, dataString: csvString });
+
+    } else if (format.format === "fixed") {
+      const fixedString = stringify(rows, {
+        pad: format.pad,
+        fields: Object.entries(format.widths[result.name] || {}).map(([field, width]) => {
+          if (!width || width <= 0)
+            throw new Error(`Invalid width for ${field}`);
+          return {
+            property: field,
+            width: width,
+            align: format.align,
+          };
+        }),
+      });
+      formattedData.push({ name: result.name, dataString: fixedString });
+    }
+  });
+  return formattedData;
+}
 
 export async function handleExport(
   db: PGliteWithLive,

@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Fixed, FixedSchema } from "@common/types/schemas";
+import { Fixed, FixedSchema } from "@common/types/preset";
 import { Selector } from "./selector";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 

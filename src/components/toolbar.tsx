@@ -14,7 +14,7 @@ import { DialogDropColumn } from "@/components/dialog-drop-column";
 import { cn } from "@/lib/utils";
 import { PresetToolbar } from "@/components/preset-toolbar";
 import { DialogLoad } from "@/components/dialog-load";
-import { DialogOutput } from "@/components/dialog-output";
+import { DialogExport } from "@/components/dialog-export";
 import { GearIcon } from "@radix-ui/react-icons";
 import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
 import { DialogFixedConfig } from "./dialog-fixed-config";
@@ -49,13 +49,13 @@ export function Toolbar() {
                 <CommandShortcut>⌘O</CommandShortcut>
               </div>
               <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm [&:has(button:disabled)]:pointer-events-none [&:has(button:disabled)]:opacity-50">
-              <DialogOutput>
+              <DialogExport>
                 <button
                   className="w-full cursor-default text-left disabled:cursor-not-allowed"
                 >
                   Export...
                 </button>
-                </DialogOutput>
+                </DialogExport>
               </div>
             </div>
           </PopoverContent>

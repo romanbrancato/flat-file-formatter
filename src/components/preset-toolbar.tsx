@@ -25,7 +25,7 @@ import { useContext, useEffect, useState } from "react";
 import { PresetContext } from "@/context/preset";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
 import { cn, download } from "@/lib/utils";
-import { Preset } from "@common/types/schemas";
+import { Preset } from "@common/types/preset";
 import { DialogSavePreset } from "@/components/dialog-save-preset";
 import { loadPresetFromFile, runQueriesFromPreset } from "@common/lib/preset";
 import { usePGlite } from "@electric-sql/pglite-react";
@@ -92,7 +92,7 @@ export function PresetToolbar({ className }: { className?: string }) {
                 }
               }}
               className={cn("text-muted-foreground border bg-muted px-1.5 rounded hover:text-foreground hover:border-foreground", { invisible: !preset.name || preset.queries.length === 0 })}
-            > 
+            >
             Run
             </div>
             <CaretSortIcon />

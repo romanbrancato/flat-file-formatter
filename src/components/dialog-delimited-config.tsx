@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
-import { Delimited, DelimitedSchema } from "@common/types/schemas";
+import { Delimited, DelimitedSchema } from "@common/types/preset";
 
 export function DialogDelimitedConfig({
                                         children

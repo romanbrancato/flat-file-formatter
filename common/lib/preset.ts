@@ -1,4 +1,4 @@
-import { Preset, PresetSchema } from "@common/types/schemas";
+import { Preset, PresetSchema } from "@common/types/preset";
 import { PGliteWithLive } from "@electric-sql/pglite/live";
 
 export function loadPresetFromFile(
@@ -21,11 +21,16 @@ export function loadPresetFromFile(
 export async function runQueriesFromPreset(
   db: PGliteWithLive,
   queries: string[],
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; failedQueryIndex?: number }> {
   try {
     await db.transaction(async (tx) => {
-      for (const query of queries) {
-        await tx.query(query);
+      for (let i = 0; i < queries.length; i++) {
+        try {
+          await tx.query(queries[i]);
+        } catch (error) {
+          // Attach the index to the error and rethrow
+          throw new Error(`Query at index ${i} failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
       }
     });
 
@@ -33,7 +38,9 @@ export async function runQueriesFromPreset(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error occurred",
+      error: error instanceof Error ? error.message : "Unknown error occurred"
     };
   }
 }
+
+

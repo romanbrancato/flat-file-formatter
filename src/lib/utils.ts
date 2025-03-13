@@ -20,4 +20,10 @@ export function download(content: string, filename: string, type: string) {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
+export function minifySQL(query: string): string {
+  return query
+    .replace(/\s+/g, ' ') // Replace multiple spaces and newlines with a single space
+    .trim(); // Remove leading and trailing spaces
+}
+
 

@@ -32,7 +32,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { LoadConfig, LoadConfigSchema } from "@common/types/schemas";
+import { LoadConfig, LoadConfigSchema } from "@common/types/preset";
 import { PresetContext } from "@/context/preset";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { Selector } from "@/components/selector";
@@ -98,7 +98,6 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
       reader.onload = async () => {
         const arrayBuffer = reader.result as ArrayBuffer;
         const uint8Array = new Uint8Array(arrayBuffer);
-        console.log(values);
         const result = await loadDataIntoTable(uint8Array, db, values);
         if (result.success) {
           updateTables();

@@ -39,7 +39,6 @@ export const TablesProvider = ({ children }: { children: ReactNode }) => {
         SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public';
       `);
       const tableNames = tablesRes.rows.map((row: any) => row.tablename);
-      
       // Fetch columns for each table
       const tablesData: Record<string, string[]> = {};
       
@@ -51,13 +50,13 @@ export const TablesProvider = ({ children }: { children: ReactNode }) => {
             FROM
               pg_catalog.pg_attribute
             WHERE
-              attrelid = 'public.${tableName}'::regclass
+              attrelid = 'public."${tableName}"'::regclass
               AND attnum > 0
               AND NOT attisdropped
             ORDER BY
               attnum;
           `);
-          
+
           tablesData[tableName] = columnsRes.rows.map((row: any) => row.column_name);
         } catch (error) {
           toast.error(`Error fetching columns for table ${tableName}`, {

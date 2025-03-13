@@ -14,6 +14,7 @@ import { useTheme } from "next-themes";
 import { useTerminal } from "@/context/terminal";
 import { PresetContext } from "@/context/preset";
 import { useTables } from "@/context/tables";
+import { minifySQL } from "@/lib/utils";
 
 const baseKeymap = defaultKeymap.filter(({ key }) => key !== "Enter");
 const lightTheme = githubLight;
@@ -50,7 +51,7 @@ export function Terminal() {
   const handleQuery = async (query: string) => {
     const response = await runQuery(query, pg);
     if (!response.error) {
-      setPreset((prev) => ({ ...prev, queries: [...prev.queries, query] }));
+      setPreset((prev) => ({ ...prev, queries: [...prev.queries, minifySQL(query)] }));
       updateTables();
     }
     setOutput(prev => [...prev, response]);

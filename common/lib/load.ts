@@ -1,4 +1,4 @@
-import { LoadConfig } from "@common/types/schemas";
+import { LoadConfig } from "@common/types/preset";
 import { Transaction } from "@electric-sql/pglite";
 import { PGliteWithLive } from "@electric-sql/pglite/live";
 import { parse } from "@evologi/fixed-width";
@@ -44,7 +44,7 @@ async function createAndPopulateTable(
   // Create table with appropriate schema
   await tx.query(`
     CREATE TABLE "${tableName}" (
-      ${fields.map(f => `"${f}" TEXT`).join(", ")}
+      ${fields.map(f => `"${f}" VARCHAR`).join(", ")}
     )
   `);
   

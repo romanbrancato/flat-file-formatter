@@ -20,7 +20,7 @@ export function DbProvider({
       debug: 0,
     });
     setPg(pglite);
-    initFunctions(pglite);
+    await initFunctions(pglite);
   };
 
   useEffect(() => {

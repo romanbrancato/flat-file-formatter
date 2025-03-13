@@ -47,7 +47,7 @@ export const TerminalTable = ({ result }: { result: Results }) => {
               {row.map((value, j) => (
                 <td
                   key={j}
-                  className={`${cellStyle(value)} max-w-[400px] truncate`}
+                  className={`${cellStyle(value)} max-w-full truncate`}
                 >
                   {formatValue(value)}
                 </td>

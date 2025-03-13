@@ -1,8 +1,9 @@
 import { PGliteWithLive } from "@electric-sql/pglite/live";
 
 export async function initFunctions(db: PGliteWithLive) {
+  // Overpunch Extraction Function
   db.query(
-`CREATE OR REPLACE FUNCTION extract_overpunch(raw TEXT, decimals INT DEFAULT 2)
+    `CREATE OR REPLACE FUNCTION extract_overpunch(raw TEXT, decimals INT DEFAULT 2)
 RETURNS NUMERIC AS $$
 DECLARE
     length INT;
@@ -67,6 +68,6 @@ BEGIN
     -- Return the numeric value
     RETURN (sign || core || cent)::NUMERIC;
 END;
-$$ LANGUAGE plpgsql;`,
+$$ LANGUAGE plpgsql;`
   );
 }
