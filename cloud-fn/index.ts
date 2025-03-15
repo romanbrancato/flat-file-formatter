@@ -1,8 +1,7 @@
 import {Storage} from "@google-cloud/storage";
 import {BigQuery} from "@google-cloud/bigquery";
-import {generateFileBuffers, parseBuffer, parsePreset} from "./common/lib/parser-fns";
-import {handlePreset} from "./common/lib/data-fns";
 import {HttpFunction} from "@google-cloud/functions-framework";
+import {loadPresetFromFile} from "./common/lib/preset";
 
 interface RequestBody {
     query: string;
@@ -72,7 +71,7 @@ export const bqExport: HttpFunction = async (req, res) => {
 
         // Load preset
         const [presetFile] = await storage.bucket(presetBucket).file(`${presetName}.json`).download();
-        const preset = parsePreset(presetFile);
+        const preset = loadPresetFromFile(presetFile);
 
         // Process data pipeline
         const prefix = await exportQuery(query);
