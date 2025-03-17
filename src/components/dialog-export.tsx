@@ -25,7 +25,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SqlTextArea } from "./sql-text-area";
 import { handleExport } from "@common/lib/export";
 import { usePGlite } from "@electric-sql/pglite-react";
-import { download } from "@/lib/utils";
+import { download, minifySQL } from "@/lib/utils";
 import { toast } from "sonner";
 
 export function DialogExport({
@@ -47,21 +47,31 @@ export function DialogExport({
     control: form.control
     });
 
-  async function onSubmit(values: Export) {
-    const result = await handleExport(db, values, preset.format);
-    if (result.success && result.files) {
-      result.files.map((file) => {
-        download(file.dataString, file.name, "text/plain");
-      });
-      setPreset((prev) => ({ ...prev, export: values }));
-      setOpen(false);
-    } else {
-      toast.error("Failed to download file", {
-        description: result.error,
-      });
-      console.error("Failed download:", result.error);
+    async function onSubmit(values: Export) {
+      const minified = {
+        ...values,
+        files: values.files.map(file => ({
+          ...file,
+          query: minifySQL(file.query)
+        }))
+      };
+      
+      const result = await handleExport(db, minified, preset.format);
+      
+      if (result.success && result.files) {
+        result.files.map((file) => {
+          download(file.dataString, file.name, "text/plain");
+        });
+        
+        setPreset((prev) => ({ ...prev, export: minified }));
+        setOpen(false);
+      } else {
+        toast.error("Failed to download file", {
+          description: result.error,
+        });
+        console.error("Failed download:", result.error);
+      }
     }
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -136,12 +136,13 @@ export function Terminal() {
 
   return (
     <div className="flex h-full w-full flex-col border text-xs">
-      <div className="flex-1 overflow-y-auto border-b p-2" ref={outputRef}>
+      <div className="flex-1 shrink overflow-y-auto border-b p-2" ref={outputRef}>
         {loading && <div className="text-border">Loading...</div>}
         {output.map((response, i) => (
           <TerminalResponse key={`${i}-${response.time}`} response={response} />
         ))}
       </div>
+      <div className="overflow-y-auto">
       <ContextMenu>
         <ContextMenuTrigger>
           <CodeMirror
@@ -164,6 +165,7 @@ export function Terminal() {
         </ContextMenuTrigger>
         <TerminalContextMenu />
       </ContextMenu>
+      </div>
     </div>
   );
 }
