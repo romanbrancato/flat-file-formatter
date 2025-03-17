@@ -76,6 +76,7 @@ function formatExportQueryResults<T>(
         const widthsForRecord = format.widths[matchedWidthKey];
         const fixedLine = stringify([row], {
           pad: format.pad,
+          eol: "\r\n",
           fields: Object.entries(widthsForRecord!).map(([field, width]) => {
             if (typeof width !== "number" || width <= 0) {
               throw new Error(`Invalid width for ${field}`);
@@ -91,7 +92,7 @@ function formatExportQueryResults<T>(
         fixedLines.push(fixedLine);
       });
 
-      const fixedString = fixedLines.join("\n").replace(/\n/g, "\r\n");
+      const fixedString = fixedLines.join("");
       formattedData.push({ name: result.name, dataString: fixedString });
     }
   });
