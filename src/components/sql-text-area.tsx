@@ -48,7 +48,7 @@ export function SqlTextArea({
   ], [pg, schema]);
 
   return (
-    <div className="flex flex-col h-full w-full border text-xs">
+    <div className="border">
       <CodeMirror
         value={value}
         onChange={onChange}

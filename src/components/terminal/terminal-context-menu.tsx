@@ -1,8 +1,8 @@
 import { useTables } from "@/context/tables";
-import { ContextMenuContent, ContextMenuItem, ContextMenuShortcut, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger } from "../ui/context-menu";
+import { ContextMenuContent, ContextMenuItem, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger } from "../ui/context-menu";
 import { toast } from "sonner";
 import { useTerminal } from "@/context/terminal";
-import { format, postgresql } from "sql-formatter";
+import { format } from "sql-formatter";
 
 export function TerminalContextMenu() {
   const {tables} = useTables();

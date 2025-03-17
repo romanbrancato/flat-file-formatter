@@ -27,6 +27,7 @@ import { handleExport } from "@common/lib/export";
 import { usePGlite } from "@electric-sql/pglite-react";
 import { download, minifySQL } from "@/lib/utils";
 import { toast } from "sonner";
+import { format } from "sql-formatter";
 
 export function DialogExport({
   children,
@@ -55,14 +56,14 @@ export function DialogExport({
           query: minifySQL(file.query)
         }))
       };
-      
+
       const result = await handleExport(db, minified, preset.format);
-      
+
       if (result.success && result.files) {
         result.files.map((file) => {
           download(file.dataString, file.name, "text/plain");
         });
-        
+
         setPreset((prev) => ({ ...prev, export: minified }));
         setOpen(false);
       } else {
@@ -80,7 +81,7 @@ export function DialogExport({
         <DialogHeader>
           <DialogTitle>Export</DialogTitle>
           <DialogDescription className="flex flex-row items-center justify-between">
-            Define files and their contents to be exported. 
+            Define files and their contents to be exported.
             <br />
             Each query must return a column named [row_data] where each row is a JSON object.
           </DialogDescription>
@@ -98,12 +99,12 @@ export function DialogExport({
                     className="hover:border-muted-foreground mr-4 flex border p-4"
                     key={field.id}
                   >
-                    <div className="flex-1 flex-row space-y-1">
+                    <div className="flex-1 space-y-1">
                       <FormField
                         control={form.control}
                         name={`files.${index}.filename`}
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="sticky top-1 z-10 bg-background">
                             <FormControl>
                               <FloatingLabelInput
                                 defaultValue={field.value}
@@ -122,7 +123,7 @@ export function DialogExport({
                           <FormItem>
                             <FormControl>
                               <SqlTextArea
-                                value={field.value}
+                                value={format(field.value, {language: "postgresql"})}
                                 onChange={field.onChange}
                               />
                             </FormControl>

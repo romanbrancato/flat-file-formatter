@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { PresetContext } from "@/context/preset";
 import {
   Form,
@@ -41,10 +41,10 @@ export function DialogFixedConfig({ children }: { children: React.ReactNode }) {
   });
 
   function onSubmit(values: Fixed) {
+    console.log(values)
     setFixed({ ...values });
     setOpen(false);
   }
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -138,7 +138,6 @@ function TableAccordionItem({
   columns: string[];
   form: any;
 }) {
-  const [inheritedTable, setInheritedTable] = useState<string | undefined>(undefined);
   const { control, setValue } = form;
   
   const widths = useWatch({
@@ -158,65 +157,46 @@ function TableAccordionItem({
 
   return (
     <AccordionItem value={table}>
-      <AccordionTrigger className="flex gap-x-2 text-xs font-normal">
-        {table}
-        <span className="ml-auto">{tableWidthsSum}</span>
-      </AccordionTrigger>
-      <AccordionContent>
-        <Selector
-          label={"Inherit from"}
-          selected={inheritedTable}
-          options={
-            Object.keys(widths || {})
-              .filter(t => t !== table)
-              .map((tableName) => ({
-                label: tableName,
-                value: tableName
-              }))
-          }
-          onSelect={(selectedTable: string) => {
-            columns.forEach((columnName) => {
-              setValue(
-                `widths.${table}.${columnName}`,
-                widths?.[selectedTable]?.[columnName] || 0
-              );
-            });
-            setInheritedTable(selectedTable);
-          }}
-        />
-        {columns.map((columnName) => (
-          <FormField
-            control={control}
-            name={`widths.${table}.${columnName}`}
-            key={`${table}.${columnName}`}
-            render={({ field }) => (
-              <FormItem className="mr-3 mt-2">
-                <FormControl>
-                  <div className="relative">
+      <div className="sticky top-0 z-10 bg-background">
+        <AccordionTrigger className="text-xs">
+          {table}
+          <span className="ml-auto mr-2">{tableWidthsSum}</span>
+        </AccordionTrigger>
+      </div>
+        <AccordionContent>
+          {columns.map((columnName) => (
+            <FormField
+              control={control}
+              name={`widths.${table}.${columnName}`}
+              key={`${table}.${columnName}`}
+              render={({ field }) => (
+                <FormItem className="mr-3 mt-2">
+                  <FormControl>
+                    <div className="relative">
                     <span
                       className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-xs font-normal">
                       {columnName}
                     </span>
-                    <Input
-                      className="text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                      defaultValue={field.value || 0}
-                      onWheel={(e) => {
-                        e.target instanceof HTMLElement
-                          ? e.target.blur()
-                          : null;
-                      }}
-                      onBlur={(e) => field.onChange(e.target.value)}
-                      type="number"
-                      min={0}
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ))}
-      </AccordionContent>
+                      <Input
+                        className="text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                        defaultValue={field.value || 0}
+                        onWheel={(e) => {
+                          e.target instanceof HTMLElement
+                            ? e.target.blur()
+                            : null;
+                        }}
+                        onBlur={(e) => field.onChange(e.target.value)}
+                        type="number"
+                        min={0}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ))}
+        </AccordionContent>
     </AccordionItem>
-  );
+);
 }

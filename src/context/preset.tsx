@@ -50,6 +50,18 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [preset.format]);
 
+  useEffect(() => {
+    setPreset((prev) => {
+      return { ...prev, format: delimited };
+    });
+  }, [delimited]);
+
+  useEffect(() => {
+    setPreset((prev) => {
+      return { ...prev, format: fixed };
+    });
+  }, [fixed]);
+
 
   const contextValue = useMemo(() => ({
     preset,

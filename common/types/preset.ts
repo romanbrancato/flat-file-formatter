@@ -43,7 +43,7 @@ export const FixedSchema = z.object({
   format: z.literal("fixed"),
   pad: z.string(),
   align: z.enum(["left", "right"]),
-  widths: z.record(z.record(z.coerce.number())),
+  widths: z.record(z.record(z.coerce.number().optional()).optional()),
 });
 
 export type Fixed = z.infer<typeof FixedSchema>;
