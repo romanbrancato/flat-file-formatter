@@ -33,7 +33,6 @@ function formatExportQueryResults<T>(
     const rows = result.res.rows.map((row: any) => row.row_data);
 
     if (format.format === "delimited") {
-      // Existing delimited processing code remains unchanged
       const csvLines: string[] = [];
       rows.forEach((row) => {
         const csvLine = Papa.unparse([row], {
@@ -92,7 +91,7 @@ function formatExportQueryResults<T>(
         fixedLines.push(fixedLine);
       });
 
-      const fixedString = fixedLines.join("\r\n");
+      const fixedString = fixedLines.join("\n").replace(/\n/g, "\r\n");
       formattedData.push({ name: result.name, dataString: fixedString });
     }
   });
