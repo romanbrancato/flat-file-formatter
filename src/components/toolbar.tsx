@@ -83,26 +83,11 @@ export function Toolbar() {
                   <button className="w-full text-left">Drop Column</button>
                 </div>
               </DialogDropColumn>
-              {/*<DialogConditional>*/}
-              {/*  <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">*/}
-              {/*    <button className="w-full text-left">Conditional</button>*/}
-              {/*  </div>*/}
-              {/*</DialogConditional>*/}
-              {/*<DialogEquation>*/}
-              {/*  <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">*/}
-              {/*    <button className="w-full text-left">Equation</button>*/}
-              {/*  </div>*/}
-              {/*</DialogEquation>*/}
-              {/*<DialogReformat>*/}
-              {/*  <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">*/}
-              {/*    <button className="w-full text-left">Reformat</button>*/}
-              {/*  </div>*/}
-              {/*</DialogReformat>*/}
             </div>
           </PopoverContent>
         </Popover>
 
-        {/* Format Menu - Updated */}
+        {/* Format Menu */}
         <Popover>
           <PopoverTrigger asChild>
             <Button

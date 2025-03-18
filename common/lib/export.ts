@@ -48,22 +48,19 @@ function formatExportQueryResults<T>(
       const fixedLines: string[] = [];
 
       rows.forEach((row) => {
-        const rowKeys = new Set(Object.keys(row));
+        const sortedRowKeys = Object.keys(row).sort().join(',');
         let matchedWidthKey: string | null = null;
 
-        // Find exact matching width configuration for the row. This is a hack solution, preferably I should just ask for an "origin_table" column along with the "row_data" column
+        // Find exact matching width configuration for the row
         for (const [widthKey, widthConfig] of Object.entries(format.widths)) {
           if (!widthConfig) continue;
 
-          const configKeys = new Set(Object.keys(widthConfig));
+          const sortedConfigKeys = Object.keys(widthConfig).sort().join(',');
 
-          // Check for exact match - same keys in both sets
-          if (rowKeys.size === configKeys.size) {
-            const allKeysMatch = [...rowKeys].every(key => configKeys.has(key));
-            if (allKeysMatch) {
-              matchedWidthKey = widthKey;
-              break; // Found exact match, no need to continue
-            }
+          // String comparison to check if the row's columns match the width configuration
+          if (sortedRowKeys === sortedConfigKeys) {
+            matchedWidthKey = widthKey;
+            break; // Found exact match, no need to continue
           }
         }
 

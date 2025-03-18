@@ -2,8 +2,8 @@ import { PGliteWithLive } from "@electric-sql/pglite/live";
 
 export async function initFunctions(db: PGliteWithLive) {
   // Overpunch Extraction Function
-  db.query(
-    `CREATE OR REPLACE FUNCTION extract_overpunch(raw TEXT, decimals INT DEFAULT 2)
+  await db.query(`
+CREATE OR REPLACE FUNCTION extract_overpunch(raw TEXT, decimals INT DEFAULT 2)
 RETURNS NUMERIC AS $$
 DECLARE
     length INT;

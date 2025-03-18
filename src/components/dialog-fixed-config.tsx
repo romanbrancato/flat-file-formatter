@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { PresetContext } from "@/context/preset";
 import {
   Form,
@@ -138,13 +138,7 @@ function TableAccordionItem({
   columns: string[];
   form: any;
 }) {
-  const { control, setValue } = form;
-  
-  const widths = useWatch({
-    control,
-    name: "widths",
-    defaultValue: {}
-  });
+  const { control} = form;
 
   // Calculate the sum of widths for this table
   const tableWidthsSum = Object.values(
