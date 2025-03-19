@@ -33,17 +33,14 @@ function formatExportQueryResults<T>(
     const rows = result.res.rows.map((row: any) => row.row_data);
 
     if (format.format === "delimited") {
-      const csvLines: string[] = [];
-      rows.forEach((row) => {
-        const csvLine = Papa.unparse([row], {
-          header: false,
+        const csvString = Papa.unparse(rows, {
+          header: true,
+          newline: "\r\n",
           delimiter: format.delimiter,
           skipEmptyLines: true
         });
-        csvLines.push(csvLine);
-      });
-      const csvString = csvLines.join("\r\n");
       formattedData.push({ name: result.name, dataString: csvString });
+      
     } else if (format.format === "fixed") {
       const fixedLines: string[] = [];
 

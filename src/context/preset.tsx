@@ -1,5 +1,5 @@
 "use client";
-import { createContext, ReactNode, useState, useMemo, useEffect } from "react";
+import { createContext, ReactNode, useState, useEffect } from "react";
 import { Preset, Delimited, Fixed } from "@common/types/preset";
 
 const DEFAULTS = {
@@ -52,28 +52,23 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     setPreset((prev) => {
-      return { ...prev, format: delimited };
+      if (prev.format.format === "delimited") {
+        return { ...prev, format: delimited };
+      } else {
+        return { ...prev, format: fixed };
+      }
     });
-  }, [delimited]);
-
-  useEffect(() => {
-    setPreset((prev) => {
-      return { ...prev, format: fixed };
-    });
-  }, [fixed]);
-
-
-  const contextValue = useMemo(() => ({
-    preset,
-    setPreset,
-    delimited,
-    setDelimited,
-    fixed,
-    setFixed,
-  }), [preset, delimited, fixed]);
+  }, [delimited, fixed]);
 
   return (
-    <PresetContext.Provider value={contextValue}>
+    <PresetContext.Provider value={{
+      preset,
+      setPreset,
+      delimited,
+      setDelimited,
+      fixed,
+      setFixed,
+    }}>
       {children}
     </PresetContext.Provider>
   );
