@@ -14,7 +14,7 @@ function skipRows(dataString: string, skipRows: string): string {
       const start = parseInt(startStr), end = parseInt(endStr);
       const startIndex = start < 0 ? lines.length + start : start;
       const endIndex = end < 0 ? lines.length + end : end;
-      
+
       for (let i = Math.min(startIndex, endIndex); i <= Math.max(startIndex, endIndex); i++) {
         rowsToSkip.add(i);
       }
@@ -34,26 +34,18 @@ async function createAndPopulateTable(
   tx: Transaction,
   tableName: string,
   fields: string[],
-  data: any[],
-  primaryKey?: string
+  data: any[]
 ): Promise<void> {
 
   // Drop table if it already exists
   await tx.query(`DROP TABLE IF EXISTS "${tableName}"`);
-  
+
   // Create table with appropriate schema
   await tx.query(`
     CREATE TABLE "${tableName}" (
       ${fields.map(f => `"${f}" VARCHAR`).join(", ")}
     )
   `);
-  
-  if (primaryKey) {
-    await tx.query(`
-      ALTER TABLE "${tableName}"
-      ADD PRIMARY KEY ("${primaryKey}")
-    `);
-  }
 
   // Insert data
   for (const row of data) {
@@ -81,48 +73,47 @@ export async function loadDataIntoTable(
   try {
     const dataString = new TextDecoder().decode(fileData);
     const processedString = config.skipRows ? skipRows(dataString, config.skipRows) : dataString;
-    const primaryKey = config.primaryKey;
-    
+
     let data: any[] = [];
     let fields: string[] = [];
-    
+
     // Parse data based on format
     if (config.format === "delimited") {
       const result = Papa.parse(processedString, {
         header: true,
         skipEmptyLines: true,
         delimiter: config.delimiter,
-        transform: value => value.trim(),
+        transform: value => value.trim()
       });
-      
+
       if (result.errors.length > 0) {
         throw new Error(`Parsing error: ${result.errors[0].message}`);
       }
-      
+
       data = result.data;
       fields = result.meta.fields || [];
-      
+
     } else if (config.format === "fixed") {
       data = parse(processedString, config.widths);
       fields = config.widths.fields.map(f => f.property);
-      
+
     } else {
       throw new Error(`Unsupported format`);
     }
-    
+
     if (!data.length) throw new Error("No data found in file");
-    
+
     // Wrap operations in a transaction
     await db.transaction(async (tx) => {
-      await createAndPopulateTable(tx, config.tablename, fields, data, primaryKey);
+      await createAndPopulateTable(tx, config.tablename, fields, data);
     });
-    
+
     return { success: true };
-    
+
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error occurred",
+      error: error instanceof Error ? error.message : "Unknown error occurred"
     };
   }
 }

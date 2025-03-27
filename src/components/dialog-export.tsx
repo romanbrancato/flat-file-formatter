@@ -1,14 +1,3 @@
-import { useFieldArray, useForm } from "react-hook-form";
-import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
-import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
 import { useContext, useState } from "react";
 import {
   Dialog,
@@ -16,63 +5,46 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from "@/components/ui/dialog";
-import { FloatingLabelInput } from "@/components/ui/floating-label-input";
+import { Button } from "@/components/ui/button";
 import { PresetContext } from "@/context/preset";
-import { Export, ExportSchema } from "@common/types/preset";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { SqlTextArea } from "./sql-text-area";
-import { handleExport } from "@common/lib/export";
 import { usePGlite } from "@electric-sql/pglite-react";
+import { handleExport } from "@common/lib/export";
 import { download, minifySQL } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "sql-formatter";
 
 export function DialogExport({
-  children,
-}: {
+                               children
+                             }: {
   children: React.ReactNode;
 }) {
   const db = usePGlite();
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState(format(preset.export, { language: "postgresql" }) || "");
 
-  const form = useForm<Export>({
-    resolver: zodResolver(ExportSchema),
-    defaultValues: { ...preset.export },
-  });
+  const onSubmit = async () => {
+    const minifiedQuery = minifySQL(query);
 
-  const { fields, append, remove } = useFieldArray({
-    name: `files`,
-    control: form.control
-    });
+    const result = await handleExport(db, minifiedQuery, preset.format);
 
-    async function onSubmit(values: Export) {
-      const minified = {
-        ...values,
-        files: values.files.map(file => ({
-          ...file,
-          query: minifySQL(file.query)
-        }))
-      };
+    if (result.success && result.files) {
+      result.files.forEach((file) => {
+        download(file.dataString, file.name, "text/plain");
+      });
 
-      const result = await handleExport(db, minified, preset.format);
-
-      if (result.success && result.files) {
-        result.files.map((file) => {
-          download(file.dataString, file.name, "text/plain");
-        });
-
-        setPreset((prev) => ({ ...prev, export: minified }));
-        setOpen(false);
-      } else {
-        toast.error("Failed to download file", {
-          description: result.error,
-        });
-        console.error("Failed download:", result.error);
-      }
+      setPreset((prev) => ({ ...prev, export: minifiedQuery }));
+      setOpen(false);
+    } else {
+      toast.error("Failed to download file", {
+        description: result.error
+      });
+      console.error("Failed download:", result.error);
     }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -81,85 +53,20 @@ export function DialogExport({
         <DialogHeader>
           <DialogTitle>Export</DialogTitle>
           <DialogDescription className="flex flex-row items-center justify-between">
-            Define files and their contents to be exported.
-            <br />
-            Each query must return a column named [row_data] where each row is a JSON object.
+            Query result must return a column named [filename] and a column named [data] containing a JSON object.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-y-1"
-          >
-            <ScrollArea>
-              <ScrollAreaViewport className="max-h-[400px]">
-              <div className="flex flex-col gap-y-1">
-                {fields.map((field, index) => (
-                  <div
-                    className="hover:border-muted-foreground mr-4 flex border p-4"
-                    key={field.id}
-                  >
-                    <div className="flex-1 space-y-1">
-                      <FormField
-                        control={form.control}
-                        name={`files.${index}.filename`}
-                        render={({ field }) => (
-                          <FormItem className="sticky top-1 z-10 bg-background">
-                            <FormControl>
-                              <FloatingLabelInput
-                                defaultValue={field.value}
-                                label="File Name"
-                                onBlur={(e) => field.onChange(e)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`files.${index}.query`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <SqlTextArea
-                                value={format(field.value, {language: "postgresql"})}
-                                onChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <Cross2Icon
-                      className="hover:text-destructive ml-auto opacity-70"
-                      onClick={() => remove(index)}
-                    />
-                  </div>
-                ))}
-                  </div>
-              </ScrollAreaViewport>
-            </ScrollArea>
-            <div className="flex flex-row content-center justify-between">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-1/3 border-dashed"
-                onClick={(event) => {
-                  event.preventDefault();
-                  append({ filename: "", query: ""});
-                }}
-              >
-                <PlusCircledIcon className="mr-2" />
-                Add File
-              </Button>
-              <Button type="submit" className="w-1/3">
-                Export
-              </Button>
-            </div>
-          </form>
-        </Form>
+
+        <SqlTextArea
+          value={query}
+          onChange={(e) => setQuery(e)}
+        />
+        <Button
+          onClick={onSubmit}
+          className="w-1/2 ml-auto"
+        >
+          Export
+        </Button>
       </DialogContent>
     </Dialog>
   );

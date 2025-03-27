@@ -1,102 +1,84 @@
-import { Export, Format } from "../types/preset";
+import { Format } from "../types/preset";
 import { PGliteWithLive } from "@electric-sql/pglite/live";
 import { Results } from "@electric-sql/pglite";
 import Papa from "papaparse";
 import { stringify } from "@evologi/fixed-width";
 
-async function getExportQueryResults<T>(
+async function getExportQueryResults(
   db: PGliteWithLive,
-  config: Export
-): Promise<{ name: string; res: Results<T> }[]> {
-  if (!config.files || config.files.length === 0) {
-    throw new Error("No export files specified");
+  query: string
+): Promise<Results> {
+  if (!query) {
+    throw new Error("Export query not defined");
   }
-
-  const promises = config.files.map(async (query) => {
-    return {
-      name: query.filename,
-      res: await db.query<T>(query.query)
-    };
-  });
-
-  // Wait for all promises to resolve
-  return Promise.all(promises);
+  return await db.query(query);
 }
 
-function formatExportQueryResults<T>(
-  results: { name: string; res: Results<T> }[],
+function formatExportQueryResults(
+  results: Results,
   format: Format
 ): { name: string; dataString: string }[] {
-  const formattedData: { name: string; dataString: string }[] = [];
+  // Group rows by filename
+  const grouped: Record<string, any[]> = {};
 
-  results.forEach((result) => {
-    const rows = result.res.rows.map((row: any) => row.row_data);
+  results.rows.forEach((row) => {
+    const filename = row.filename || "export";
+    if (!grouped[filename]) grouped[filename] = [];
+    grouped[filename].push(row.data);
+  });
 
+  // Prepare width config cache for fixed format
+  const widthConfigCache = format.format === "fixed"
+    ? Object.entries(format.widths).reduce((cache, [key, config]) => {
+      if (config) {
+        const sorted = Object.keys(config).sort().join(",");
+        cache[sorted] = config;
+      }
+      return cache;
+    }, {} as Record<string, any>)
+    : null;
+
+  // Process each file group
+  return Object.entries(grouped).map(([filename, rows]) => {
     if (format.format === "delimited") {
-        const csvString = Papa.unparse(rows, {
+      return {
+        name: filename,
+        dataString: Papa.unparse(rows, {
           header: true,
           newline: "\r\n",
           delimiter: format.delimiter,
           skipEmptyLines: true
-        });
-      formattedData.push({ name: result.name, dataString: csvString });
-      
-    } else if (format.format === "fixed") {
-      const fixedLines: string[] = [];
-
-      rows.forEach((row) => {
-        const sortedRowKeys = Object.keys(row).sort().join(',');
-        let matchedWidthKey: string | null = null;
-
-        // Find exact matching width configuration for the row
-        for (const [widthKey, widthConfig] of Object.entries(format.widths)) {
-          if (!widthConfig) continue;
-
-          const sortedConfigKeys = Object.keys(widthConfig).sort().join(',');
-
-          // String comparison to check if the row's columns match the width configuration
-          if (sortedRowKeys === sortedConfigKeys) {
-            matchedWidthKey = widthKey;
-            break; // Found exact match, no need to continue
-          }
-        }
-
-        if (!matchedWidthKey) {
-          throw new Error(
-            "No width configuration matches the row's columns"
-          );
-        }
-
-        const widthsForRecord = format.widths[matchedWidthKey];
-        const fixedLine = stringify([row], {
-          pad: format.pad,
-          eol: "\r\n",
-          fields: Object.entries(widthsForRecord!).map(([field, width]) => {
-            if (typeof width !== "number" || width <= 0) {
-              throw new Error(`Invalid width for ${field}`);
-            }
-            return {
-              property: field,
-              width: width,
-              align: format.align
-            };
-          })
-        });
-
-        fixedLines.push(fixedLine);
-      });
-
-      const fixedString = fixedLines.join("");
-      formattedData.push({ name: result.name, dataString: fixedString });
+        })
+      };
     }
-  });
 
-  return formattedData;
+    // Fixed width format
+    const fixedString = rows.map(row => {
+      const sortedKeys = Object.keys(row).sort().join(",");
+      const config = widthConfigCache?.[sortedKeys];
+
+      if (!config) {
+        throw new Error(`No width config for columns: ${sortedKeys}`);
+      }
+
+      return stringify([row], {
+        pad: format.pad,
+        eol: "\r\n",
+        fields: Object.entries(config).map(([field, width]) => ({
+          property: field,
+          width: width as number,
+          align: format.align
+        }))
+      });
+    }).join("");
+
+    return { name: filename, dataString: fixedString };
+  });
 }
 
 export async function handleExport(
   db: PGliteWithLive,
-  config: Export,
+  query: string,
   format: Format
 ): Promise<{
   success: boolean;
@@ -107,7 +89,7 @@ export async function handleExport(
     return {
       success: true,
       files: formatExportQueryResults(
-        await getExportQueryResults(db, config),
+        await getExportQueryResults(db, query),
         format
       )
     };

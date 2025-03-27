@@ -50,6 +50,7 @@ export function SqlTextArea({
   return (
     <div className="border">
       <CodeMirror
+        className="[&_.cm-gutter.cm-lineNumbers]:min-h-[75px] max-h-[400px] overflow-auto"
         value={value}
         onChange={onChange}
         extensions={extensions}

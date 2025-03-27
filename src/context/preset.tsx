@@ -1,6 +1,6 @@
 "use client";
-import { createContext, ReactNode, useState, useEffect } from "react";
-import { Preset, Delimited, Fixed } from "@common/types/preset";
+import { createContext, ReactNode, useEffect, useState } from "react";
+import { Delimited, Fixed, Preset } from "@common/types/preset";
 
 const DEFAULTS = {
   delimited: { format: "delimited" as const, delimiter: "," },
@@ -8,8 +8,8 @@ const DEFAULTS = {
     format: "fixed" as const,
     pad: " ",
     align: "left" as const,
-    widths: {},
-  },
+    widths: {}
+  }
 };
 
 const DEFAULT_PRESET: Preset = {
@@ -17,8 +17,8 @@ const DEFAULT_PRESET: Preset = {
   load: [],
   queries: [],
   format: DEFAULTS.delimited,
-  export: { files: [] },
-}
+  export: ""
+};
 
 export const PresetContext = createContext<{
   preset: Preset;
@@ -29,11 +29,14 @@ export const PresetContext = createContext<{
   setFixed: React.Dispatch<React.SetStateAction<Fixed>>;
 }>({
   preset: {} as Preset,
-  setPreset: () => {},
+  setPreset: () => {
+  },
   delimited: DEFAULTS.delimited,
-  setDelimited: () => {},
+  setDelimited: () => {
+  },
   fixed: DEFAULTS.fixed,
-  setFixed: () => {},
+  setFixed: () => {
+  }
 });
 
 export const PresetProvider = ({ children }: { children: ReactNode }) => {
@@ -67,7 +70,7 @@ export const PresetProvider = ({ children }: { children: ReactNode }) => {
       delimited,
       setDelimited,
       fixed,
-      setFixed,
+      setFixed
     }}>
       {children}
     </PresetContext.Provider>

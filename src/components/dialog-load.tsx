@@ -4,34 +4,17 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useContext, useEffect, useState } from "react";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  FormProvider,
-  useFieldArray,
-  useForm,
-  useWatch,
-} from "react-hook-form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Cross2Icon, PlusCircledIcon } from "@radix-ui/react-icons";
 import { ScrollArea, ScrollAreaViewport } from "@/components/ui/scroll-area";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { LoadConfig, LoadConfigSchema } from "@common/types/preset";
 import { PresetContext } from "@/context/preset";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
@@ -50,7 +33,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     form.reset(preset.load[presetIndex]);
-    }, [presetIndex]);
+  }, [presetIndex]);
 
   const form = useForm<LoadConfig>({
     resolver: zodResolver(LoadConfigSchema),
@@ -59,7 +42,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
 
   const format = useWatch({
     control: form.control,
-    name: "format",
+    name: "format"
   });
 
   const widths = useWatch({
@@ -68,19 +51,19 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
     defaultValue: [
       {
         property: "",
-        width: 0,
-      },
-    ],
+        width: 0
+      }
+    ]
   });
 
   const totalWidth = widths.reduce(
     (total: number, field: any) => total + Number(field.width),
-    0,
+    0
   );
 
   const { fields, append, remove } = useFieldArray({
     name: `widths.fields`,
-    control: form.control,
+    control: form.control
   });
 
   function onSubmit(values: LoadConfig) {
@@ -103,20 +86,20 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
           updateTables();
           setPreset((prev) => ({
             ...prev,
-            load: [...prev.load, values],
+            load: [...prev.load, values]
           }));
           setPresetIndex(preset.load.length);
           setOpen(false);
         } else {
           toast.error("Failed to load file", {
-            description: result.error,
+            description: result.error
           });
           console.error("Failed to load file:", result.error);
         }
       };
       reader.onerror = (error) => {
         toast.error("Error reading file", {
-          description: file.name,
+          description: file.name
         });
         console.error("Error reading file:", file.name, error);
       };
@@ -165,7 +148,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                         selected={field.value}
                         options={[
                           { label: "delimited", value: "delimited" },
-                          { label: "fixed", value: "fixed" },
+                          { label: "fixed", value: "fixed" }
                         ]}
                         onSelect={(format) => {
                           field.onChange(format);
@@ -283,19 +266,6 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name={"primaryKey"}
-                defaultValue=""
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <FloatingLabelInput label="Primary Key" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <div className="flex content-center justify-between">
                 {preset.load.length > 0 && (
                   <Selector
@@ -304,7 +274,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                     selected={undefined}
                     options={preset.load.map((loadConfig, i) => ({
                       label: loadConfig.tablename,
-                      value: i,
+                      value: i
                     }))}
                     onSelect={(index) => {
                       setPresetIndex(Number(index));
