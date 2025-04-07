@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "../styles/globals.css";
 import { ReactNode } from "react";
 import { PresetProvider } from "@/context/preset";
-import { DbProvider } from "@/context/db";
+import { DBProvider } from "@/context/db";
 import { ThemeProvider } from "@/context/theme";
 import { TablesProvider } from "@/context/tables";
 import { TerminalProvider } from "@/context/terminal";
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
     <body>
-    <DbProvider>
+    <DBProvider>
       <TablesProvider>
         <PresetProvider>
           <TerminalProvider>
@@ -29,7 +29,7 @@ export default function RootLayout({
           </TerminalProvider>
         </PresetProvider>
       </TablesProvider>
-    </DbProvider>
+    </DBProvider>
     </body>
     </html>
   );

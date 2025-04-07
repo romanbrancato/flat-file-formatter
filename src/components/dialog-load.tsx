@@ -29,15 +29,10 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
   const { updateTables } = useTables();
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-  const [presetIndex, setPresetIndex] = useState(0);
-
-  useEffect(() => {
-    form.reset(preset.load[presetIndex]);
-  }, [presetIndex]);
 
   const form = useForm<LoadConfig>({
     resolver: zodResolver(LoadConfigSchema),
-    defaultValues: preset.load[presetIndex]
+    defaultValues: preset.load
   });
 
   const format = useWatch({
@@ -86,9 +81,8 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
           updateTables();
           setPreset((prev) => ({
             ...prev,
-            load: [...prev.load, values]
+            load: values
           }));
-          setPresetIndex(preset.load.length);
           setOpen(false);
         } else {
           toast.error("Failed to load file", {
@@ -266,25 +260,10 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                   </FormItem>
                 )}
               />
-              <div className="flex content-center justify-between">
-                {preset.load.length > 0 && (
-                  <Selector
-                    className="w-1/3"
-                    label={"Load Config"}
-                    selected={undefined}
-                    options={preset.load.map((loadConfig, i) => ({
-                      label: loadConfig.tablename,
-                      value: i
-                    }))}
-                    onSelect={(index) => {
-                      setPresetIndex(Number(index));
-                    }}
-                  />
-                )}
-                <Button type="submit" className="ml-auto w-1/3">
-                  Choose File
-                </Button>
-              </div>
+
+              <Button type="submit" className="ml-auto w-1/3">
+                Choose File
+              </Button>
             </form>
           </Form>
         </FormProvider>

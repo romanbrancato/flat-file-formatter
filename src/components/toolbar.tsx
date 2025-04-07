@@ -19,9 +19,11 @@ import { GearIcon } from "@radix-ui/react-icons";
 import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
 import { DialogFixedConfig } from "./dialog-fixed-config";
 import { CommandShortcut } from "./ui/command";
+import { useTables } from "@/context/tables";
 
 export function Toolbar() {
   const { preset, setPreset, fixed, delimited } = useContext(PresetContext);
+  const {resetTables} = useTables();
 
   return (
     <div className="flex w-full justify-between border-y py-2">
@@ -39,23 +41,35 @@ export function Toolbar() {
           <PopoverContent className="min-w-[12rem] p-1" align="start">
             <div>
               <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm">
-              <DialogLoad>
-                <button
-                  className="w-full cursor-default text-left"
-                >
-                  Open...
-                </button>
+                <DialogLoad>
+                  <button
+                    className="w-full cursor-default text-left"
+                  >
+                    Open...
+                  </button>
                 </DialogLoad>
                 <CommandShortcut>⌘O</CommandShortcut>
               </div>
-              <div className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm [&:has(button:disabled)]:pointer-events-none [&:has(button:disabled)]:opacity-50">
-              <DialogExport>
-                <button
-                  className="w-full cursor-default text-left disabled:cursor-not-allowed"
-                >
-                  Export...
-                </button>
+              <div
+                className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm [&:has(button:disabled)]:pointer-events-none [&:has(button:disabled)]:opacity-50">
+                <DialogExport>
+                  <button
+                    className="w-full cursor-default text-left disabled:cursor-not-allowed"
+                  >
+                    Export...
+                  </button>
                 </DialogExport>
+              </div>
+              <div
+                className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm [&:has(button:disabled)]:pointer-events-none [&:has(button:disabled)]:opacity-50">
+                  <button
+                    className="w-full cursor-default text-left disabled:cursor-not-allowed"
+                    onClick={() => {
+                      resetTables()
+                    }}
+                  >
+                    Reset
+                  </button>
               </div>
             </div>
           </PopoverContent>

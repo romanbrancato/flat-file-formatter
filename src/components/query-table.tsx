@@ -20,7 +20,10 @@ export function QueryTable() {
   const [items, setItems] = useState<{fields: string[], rows: unknown[]}>({fields: [], rows: []});
 
   useEffect(() => {
-    if (!pg || !focusedTable) return
+    if (!pg || !focusedTable) {
+      setItems({ fields: [], rows: [] });
+      return
+    }
     const getTableContents = async () => {
       const res = await pg.query(`SELECT * FROM "${focusedTable}"`);
       setItems({fields: res.fields.map((field: any) => field.name), rows: res.rows});

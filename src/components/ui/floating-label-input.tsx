@@ -11,7 +11,7 @@ const FloatingInput = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <Input
         placeholder=""
-        className={cn("peer", "px-0", "shadow-none", className)}
+        className={cn("peer", "p-0", "shadow-none", className)}
         ref={ref}
         {...props}
       />

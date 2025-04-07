@@ -9,13 +9,15 @@ interface TablesContextType {
   focusedTable: string | null;
   setFocusedTable: React.Dispatch<React.SetStateAction<string | null>>;
   updateTables: () => void;
+  resetTables: () => void;
 }
 
 const TablesContext = createContext<TablesContextType>({
   tables: {},
   focusedTable: null,
   setFocusedTable: () => {},
-  updateTables: () => {}
+  updateTables: () => {},
+  resetTables: () => {},
 });
 
 export const useTables = () => useContext(TablesContext);
@@ -77,8 +79,25 @@ export const TablesProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const resetTables = async() => {
+    try {
+      await pg.transaction(async (tx) => {
+        for (const table in tables) {
+          await tx.query(`DROP TABLE IF EXISTS "${table}" CASCADE;`);
+        }
+      });
+      setTables({});
+      setFocusedTable(null);
+    } catch (error) {
+      toast.error("Error resetting tables", {
+        description: error instanceof Error ? error.message : String(error),
+      });
+      console.error("Error resetting tables:", error);
+    }
+  }
+
   return (
-    <TablesContext.Provider value={{ tables, focusedTable, setFocusedTable, updateTables }}>
+    <TablesContext.Provider value={{ tables, focusedTable, setFocusedTable, updateTables, resetTables }}>
       {children}
     </TablesContext.Provider>
   );

@@ -25,7 +25,7 @@ export const TerminalResponse = ({ response }: { response: Response }) => (
           {result.fields.length ? (
             <TerminalTable result={result} />
           ) : (
-            <div className="text-border">null</div>
+            <div className="text-border">success</div>
           )}
         </div>
       ))
