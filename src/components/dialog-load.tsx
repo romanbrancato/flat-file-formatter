@@ -7,7 +7,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,12 +23,17 @@ import { useTables } from "@/context/tables";
 import { loadDataIntoTable } from "@common/lib/load";
 import { usePGlite } from "@electric-sql/pglite-react";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { runQueriesFromPreset } from "@common/lib/preset";
+import { handleExport } from "@common/lib/export";
+import { download } from "@/lib/utils";
 
 export function DialogLoad({ children }: { children: React.ReactNode }) {
   const db = usePGlite();
-  const { updateTables } = useTables();
+  const { updateTables, resetTables } = useTables();
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
+  const [fullProcess, setFullProcess] = useState(!!preset.name);
 
   const form = useForm<LoadConfig>({
     resolver: zodResolver(LoadConfigSchema),
@@ -51,9 +56,9 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
     ]
   });
 
-  const totalWidth = widths.reduce(
-    (total: number, field: any) => total + Number(field.width),
-    0
+  const totalWidth = useMemo(() =>
+      widths.reduce((total, field) => total + Number(field.width), 0),
+    [widths]
   );
 
   const { fields, append, remove } = useFieldArray({
@@ -78,11 +83,32 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
         const uint8Array = new Uint8Array(arrayBuffer);
         const result = await loadDataIntoTable(uint8Array, db, values);
         if (result.success) {
-          updateTables();
+          if (fullProcess) {
+            const queriesResult = await runQueriesFromPreset(db, preset.queries);
+            if (!queriesResult.success) {
+              toast.error("Failed to run preset queries", {
+                description: result.error
+              });
+              console.error("Failed to run preset queries:", result.error);
+            }
+            const exportResult = await handleExport(db, preset.export, preset.format);
+            if (!exportResult.success) {
+              toast.error("Failed to export files", {
+                description: result.error
+              });
+              console.error("Failed to export files:", result.error);
+            }
+            if (exportResult.files) {
+              exportResult.files.forEach((file) => {
+                download(file.dataString, file.name, "text/plain");
+              });
+            }
+          }
           setPreset((prev) => ({
             ...prev,
             load: values
           }));
+          updateTables();
           setOpen(false);
         } else {
           toast.error("Failed to load file", {
@@ -261,9 +287,26 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                 )}
               />
 
-              <Button type="submit" className="ml-auto w-1/3">
-                Choose File
-              </Button>
+              <div className="flex items-center justify-between">
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="shouldProcess" disabled={!preset.name}
+                            checked={fullProcess}
+                            onCheckedChange={(checked) => {
+                              setFullProcess(!!checked);
+                            }}
+                  />
+                  <label
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Run Preset + Export Result
+                  </label>
+                </div>
+
+                <Button type="submit" className="w-1/3">
+                  Choose File
+                </Button>
+              </div>
             </form>
           </Form>
         </FormProvider>
