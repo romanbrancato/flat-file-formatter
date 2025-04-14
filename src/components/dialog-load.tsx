@@ -30,7 +30,7 @@ import { download } from "@/lib/utils";
 
 export function DialogLoad({ children }: { children: React.ReactNode }) {
   const db = usePGlite();
-  const { updateTables, resetTables } = useTables();
+  const { updateTables } = useTables();
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [fullProcess, setFullProcess] = useState(!!preset.name);
