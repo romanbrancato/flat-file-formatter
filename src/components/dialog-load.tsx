@@ -21,7 +21,7 @@ import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { Selector } from "@/components/selector";
 import { useTables } from "@/context/tables";
 import { loadDataIntoTable } from "@common/lib/load";
-import { usePGlite } from "@electric-sql/pglite-react";
+import { usePGlite } from "@/context/pglite";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { runQueriesFromPreset } from "@common/lib/preset";
@@ -290,7 +290,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
               <div className="flex items-center justify-between">
 
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="shouldProcess" disabled={!preset.name}
+                  <Checkbox id="fullProcess" disabled={!preset.name}
                             checked={fullProcess}
                             onCheckedChange={(checked) => {
                               setFullProcess(!!checked);

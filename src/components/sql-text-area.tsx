@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { PostgreSQL } from "@codemirror/lang-sql";
-import { usePGlite } from "@electric-sql/pglite-react";
+import { usePGlite } from "@/context/pglite";
 import { makeSqlExt } from "./terminal/sql-support";
 import { getSchema } from "./terminal/terminal-utils";
 import { githubDarkInit, githubLight } from "@uiw/codemirror-theme-github";

@@ -3,7 +3,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { PresetContext } from "@/context/preset";
 import { useTables } from "@/context/tables";
 import { useTerminal } from "@/context/terminal";
-import { usePGlite} from "@electric-sql/pglite-react";
+import { usePGlite } from "@/context/pglite";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { useContext, useEffect, useState } from "react";
 

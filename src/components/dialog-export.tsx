@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { PresetContext } from "@/context/preset";
 import { SqlTextArea } from "./sql-text-area";
-import { usePGlite } from "@electric-sql/pglite-react";
+import { usePGlite } from "@/context/pglite";
 import { handleExport } from "@common/lib/export";
 import { download, minifySQL } from "@/lib/utils";
 import { toast } from "sonner";

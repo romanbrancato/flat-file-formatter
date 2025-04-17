@@ -11,7 +11,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { defaultKeymap } from "@codemirror/commands";
 import { keymap } from "@codemirror/view";
 import { PostgreSQL } from "@codemirror/lang-sql";
-import { usePGlite } from "@electric-sql/pglite-react";
+import { usePGlite } from "@/context/pglite";
 import { makeSqlExt } from "./sql-support";
 import { getSchema, runQuery } from "./terminal-utils";
 import { TerminalResponse } from "./terminal-response";
@@ -24,8 +24,6 @@ import { useTables } from "@/context/tables";
 import { minifySQL } from "@/lib/utils";
 import {
   ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
   ContextMenuTrigger,
 } from "../ui/context-menu";
 import { TerminalContextMenu } from "./terminal-context-menu";

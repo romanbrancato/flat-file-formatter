@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { usePGlite } from "@electric-sql/pglite-react";
+import { usePGlite } from "@/context/pglite";
 import { toast } from "sonner";
 
 interface TablesContextType {
@@ -79,21 +79,9 @@ export const TablesProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const resetTables = async() => {
-    try {
-      await pg.transaction(async (tx) => {
-        for (const table in tables) {
-          await tx.query(`DROP TABLE IF EXISTS "${table}" CASCADE;`);
-        }
-      });
+  const resetTables = () => {
       setTables({});
       setFocusedTable(null);
-    } catch (error) {
-      toast.error("Error resetting tables", {
-        description: error instanceof Error ? error.message : String(error),
-      });
-      console.error("Error resetting tables:", error);
-    }
   }
 
   return (

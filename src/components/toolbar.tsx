@@ -20,10 +20,12 @@ import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
 import { DialogFixedConfig } from "./dialog-fixed-config";
 import { CommandShortcut } from "./ui/command";
 import { useTables } from "@/context/tables";
+import { usePGlite } from "@/context/pglite";
 
 export function Toolbar() {
   const { preset, setPreset, fixed, delimited } = useContext(PresetContext);
   const {resetTables} = useTables();
+  const pg = usePGlite();
 
   return (
     <div className="flex w-full justify-between border-y py-2">
@@ -64,8 +66,9 @@ export function Toolbar() {
                 className="hover:bg-accent group flex items-center justify-between rounded-sm px-2 py-1 text-sm [&:has(button:disabled)]:pointer-events-none [&:has(button:disabled)]:opacity-50">
                   <button
                     className="w-full cursor-default text-left disabled:cursor-not-allowed"
-                    onClick={() => {
-                      resetTables()
+                    onClick={async () => {
+                      await pg.resetDB();
+                      resetTables();
                     }}
                   >
                     Reset

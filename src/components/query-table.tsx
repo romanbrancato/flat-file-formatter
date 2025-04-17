@@ -1,5 +1,5 @@
 "use client"
-import { usePGlite } from "@electric-sql/pglite-react";
+import { usePGlite } from "@/context/pglite";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Table,

@@ -28,7 +28,7 @@ import { cn, download } from "@/lib/utils";
 import { Preset } from "@common/types/preset";
 import { DialogSavePreset } from "@/components/dialog-save-preset";
 import { loadPresetFromFile, runQueriesFromPreset } from "@common/lib/preset";
-import { usePGlite } from "@electric-sql/pglite-react";
+import { usePGlite } from "@/context/pglite";
 import { useTables } from "@/context/tables";
 import { toast } from "sonner";
 
