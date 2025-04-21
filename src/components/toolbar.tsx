@@ -7,10 +7,8 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { DialogAddColumn } from "@/components/dialog-add-column";
 import { useContext } from "react";
 import { PresetContext } from "@/context/preset";
-import { DialogDropColumn } from "@/components/dialog-drop-column";
 import { cn } from "@/lib/utils";
 import { PresetToolbar } from "@/components/preset-toolbar";
 import { DialogLoad } from "@/components/dialog-load";
@@ -74,32 +72,6 @@ export function Toolbar() {
                     Reset
                   </button>
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        {/* Query Menu */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground relative h-7 rounded-sm px-3 py-1"
-            >
-              Query
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="min-w-[12rem] p-1" align="start">
-            <div>
-              <DialogAddColumn>
-                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Add Column</button>
-                </div>
-              </DialogAddColumn>
-              <DialogDropColumn>
-                <div className="hover:bg-accent flex items-center rounded-sm px-2 py-1 text-sm">
-                  <button className="w-full text-left">Drop Column</button>
-                </div>
-              </DialogDropColumn>
             </div>
           </PopoverContent>
         </Popover>

@@ -28,7 +28,6 @@ import {
 } from "../ui/context-menu";
 import { TerminalContextMenu } from "./terminal-context-menu";
 
-const baseKeymap = defaultKeymap.filter(({ key }) => key !== "Enter");
 const lightTheme = githubLight;
 const darkTheme = githubDarkInit({
   settings: {
@@ -93,7 +92,7 @@ export function Terminal() {
     () => [
       keymap.of([
         {
-          key: "Enter",
+          key: "Ctrl-Enter",
           preventDefault: true,
           run: () => {
             if (!value.trim()) return false;
@@ -105,22 +104,22 @@ export function Terminal() {
           },
         },
         {
-          key: "ArrowUp",
-          run: ({ state }) => {
-            const line = state.doc.lineAt(state.selection.main.head);
-            return line.number === 1 ? (updateHistory("up"), true) : false;
+          key: "Ctrl-ArrowUp",
+          run: () => {
+            updateHistory("up");
+            return true;
           },
         },
         {
-          key: "ArrowDown",
-          run: ({ state }) => {
-            const line = state.doc.lineAt(state.selection.main.head);
-            return line.number === state.doc.lines
-              ? (updateHistory("down"), true)
-              : false;
+          key: "Ctrl-ArrowDown",
+          run: () => {
+            updateHistory("down");
+            return true;
           },
         },
-        ...baseKeymap,
+        ...defaultKeymap.filter((item) => (
+          item.key !== "Ctrl-Enter"
+        )),
       ]),
       makeSqlExt({
         dialect: PostgreSQL,
