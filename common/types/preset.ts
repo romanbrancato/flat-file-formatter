@@ -56,7 +56,7 @@ export type Format = z.infer<typeof FormatSchema>;
 
 export const PresetSchema = z.object({
   name: z.string(),
-  load: LoadConfigSchema,
+  load: z.array(LoadConfigSchema),
   queries: z.array(z.string()),
   format: FormatSchema,
   export: z.string()

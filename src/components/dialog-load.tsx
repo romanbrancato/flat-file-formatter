@@ -7,7 +7,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,11 +33,16 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
   const { updateTables } = useTables();
   const { preset, setPreset } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
+  const [presetIndex, setPresetIndex] = useState(0);
   const [fullProcess, setFullProcess] = useState(!!preset.name);
+
+  useEffect(() => {
+    form.reset(preset.load[presetIndex]);
+  }, [presetIndex]);
 
   const form = useForm<LoadConfig>({
     resolver: zodResolver(LoadConfigSchema),
-    defaultValues: preset.load
+    defaultValues: preset.load[presetIndex]
   });
 
   const format = useWatch({
@@ -106,8 +111,9 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
           }
           setPreset((prev) => ({
             ...prev,
-            load: values
+            load: [...prev.load, values]
           }));
+          setPresetIndex(presetIndex + 1);
           updateTables();
           setOpen(false);
         } else {
