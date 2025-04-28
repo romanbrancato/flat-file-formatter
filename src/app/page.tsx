@@ -10,8 +10,37 @@ import {
 } from "@/components/ui/resizable";
 import { QueryTable } from "@/components/query-table";
 import { Toaster } from "sonner";
+import { useEffect } from "react";
+import { useTables } from "@/context/tables";
+import { usePGlite } from "@/context/db";
 
 export default function App() {
+  const pg = usePGlite();
+  const { resetTables } = useTables();
+  
+  // Keybinds
+
+  useEffect(() => {
+    if (!pg) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'r') {
+        event.preventDefault();
+        pg.resetDB().then(() => {
+          resetTables();
+        });
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'o') {
+        event.preventDefault();
+
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [pg, resetTables]);
 
   return (
     <main className="mx-auto flex h-screen max-w-7xl flex-col px-4 sm:px-6 lg:px-8">

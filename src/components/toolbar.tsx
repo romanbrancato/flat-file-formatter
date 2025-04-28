@@ -18,7 +18,7 @@ import { DialogDelimitedConfig } from "@/components/dialog-delimited-config";
 import { DialogFixedConfig } from "./dialog-fixed-config";
 import { CommandShortcut } from "./ui/command";
 import { useTables } from "@/context/tables";
-import { usePGlite } from "@/context/pglite";
+import { usePGlite } from "@/context/db";
 
 export function Toolbar() {
   const { preset, setPreset, fixed, delimited } = useContext(PresetContext);
@@ -71,6 +71,7 @@ export function Toolbar() {
                   >
                     Reset
                   </button>
+                  <CommandShortcut>⌘R</CommandShortcut>
               </div>
             </div>
           </PopoverContent>

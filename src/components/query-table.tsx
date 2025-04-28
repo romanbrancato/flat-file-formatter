@@ -1,5 +1,4 @@
 "use client"
-import { usePGlite } from "@/context/pglite";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Table,
@@ -12,6 +11,7 @@ import {
 import { useTables } from "@/context/tables";
 import { PresetContext } from "@/context/preset";
 import { useContext, useEffect, useState } from "react";
+import { usePGlite } from "@/context/db";
 
 export function QueryTable() {
   const pg = usePGlite();

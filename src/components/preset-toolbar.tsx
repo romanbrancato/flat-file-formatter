@@ -28,9 +28,9 @@ import { cn, download } from "@/lib/utils";
 import { Preset } from "@common/types/preset";
 import { DialogSavePreset } from "@/components/dialog-save-preset";
 import { loadPresetFromFile, runQueriesFromPreset } from "@common/lib/preset";
-import { usePGlite } from "@/context/pglite";
 import { useTables } from "@/context/tables";
 import { toast } from "sonner";
+import { usePGlite } from "@/context/db";
 
 export function PresetToolbar({ className }: { className?: string }) {
   const db = usePGlite();

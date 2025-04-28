@@ -21,12 +21,12 @@ import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { Selector } from "@/components/selector";
 import { useTables } from "@/context/tables";
 import { loadDataIntoTable } from "@common/lib/load";
-import { usePGlite } from "@/context/pglite";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { runQueriesFromPreset } from "@common/lib/preset";
 import { handleExport } from "@common/lib/export";
 import { download } from "@/lib/utils";
+import { usePGlite } from "@/context/db";
 
 export function DialogLoad({ children }: { children: React.ReactNode }) {
   const db = usePGlite();

@@ -3,9 +3,9 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { PresetContext } from "@/context/preset";
 import { useTables } from "@/context/tables";
 import { useTerminal } from "@/context/terminal";
-import { usePGlite } from "@/context/pglite";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { useContext, useEffect, useState } from "react";
+import { usePGlite } from "@/context/db";
 
 export function Footer() {
   const pg = usePGlite();
@@ -24,7 +24,7 @@ export function Footer() {
     }, [pg, focusedTable, preset.queries.length]);
 
   return (
-    <footer className="sticky bottom-0 flex h-10 items-center">
+    <footer className="sticky bottom-0 flex h-10 items-center border-t">
       <ToggleGroup
         type="single"
         value={focusedTable as string}
@@ -44,7 +44,7 @@ export function Footer() {
         className="ml-2 cursor-pointer"
         onClick={() =>
           setValue(
-            `CREATE TABLE tablename (id SERIAL PRIMARY KEY, field1 TEXT, ...)`,
+            `CREATE TABLE tablename (id SERIAL PRIMARY KEY)`,
           )
         }
       />

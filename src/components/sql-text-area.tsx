@@ -2,11 +2,11 @@
 import { useEffect, useMemo, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { PostgreSQL } from "@codemirror/lang-sql";
-import { usePGlite } from "@/context/pglite";
 import { makeSqlExt } from "./terminal/sql-support";
 import { getSchema } from "./terminal/terminal-utils";
 import { githubDarkInit, githubLight } from "@uiw/codemirror-theme-github";
 import { useTheme } from "next-themes";
+import { usePGlite } from "@/context/db";
 
 const lightTheme = githubLight;
 const darkTheme = githubDarkInit({

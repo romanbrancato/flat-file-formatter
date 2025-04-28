@@ -11,7 +11,6 @@ import CodeMirror from "@uiw/react-codemirror";
 import { defaultKeymap } from "@codemirror/commands";
 import { keymap } from "@codemirror/view";
 import { PostgreSQL } from "@codemirror/lang-sql";
-import { usePGlite } from "@/context/pglite";
 import { makeSqlExt } from "./sql-support";
 import { getSchema, runQuery } from "./terminal-utils";
 import { TerminalResponse } from "./terminal-response";
@@ -27,6 +26,7 @@ import {
   ContextMenuTrigger,
 } from "../ui/context-menu";
 import { TerminalContextMenu } from "./terminal-context-menu";
+import { usePGlite } from "@/context/db";
 
 const lightTheme = githubLight;
 const darkTheme = githubDarkInit({
@@ -132,7 +132,7 @@ export function Terminal() {
   );
 
   return (
-    <div className="flex h-full w-full flex-col border text-xs">
+    <div className="flex h-full w-full flex-col border-t border-x text-xs">
       <div className="flex-1 overflow-y-auto border-b p-2" ref={outputRef}>
         {loading && <div className="text-border">Loading...</div>}
         {output.map((response, i) => (

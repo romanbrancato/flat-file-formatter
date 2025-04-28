@@ -1,10 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { PGlite } from "@electric-sql/pglite";
+import { PGlite, PGliteInterfaceExtensions } from "@electric-sql/pglite";
 import { live } from "@electric-sql/pglite/live";
 import { initFunctions } from "@common/lib/utils";
-import { PGliteProvider, ExtendedPGlite } from "@/context/pglite";
+import { makePGliteProvider } from '@electric-sql/pglite-react';
+
+export type ExtendedPGlite = PGlite &
+  PGliteInterfaceExtensions<{ live: typeof live }> & {
+  resetDB: () => Promise<void>;
+};
+
+const { PGliteProvider, usePGlite } = makePGliteProvider<ExtendedPGlite>();
+
+export { PGliteProvider, usePGlite };
 
 export function DBProvider({
                              children,

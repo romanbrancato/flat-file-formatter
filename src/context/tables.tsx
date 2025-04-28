@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { usePGlite } from "@/context/pglite";
 import { toast } from "sonner";
+import { usePGlite } from "@/context/db";
 
 interface TablesContextType {
   tables: Record<string, string[]>;
