@@ -105,7 +105,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
             }
             if (exportResult.files) {
               exportResult.files.forEach((file) => {
-                download(file.dataString, file.name, "text/plain");
+                download(file.dataString, file.name, preset.format.format === "delimited" ? "text/csv" : "text/plain");
               });
             }
           }
