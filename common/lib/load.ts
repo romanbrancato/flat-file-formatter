@@ -37,21 +37,24 @@ async function createAndPopulateTable(
   data: any[]
 ): Promise<void> {
 
+  // Filter out empty/unnamed columns caused by trailing delimiters
+  const validFields = fields.filter(field => field && field.trim() !== "");
+  
   // Drop table if it already exists
   await tx.query(`DROP TABLE IF EXISTS "${tableName}"`);
 
   // Create table with appropriate schema
   await tx.query(`
     CREATE TABLE "${tableName}" (
-      ${fields.map(f => `"${f}" VARCHAR`).join(", ")}
+      ${validFields.map(f => `"${f}" VARCHAR`).join(", ")}
     )
   `);
 
   // Insert data
   for (const row of data) {
-    const values = fields
-      .map((_, index) => {
-        const value = row[index] ?? row[Object.keys(row)[index]];
+    const values = validFields
+      .map((field, index) => {
+        const value = row[field] ?? row[Object.keys(row)[index]];
         return value === null || value === undefined || value === ""
           ? "NULL"
           : `'${String(value).replace(/'/g, "''")}'`;
@@ -59,7 +62,7 @@ async function createAndPopulateTable(
       .join(", ");
 
     await tx.query(`
-      INSERT INTO "${tableName}" (${fields.map(f => `"${f}"`).join(", ")})
+      INSERT INTO "${tableName}" (${validFields.map(f => `"${f}"`).join(", ")})
       VALUES (${values})
     `);
   }
