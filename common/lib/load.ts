@@ -79,19 +79,43 @@ export async function loadDataIntoTable(
 
     // Parse data based on format
     if (config.format === "delimited") {
-      const result = Papa.parse(processedString, {
-        header: true,
+      // First parse: Get rows as arrays (without header processing)
+      const nonHeaderResult = Papa.parse(processedString, {
+        header: false,
         skipEmptyLines: true,
         delimiter: config.delimiter,
         transform: value => value.trim()
       });
 
-      if (result.errors.length > 0) {
-        throw new Error(`Parsing error: ${result.errors[0].message}`);
+      if (nonHeaderResult.errors.length > 0) {
+        throw new Error(`Parsing error: ${nonHeaderResult.errors[0].message}`);
       }
 
-      data = result.data;
-      fields = result.meta.fields || [];
+      const rows = nonHeaderResult.data;
+
+      if (rows.length === 0) {
+        data = [];
+        fields = [];
+      } else {
+        // Determine maximum column count from all rows
+        const columnCount = Math.max(...rows.map(row => row.length));
+
+        // Pad all rows to match columnCount
+        const paddedRows = rows.map(row => {
+          const padding = Array(columnCount - row.length).fill('');
+          return [...row, ...padding];
+        });
+
+        // Extract header and data rows
+        fields = paddedRows[0];
+        data = paddedRows.slice(1).map(row => {
+          const obj = {};
+          fields.forEach((field, i) => {
+            obj[field] = row[i] || '';
+          });
+          return obj;
+        });
+      }
 
     } else if (config.format === "fixed") {
       data = parse(processedString, config.widths);
