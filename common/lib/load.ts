@@ -79,44 +79,31 @@ export async function loadDataIntoTable(
 
     // Parse data based on format
     if (config.format === "delimited") {
-      // First parse: Get rows as arrays (without header processing)
-      const nonHeaderResult = Papa.parse(processedString, {
+      const result = Papa.parse(processedString, {
         header: false,
         skipEmptyLines: true,
         delimiter: config.delimiter,
         transform: value => value.trim()
       });
 
-      if (nonHeaderResult.errors.length > 0) {
-        throw new Error(`Parsing error: ${nonHeaderResult.errors[0].message}`);
+      if (result.errors.length > 0) {
+        throw new Error(`Parsing error: ${result.errors[0].message}`);
       }
 
-      const rows = nonHeaderResult.data;
+      const rows = result.data as string[][];
 
       if (rows.length === 0) {
         data = [];
         fields = [];
       } else {
-        // Determine maximum column count from all rows
-        const columnCount = Math.max(...rows.map(row => row.length));
+        const maxCols = Math.max(...rows.map(row => row.length));
+        const paddedRows = rows.map(row => [...row, ...Array(maxCols - row.length).fill('')]);
 
-        // Pad all rows to match columnCount
-        const paddedRows = rows.map(row => {
-          const padding = Array(columnCount - row.length).fill('');
-          return [...row, ...padding];
-        });
-
-        // Extract header and data rows
         fields = paddedRows[0];
-        data = paddedRows.slice(1).map(row => {
-          const obj = {};
-          fields.forEach((field, i) => {
-            obj[field] = row[i] || '';
-          });
-          return obj;
-        });
+        data = paddedRows.slice(1).map(row =>
+          Object.fromEntries(fields.map((field, i) => [field, row[i] || '']))
+        );
       }
-
     } else if (config.format === "fixed") {
       data = parse(processedString, config.widths);
       fields = config.widths.fields.map(f => f.property);
