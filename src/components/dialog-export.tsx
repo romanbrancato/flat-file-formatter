@@ -33,7 +33,13 @@ export function DialogExport({
 
     if (result.success && result.files) {
       result.files.forEach((file) => {
-        download(file.dataString, file.name, preset.format.format === "delimited" ? "text/csv" : "text/plain");
+        download(
+          file.dataString,
+          file.name,
+          preset.format.format === "delimited"
+            ? (preset.format.txt ? "text/plain" : "text/csv")
+            : "text/plain"
+        );
       });
 
       setPreset((prev) => ({ ...prev, export: minifiedQuery }));

@@ -83,7 +83,7 @@ export async function loadDataIntoTable(
     // Parse data based on format
     if (config.format === "delimited") {
       const result = Papa.parse(processedString, {
-        header: true,
+        header: false,
         skipEmptyLines: true,
         delimiter: config.delimiter,
         transform: value => value.trim()
@@ -93,9 +93,20 @@ export async function loadDataIntoTable(
         throw new Error(`Parsing error: ${result.errors[0].message}`);
       }
 
-      data = result.data;
-      fields = result.meta.fields || [];
+      const rows = result.data as string[][];
 
+      if (rows.length === 0) {
+        data = [];
+        fields = [];
+      } else {
+        const maxCols = Math.max(...rows.map(row => row.length));
+        const paddedRows = rows.map(row => [...row, ...Array(maxCols - row.length).fill('')]);
+
+        fields = paddedRows[0];
+        data = paddedRows.slice(1).map(row =>
+          Object.fromEntries(fields.map((field, i) => [field, row[i] || '']))
+        );
+      }
     } else if (config.format === "fixed") {
       data = parse(processedString, config.widths);
       fields = config.widths.fields.map(f => f.property);
