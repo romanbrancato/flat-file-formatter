@@ -1,27 +1,12 @@
 "use client";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { PresetContext } from "@/context/preset";
 import { useTables } from "@/context/tables";
 import { useTerminal } from "@/context/terminal";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
-import { useContext, useEffect, useState } from "react";
-import { usePGlite } from "@/context/db";
 
 export function Footer() {
-  const pg = usePGlite();
-  const { preset } = useContext(PresetContext);
   const { tables, focusedTable, setFocusedTable } = useTables();
   const { setValue } = useTerminal();
-  const [numRows, setNumRows] = useState<number>(0);
-
-  useEffect(() => {
-      if (!pg || !focusedTable) return
-      const getTableContents = async () => {
-        const res = await pg.query(`SELECT COUNT(*) FROM ${focusedTable}`);
-        setNumRows(Number(Object.values(res?.rows[0] || {})[0]) || 0);
-      }
-      getTableContents();
-    }, [pg, focusedTable, preset.queries.length]);
 
   return (
     <footer className="sticky bottom-0 flex h-10 items-center border-t">
@@ -48,9 +33,6 @@ export function Footer() {
           )
         }
       />
-      <span className="text-muted-foreground ml-auto text-xs">
-        {numRows} row(s)
-      </span>
     </footer>
   );
 }

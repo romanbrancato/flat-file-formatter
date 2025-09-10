@@ -44,7 +44,7 @@ function formatExportQueryResults(
       return {
         name: filename,
         dataString: Papa.unparse(rows, {
-          header: true,
+          header: !format.exclude_header,
           newline: "\r\n",
           delimiter: format.delimiter,
           skipEmptyLines: true

@@ -35,6 +35,7 @@ export const DelimitedSchema = z.object({
   format: z.literal("delimited"),
   delimiter: z.string(),
   txt: z.boolean().optional(),
+  exclude_header: z.boolean().optional()
 });
 
 export type Delimited = z.infer<typeof DelimitedSchema>;
