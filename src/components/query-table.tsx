@@ -176,7 +176,7 @@ export function QueryTable() {
             "Error loading data"
           ) : totalCount > 0 ? (
             <>
-              {currentPage * ROWS_PER_PAGE + 1} to{" "}
+              {currentPage * ROWS_PER_PAGE + 1} -{" "}
               {Math.min((currentPage + 1) * ROWS_PER_PAGE, totalCount)} of{" "}
               {totalCount} rows
             </>

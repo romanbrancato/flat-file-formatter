@@ -14,7 +14,7 @@ const DEFAULTS = {
 
 const DEFAULT_PRESET: Preset = {
   name: "",
-  load: [{tablename: "", skipRows: undefined, format: "delimited"}],
+  load: [],
   queries: [],
   format: DEFAULTS.delimited,
   export: ""

@@ -31,7 +31,7 @@ import { usePGlite } from "@/context/db";
 export function DialogLoad({ children }: { children: React.ReactNode }) {
   const db = usePGlite();
   const { updateTables } = useTables();
-  const { preset, setPreset } = useContext(PresetContext);
+  const { preset, setPreset, delimited } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
   const [presetIndex, setPresetIndex] = useState(0);
   const [fullProcess, setFullProcess] = useState(!!preset.name);
@@ -42,7 +42,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
 
   const form = useForm<LoadConfig>({
     resolver: zodResolver(LoadConfigSchema),
-    defaultValues: preset.load[presetIndex]
+    defaultValues: delimited
   });
 
   const format = useWatch({
