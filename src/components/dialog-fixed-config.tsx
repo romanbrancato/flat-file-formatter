@@ -173,7 +173,7 @@ function TableAccordionItem({
                     </span>
                       <Input
                         className="text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                        defaultValue={field.value || 0}
+                        defaultValue={field.value}
                         onWheel={(e) => {
                           e.target instanceof HTMLElement
                             ? e.target.blur()
