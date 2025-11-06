@@ -1,24 +1,17 @@
-"use client"
+"use client";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Pagination,
   PaginationContent,
-  PaginationItem,
-  PaginationLink,
   PaginationEllipsis,
+  PaginationItem,
+  PaginationLink
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import { useTables } from "@/context/tables";
 import { PresetContext } from "@/context/preset";
-import { useContext, useEffect, useState, useCallback } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { usePGlite } from "@/context/db";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -29,7 +22,7 @@ export function QueryTable() {
   const { tables, focusedTable } = useTables();
   const { preset } = useContext(PresetContext);
 
-  const [items, setItems] = useState<{fields: string[], rows: unknown[]}>({
+  const [items, setItems] = useState<{ fields: string[], rows: unknown[] }>({
     fields: [],
     rows: []
   });
@@ -51,7 +44,7 @@ export function QueryTable() {
 
       if (countRes.rows.length > 0) {
         const countRow = countRes.rows[0];
-        if (typeof countRow === 'object' && countRow !== null) {
+        if (typeof countRow === "object" && countRow !== null) {
           const values = Object.values(countRow);
           count = parseInt(values[0] as string) || 0;
         } else if (Array.isArray(countRow)) {
@@ -73,8 +66,8 @@ export function QueryTable() {
         rows: res.rows
       });
     } catch (err) {
-      console.error('Error fetching table data:', err);
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      console.error("Error fetching table data:", err);
+      setError(err instanceof Error ? err.message : "An unknown error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -185,15 +178,13 @@ export function QueryTable() {
           )}
         </div>
 
-        {totalPages > 1 && (
-          <div>
+        <div>
           <Pagination>
             <PaginationContent>
               {renderPaginationItems()}
             </PaginationContent>
           </Pagination>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Table */}
