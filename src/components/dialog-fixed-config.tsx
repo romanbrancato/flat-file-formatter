@@ -138,16 +138,18 @@ function TableAccordionItem({
   columns: string[];
   form: any;
 }) {
-  const { control} = form;
+  const { control, getValues} = form;
 
+  const tableWidths = getValues(`widths.${table}`) || {};
+  
   // Calculate the sum of widths for this table
-  const tableWidthsSum = Object.values(
-    useWatch({
-      control,
-      name: `widths.${table}`,
-      defaultValue: {}
-    }) || {}
-  ).reduce((total: number, width) => total + Number(width || 0), 0);
+  const tableWidthsSum = Object.values(tableWidths).reduce(
+    (total: number, width) => {
+      const numWidth = Number(width);
+      return total + (isNaN(numWidth) ? 0 : numWidth);
+    }, 
+    0
+  );
 
   return (
     <AccordionItem value={table}>
@@ -173,7 +175,7 @@ function TableAccordionItem({
                     </span>
                       <Input
                         className="text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                        defaultValue={field.value || 0}
+                        defaultValue={field.value}
                         onWheel={(e) => {
                           e.target instanceof HTMLElement
                             ? e.target.blur()
