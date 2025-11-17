@@ -71,37 +71,109 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
     control: form.control
   });
 
+  async function combineFiles(files: File[], isDelimited: boolean): Promise<Uint8Array> {
+    let combinedText = "";
+    let header: string | null = null;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const text = await file.text();
+
+      if (!text.trim()) continue;
+
+      // Normalize newlines to "\n"
+      const normalized = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+      // Split into lines
+      const lines = normalized.split("\n");
+
+      // Remove final empty line only if it exists (end-of-file newline)
+      if (lines.length > 0 && lines[lines.length - 1] === "") {
+        lines.pop();
+      }
+
+      if (isDelimited) {
+        //
+        // === DELIMITED CASE ===
+        //
+        if (i === 0) {
+          // First file: keep entire file as-is
+          header = lines[0];
+          combinedText = lines.join("\n");
+        } else {
+          // For subsequent files: skip header line if it matches
+          const startIndex =
+            lines.length > 0 &&
+            header &&
+            lines[0].trim() === header.trim()
+              ? 1
+              : 0;
+
+          const dataLines = lines.slice(startIndex);
+          if (dataLines.length > 0) {
+            combinedText += "\n" + dataLines.join("\n");
+          }
+        }
+      } else {
+        //
+        // === FIXED-WIDTH CASE ===
+        //
+        // For fixed-width files, we simply concatenate line-by-line.
+        // No header logic applies.
+        if (i === 0) {
+          combinedText = lines.join("\n");
+        } else {
+          if (lines.length > 0) {
+            combinedText += "\n" + lines.join("\n");
+          }
+        }
+      }
+    }
+
+    return new TextEncoder().encode(combinedText);
+  }
+
+
   function onSubmit(values: LoadConfig) {
+
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".txt, .csv";
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
+    input.multiple = true;
 
-      // Reset input value to allow re-selecting same file
+    input.onchange = async (e) => {
+      const files = (e.target as HTMLInputElement).files;
+
+      if (!files || files.length === 0) {
+        return;
+      }
+
+      const filesArray = Array.from(files);
+
       (e.target as HTMLInputElement).value = "";
 
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const arrayBuffer = reader.result as ArrayBuffer;
-        const uint8Array = new Uint8Array(arrayBuffer);
-        const result = await loadDataIntoTable(uint8Array, db, values);
+      try {
+        const isDelimited = values.format === "delimited";
+
+        const combinedData = await combineFiles(filesArray, isDelimited);
+
+        const result = await loadDataIntoTable(combinedData, db, values);
+
         if (result.success) {
           if (fullProcess) {
             const queriesResult = await runQueriesFromPreset(db, preset.queries);
             if (!queriesResult.success) {
               toast.error("Failed to run preset queries", {
-                description: result.error
+                description: queriesResult.error
               });
-              console.error("Failed to run preset queries:", result.error);
+              console.error("Failed to run preset queries:", queriesResult.error);
             }
             const exportResult = await handleExport(db, preset.export, preset.format);
             if (!exportResult.success) {
               toast.error("Failed to export files", {
-                description: result.error
+                description: exportResult.error
               });
-              console.error("Failed to export files:", result.error);
+              console.error("Failed to export files:", exportResult.error);
             }
             if (exportResult.files) {
               exportResult.files.forEach((file) => {
@@ -116,20 +188,19 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
           setPresetIndex(presetIndex + 1);
           updateTables();
           setOpen(false);
+
         } else {
           toast.error("Failed to load file", {
             description: result.error
           });
           console.error("Failed to load file:", result.error);
         }
-      };
-      reader.onerror = (error) => {
-        toast.error("Error reading file", {
-          description: file.name
+      } catch (error) {
+        toast.error("Error processing files", {
+          description: error instanceof Error ? error.message : "Unknown error"
         });
-        console.error("Error reading file:", file.name, error);
-      };
-      reader.readAsArrayBuffer(file);
+        console.error("Error processing files:", error);
+      }
     };
     input.click();
   }
@@ -141,7 +212,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
         <DialogHeader>
           <DialogTitle>Load Table From File</DialogTitle>
           <DialogDescription>
-            Configure how to load a table from a file.
+            Configure how to load a table from a file. Multiple files can be selected and will be combined.
           </DialogDescription>
         </DialogHeader>
         <FormProvider {...form}>
@@ -310,7 +381,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <Button type="submit" className="w-1/3">
-                  Choose File
+                  Choose File(s)
                 </Button>
               </div>
             </form>
