@@ -14,6 +14,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FloatingLabelInput } from "@/components/ui/floating-label-input";
 import { Delimited, DelimitedSchema } from "@common/types/preset";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export function DialogDelimitedConfig({
                                         children
@@ -55,6 +56,50 @@ export function DialogDelimitedConfig({
                   <FormItem>
                     <FormControl>
                       <FloatingLabelInput label="Delimiter" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="txt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          checked={field.value || false}
+                          onCheckedChange={field.onChange}
+                        />
+                        <label
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Export As .txt
+                        </label>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="exclude_header"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          checked={field.value || false}
+                          onCheckedChange={field.onChange}
+                        />
+                        <label
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Exclude Header Row
+                        </label>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
