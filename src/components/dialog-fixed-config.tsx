@@ -17,16 +17,16 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Fixed, FixedSchema } from "@common/types/preset";
 import { Selector } from "./selector";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Accordion, 
-  AccordionContent, 
-  AccordionItem, 
-  AccordionTrigger 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
 } from "@/components/ui/accordion";
 import { useTables } from "@/context/tables";
 
@@ -109,10 +109,10 @@ export function DialogFixedConfig({ children }: { children: React.ReactNode }) {
               <ScrollArea className="max-h-[400px] pr-4">
                 <Accordion type="single" collapsible>
                   {Object.entries(tables).map(([tableName, tableColumns]) => (
-                    <TableAccordionItem 
+                    <TableAccordionItem
                       key={tableName}
-                      table={tableName} 
-                      columns={tableColumns} 
+                      table={tableName}
+                      columns={tableColumns}
                       form={form}
                     />
                   ))}
@@ -129,25 +129,27 @@ export function DialogFixedConfig({ children }: { children: React.ReactNode }) {
   );
 }
 
-function TableAccordionItem({ 
-  table, 
-  columns, 
-  form 
-}: { 
-  table: string; 
+function TableAccordionItem({
+                              table,
+                              columns,
+                              form
+                            }: {
+  table: string;
   columns: string[];
   form: any;
 }) {
-  const { control, getValues} = form;
+  const { control, getValues, setValue, watch } = form;
 
-  const tableWidths = getValues(`widths.${table}`) || {};
-  
+  // Watch all values for this table to calculate sum
+  const allValues = watch();
+  const tableWidths = allValues?.widths?.[table] || {};
+
   // Calculate the sum of widths for this table
   const tableWidthsSum = Object.values(tableWidths).reduce(
     (total: number, width) => {
       const numWidth = Number(width);
       return total + (isNaN(numWidth) ? 0 : numWidth);
-    }, 
+    },
     0
   );
 
@@ -159,40 +161,44 @@ function TableAccordionItem({
           <span className="ml-auto mr-2">{tableWidthsSum}</span>
         </AccordionTrigger>
       </div>
-        <AccordionContent>
-          {columns.map((columnName) => (
-            <FormField
-              control={control}
-              name={`widths.${table}.${columnName}`}
-              key={`${table}.${columnName}`}
-              render={({ field }) => (
-                <FormItem className="mr-3 mt-2">
-                  <FormControl>
-                    <div className="relative">
-                    <span
-                      className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-xs font-normal">
+      <AccordionContent>
+        {columns.map((columnName) => {
+          // Get current value using manual path resolution
+          const currentValue = getValues(`widths.${table}`)?.hasOwnProperty(columnName)
+            ? getValues(`widths.${table}`)[columnName]
+            : '';
+
+          return (
+            <FormItem className="mr-3 mt-2" key={`${table}.${columnName}`}>
+              <FormControl>
+                <div className="relative">
+                    <span className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 transform text-xs font-normal">
                       {columnName}
                     </span>
-                      <Input
-                        className="text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                        defaultValue={field.value}
-                        onWheel={(e) => {
-                          e.target instanceof HTMLElement
-                            ? e.target.blur()
-                            : null;
-                        }}
-                        onBlur={(e) => field.onChange(e.target.value)}
-                        type="number"
-                        min={0}
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ))}
-        </AccordionContent>
+                  <Input
+                    className="text-right [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    value={currentValue}
+                    onWheel={(e) => {
+                      e.target instanceof HTMLElement ? e.target.blur() : null;
+                    }}
+                    onChange={(e) => {
+                      // Manually set value using object spread to preserve column names with periods
+                      const currentTableWidths = getValues(`widths.${table}`) || {};
+                      setValue(`widths.${table}`, {
+                        ...currentTableWidths,
+                        [columnName]: e.target.value
+                      });
+                    }}
+                    type="number"
+                    min={0}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          );
+        })}
+      </AccordionContent>
     </AccordionItem>
-);
+  );
 }
