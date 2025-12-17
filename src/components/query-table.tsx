@@ -161,32 +161,23 @@ export function QueryTable() {
   return (
     <div className="h-full flex flex-col">
       {/* Pagination Controls */}
-      <div className="flex items-center justify-between border-b py-1 bg-background">
-        <div className="text-sm text-muted-foreground">
-          {isLoading ? (
-            <Skeleton className="h-4 w-40" />
-          ) : error ? (
-            "Error loading data"
-          ) : totalCount > 0 ? (
-            <>
-              {currentPage * ROWS_PER_PAGE + 1} -{" "}
-              {Math.min((currentPage + 1) * ROWS_PER_PAGE, totalCount)} of{" "}
-              {totalCount} rows
-            </>
-          ) : (
-            "No data"
-          )}
-        </div>
+      {totalCount > 0 && (
+        <div className="flex items-center justify-between border-b py-1 bg-background">
+          <div className="text-sm text-muted-foreground">
+                {currentPage * ROWS_PER_PAGE + 1} -{" "}
+                {Math.min((currentPage + 1) * ROWS_PER_PAGE, totalCount)} of{" "}
+                {totalCount} rows
+          </div>
 
-        <div>
-          <Pagination>
-            <PaginationContent>
-              {renderPaginationItems()}
-            </PaginationContent>
-          </Pagination>
+          <div>
+            <Pagination>
+              <PaginationContent>
+                {renderPaginationItems()}
+              </PaginationContent>
+            </Pagination>
+          </div>
         </div>
-      </div>
-
+      )}
       {/* Table */}
       <ScrollArea className="flex-1">
         {isLoading ? (
