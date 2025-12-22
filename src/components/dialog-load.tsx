@@ -138,7 +138,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
 
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = ".txt, .csv";
+    input.accept = ".txt, .csv, .dat";
     input.multiple = true;
 
     input.onchange = async (e) => {
