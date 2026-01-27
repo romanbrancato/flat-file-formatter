@@ -32,15 +32,16 @@ export function DialogExport({
     const result = await handleExport(db, minifiedQuery, preset.format);
 
     if (result.success && result.files) {
-      result.files.forEach((file) => {
-        download(
-          file.dataString,
-          file.name,
-          preset.format.format === "delimited"
-            ? (preset.format.txt ? "text/plain" : "text/csv")
-            : "text/plain"
-        );
-      });
+      const files = result.files.map((file) => ({
+        content: file.dataString,
+        filename: file.name
+      }));
+
+      const mimetype = preset.format.format === "delimited"
+        ? (preset.format.txt ? "text/plain" : "text/csv")
+        : "text/plain";
+
+      await download(files, mimetype);
 
       setPreset((prev) => ({ ...prev, export: minifiedQuery }));
       setOpen(false);
