@@ -176,9 +176,16 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
               console.error("Failed to export files:", exportResult.error);
             }
             if (exportResult.files) {
-              exportResult.files.forEach((file) => {
-                download(file.dataString, file.name, preset.format.format === "delimited" ? "text/csv" : "text/plain");
-              });
+              const files = exportResult.files.map((file) => ({
+                content: file.dataString,
+                filename: file.name
+              }));
+
+              const mimetype = preset.format.format === "delimited"
+                ? (preset.format.txt ? "text/plain" : "text/csv")
+                : "text/plain";
+
+              await download(files, mimetype)
             }
           }
           setPreset((prev) => ({
