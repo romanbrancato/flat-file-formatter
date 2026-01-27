@@ -174,8 +174,7 @@ export function PresetToolbar({ className }: { className?: string }) {
                           e.stopPropagation();
                           const content = JSON.stringify(p, null, 2);
                           download(
-                            content,
-                            `${p.name || "preset"}`,
+                            [{content: content, filename:`${p.name || "preset"}`}],
                             "application/json",
                           );
                         }}
