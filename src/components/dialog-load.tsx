@@ -22,28 +22,38 @@ import { Selector } from "@/components/selector";
 import { useTables } from "@/context/tables";
 import { loadDataIntoTable } from "@common/lib/load";
 import { toast } from "sonner";
-import { Checkbox } from "@/components/ui/checkbox";
-import { runQueriesFromPreset } from "@common/lib/preset";
-import { handleExport } from "@common/lib/export";
-import { download } from "@/lib/utils";
 import { usePGlite } from "@/context/db";
 
 export function DialogLoad({ children }: { children: React.ReactNode }) {
   const db = usePGlite();
-  const { updateTables } = useTables();
+  const { tables, updateTables } = useTables();
   const { preset, setPreset, delimited } = useContext(PresetContext);
   const [open, setOpen] = useState(false);
-  const [presetIndex, setPresetIndex] = useState(0);
-  const [fullProcess, setFullProcess] = useState(!!preset.name);
 
-  useEffect(() => {
-    form.reset(preset.load[presetIndex]);
-  }, [presetIndex]);
+  // Derive the current load config index from which tables already exist.
+  // Find the first preset load config whose tablename hasn't been created yet.
+  // Falls back to 0 (the first config) if no tables exist or no preset loads are defined.
+  const presetIndex = useMemo(() => {
+    const existingTableNames = Object.keys(tables);
+    const nextIndex = preset.load.findIndex(
+      (loadConfig) => !existingTableNames.includes(loadConfig.tablename)
+    );
+    // If all tables already exist (or no load configs defined), default to 0
+    return nextIndex === -1 ? 0 : nextIndex;
+  }, [tables, preset.load]);
 
   const form = useForm<LoadConfig>({
     resolver: zodResolver(LoadConfigSchema),
     defaultValues: delimited
   });
+
+  // Reset the form whenever the derived index changes (e.g. after a table is
+  // successfully loaded and `tables` updates, or when the dialog reopens).
+  useEffect(() => {
+    if (preset.load[presetIndex]) {
+      form.reset(preset.load[presetIndex]);
+    }
+  }, [presetIndex]);
 
   const format = useWatch({
     control: form.control,
@@ -53,12 +63,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
   const widths = useWatch({
     control: form.control,
     name: `widths.fields`,
-    defaultValue: [
-      {
-        property: "",
-        width: 0
-      }
-    ]
+    defaultValue: [{ property: "", width: 0 }]
   });
 
   const totalWidth = useMemo(() =>
@@ -81,45 +86,26 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
 
       if (!text.trim()) continue;
 
-      // Normalize newlines to "\n"
       const normalized = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-
-      // Split into lines
       const lines = normalized.split("\n");
 
-      // Remove final empty line only if it exists (end-of-file newline)
       if (lines.length > 0 && lines[lines.length - 1] === "") {
         lines.pop();
       }
 
       if (isDelimited) {
-        //
-        // === DELIMITED CASE ===
-        //
         if (i === 0) {
-          // First file: keep entire file as-is
           header = lines[0];
           combinedText = lines.join("\n");
         } else {
-          // For subsequent files: skip header line if it matches
           const startIndex =
-            lines.length > 0 &&
-            header &&
-            lines[0].trim() === header.trim()
-              ? 1
-              : 0;
-
+            lines.length > 0 && header && lines[0].trim() === header.trim() ? 1 : 0;
           const dataLines = lines.slice(startIndex);
           if (dataLines.length > 0) {
             combinedText += "\n" + dataLines.join("\n");
           }
         }
       } else {
-        //
-        // === FIXED-WIDTH CASE ===
-        //
-        // For fixed-width files, we simply concatenate line-by-line.
-        // No header logic applies.
         if (i === 0) {
           combinedText = lines.join("\n");
         } else {
@@ -133,9 +119,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
     return new TextEncoder().encode(combinedText);
   }
 
-
   function onSubmit(values: LoadConfig) {
-
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".txt, .csv, .dat";
@@ -144,62 +128,27 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
     input.onchange = async (e) => {
       const files = (e.target as HTMLInputElement).files;
 
-      if (!files || files.length === 0) {
-        return;
-      }
+      if (!files || files.length === 0) return;
 
       const filesArray = Array.from(files);
-
       (e.target as HTMLInputElement).value = "";
 
       try {
         const isDelimited = values.format === "delimited";
-
         const combinedData = await combineFiles(filesArray, isDelimited);
-
         const result = await loadDataIntoTable(combinedData, db, values);
 
         if (result.success) {
-          if (fullProcess) {
-            const queriesResult = await runQueriesFromPreset(db, preset.queries);
-            if (!queriesResult.success) {
-              toast.error("Failed to run preset queries", {
-                description: queriesResult.error
-              });
-              console.error("Failed to run preset queries:", queriesResult.error);
-            }
-            const exportResult = await handleExport(db, preset.export, preset.format);
-            if (!exportResult.success) {
-              toast.error("Failed to export files", {
-                description: exportResult.error
-              });
-              console.error("Failed to export files:", exportResult.error);
-            }
-            if (exportResult.files) {
-              const files = exportResult.files.map((file) => ({
-                content: file.dataString,
-                filename: file.name
-              }));
-
-              const mimetype = preset.format.format === "delimited"
-                ? (preset.format.txt ? "text/plain" : "text/csv")
-                : "text/plain";
-
-              await download(files, mimetype)
-            }
-          }
+          // updateTables() will refresh `tables`, which updates presetIndex
+          // automatically via the useMemo above.
           setPreset((prev) => ({
             ...prev,
             load: [...prev.load, values]
           }));
-          setPresetIndex(presetIndex + 1);
           updateTables();
           setOpen(false);
-
         } else {
-          toast.error("Failed to load file", {
-            description: result.error
-          });
+          toast.error("Failed to load file", { description: result.error });
           console.error("Failed to load file:", result.error);
         }
       } catch (error) {
@@ -209,6 +158,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
         console.error("Error processing files:", error);
       }
     };
+
     input.click();
   }
 
@@ -254,9 +204,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                           { label: "delimited", value: "delimited" },
                           { label: "fixed", value: "fixed" }
                         ]}
-                        onSelect={(format) => {
-                          field.onChange(format);
-                        }}
+                        onSelect={(format) => { field.onChange(format); }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -273,9 +221,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                       <FormControl>
                         <FloatingLabelInput label="Delimiter" {...field} />
                       </FormControl>
-                      <FormDescription>
-                        If autodetection fails to work
-                      </FormDescription>
+                      <FormDescription>If autodetection fails to work</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -292,20 +238,14 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                       <ScrollArea>
                         <ScrollAreaViewport className="max-h-[300px]">
                           {fields.map((field, index) => (
-                            <div
-                              key={field.id}
-                              className="mr-4 flex flex-row items-center gap-x-2"
-                            >
+                            <div key={field.id} className="mr-4 flex flex-row items-center gap-x-2">
                               <FormField
                                 control={form.control}
                                 name={`widths.fields.${index}.property`}
                                 render={({ field }) => (
                                   <FormItem className="flex-1">
                                     <FormControl>
-                                      <FloatingLabelInput
-                                        label="Field"
-                                        {...field}
-                                      />
+                                      <FloatingLabelInput label="Field" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -317,12 +257,7 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                                 render={({ field }) => (
                                   <FormItem className="flex-1">
                                     <FormControl>
-                                      <FloatingLabelInput
-                                        {...field}
-                                        label="Width"
-                                        type="number"
-                                        min={0}
-                                      />
+                                      <FloatingLabelInput {...field} label="Width" type="number" min={0} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -352,7 +287,6 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                   </AccordionItem>
                 </Accordion>
               )}
-
               <FormField
                 control={form.control}
                 name={"skipRows"}
@@ -363,34 +297,15 @@ export function DialogLoad({ children }: { children: React.ReactNode }) {
                       <FloatingLabelInput label="Skip Rows" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Enter row numbers to skip, separated by commas. Use a
-                      colon to indicate a range e.g., [0,2:4,6,-1]
+                      Enter row numbers to skip, separated by commas. Use a colon to indicate a range e.g., [0,2:4,6,-1]
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <div className="flex items-center justify-between">
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="fullProcess" disabled={!preset.name}
-                            checked={fullProcess}
-                            onCheckedChange={(checked) => {
-                              setFullProcess(!!checked);
-                            }}
-                  />
-                  <label
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Run Preset + Export Result
-                  </label>
-                </div>
-
-                <Button type="submit" className="w-1/3">
+                <Button type="submit" className="w-1/3 ml-auto">
                   Choose File(s)
                 </Button>
-              </div>
             </form>
           </Form>
         </FormProvider>
