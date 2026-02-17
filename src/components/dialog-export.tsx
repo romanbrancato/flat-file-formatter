@@ -59,8 +59,16 @@ export function DialogExport({
       <DialogContent className="max-h-[75%] max-w-[50%] overflow-auto">
         <DialogHeader>
           <DialogTitle>Export</DialogTitle>
-          <DialogDescription className="flex flex-row items-center justify-between">
-            Query result must return a column named [filename] and a column named [data] containing a JSON object.
+          <DialogDescription>
+            The query must include a{" "}
+            <code className="bg-muted text-foreground rounded px-1 py-0.5 font-mono text-xs">data</code>
+            {" "}column of JSON row objects — use{" "}
+            <code className="bg-muted text-foreground rounded px-1 py-0.5 font-mono text-xs">row_to_json</code>
+            {" "}to produce them.
+            <br/>
+            Rows sharing a{" "}
+            <code className="bg-muted text-foreground rounded px-1 py-0.5 font-mono text-xs">filename</code>
+            {" "}are written to the same file; rows without one are written to "export".
           </DialogDescription>
         </DialogHeader>
 
