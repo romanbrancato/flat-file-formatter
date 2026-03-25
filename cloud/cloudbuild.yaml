@@ -3,11 +3,13 @@ steps:
     id: install
     entrypoint: npm
     args: ["install"]
+    dir: "cloud"
 
   - name: "node:20"
     id: build
     entrypoint: npm
     args: ["run", "build"]
+    dir: "cloud"
     waitFor: ["install"]
 
   - name: "node:20"
@@ -19,6 +21,7 @@ steps:
         echo '{"main":"index.js"}' > dist/package.json
         mkdir -p dist/node_modules
         cp -r node_modules/@electric-sql dist/node_modules/@electric-sql
+    dir: "cloud"
     waitFor: ["build"]
 
   - name: "gcr.io/cloud-builders/gcloud"
@@ -32,7 +35,7 @@ steps:
       - --trigger-http
       - --allow-unauthenticated
       - --entry-point=formatter
-      - --source=dist
+      - --source=cloud/dist
       - --region=us-east5
       - --set-env-vars=PRESET_BASE_PATH=gs://us-east5-cca-composer-fc9d45dd-bucket/data
     waitFor: ["stage"]
