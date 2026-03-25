@@ -2,9 +2,10 @@
   "name": "cloud-fn",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "compile": "esbuild index.ts --bundle --platform=node --target=node20 --outfile=dist/index.js --external:@electric-sql/pglite",
+    "compile": "esbuild index.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist/index.js --external:@electric-sql/pglite",
     "start": "functions-framework --target=formatter",
     "dev": "functions-framework --target=formatter"
   },

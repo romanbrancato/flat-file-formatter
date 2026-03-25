@@ -1,4 +1,4 @@
-import { http } from "@google-cloud/functions-framework";
+import type { Request, Response } from "@google-cloud/functions-framework";
 import { PGlite } from "@electric-sql/pglite";
 import type { PGliteWithLive } from "@electric-sql/pglite/live";
 import { Storage } from "@google-cloud/storage";
@@ -27,7 +27,7 @@ async function writeGCSFile(gcsPath: string, data: string): Promise<void> {
   await storage.bucket(bucket).file(file).save(data);
 }
 
-http("formatter", async (req, res) => {
+export const formatter = async (req: Request, res: Response) => {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
     return;
@@ -124,4 +124,4 @@ http("formatter", async (req, res) => {
   }
 
   res.status(200).json({ outputFiles });
-});
+};
