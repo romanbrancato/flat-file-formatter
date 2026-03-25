@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "bundle",
+    "lib": ["ES2020"],
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@common/*": ["../common/*"]
+    },
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "include": ["index.ts", "../common/**/*"]
+}

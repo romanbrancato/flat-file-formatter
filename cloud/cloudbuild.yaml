@@ -1,0 +1,41 @@
+steps:
+  - name: "node:20"
+    id: install
+    entrypoint: npm
+    args: ["install"]
+
+  - name: "node:20"
+    id: build
+    entrypoint: npm
+    args: ["run", "build"]
+    waitFor: ["install"]
+
+  - name: "node:20"
+    id: stage
+    entrypoint: bash
+    args:
+      - "-c"
+      - |
+        echo '{"main":"index.js"}' > dist/package.json
+        mkdir -p dist/node_modules
+        cp -r node_modules/@electric-sql dist/node_modules/@electric-sql
+    waitFor: ["build"]
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    id: deploy
+    args:
+      - functions
+      - deploy
+      - formatter
+      - --gen2
+      - --runtime=nodejs20
+      - --trigger-http
+      - --allow-unauthenticated
+      - --entry-point=formatter
+      - --source=dist
+      - --region=us-east5
+      - --set-env-vars=PRESET_BASE_PATH=gs://us-east5-cca-composer-fc9d45dd-bucket/data
+    waitFor: ["stage"]
+
+options:
+  logging: CLOUD_LOGGING_ONLY
