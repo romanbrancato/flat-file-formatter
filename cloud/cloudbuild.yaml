@@ -30,7 +30,7 @@ steps:
       - --entry-point=formatter
       - --source=cloud
       - --region=us-east5
-      - --memory=512Mi
+      - --memory=4Gi
       - --set-env-vars=PRESET_BASE_PATH=gs://us-east5-cca-composer-fc9d45dd-bucket/data
     waitFor: ["build"]
 
