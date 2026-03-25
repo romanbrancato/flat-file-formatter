@@ -1,5 +1,6 @@
 node_modules/
-dist/
+common/
+index.ts
 tsconfig.json
 .eslintrc.json
 cloudbuild.yaml

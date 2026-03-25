@@ -7,12 +7,12 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@common/*": ["../common/*"]
+      "@common/*": ["./common/*"]
     },
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["index.ts", "../common/**/*"]
+  "include": ["index.ts", "./common/**/*"]
 }

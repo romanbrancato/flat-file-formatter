@@ -16,6 +16,10 @@
 # production
 /build
 
+# cloud build artifacts
+/cloud/common
+/cloud/dist
+
 # misc
 .DS_Store
 *.pem
