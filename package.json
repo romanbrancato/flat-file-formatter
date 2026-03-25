@@ -4,7 +4,7 @@
   "private": true,
   "workspaces": [
     "src",
-    "cloud-fn"
+    "cloud"
   ],
   "scripts": {
     "dev": "npm --workspace src run dev",
