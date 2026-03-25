@@ -13,7 +13,7 @@ steps:
   - name: "node:20"
     id: build
     entrypoint: npm
-    args: ["run", "build"]
+    args: ["run", "compile"]
     dir: "cloud"
     waitFor: ["install"]
 
